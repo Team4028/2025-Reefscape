@@ -52,7 +52,7 @@ public class Elevator extends SubsystemBase {
     sysIDConfig = new SysIdRoutine.Config();
 
     sysIDMech = new SysIdRoutine.Mechanism(v -> motor.setVoltage(v.magnitude()), null, this);
-    
+
     sysId = new SysIdRoutine(sysIDConfig, sysIDMech);
 
     motor.getConfigurator().apply(new Slot0Configs().withKP(0).withKI(0).withKD(0));
