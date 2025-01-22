@@ -38,6 +38,7 @@ public class Wrist extends SubsystemBase {
     wristMotor = new SparkMax(12, MotorType.kBrushless);
 
     absoluteEncoder = wristMotor.getAbsoluteEncoder();
+    state = WristStates.OFF;
 
     pid = new PIDController(.5, 0, 0);
   }
@@ -79,7 +80,7 @@ public class Wrist extends SubsystemBase {
         break;
 
       default:
-      
+
         break;
     }
   }
