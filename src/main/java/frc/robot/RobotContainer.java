@@ -57,12 +57,16 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
-    // driverController.b().onTrue(elevator.quasiStaticTest(Direction.kForward));
-    // driverController.x().onTrue(elevator.dynamicTest(Direction.kReverse));
-    driverController.a().onTrue(elevator.runToPosition(40));
-    driverController.y().onTrue(elevator.runToPosition(20));
-    driverController.rightBumper().onTrue(elevator.runMotors(0.65)).onFalse(elevator.runMotors(0));
-    driverController.leftBumper().onTrue(elevator.runMotors(-0.65)).onFalse(elevator.runMotors(0));
+    // driverController.povLeft().whileTrue(elevator.quasiStaticTest(Direction.kForward));
+    // driverController.povRight().whileTrue(elevator.quasiStaticTest(Direction.kReverse));
+    // driverController.povUp().whileTrue(elevator.dynamicTest(Direction.kForward));
+    // driverController.povDown().whileTrue(elevator.dynamicTest(Direction.kReverse));
+    driverController.a().onTrue(elevator.runToPosition(53));
+    driverController.y().onTrue(elevator.runToPosition(7));
+    driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.65)).onFalse(elevator.runMotorsCommand(0));
+    driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.65)).onFalse(elevator.runMotorsCommand(0));
+    driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
+    driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
   }
 
   /**

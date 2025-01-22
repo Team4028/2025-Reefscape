@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -18,6 +19,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.SysIDUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -25,57 +27,78 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class Elevator extends SubsystemBase {
 
   public enum ElevatorStates {
-    IDLE, PREPARE_TO_MOVE, MOVING, HOLDING_POSITION, MOVING_VBUS,
+    IDLE, PREPARE_TO_MOVE, MOVING_POSITION, HOLDING_POSITION, MOVING_VBUS, MOVING_VOLTAGE,
   }
 
   private final TalonFX leader;
   private final TalonFX follower;
 
-  private PositionVoltage pidControl;
+  private final PositionVoltage pidControl;
+  private final VoltageOut voltageControl;
+  private final DutyCycleOut vbusControl;
 
   private ElevatorStates state;
 
-  private double targetVbus = 0.0;
-
-  private double targetPostition = 0;
+  private double targetVbus = 0.0, targetPostition = 0.0, targetVoltage = 0.0;
 
   private SysIdRoutine.Config sysIDConfig;
   private SysIdRoutine.Mechanism sysIDMech;
   private SysIdRoutine sysId;
 
+  public static final class ElevatorConstants {
+
+    public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
+
+    public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(1.25).withKI(0).withKD(0)
+        .withGravityType(GravityTypeValue.Elevator_Static)
+        .withKS(0.11895).withKV(0.11526).withKA(0.0031419).withKG(0.19185);
+
+    public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
+        .withInverted(InvertedValue.Clockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+
+    public static final MotorOutputConfigs followerConfigs = new MotorOutputConfigs()
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Brake);
+
+    public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(30)
+        .withStatorCurrentLimitEnable(true)
+        .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
+
+    public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
+        .withForwardSoftLimitThreshold(55)
+        .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(5).withReverseSoftLimitEnable(true);
+  }
+
   /** Creates a new Elevator. */
   public Elevator() {
 
-    leader = new TalonFX(15);
-    follower = new TalonFX(14);
-    leader.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake));
-    follower.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake));
+    leader = new TalonFX(ElevatorConstants.LEADER_ID);
+    follower = new TalonFX(ElevatorConstants.FOLLOWER_ID);
+    leader.getConfigurator().apply(ElevatorConstants.leaderConfigs);
+    follower.getConfigurator().apply(ElevatorConstants.followerConfigs);
 
     state = ElevatorStates.IDLE;
 
-    sysIDConfig = new SysIdRoutine.Config();
+    sysIDConfig = new SysIdRoutine.Config(null, null, null, SysIDUtil::logSysIdState);
+
+    pidControl = new PositionVoltage(0).withEnableFOC(true).withSlot(0);
+    voltageControl = new VoltageOut(0);
+    vbusControl = new DutyCycleOut(0);
 
     sysIDMech = new SysIdRoutine.Mechanism(v -> {
-      leader.setVoltage(v.magnitude());
+      leader.setControl(voltageControl.withOutput(v));
     }, null, this);
 
     sysId = new SysIdRoutine(sysIDConfig, sysIDMech);
 
-    leader.getConfigurator()
-        .apply(new Slot0Configs().withKP(2.0).withKI(0).withKD(0).withGravityType(GravityTypeValue.Elevator_Static));
+    leader.getConfigurator().apply(ElevatorConstants.pidConfigs);
 
-    var currLimit = new CurrentLimitsConfigs().withStatorCurrentLimit(30).withStatorCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
-    leader.getConfigurator().apply(currLimit);
-    follower.getConfigurator().apply(currLimit);
-    var softlimitConfigs = new SoftwareLimitSwitchConfigs().withForwardSoftLimitThreshold(45)
-        .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(15).withReverseSoftLimitEnable(true);
-    leader.getConfigurator().apply(softlimitConfigs);
-    follower.getConfigurator().apply(softlimitConfigs);
+    leader.getConfigurator().apply(ElevatorConstants.currentLimitConfigs);
+    follower.getConfigurator().apply(ElevatorConstants.currentLimitConfigs);
 
-    pidControl = new PositionVoltage(0).withEnableFOC(true).withSlot(0);
+    leader.getConfigurator().apply(ElevatorConstants.softLimits);
+    follower.getConfigurator().apply(ElevatorConstants.softLimits);
 
   };
 
@@ -83,13 +106,13 @@ public class Elevator extends SubsystemBase {
     return runOnce(() -> {
       var config = new MotorOutputConfigs().withNeutralMode(value);
       leader.getConfigurator().apply(config);
-      leader.getConfigurator().apply(config);
+      follower.getConfigurator().apply(config);
     });
 
   }
 
   public double getAccelaration() {
-    return (leader.getAcceleration().getValueAsDouble() + follower.getAcceleration().getValueAsDouble()) / 2;
+    return leader.getAcceleration().getValueAsDouble();
   }
 
   public Command runToPosition(double position) {
@@ -99,10 +122,17 @@ public class Elevator extends SubsystemBase {
     });
   }
 
-  public Command runMotors(double vbus) {
+  public Command runMotorsCommand(double vbus) {
     return runOnce(() -> {
       state = vbus == 0 ? ElevatorStates.IDLE : ElevatorStates.MOVING_VBUS;
       targetVbus = vbus;
+    });
+  }
+
+  public Command runVoltageCommand(double voltage) {
+    return runOnce(() -> {
+      state = ElevatorStates.MOVING_VOLTAGE;
+      targetVoltage = voltage;
     });
   }
 
@@ -122,22 +152,23 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     switch (state) {
       case IDLE:
-        leader.setControl(new DutyCycleOut(0));
+        leader.setControl(vbusControl.withOutput(0));
         break;
       case PREPARE_TO_MOVE:
-        state = ElevatorStates.MOVING;
+        state = ElevatorStates.MOVING_POSITION;
         break;
 
-      case MOVING:
+      case MOVING_POSITION:
         leader.setControl(pidControl.withPosition(targetPostition));
         break;
 
       case HOLDING_POSITION:
         break;
       case MOVING_VBUS:
-        leader.set(targetVbus);
+        leader.setControl(vbusControl.withOutput(targetVbus));
         break;
-      default:
+      case MOVING_VOLTAGE:
+        leader.setControl(voltageControl.withOutput(targetVoltage));
         break;
     }
 
