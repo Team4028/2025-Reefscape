@@ -59,7 +59,6 @@ public class Elevator extends SubsystemBase {
 
     sysIDMech = new SysIdRoutine.Mechanism(v -> {
       leader.setVoltage(v.magnitude());
-      follower.setVoltage(v.magnitude());
     }, null, this);
 
     sysId = new SysIdRoutine(sysIDConfig, sysIDMech);

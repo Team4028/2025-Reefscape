@@ -61,8 +61,8 @@ public class RobotContainer {
     // driverController.x().onTrue(elevator.dynamicTest(Direction.kReverse));
     driverController.a().onTrue(elevator.runToPosition(40));
     driverController.y().onTrue(elevator.runToPosition(20));
-    driverController.rightBumper().onTrue(elevator.runMotors(1)).onFalse(elevator.runMotors(0));
-    driverController.leftBumper().onTrue(elevator.runMotors(-1)).onFalse(elevator.runMotors(0));
+    driverController.rightBumper().onTrue(elevator.runMotors(0.65)).onFalse(elevator.runMotors(0));
+    driverController.leftBumper().onTrue(elevator.runMotors(-0.65)).onFalse(elevator.runMotors(0));
   }
 
   /**
