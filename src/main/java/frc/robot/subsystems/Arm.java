@@ -36,6 +36,7 @@ public class Arm extends SubsystemBase {
         public static final double ARM_LENGTH_METRES = 0;
         public static final double ARM_MASS_KG = 0;
         public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
+        public static final double EXTERNAL_GEAR_RATIO = 1.0;
         public static final MotorData motorType = MotorData.KRAKEN_X60_FOC;
     }
 
@@ -104,7 +105,8 @@ public class Arm extends SubsystemBase {
      * @return the voltage (volts)
      */
     private double armGravityFF() {
-        return ArmConstants.motorType.getVoltage(armTorqueGravityNM(hasAlgae, motor.getPosition().getValueAsDouble()),
+        return ArmConstants.motorType.getVoltage(
+                armTorqueGravityNM(hasAlgae, motor.getPosition().getValueAsDouble()) / ArmConstants.EXTERNAL_GEAR_RATIO,
                 motor.getVelocity().getValueAsDouble());
     }
 
