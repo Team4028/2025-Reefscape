@@ -30,6 +30,17 @@ public class Elevator extends SubsystemBase {
     IDLE, PREPARE_TO_MOVE, MOVING_POSITION, HOLDING_POSITION, MOVING_VBUS, MOVING_VOLTAGE,
   }
 
+  // Change values later for realzies
+  public enum ElevatorPositions {
+    L1(15), L2(30), L3(45), L4(55), HOLD(20), OFF(0);
+
+    public double position;
+
+    private ElevatorPositions(double position) {
+      this.position = position;
+    }
+  }
+
   private final TalonFX leader;
   private final TalonFX follower;
 
@@ -38,6 +49,7 @@ public class Elevator extends SubsystemBase {
   private final DutyCycleOut vbusControl;
 
   private ElevatorStates state;
+  private ElevatorPositions reefState;
 
   private double targetVbus = 0.0, targetPostition = 0.0, targetVoltage = 0.0;
 
@@ -79,6 +91,7 @@ public class Elevator extends SubsystemBase {
     follower.getConfigurator().apply(ElevatorConstants.followerConfigs);
 
     state = ElevatorStates.IDLE;
+    reefState = ElevatorPositions.OFF;
 
     sysIDConfig = new SysIdRoutine.Config(null, null, null, SysIDUtil::logSysIdState);
 
@@ -144,6 +157,40 @@ public class Elevator extends SubsystemBase {
     return sysId.dynamic(direction);
   }
 
+  public Command reefStateChangeCommand() {
+    return runOnce(() -> {
+      // if (reefState == ElevatorPositions.HOLD) {
+      // reefState = ElevatorPositions.L1;
+      // } else if (reefState == ElevatorPositions.L1) {
+      // reefState = ElevatorPositions.L2;
+      // } else if (reefState == ElevatorPositions.L2) {
+      // reefState = ElevatorPositions.L3;
+      // } else if (reefState == ElevatorPositions.L3) {
+      // reefState = ElevatorPositions.L4;
+      // } else if (reefState == ElevatorPositions.L4) {
+      // reefState = ElevatorPositions.L1;
+      // }
+
+      switch (reefState) {
+        case L1:
+          reefState = ElevatorPositions.L2;
+          break;
+        case L2:
+          reefState = ElevatorPositions.L3;
+          break;
+        case L3:
+          reefState = ElevatorPositions.L4;
+          break;
+        case OFF:
+        case HOLD:
+        case L4:
+        default:
+          reefState = ElevatorPositions.L1;
+          break;
+      }
+    });
+  }
+
   // Use addRequirements() here to declare subsystem dependencies.
 
   // Called when the command is initially scheduled.
@@ -171,7 +218,26 @@ public class Elevator extends SubsystemBase {
         leader.setControl(voltageControl.withOutput(targetVoltage));
         break;
     }
-
+    switch (reefState) {
+      case OFF:
+        leader.setControl(vbusControl.withOutput(0));
+        break;
+      case HOLD:
+        leader.setControl(pidControl.withPosition(ElevatorPositions.HOLD.position));
+        break;
+      case L1:
+        leader.setControl(pidControl.withPosition(ElevatorPositions.L1.position));
+        break;
+      case L2:
+        leader.setControl(pidControl.withPosition(ElevatorPositions.L2.position));
+        break;
+      case L3:
+        leader.setControl(pidControl.withPosition(ElevatorPositions.L3.position));
+        break;
+      case L4:
+        leader.setControl(pidControl.withPosition(ElevatorPositions.L4.position));
+        break;
+    }
     follower.setControl(new StrictFollower(15));
 
     SmartDashboard.putNumber("LMotor Position", leader.getPosition().getValueAsDouble());
