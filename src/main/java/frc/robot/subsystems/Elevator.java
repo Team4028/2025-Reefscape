@@ -32,7 +32,7 @@ public class Elevator extends SubsystemBase {
 
   // Change values later for realzies
   public enum ElevatorPositions {
-    L1(15), L2(30), L3(45), L4(55), HOLD(20), OFF(0);
+    L1(15), L2(30), L3(45), L4(50), HOLD(20), OFF(0);
 
     public double position;
 
@@ -40,6 +40,8 @@ public class Elevator extends SubsystemBase {
       this.position = position;
     }
   }
+
+  private int reefCount;
 
   private final TalonFX leader;
   private final TalonFX follower;
@@ -91,7 +93,9 @@ public class Elevator extends SubsystemBase {
     follower.getConfigurator().apply(ElevatorConstants.followerConfigs);
 
     state = ElevatorStates.IDLE;
+
     reefState = ElevatorPositions.OFF;
+    reefCount = 0;
 
     sysIDConfig = new SysIdRoutine.Config(null, null, null, SysIDUtil::logSysIdState);
 
@@ -159,18 +163,6 @@ public class Elevator extends SubsystemBase {
 
   public Command reefStateChangeCommand() {
     return runOnce(() -> {
-      // if (reefState == ElevatorPositions.HOLD) {
-      // reefState = ElevatorPositions.L1;
-      // } else if (reefState == ElevatorPositions.L1) {
-      // reefState = ElevatorPositions.L2;
-      // } else if (reefState == ElevatorPositions.L2) {
-      // reefState = ElevatorPositions.L3;
-      // } else if (reefState == ElevatorPositions.L3) {
-      // reefState = ElevatorPositions.L4;
-      // } else if (reefState == ElevatorPositions.L4) {
-      // reefState = ElevatorPositions.L1;
-      // }
-
       switch (reefState) {
         case L1:
           reefState = ElevatorPositions.L2;
@@ -187,6 +179,34 @@ public class Elevator extends SubsystemBase {
         default:
           reefState = ElevatorPositions.L1;
           break;
+      }
+    });
+  }
+  public Command reefCountChange(int shift) {
+    return runOnce(() -> {
+      reefCount += shift;
+      if (reefCount > 4) {
+        reefCount = 4;
+      } else if (reefCount < 1) {
+        reefCount = 1;
+      } 
+    }); 
+  }
+
+  public Command runToReefCount() {
+    return runOnce(() -> {
+      switch(reefCount) {
+        case 1:
+        reefState = ElevatorPositions.L1;
+        break;
+        case 2:
+        reefState = ElevatorPositions.L2;
+        break;
+        case 3:
+        reefState = ElevatorPositions.L3;
+        break;
+        case 4:
+        reefState = ElevatorPositions.L4;
       }
     });
   }
@@ -244,5 +264,9 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putNumber("LMotor Velocity", leader.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("LMotorAmperes", leader.getSupplyCurrent().getValueAsDouble());
     SmartDashboard.putNumber("RMotorAmperes", follower.getSupplyCurrent().getValueAsDouble());
+
+
+    SmartDashboard.putString("Reef ", reefState.name());
+    SmartDashboard.putNumber("Reef Count", reefCount);
   }
 }
