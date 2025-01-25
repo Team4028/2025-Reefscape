@@ -4,14 +4,10 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
-
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -28,13 +24,17 @@ public class Arm extends SubsystemBase {
     private final MutableElevatorFeedforward armFF;
     private double targetVBus, targetPositionRad;
 
-    private SparkAbsoluteEncoder absoluteEncoder;
+   private final DigitalInput di;
+   private final DutyCycleEncoder encoder;
+
+    private double lastPosition = 0, encoderVelocity = 0;
 
     private ArmStates state;
 
     public Arm(Elevator elevator) {
         motor = new TalonFX(0);
-        absoluteEncoder = 0;
+        di = new DigitalInput(0);
+        encoder = new DutyCycleEncoder(di);
         pidController = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(0, 0));
         armFF = new MutableElevatorFeedforward(0, 0, 0, 0);
         hasAlgae = false;
@@ -126,8 +126,8 @@ public class Arm extends SubsystemBase {
 
     @Override
     public void periodic() {
-        motor.getConfigurator().apply(pidConfig.withKG(armGravityFF()));
-        armFF.setKg(armGravityFF());
+        // motor.getConfigurator().apply(pidConfig.withKG(armGravityFF()));
+        // armFF.setKg(armGravityFF());
         
 
         switch (state) {
@@ -139,10 +139,13 @@ public class Arm extends SubsystemBase {
                 motor.set(targetVBus);
                 break;
             case POSITION:
-                pidController.calculate(absoluteEncoder.getPosition(), targetPositionRad) + armFF.calculate(pidController.getSetpoint().velocity);
+                motor.setVoltage(pidController.calculate(encoder.get(), targetPositionRad) + armFF.calculate(pidController.getSetpoint().velocity));
                 break;
             default:
                 break;
         }
+
+        encoderVelocity = (encoder.get() - lastPosition) / 0.02;
+        lastPosition = encoder.get();
     }
 }

@@ -7,8 +7,6 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Wrist;
-
 import java.lang.constant.DirectMethodHandleDesc;
 
 import edu.wpi.first.wpilibj2.command.Command;
