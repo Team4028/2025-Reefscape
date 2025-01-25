@@ -4,12 +4,19 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.MotorData;
+import frc.robot.util.MutableElevatorFeedforward;
 
 public class Arm extends SubsystemBase {
     private final TalonFX motor;
@@ -17,12 +24,19 @@ public class Arm extends SubsystemBase {
     private final Elevator parentElevator;
     private final Slot0Configs pidConfig;
     private final PositionVoltage pid;
+    private final ProfiledPIDController pidController;
+    private final MutableElevatorFeedforward armFF;
     private double targetVBus, targetPositionRad;
+
+    private SparkAbsoluteEncoder absoluteEncoder;
 
     private ArmStates state;
 
     public Arm(Elevator elevator) {
         motor = new TalonFX(0);
+        absoluteEncoder = 0;
+        pidController = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(0, 0));
+        armFF = new MutableElevatorFeedforward(0, 0, 0, 0);
         hasAlgae = false;
         parentElevator = elevator;
         pid = new PositionVoltage(0).withSlot(0).withEnableFOC(true);
@@ -113,6 +127,8 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         motor.getConfigurator().apply(pidConfig.withKG(armGravityFF()));
+        armFF.setKg(armGravityFF());
+        
 
         switch (state) {
             case OFF:
@@ -123,7 +139,7 @@ public class Arm extends SubsystemBase {
                 motor.set(targetVBus);
                 break;
             case POSITION:
-                motor.setControl(pid.withPosition(targetPositionRad));
+                pidController.calculate(absoluteEncoder.getPosition(), targetPositionRad) + armFF.calculate(pidController.getSetpoint().velocity);
                 break;
             default:
                 break;
