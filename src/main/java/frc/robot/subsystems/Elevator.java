@@ -61,6 +61,15 @@ public class Elevator extends SubsystemBase {
 
   public static final class ElevatorConstants {
 
+    public static final double MOTOR_TO_DRUM_RATIO = 0.833333333;
+    public static final int STAGES = 2;
+
+    // cascading: 1 : 2 per stage (not base stage)
+    public static final double CARRIAGE_GEAR_RATIO = MOTOR_TO_DRUM_RATIO * Math.pow(2, STAGES - 1);
+    public static final double DRUM_RADIUS = 0.009;
+
+    public static final double ROT_TO_METRES = 1.5 * DRUM_RADIUS * Math.PI * MOTOR_TO_DRUM_RATIO;
+
     public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
     public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(1.25).withKI(0).withKD(0)
@@ -129,7 +138,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public double getAccelaration() {
-    return leader.getAcceleration().getValueAsDouble();
+    return leader.getAcceleration().getValueAsDouble() * ElevatorConstants.ROT_TO_METRES;
   }
 
   public Command runToPosition(double position) {
