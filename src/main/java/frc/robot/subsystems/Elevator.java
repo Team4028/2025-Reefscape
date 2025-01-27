@@ -141,6 +141,11 @@ public class Elevator extends SubsystemBase {
     return leader.getAcceleration().getValueAsDouble() * ElevatorConstants.ROT_TO_METRES;
   }
 
+  public void applyLowerSoftLimit(double limit) {
+    leader.getConfigurator().apply(ElevatorConstants.softLimits.withReverseSoftLimitThreshold(limit));
+    follower.getConfigurator().apply(ElevatorConstants.softLimits.withReverseSoftLimitThreshold(limit));
+  }
+
   public Command runToPosition(double position) {
     return runOnce(() -> {
       targetPostition = position;
@@ -191,6 +196,7 @@ public class Elevator extends SubsystemBase {
       }
     });
   }
+
   public Command reefCountChange(int shift) {
     return runOnce(() -> {
       reefCount += shift;
@@ -198,24 +204,24 @@ public class Elevator extends SubsystemBase {
         reefCount = 4;
       } else if (reefCount < 1) {
         reefCount = 1;
-      } 
-    }); 
+      }
+    });
   }
 
   public Command runToReefCount() {
     return runOnce(() -> {
-      switch(reefCount) {
+      switch (reefCount) {
         case 1:
-        reefState = ElevatorPositions.L1;
-        break;
+          reefState = ElevatorPositions.L1;
+          break;
         case 2:
-        reefState = ElevatorPositions.L2;
-        break;
+          reefState = ElevatorPositions.L2;
+          break;
         case 3:
-        reefState = ElevatorPositions.L3;
-        break;
+          reefState = ElevatorPositions.L3;
+          break;
         case 4:
-        reefState = ElevatorPositions.L4;
+          reefState = ElevatorPositions.L4;
       }
     });
   }
@@ -273,7 +279,6 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putNumber("LMotor Velocity", leader.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("LMotorAmperes", leader.getSupplyCurrent().getValueAsDouble());
     SmartDashboard.putNumber("RMotorAmperes", follower.getSupplyCurrent().getValueAsDouble());
-
 
     SmartDashboard.putString("Reef ", reefState.name());
     SmartDashboard.putNumber("Reef Count", reefCount);

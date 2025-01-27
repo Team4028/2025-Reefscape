@@ -1,42 +1,65 @@
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.util.MotorData;
 import frc.robot.util.MutableElevatorFeedforward;
+import frc.robot.util.SysIDUtil;
 
 public class Arm extends SubsystemBase {
+    private final SparkMax spark;
+    private final AbsoluteEncoder absEncoder;
     private final TalonFX motor;
     private boolean hasAlgae;
     private final Elevator parentElevator;
     private final Slot0Configs pidConfig;
     private final PositionVoltage pid;
     private final ProfiledPIDController pidController;
-    private final MutableElevatorFeedforward armFF;
+    // private final MutableElevatorFeedforward eleFF;
+    private final ArmFeedforward armFF;
     private double targetVBus, targetPositionRad;
 
-   private final DigitalInput di;
-   private final DutyCycleEncoder encoder;
+    // private final DigitalInput di;
+    // private final DutyCycleEncoder encoder;
 
-    private double lastPosition = 0, encoderVelocity = 0;
+    private final SysIdRoutine.Mechanism sysIDMech;
+    private final SysIdRoutine.Config sysIDConfig;
+    private final SysIdRoutine sysid;
+
+    private double lastPosition = 0;// , encoderVelocity = 0;
 
     private ArmStates state;
 
+    private double encoderPosition, encoderVelocity;
+
     public Arm(Elevator elevator) {
-        motor = new TalonFX(0);
-        di = new DigitalInput(0);
-        encoder = new DutyCycleEncoder(di);
-        pidController = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(0, 0));
-        armFF = new MutableElevatorFeedforward(0, 0, 0, 0);
+        spark = new SparkMax(9, MotorType.kBrushless);
+        absEncoder = spark.getAbsoluteEncoder();
+        motor = new TalonFX(10);
+        // di = new DigitalInput(0);
+        // encoder = new DutyCycleEncoder(di);
+        pidController = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Math.PI, Math.PI));
+        // eleFF = new MutableElevatorFeedforward(0, 0, 0, 0);
+        armFF = new ArmFeedforward(0.075, 0.3, 0);
         hasAlgae = false;
         parentElevator = elevator;
         pid = new PositionVoltage(0).withSlot(0).withEnableFOC(true);
@@ -44,6 +67,13 @@ public class Arm extends SubsystemBase {
         pidConfig = new Slot0Configs().withKP(0).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0)
                 .withGravityType(GravityTypeValue.Elevator_Static);
         state = ArmStates.OFF;
+
+        sysIDConfig = new SysIdRoutine.Config(null, null, null, SysIDUtil::logSysIdState);
+        sysIDMech = new SysIdRoutine.Mechanism(v -> {
+            motor.setControl(new VoltageOut(v));
+        }, null, this);
+
+        sysid = new SysIdRoutine(sysIDConfig, sysIDMech);
     }
 
     private static final class ArmConstants {
@@ -54,11 +84,23 @@ public class Arm extends SubsystemBase {
         public static final MotorData motorType = MotorData.KRAKEN_X60_FOC;
     }
 
+    public Command quasiStaticTest(Direction direction) {
+        return sysid.quasistatic(direction);
+    }
+
+    public Command dynamicTest(Direction direction) {
+        return sysid.dynamic(direction);
+    }
+
     public static enum ArmStates {
         OFF,
         FORWARD,
         BACK,
         POSITION
+    }
+
+    public final double getEncoderPositionRad() {
+        return encoderPosition * 2 * Math.PI;
     }
 
     public Command runMotorCommand(double vbus) {
@@ -120,15 +162,14 @@ public class Arm extends SubsystemBase {
      */
     private double armGravityFF() {
         return ArmConstants.motorType.getVoltage(
-                armTorqueGravityNM(hasAlgae, encoder.get() * 2 * Math.PI) * ArmConstants.GEAR_RATIO,
+                armTorqueGravityNM(hasAlgae, getEncoderPositionRad()) * ArmConstants.GEAR_RATIO,
                 motor.getVelocity().getValueAsDouble() * 2 * Math.PI);
     }
 
     @Override
     public void periodic() {
-        // motor.getConfigurator().apply(pidConfig.withKG(armGravityFF()));
-        // armFF.setKg(armGravityFF());
-        
+        encoderPosition = absEncoder.getPosition();
+        encoderVelocity = absEncoder.getVelocity();
 
         switch (state) {
             case OFF:
@@ -139,13 +180,12 @@ public class Arm extends SubsystemBase {
                 motor.set(targetVBus);
                 break;
             case POSITION:
-                motor.setVoltage(pidController.calculate(encoder.get(), targetPositionRad) + armFF.calculate(pidController.getSetpoint().velocity));
+                motor.setVoltage(pidController.calculate(getEncoderPositionRad(), targetPositionRad)
+                        + armFF.calculate(getEncoderPositionRad(), pidController.getSetpoint().velocity));
                 break;
             default:
                 break;
         }
 
-        encoderVelocity = (encoder.get() - lastPosition) / 0.02;
-        lastPosition = encoder.get();
     }
 }
