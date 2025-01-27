@@ -60,18 +60,18 @@ public class RobotContainer {
     // driverController.povRight().whileTrue(elevator.quasiStaticTest(Direction.kReverse));
     // driverController.povUp().whileTrue(elevator.dynamicTest(Direction.kForward));
     // driverController.povDown().whileTrue(elevator.dynamicTest(Direction.kReverse));
-    driverController.a().onTrue(elevator.runToPosition(53));
-    driverController.y().onTrue(elevator.runToPosition(7));
-    driverController.x().onTrue(elevator.reefStateChangeCommand());
+      //driverController.a().onTrue(elevator.runToPosition(53));
+      //driverController.y().onTrue(elevator.runToPosition(7));
+      //driverController.x().onTrue(elevator.reefStateChangeCommand());
     // driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.65)).onFalse(elevator.runMotorsCommand(0));
     // driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.65)).onFalse(elevator.runMotorsCommand(0));
 
-    driverController.rightBumper().onTrue(elevator.reefCountChange(1));
-    driverController.leftBumper().onTrue(elevator.reefCountChange(-1));
-    driverController.b().onTrue(elevator.runToReefCount());
+      //driverController.rightBumper().onTrue(elevator.reefCountChange(1));
+      //driverController.leftBumper().onTrue(elevator.reefCountChange(-1));
+      //driverController.b().onTrue(elevator.runToReefCount());
 
-    driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
-    driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
+      //driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
+      //driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
   }
 
   /**
