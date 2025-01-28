@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Elevator elevator = new Elevator();
+  private final Arm arm = new Arm(elevator);
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -60,20 +61,30 @@ public class RobotContainer {
     // driverController.povRight().whileTrue(elevator.quasiStaticTest(Direction.kReverse));
     // driverController.povUp().whileTrue(elevator.dynamicTest(Direction.kForward));
     // driverController.povDown().whileTrue(elevator.dynamicTest(Direction.kReverse));
-      //driverController.a().onTrue(elevator.runToPosition(53));
-      //driverController.y().onTrue(elevator.runToPosition(7));
-      //driverController.x().onTrue(elevator.reefStateChangeCommand());
+    // driverController.a().onTrue(elevator.runToPosition(53));
+    // driverController.y().onTrue(elevator.runToPosition(7));
+    // driverController.x().onTrue(elevator.reefStateChangeCommand());
     // driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.65)).onFalse(elevator.runMotorsCommand(0));
     // driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.65)).onFalse(elevator.runMotorsCommand(0));
 
-      //driverController.rightBumper().onTrue(elevator.reefCountChange(1));
-      //driverController.leftBumper().onTrue(elevator.reefCountChange(-1));
-      //driverController.b().onTrue(elevator.runToReefCount());
+    // driverController.rightBumper().onTrue(elevator.reefCountChange(1));
+    // driverController.leftBumper().onTrue(elevator.reefCountChange(-1));
+    // driverController.b().onTrue(elevator.runToReefCount());
 
-      //driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
-      //driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
+    // driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
+    // driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
+
+    driverController.povRight().onTrue(arm.runToPositionCommand(Math.PI / 4));
+    driverController.povUp().onTrue(arm.runToPositionCommand(3 * Math.PI / 4));
+    driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
+    driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) / 4));
+
+
   }
 
+  public void resetArmPid() {
+    arm.pidReset();
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

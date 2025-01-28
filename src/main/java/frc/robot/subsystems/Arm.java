@@ -2,20 +2,27 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.AbsoluteEncoderConfig;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -53,13 +60,19 @@ public class Arm extends SubsystemBase {
 
     public Arm(Elevator elevator) {
         spark = new SparkMax(9, MotorType.kBrushless);
+        spark.configure(new SparkMaxConfig().apply(new AbsoluteEncoderConfig().inverted(true)), null, null);
         absEncoder = spark.getAbsoluteEncoder();
         motor = new TalonFX(10);
+        motor.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake));
         // di = new DigitalInput(0);
         // encoder = new DutyCycleEncoder(di);
-        pidController = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Math.PI, Math.PI));
+        pidController = new ProfiledPIDController(5.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Math.PI * 2.0, 4 * Math.PI));
+        pidController.enableContinuousInput(0.0, 2 * Math.PI);
+
         // eleFF = new MutableElevatorFeedforward(0, 0, 0, 0);
-        armFF = new ArmFeedforward(0.075, 0.3, 0);
+        armFF = new ArmFeedforward(0.075, 0.34, 0);
+
         hasAlgae = false;
         parentElevator = elevator;
         pid = new PositionVoltage(0).withSlot(0).withEnableFOC(true);
@@ -74,6 +87,8 @@ public class Arm extends SubsystemBase {
         }, null, this);
 
         sysid = new SysIdRoutine(sysIDConfig, sysIDMech);
+        encoderPosition = absEncoder.getPosition();
+        pidController.reset(getEncoderPositionRad());
     }
 
     private static final class ArmConstants {
@@ -100,7 +115,9 @@ public class Arm extends SubsystemBase {
     }
 
     public final double getEncoderPositionRad() {
-        return encoderPosition * 2 * Math.PI;
+        var a = encoderPosition - 0.48972;
+        a = a > 0 ? a : 1 + a;
+        return a * 2 * Math.PI;
     }
 
     public Command runMotorCommand(double vbus) {
@@ -112,10 +129,11 @@ public class Arm extends SubsystemBase {
 
     public Command runToPositionCommand(double positionRad) {
         return runOnce(() -> {
-            state = ArmStates.POSITION;
             targetPositionRad = positionRad;
+            state = ArmStates.POSITION;
         });
     }
+    
 
     /**
      * Find the torque due to gravity the arm applies on the pivot shaft
@@ -166,6 +184,10 @@ public class Arm extends SubsystemBase {
                 motor.getVelocity().getValueAsDouble() * 2 * Math.PI);
     }
 
+    public void pidReset() {
+        pidController.reset(getEncoderPositionRad());
+    }
+
     @Override
     public void periodic() {
         encoderPosition = absEncoder.getPosition();
@@ -186,6 +208,13 @@ public class Arm extends SubsystemBase {
             default:
                 break;
         }
+
+        SmartDashboard.putNumber("Absolute Encoder", getEncoderPositionRad());
+        SmartDashboard.putNumber("Raw ABS Encoder", encoderPosition);
+        SmartDashboard.putNumber("ArmAmps", motor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("ArmVolts", motor.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("PID Target", pidController.getSetpoint().position);
+        SmartDashboard.putNumber("PID Velocity", pidController.getSetpoint().velocity);
 
     }
 }
