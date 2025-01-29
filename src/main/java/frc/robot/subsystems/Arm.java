@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.function.DoubleSupplier;
-
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -14,14 +12,11 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
-import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,8 +24,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.util.MotorData;
-import frc.robot.util.MutableElevatorFeedforward;
 import frc.robot.util.SysIDUtil;
+import frc.robot.util.MathUtil;
 
 public class Arm extends SubsystemBase {
     private final SparkMax spark;
@@ -56,7 +51,26 @@ public class Arm extends SubsystemBase {
 
     private ArmStates state;
 
+    private boolean isInDanger = false;
+
     private double encoderPosition, encoderVelocity;
+
+    private static final double PI_1_2 = 0.5 * Math.PI;
+    private static final double PI_3_2 = 1.5 * Math.PI;
+    private static final double PI_2 = 2 * Math.PI;
+
+    private static final class ArmSafetyData {
+        public ArmSafetyData(double[] range, boolean enableContinuousInput) {
+            this.range = range;
+            this.enableContinuousInput = enableContinuousInput;
+        }
+
+        public double[] range;
+        public boolean enableContinuousInput;
+    }
+
+    private static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_3_2 }, false);
+    private static final ArmSafetyData SAFETY_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_3_2 }, false);
 
     public Arm(Elevator elevator) {
         spark = new SparkMax(9, MotorType.kBrushless);
@@ -67,7 +81,8 @@ public class Arm extends SubsystemBase {
                 .withNeutralMode(NeutralModeValue.Brake));
         // di = new DigitalInput(0);
         // encoder = new DutyCycleEncoder(di);
-        pidController = new ProfiledPIDController(5.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Math.PI * 2.0, 4 * Math.PI));
+        pidController = new ProfiledPIDController(5.0, 0.0, 0.0,
+                new TrapezoidProfile.Constraints(Math.PI * 2.0, 4 * Math.PI));
         pidController.enableContinuousInput(0.0, 2 * Math.PI);
 
         // eleFF = new MutableElevatorFeedforward(0, 0, 0, 0);
@@ -115,9 +130,15 @@ public class Arm extends SubsystemBase {
     }
 
     public final double getEncoderPositionRad() {
-        var a = encoderPosition - 0.48972;
-        a = a > 0 ? a : 1 + a;
-        return a * 2 * Math.PI;
+        var rot = encoderPosition - 0.48972 + 0.25;
+        rot = rot > 0 ? rot : 1 + rot;
+        return rot * 2 * Math.PI;
+    }
+
+    public final double getArmAngleRad() {
+        var rad = getEncoderPositionRad() - PI_1_2;
+        rad = rad > 0 ? rad : 2 * Math.PI + rad;
+        return rad;
     }
 
     public Command runMotorCommand(double vbus) {
@@ -133,7 +154,6 @@ public class Arm extends SubsystemBase {
             state = ArmStates.POSITION;
         });
     }
-    
 
     /**
      * Find the torque due to gravity the arm applies on the pivot shaft
@@ -181,7 +201,33 @@ public class Arm extends SubsystemBase {
     private double armGravityFF() {
         return ArmConstants.motorType.getVoltage(
                 armTorqueGravityNM(hasAlgae, getEncoderPositionRad()) * ArmConstants.GEAR_RATIO,
-                motor.getVelocity().getValueAsDouble() * 2 * Math.PI);
+                motor.getVelocity().getValueAsDouble() * PI_2);
+    }
+
+    private void setContinuousInput() {
+        if (getArmSafety().enableContinuousInput) {
+            var range = getArmSafety().range;
+            pidController.enableContinuousInput(range[0], range[1]);
+        } else
+            pidController.disableContinuousInput();
+    }
+
+    private double safeRangeClamp(double value) {
+        var range = getArmSafety().range;
+        return MathUtil.clamp(value, range[0], range[1]);
+    }
+
+    public ArmSafetyData getArmSafety() {
+        return isInDanger ? SAFETY_RANGE : UNSAFE_RANGE;
+    }
+
+    public boolean isInDanger() {
+        return isInDanger;
+    }
+
+    public void setInDanger(boolean isInDanger) {
+        this.isInDanger = isInDanger;
+        setContinuousInput();
     }
 
     public void pidReset() {
@@ -202,19 +248,21 @@ public class Arm extends SubsystemBase {
                 motor.set(targetVBus);
                 break;
             case POSITION:
-                motor.setVoltage(pidController.calculate(getEncoderPositionRad(), targetPositionRad)
-                        + armFF.calculate(getEncoderPositionRad(), pidController.getSetpoint().velocity));
+                motor.setVoltage(pidController.calculate(getEncoderPositionRad(), safeRangeClamp(targetPositionRad))
+                        + armFF.calculate(getArmAngleRad(), pidController.getSetpoint().velocity));
                 break;
             default:
                 break;
         }
 
         SmartDashboard.putNumber("Absolute Encoder", getEncoderPositionRad());
+        SmartDashboard.putNumber("Abs encoder arm angle Rad", getArmAngleRad());
         SmartDashboard.putNumber("Raw ABS Encoder", encoderPosition);
         SmartDashboard.putNumber("ArmAmps", motor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber("ArmVolts", motor.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("PID Target", pidController.getSetpoint().position);
         SmartDashboard.putNumber("PID Velocity", pidController.getSetpoint().velocity);
+        SmartDashboard.putBoolean("Arm Danger", isInDanger);
 
     }
 }

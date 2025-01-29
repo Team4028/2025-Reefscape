@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -79,12 +80,14 @@ public class RobotContainer {
     driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
     driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) / 4));
 
+    driverController.a().onTrue(Commands.runOnce(() -> arm.setInDanger(!arm.isInDanger())));
 
   }
 
   public void resetArmPid() {
     arm.pidReset();
   }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
