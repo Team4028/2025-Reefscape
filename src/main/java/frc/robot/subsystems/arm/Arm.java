@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.bskd.annotations.CreateState;
+
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.units.measure.Voltage;
@@ -27,6 +29,10 @@ public class Arm extends SubsystemBase {
     private final Elevator parentElevator;
 
     public static final record SimData(double currentAmps, double armAngle) {
+    }
+    
+    public void runMotorSimple() {
+        io.setVBus(0.5);
     }
 
     public Arm(ArmIO io, Elevator parentElevator) {

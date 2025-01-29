@@ -1,0 +1,11 @@
+plugins {
+    id("java")
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation('com.palantir.javapoet:javapoet:0.6.0')
+}
