@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.elevator.ElevatorStateTracker.*;
-import frc.robot.util.DashboardStore;
 import frc.robot.util.SysIDUtil;
 
 public class Elevator extends SubsystemBase {
@@ -18,6 +17,9 @@ public class Elevator extends SubsystemBase {
     private double targetVbus = 0.0, targetPostition = 0.0, targetVoltage = 0.0;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
+
+    public static final record SimData(double currentAmps, double lengthMetres) {
+    }
 
     public Elevator(ElevatorIO io) {
         this.io = io;
@@ -104,7 +106,8 @@ public class Elevator extends SubsystemBase {
         periodic();
     }
 
-    public double getSimCurrentDraw() {
-        return inputs.leaderCurrentAmps + inputs.followerCurrentAmps;
+    public SimData getSimData() {
+        return new SimData(inputs.leaderCurrentAmps + inputs.followerCurrentAmps,
+                inputs.leaderPosition * ElevatorConstants.ROT_TO_METRES);
     }
 }

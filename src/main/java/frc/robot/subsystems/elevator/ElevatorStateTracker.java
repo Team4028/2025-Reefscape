@@ -1,6 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import frc.robot.subsystems.arm.ArmStateTracker.ArmStates;
 import frc.robot.util.MathUtil;
 
 public class ElevatorStateTracker {

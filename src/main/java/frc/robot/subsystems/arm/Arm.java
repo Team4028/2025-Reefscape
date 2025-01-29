@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
 import frc.robot.subsystems.arm.ArmStateTracker.ArmStates;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.util.DashboardStore;
 import frc.robot.util.SysIDUtil;
 
 public class Arm extends SubsystemBase {
@@ -26,6 +25,9 @@ public class Arm extends SubsystemBase {
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private boolean hasAlgae;
     private final Elevator parentElevator;
+
+    public static final record SimData(double currentAmps, double armAngle) {
+    }
 
     public Arm(ArmIO io, Elevator parentElevator) {
         this.io = io;
@@ -116,7 +118,7 @@ public class Arm extends SubsystemBase {
         periodic();
     }
 
-    public double getSimCurrentDraw() {
-        return inputs.currentAmps;
+    public SimData getSimData() {
+        return new SimData(inputs.currentAmps, inputs.armAngleRad);
     }
 }

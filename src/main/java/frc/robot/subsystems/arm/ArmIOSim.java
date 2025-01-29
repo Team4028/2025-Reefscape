@@ -2,7 +2,6 @@ package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 
 public class ArmIOSim implements ArmIO {
