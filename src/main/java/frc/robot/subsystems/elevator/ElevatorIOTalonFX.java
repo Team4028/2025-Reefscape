@@ -15,8 +15,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
-    private final TalonFX leader = new TalonFX(ElevatorConstants.LEADER_ID);
-    private final TalonFX follower = new TalonFX(ElevatorConstants.FOLLOWER_ID);
+    private final TalonFX leader = new TalonFX(ElevatorConstants.TalonFX.LEADER_ID);
+    private final TalonFX follower = new TalonFX(ElevatorConstants.TalonFX.FOLLOWER_ID);
     private final StatusSignal<Angle> positionRotLeader = leader.getPosition();
     private final StatusSignal<AngularVelocity> velocityRotPerSecLeader = leader.getVelocity();
     private final StatusSignal<AngularAcceleration> accelerationRotPerSecPerSecLeader = leader.getAcceleration();
@@ -31,14 +31,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final PositionVoltage pidControl = new PositionVoltage(0).withEnableFOC(ElevatorConstants.USE_FOC).withSlot(0);
     private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(ElevatorConstants.USE_FOC);
     private final DutyCycleOut vbusControl = new DutyCycleOut(0).withEnableFOC(ElevatorConstants.USE_FOC);
-    private final StrictFollower followerControl = new StrictFollower(ElevatorConstants.LEADER_ID);
+    private final StrictFollower followerControl = new StrictFollower(ElevatorConstants.TalonFX.LEADER_ID);
 
     public ElevatorIOTalonFX() {
-        leader.getConfigurator().apply(ElevatorConstants.leaderConfigs);
-        follower.getConfigurator().apply(ElevatorConstants.followerConfigs);
-        leader.getConfigurator().apply(ElevatorConstants.pidConfigs);
-        leader.getConfigurator().apply(ElevatorConstants.softLimits);
-        follower.getConfigurator().apply(ElevatorConstants.softLimits);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs);
+        follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
+        follower.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
     }
 
     @Override

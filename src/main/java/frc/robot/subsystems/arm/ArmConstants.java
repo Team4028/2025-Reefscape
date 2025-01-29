@@ -19,27 +19,40 @@ public class ArmConstants {
     public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
     public static final double GEAR_RATIO = 0.03333333333333;
 
-    
-    public static final record ArmSafetyData(double[] range, boolean enableContinuousInput) {}
-    
-    public static final boolean USE_FOC = true;
-    
-    public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
-    public static final double GEARBOX_MOI_KgMSquared = 0.01;
+    public static final record ArmSafetyData(double[] range, boolean enableContinuousInput) {
+    }
 
-    public static final int MOTOR_ID = 10;
-    public static final int ENCODER_ID = 9;
-    public static final SparkBaseConfig encoderConfig = new SparkMaxConfig()
-    .apply(new AbsoluteEncoderConfig().inverted(true));
-    public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
-    .withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
-    
+    public static final boolean USE_FOC = true;
+
+    public static final class Sim {
+        public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
+        public static final double ARM_MOI_KgMSquared = 0.01;
+    }
+
+    public static class TalonFX {
+        public static final int MOTOR_ID = 10;
+        public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
+                .withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
+
+    }
+
+    public static class SparkEncoder {
+        public static final int ENCODER_ID = 9;
+        public static final SparkBaseConfig encoderConfig = new SparkMaxConfig()
+                .apply(new AbsoluteEncoderConfig().inverted(true));
+    }
+
+    public static class DIOEncoder {
+        public static final int DIO_PIN = 0;
+        public static final boolean INVERTED = true;
+    }
+
     public static final double PI_1_2 = 0.5 * Math.PI;
     public static final double PI_3_2 = 1.5 * Math.PI;
     public static final double PI_2 = 2 * Math.PI;
 
-    public static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[]{0, PI_3_2}, false);
-    public static final ArmSafetyData SAFETY_RANGE = new ArmSafetyData(new double[]{PI_1_2, PI_3_2}, false);
+    public static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_3_2 }, false);
+    public static final ArmSafetyData SAFETY_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_3_2 }, false);
 
     public static final PIDStruct pidConfig = new PIDStruct(5, 0, 0, PI_2, 2 * PI_2, 0.075, 0.34, 0, 0);
 

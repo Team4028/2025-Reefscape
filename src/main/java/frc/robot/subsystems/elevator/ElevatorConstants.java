@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.util.PIDStruct;
 import frc.robot.util.SysIDUtil;
 
 public class ElevatorConstants {
@@ -17,6 +18,8 @@ public class ElevatorConstants {
     public static final int STAGES = 2;
 
     public static final boolean USE_FOC = true;
+
+    public static final PIDStruct pidConstants = new PIDStruct(1.25, 0, 0, 6, 6, 0.11895, 0.19185, 0.11526, 0.0031419);
 
     // cascading: 1 : 2 per stage (not base stage)
     public static final double CARRIAGE_MASS_KG = 5;
@@ -29,29 +32,30 @@ public class ElevatorConstants {
 
     public static final double MAX_HEIGHT_METERS = 60 * ROT_TO_METRES;
 
+    public static final class TalonFX {
+        public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
-    public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
+        public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(pidConstants.kP()).withKI(pidConstants.kI()).withKD(pidConstants.kD())
+                .withGravityType(GravityTypeValue.Elevator_Static)
+                .withKS(pidConstants.kS()).withKV(pidConstants.kV()).withKA(pidConstants.kA()).withKG(pidConstants.kG());
 
+        public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
+                .withInverted(InvertedValue.Clockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake);
 
-    public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(1.25).withKI(0).withKD(0)
-        .withGravityType(GravityTypeValue.Elevator_Static)
-        .withKS(0.11895).withKV(0.11526).withKA(0.0031419).withKG(0.19185);
+        public static final MotorOutputConfigs followerConfigs = new MotorOutputConfigs()
+                .withInverted(InvertedValue.CounterClockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Brake);
 
-    public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
-        .withInverted(InvertedValue.Clockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
+        public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs()
+                .withStatorCurrentLimit(30)
+                .withStatorCurrentLimitEnable(true)
+                .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
 
-    public static final MotorOutputConfigs followerConfigs = new MotorOutputConfigs()
-        .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
-
-    public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(30)
-        .withStatorCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
-
-    public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-        .withForwardSoftLimitThreshold(55)
-        .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(5).withReverseSoftLimitEnable(true);
+        public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitThreshold(55)
+                .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(5).withReverseSoftLimitEnable(true);
+    }
 
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();
 }

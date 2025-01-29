@@ -8,16 +8,17 @@ public class ArmIOSim implements ArmIO {
     private final SingleJointedArmSim arm;
     private double lastVolts = 0.0;
 
-    public ArmIOSim() {
+    public ArmIOSim() {        
         arm = new SingleJointedArmSim(
-            LinearSystemId.createDCMotorSystem(ArmConstants.simGearbox, ArmConstants.GEARBOX_MOI_KgMSquared,
+            LinearSystemId.createSingleJointedArmSystem(ArmConstants.Sim.simGearbox, ArmConstants.Sim.ARM_MOI_KgMSquared,
                     ArmConstants.GEAR_RATIO),
-            ArmConstants.simGearbox, ArmConstants.GEAR_RATIO, ArmConstants.ARM_LENGTH_METRES, 0, ArmConstants.PI_2,
+            ArmConstants.Sim.simGearbox, ArmConstants.GEAR_RATIO, ArmConstants.ARM_LENGTH_METRES, 0, ArmConstants.PI_2,
             true, 0);
     }
 
     @Override
     public void updateInputs(ArmIOInputs inputs) {
+        arm.update(0.02);
         inputs.appliedVoltage = lastVolts;
         inputs.armAngleRad = arm.getOutput(0);
         inputs.armEncoderRad = arm.getOutput(0);
@@ -31,7 +32,6 @@ public class ArmIOSim implements ArmIO {
     public void setVoltage(double volts) {
         lastVolts = volts;
         arm.setInput(volts);
-        arm.update(0.02);
     }
 
     @Override

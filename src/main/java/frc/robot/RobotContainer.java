@@ -6,17 +6,12 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.arm.Arm;
-import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.arm.ArmIOSparkEncoderTalonFX;
+import frc.robot.subsystems.coral.CoralManipulator;
+import frc.robot.subsystems.coral.CoralManipulatorIOTalonSRX;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.util.RobotSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,20 +27,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
-    private final Elevator elevator = new Elevator(Robot.isReal() ? new ElevatorIOTalonFX() : new ElevatorIOSim());
-    private final Arm arm = new Arm(Robot.isReal() ? new ArmIOSparkEncoderTalonFX() : new ArmIOSim(), elevator);
+    private final Elevator elevator = new Elevator(RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX()));
+    private final Arm arm = new Arm(RobotSim.armSimSwitch(new ArmIOSparkEncoderTalonFX()), elevator);
+    private final CoralManipulator coralManipulator = new CoralManipulator(
+            RobotSim.coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX()));
+
     // Replace with CommandPS4Controller or CommandJoystick if needed
     @SuppressWarnings("unused")
     private final CommandXboxController driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
-
-    private final Mechanism2d baseMech = new Mechanism2d(5, 5);
-    private final MechanismRoot2d elevatorRoot = baseMech.getRoot("ElevatorRoot", 2.5, 0);
-
-    @SuppressWarnings("unused")
-    private final MechanismLigament2d elevatorMech = elevatorRoot.append(new MechanismLigament2d("Elevator", 5, 0));
-    private final MechanismRoot2d armRoot = baseMech.getRoot("ArmRoot", 2.5, 0);
-    private final MechanismLigament2d armMech = armRoot.append(new MechanismLigament2d("Arm", 2, 0));
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -55,14 +45,10 @@ public class RobotContainer {
         configureBindings();
     }
 
-    public void simCallback() {
-        RoboRioSim.setVInVoltage(
-                BatterySim.calculateDefaultBatteryLoadedVoltage(elevator.getSimData().currentAmps(),
-                        arm.getSimData().currentAmps()));
-
-        armRoot.setPosition(2.5, elevator.getSimData().lengthMetres());
-        armMech.setAngle(arm.getSimData().armAngle());
-        SmartDashboard.putData("RobotSimMech", baseMech);
+    public final void simCallback() {
+        RobotSim.update(elevator.getSimData().lengthMetres(), arm.getSimData().armAngle(),
+                elevator.getSimData().currentAmps(), arm.getSimData().currentAmps(),
+                coralManipulator.getSimData().currentAmps());
     }
 
     /**

@@ -48,7 +48,7 @@ public class ArmPhysics {
      * @return the voltage (volts)
      */
     public static double armGravityFF(boolean hasAlgae, double armPositionRad, double motorVelocity, Elevator parentElevator) {
-        return ArmConstants.simGearbox.getVoltage(
+        return ArmConstants.Sim.simGearbox.getVoltage(
                 armTorqueGravityNM(hasAlgae, armPositionRad, parentElevator) * ArmConstants.GEAR_RATIO,
                 motorVelocity * ArmConstants.PI_2);
     }

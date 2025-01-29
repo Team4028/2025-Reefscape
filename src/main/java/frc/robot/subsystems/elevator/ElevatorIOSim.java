@@ -3,7 +3,6 @@ package frc.robot.subsystems.elevator;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
@@ -16,12 +15,9 @@ public class ElevatorIOSim implements ElevatorIO {
     private double fakeAccel = 0, lastVel = 0, lastVolts = 0;
 
     public ElevatorIOSim() {
-        pid = new ProfiledPIDController(ElevatorConstants.pidConfigs.kP,
-                ElevatorConstants.pidConfigs.kI, ElevatorConstants.pidConfigs.kD,
-                new TrapezoidProfile.Constraints(3, 6));
+        pid = ElevatorConstants.pidConstants.makeProfiledPIDController();
 
-        elevatorFF = new ElevatorFeedforward(ElevatorConstants.pidConfigs.kS,
-                ElevatorConstants.pidConfigs.kG, ElevatorConstants.pidConfigs.kV, ElevatorConstants.pidConfigs.kA);
+        elevatorFF = ElevatorConstants.pidConstants.makeElevatorFeedforward();
 
         elevator = new ElevatorSim(
                 LinearSystemId.createElevatorSystem(ElevatorConstants.simGearbox, ElevatorConstants.CARRIAGE_MASS_KG,
@@ -31,6 +27,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
+        elevator.update(0.02);
         inputs.leaderPosition = elevator.getOutput(0) / ElevatorConstants.ROT_TO_METRES;
         inputs.followerPosition = elevator.getOutput(0) / ElevatorConstants.ROT_TO_METRES;
         inputs.leaderVelocity = elevator.getOutput(1) / ElevatorConstants.ROT_TO_METRES;
@@ -47,7 +44,6 @@ public class ElevatorIOSim implements ElevatorIO {
     public void setVoltage(double volts) {
         lastVolts = volts;
         elevator.setInput(volts);
-        elevator.update(0.02);
         fakeAccel = (elevator.getOutput(1) - lastVel) / 0.02;
         lastVel = elevator.getOutput(1);
     }

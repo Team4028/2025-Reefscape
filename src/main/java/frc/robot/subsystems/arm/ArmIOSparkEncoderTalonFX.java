@@ -16,7 +16,7 @@ import edu.wpi.first.units.measure.Voltage;
 public class ArmIOSparkEncoderTalonFX implements ArmIO {
     private final SparkMax encoderReader;
     private final AbsoluteEncoder encoder;
-    private final TalonFX motor = new TalonFX(ArmConstants.MOTOR_ID);
+    private final TalonFX motor = new TalonFX(ArmConstants.TalonFX.MOTOR_ID);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
     private final StatusSignal<Current> motorCurrent = motor.getSupplyCurrent();
     private final StatusSignal<AngularVelocity> motorVel = motor.getVelocity();
@@ -25,10 +25,10 @@ public class ArmIOSparkEncoderTalonFX implements ArmIO {
     private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0).withEnableFOC(ArmConstants.USE_FOC);
 
     public ArmIOSparkEncoderTalonFX() {
-        encoderReader = new SparkMax(ArmConstants.ENCODER_ID, MotorType.kBrushless);
-        encoderReader.configure(ArmConstants.encoderConfig, null, null);
+        encoderReader = new SparkMax(ArmConstants.SparkEncoder.ENCODER_ID, MotorType.kBrushless);
+        encoderReader.configure(ArmConstants.SparkEncoder.encoderConfig, null, null);
         encoder = encoderReader.getAbsoluteEncoder();
-        motor.getConfigurator().apply(ArmConstants.motorConfigs);
+        motor.getConfigurator().apply(ArmConstants.TalonFX.motorConfigs);
     }
 
     @Override
