@@ -78,11 +78,11 @@ public class Elevator extends SubsystemBase {
 
     public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.Clockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
+        .withNeutralMode(NeutralModeValue.Coast);//Brake
 
     public static final MotorOutputConfigs followerConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);
+        .withNeutralMode(NeutralModeValue.Coast);//Brake
 
     public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(30)
         .withStatorCurrentLimitEnable(true)

@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Coral;
 import frc.robot.subsystems.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,6 +27,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Elevator elevator = new Elevator();
   private final Arm arm = new Arm(elevator);
+  private final Coral coral = new Coral();
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -75,13 +77,16 @@ public class RobotContainer {
     // driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
     // driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
 
-    driverController.povRight().onTrue(arm.runToPositionCommand(Math.PI / 4));
-    driverController.povUp().onTrue(arm.runToPositionCommand(3 * Math.PI / 4));
-    driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
-    driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) / 4));
+    // driverController.povRight().onTrue(arm.runToPositionCommand(Math.PI / 4));
+    // driverController.povUp().onTrue(arm.runToPositionCommand(3 * Math.PI / 4));
+    // driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
+    // driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) / 4));
     
     
-    driverController.a().onTrue(Commands.runOnce(() -> arm.setInDanger(!arm.isInDanger())));
+    // driverController.a().onTrue(Commands.runOnce(() -> arm.setInDanger(!arm.isInDanger())));
+    
+    driverController.x().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
+    driverController.b().onTrue(coral.runMotorCommand(-.6)).onFalse(coral.runMotorCommand(0));
 
   }
 

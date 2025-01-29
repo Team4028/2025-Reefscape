@@ -17,6 +17,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -58,6 +59,7 @@ public class Arm extends SubsystemBase {
     private static final double PI_1_2 = 0.5 * Math.PI;
     private static final double PI_3_2 = 1.5 * Math.PI;
     private static final double PI_2 = 2 * Math.PI;
+    private static final double PI_7_4 = 7 * Math.PI / 4;
     private double reefVolt = 0;
 
     private static final class ArmSafetyData {
@@ -70,8 +72,8 @@ public class Arm extends SubsystemBase {
         public boolean enableContinuousInput;
     }
 
-    private static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_3_2 }, false);
-    private static final ArmSafetyData SAFETY_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_3_2 }, false);
+    private static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_7_4 }, false);
+    private static final ArmSafetyData SAFE_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_7_4 }, false);
 
     public Arm(Elevator elevator) {
         spark = new SparkMax(9, MotorType.kBrushless);
@@ -79,12 +81,11 @@ public class Arm extends SubsystemBase {
         absEncoder = spark.getAbsoluteEncoder();
         motor = new TalonFX(10);
         motor.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Brake));
-        // di = new DigitalInput(0);
-        // encoder = new DutyCycleEncoder(di);
+                .withNeutralMode(NeutralModeValue.Brake));//Brake
         pidController = new ProfiledPIDController(3.0, 0.0, 0.0,
                 new TrapezoidProfile.Constraints(Math.PI * 2.0, 4 * Math.PI));
         pidController.enableContinuousInput(0.0, 2 * Math.PI);
+        pidController.disableContinuousInput();
 
         // eleFF = new MutableElevatorFeedforward(0, 0, 0, 0);
         armFF = new ArmFeedforward(0.0875, 0.375, 0);
@@ -131,8 +132,12 @@ public class Arm extends SubsystemBase {
         VOLTAGE
     }
 
+    public void toggleBrake() {
+
+    }
+
     public final double getEncoderPositionRad() {
-        var rot = encoderPosition - 0.48972 + 0.25;
+        var rot = encoderPosition - 0.9145;
         rot = rot > 0 ? rot : 1 + rot;
         return rot * 2 * Math.PI;
     }
@@ -213,13 +218,13 @@ public class Arm extends SubsystemBase {
                 motor.getVelocity().getValueAsDouble() * PI_2);
     }
 
-    private void setContinuousInput() {
-        if (getArmSafety().enableContinuousInput) {
-            var range = getArmSafety().range;
-            pidController.enableContinuousInput(range[0], range[1]);
-        } else
-            pidController.disableContinuousInput();
-    }
+    // private void setContinuousInput() {
+    //     if (getArmSafety().enableContinuousInput) {
+    //         var range = getArmSafety().range;
+    //         pidController.enableContinuousInput(range[0], range[1]);
+    //     } else
+    //         pidController.disableContinuousInput();
+    // }
 
     private double safeRangeClamp(double value) {
         var range = getArmSafety().range;
@@ -227,7 +232,7 @@ public class Arm extends SubsystemBase {
     }
 
     public ArmSafetyData getArmSafety() {
-        return isInDanger ? SAFETY_RANGE : UNSAFE_RANGE;
+        return isInDanger ? SAFE_RANGE : UNSAFE_RANGE;
     }
 
     public boolean isInDanger() {
@@ -236,11 +241,14 @@ public class Arm extends SubsystemBase {
 
     public void setInDanger(boolean isInDanger) {
         this.isInDanger = isInDanger;
-        setContinuousInput();
     }
 
     public void pidReset() {
         pidController.reset(getEncoderPositionRad());
+    }
+
+    public double getDegrees(double value) {
+        return 360 - Units.radiansToDegrees(value);
     }
 
     @Override
@@ -276,6 +284,7 @@ public class Arm extends SubsystemBase {
         SmartDashboard.putNumber("PID Target", pidController.getSetpoint().position);
         SmartDashboard.putNumber("PID Velocity", pidController.getSetpoint().velocity);
         SmartDashboard.putBoolean("Arm Danger", isInDanger);
+        SmartDashboard.putNumber("degrees", getDegrees(getArmAngleRad()));
         
     }
 }
