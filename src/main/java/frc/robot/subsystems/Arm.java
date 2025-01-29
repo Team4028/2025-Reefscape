@@ -58,6 +58,7 @@ public class Arm extends SubsystemBase {
     private static final double PI_1_2 = 0.5 * Math.PI;
     private static final double PI_3_2 = 1.5 * Math.PI;
     private static final double PI_2 = 2 * Math.PI;
+    private double reefVolt = 0;
 
     private static final class ArmSafetyData {
         public ArmSafetyData(double[] range, boolean enableContinuousInput) {
@@ -81,12 +82,12 @@ public class Arm extends SubsystemBase {
                 .withNeutralMode(NeutralModeValue.Brake));
         // di = new DigitalInput(0);
         // encoder = new DutyCycleEncoder(di);
-        pidController = new ProfiledPIDController(5.0, 0.0, 0.0,
+        pidController = new ProfiledPIDController.0, 0.0, 0.0,
                 new TrapezoidProfile.Constraints(Math.PI * 2.0, 4 * Math.PI));
         pidController.enableContinuousInput(0.0, 2 * Math.PI);
 
         // eleFF = new MutableElevatorFeedforward(0, 0, 0, 0);
-        armFF = new ArmFeedforward(0.075, 0.34, 0);
+        armFF = new ArmFeedforward(0.0875, 0.375, 0);
 
         hasAlgae = false;
         parentElevator = elevator;
@@ -126,7 +127,8 @@ public class Arm extends SubsystemBase {
         OFF,
         FORWARD,
         BACK,
-        POSITION
+        POSITION,
+        VOLTAGE
     }
 
     public final double getEncoderPositionRad() {
@@ -152,6 +154,13 @@ public class Arm extends SubsystemBase {
         return runOnce(() -> {
             targetPositionRad = positionRad;
             state = ArmStates.POSITION;
+        });
+    }
+
+    public Command reefVoltShift(double change) {
+        return runOnce(() -> {
+            reefVolt += change;
+            state = ArmStates.VOLTAGE;
         });
     }
 
@@ -251,11 +260,15 @@ public class Arm extends SubsystemBase {
                 motor.setVoltage(pidController.calculate(getEncoderPositionRad(), safeRangeClamp(targetPositionRad))
                         + armFF.calculate(getArmAngleRad(), pidController.getSetpoint().velocity));
                 break;
+            case VOLTAGE:
+                motor.setVoltage(reefVolt);
+                break;
             default:
                 break;
         }
 
         SmartDashboard.putNumber("Absolute Encoder", getEncoderPositionRad());
+        SmartDashboard.putNumber("Voltage", reefVolt);
         SmartDashboard.putNumber("Abs encoder arm angle Rad", getArmAngleRad());
         SmartDashboard.putNumber("Raw ABS Encoder", encoderPosition);
         SmartDashboard.putNumber("ArmAmps", motor.getStatorCurrent().getValueAsDouble());
@@ -263,6 +276,6 @@ public class Arm extends SubsystemBase {
         SmartDashboard.putNumber("PID Target", pidController.getSetpoint().position);
         SmartDashboard.putNumber("PID Velocity", pidController.getSetpoint().velocity);
         SmartDashboard.putBoolean("Arm Danger", isInDanger);
-
+        
     }
 }
