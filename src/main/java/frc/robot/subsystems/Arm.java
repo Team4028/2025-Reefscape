@@ -82,7 +82,7 @@ public class Arm extends SubsystemBase {
                 .withNeutralMode(NeutralModeValue.Brake));
         // di = new DigitalInput(0);
         // encoder = new DutyCycleEncoder(di);
-        pidController = new ProfiledPIDController.0, 0.0, 0.0,
+        pidController = new ProfiledPIDController(3.0, 0.0, 0.0,
                 new TrapezoidProfile.Constraints(Math.PI * 2.0, 4 * Math.PI));
         pidController.enableContinuousInput(0.0, 2 * Math.PI);
 
