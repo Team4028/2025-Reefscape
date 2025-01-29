@@ -17,6 +17,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
@@ -53,15 +54,15 @@ public class CreateStateProcessor extends AbstractProcessor {
             String className = classElement.getSimpleName().toString();
             String packageName = elementUtils.getPackageOf(classElement).getQualifiedName().toString();
 
-            String enumConstant = methodName.toUpperCase();
+            String enumConstant = element.getAnnotation(CreateState.class).value().toUpperCase();
             methodMap.put(enumConstant, methodName);
             classMap.put(enumConstant, className);
 
             try {
-                genEnum(packageName, className, methodMap, classMap);
+                genEnum(packageName, className, methodMap, classMap, method.getEnclosingElement());
             } catch (IOException e) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                        "Failed to generate enum: " + e.getMessage());
+                        "Failed to generate enum: " + e.getMessage() + ", error: " + e.getMessage());
             }
         }
 
@@ -69,8 +70,8 @@ public class CreateStateProcessor extends AbstractProcessor {
     }
 
     private void genEnum(String packageName, String className, Map<String, String> methodMap,
-            Map<String, String> classMap) throws IOException {
-        String enumName = className + "GeneratedEnum";
+            Map<String, String> classMap, Element enclosingClass) throws IOException {
+        String enumName = className + "StateEnum";
 
         // Define the Enum class
         TypeSpec.Builder enumBuilder = TypeSpec.enumBuilder(enumName)
@@ -79,7 +80,6 @@ public class CreateStateProcessor extends AbstractProcessor {
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(Object.class, "instance").build());
 
-        // Add enum constants
         for (Map.Entry<String, String> entry : methodMap.entrySet()) {
             String enumConstant = entry.getKey();
             String methodName = entry.getValue();
@@ -98,7 +98,6 @@ public class CreateStateProcessor extends AbstractProcessor {
             enumBuilder.addEnumConstant(enumConstant, subclass);
         }
 
-        // Build and write the file
         JavaFile javaFile = JavaFile.builder(packageName, enumBuilder.build()).build();
         javaFile.writeTo(filer);
     }

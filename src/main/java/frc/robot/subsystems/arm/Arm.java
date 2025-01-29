@@ -31,6 +31,7 @@ public class Arm extends SubsystemBase {
     public static final record SimData(double currentAmps, double armAngle) {
     }
     
+    @CreateState("simple_run")
     public void runMotorSimple() {
         io.setVBus(0.5);
     }
@@ -117,11 +118,6 @@ public class Arm extends SubsystemBase {
             default:
                 break;
         }
-    }
-
-    @Override
-    public void simulationPeriodic() {
-        periodic();
     }
 
     public SimData getSimData() {

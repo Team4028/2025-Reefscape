@@ -93,11 +93,6 @@ public class Leds extends SubsystemBase {
         }
     }
 
-    @Override
-    public void simulationPeriodic() {
-        periodic();
-    }
-
     public SimData getSimData() {
         return new SimData(inputs.ledColors);
     }

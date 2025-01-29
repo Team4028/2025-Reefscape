@@ -101,11 +101,6 @@ public class Elevator extends SubsystemBase {
         }
     }
 
-    @Override
-    public void simulationPeriodic() {
-        periodic();
-    }
-
     public SimData getSimData() {
         return new SimData(inputs.leaderCurrentAmps + inputs.followerCurrentAmps,
                 inputs.leaderPosition * ElevatorConstants.ROT_TO_METRES);

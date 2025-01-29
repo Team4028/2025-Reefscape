@@ -85,11 +85,6 @@ public class CoralManipulator extends SubsystemBase {
         }
     }
 
-    @Override
-    public void simulationPeriodic() {
-        periodic();
-    }
-
     public SimData getSimData() {
         return new SimData(inputs.currentAmps);
     }
