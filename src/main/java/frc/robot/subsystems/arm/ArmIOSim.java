@@ -1,0 +1,42 @@
+package frc.robot.subsystems.arm;
+
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+
+public class ArmIOSim implements ArmIO {
+    private final SingleJointedArmSim arm;
+    private double lastVolts = 0.0;
+
+    public ArmIOSim() {
+        arm = new SingleJointedArmSim(
+            LinearSystemId.createDCMotorSystem(ArmConstants.simGearbox, ArmConstants.GEARBOX_MOI_KgMSquared,
+                    ArmConstants.GEAR_RATIO),
+            ArmConstants.simGearbox, ArmConstants.GEAR_RATIO, ArmConstants.ARM_LENGTH_METRES, 0, ArmConstants.PI_2,
+            true, 0);
+    }
+
+    @Override
+    public void updateInputs(ArmIOInputs inputs) {
+        inputs.appliedVoltage = lastVolts;
+        inputs.armAngleRad = arm.getOutput(0);
+        inputs.armEncoderRad = arm.getOutput(0);
+        inputs.armEncoderRaw = arm.getOutput(0);
+        inputs.armVelocityRotPerSec = arm.getOutput(1) / ArmConstants.PI_2;
+        inputs.armMotorVelocityRotPerSec = inputs.armVelocityRotPerSec / ArmConstants.GEAR_RATIO;
+        inputs.currentAmps = arm.getCurrentDrawAmps();
+    }
+
+    @Override
+    public void setVoltage(double volts) {
+        lastVolts = volts;
+        arm.setInput(volts);
+        arm.update(0.02);
+    }
+
+    @Override
+    public void setVBus(double vBus) {
+        setVoltage(vBus * RobotController.getBatteryVoltage());
+    }
+}
