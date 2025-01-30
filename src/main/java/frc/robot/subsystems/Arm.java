@@ -59,6 +59,7 @@ public class Arm extends SubsystemBase {
 
     private static final double PI_1_2 = 0.5 * Math.PI;
     private static final double PI_3_2 = 1.5 * Math.PI;
+    private static final double PI_5_8 = 5 * Math.PI / 8;
     private static final double PI_2 = 2 * Math.PI;
     private static final double PI_7_4 = 7 * Math.PI / 4;
     private double reefVolt = 0;
@@ -74,7 +75,7 @@ public class Arm extends SubsystemBase {
     }
 
     private static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_7_4 }, false);
-    private static final ArmSafetyData SAFE_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_3_2 }, false);
+    private static final ArmSafetyData SAFE_RANGE = new ArmSafetyData(new double[] { PI_5_8, PI_3_2 }, false);
 
     public Arm(Elevator elevator) {
         spark = new SparkMax(9, MotorType.kBrushless);

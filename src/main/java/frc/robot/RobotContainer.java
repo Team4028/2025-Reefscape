@@ -77,10 +77,10 @@ public class RobotContainer {
     // driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
     // driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
 
-    // driverController.povRight().onTrue(arm.runToPositionCommand(Math.PI / 4));
+    driverController.povRight().onTrue(arm.runToPositionCommand(Math.PI / 4));
     driverController.povUp().onTrue(arm.runToPositionCommand(Math.PI));
     driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
-    // driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) / 4));
+    driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) / 4));
     
     
     driverController.a().onTrue(Commands.runOnce(() -> arm.setInDanger(!arm.isInDanger())));
