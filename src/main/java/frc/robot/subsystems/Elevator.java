@@ -72,17 +72,17 @@ public class Elevator extends SubsystemBase {
 
     public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
-    public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(1.25).withKI(0).withKD(0)
+    public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(.8).withKI(0).withKD(0)
         .withGravityType(GravityTypeValue.Elevator_Static)
-        .withKS(0.11895).withKV(0.11526).withKA(0.0031419).withKG(0.19185);
+        .withKS(0.098167).withKV(0.11512).withKA(0.0029619).withKG(0.22606);
 
     public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.Clockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Coast);//Brake
+        .withNeutralMode(NeutralModeValue.Brake);//Brake
 
     public static final MotorOutputConfigs followerConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Coast);//Brake
+        .withNeutralMode(NeutralModeValue.Brake);//Brake
 
     public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(30)
         .withStatorCurrentLimitEnable(true)
@@ -253,26 +253,26 @@ public class Elevator extends SubsystemBase {
         leader.setControl(voltageControl.withOutput(targetVoltage));
         break;
     }
-    switch (reefState) {
-      case OFF:
-        leader.setControl(vbusControl.withOutput(0));
-        break;
-      case HOLD:
-        leader.setControl(pidControl.withPosition(ElevatorPositions.HOLD.position));
-        break;
-      case L1:
-        leader.setControl(pidControl.withPosition(ElevatorPositions.L1.position));
-        break;
-      case L2:
-        leader.setControl(pidControl.withPosition(ElevatorPositions.L2.position));
-        break;
-      case L3:
-        leader.setControl(pidControl.withPosition(ElevatorPositions.L3.position));
-        break;
-      case L4:
-        leader.setControl(pidControl.withPosition(ElevatorPositions.L4.position));
-        break;
-    }
+    // switch (reefState) {
+    //   case OFF:
+    //     leader.setControl(vbusControl.withOutput(0));
+    //     break;
+    //   case HOLD:
+    //     leader.setControl(pidControl.withPosition(ElevatorPositions.HOLD.position));
+    //     break;
+    //   case L1:
+    //     leader.setControl(pidControl.withPosition(ElevatorPositions.L1.position));
+    //     break;
+    //   case L2:
+    //     leader.setControl(pidControl.withPosition(ElevatorPositions.L2.position));
+    //     break;
+    //   case L3:
+    //     leader.setControl(pidControl.withPosition(ElevatorPositions.L3.position));
+    //     break;
+    //   case L4:
+    //     leader.setControl(pidControl.withPosition(ElevatorPositions.L4.position));
+    //     break;
+    // }
     follower.setControl(new StrictFollower(15));
 
     SmartDashboard.putNumber("LMotor Position", leader.getPosition().getValueAsDouble());

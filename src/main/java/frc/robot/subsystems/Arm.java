@@ -15,6 +15,7 @@ import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -73,7 +74,7 @@ public class Arm extends SubsystemBase {
     }
 
     private static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_7_4 }, false);
-    private static final ArmSafetyData SAFE_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_7_4 }, false);
+    private static final ArmSafetyData SAFE_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_3_2 }, false);
 
     public Arm(Elevator elevator) {
         spark = new SparkMax(9, MotorType.kBrushless);
@@ -81,8 +82,8 @@ public class Arm extends SubsystemBase {
         absEncoder = spark.getAbsoluteEncoder();
         motor = new TalonFX(10);
         motor.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Brake));//Brake
-        pidController = new ProfiledPIDController(3.0, 0.0, 0.0,
+                .withNeutralMode(NeutralModeValue.Brake));// Brake
+        pidController = new ProfiledPIDController(4.0, 0.0, 0.0,
                 new TrapezoidProfile.Constraints(Math.PI * 2.0, 4 * Math.PI));
         pidController.enableContinuousInput(0.0, 2 * Math.PI);
         pidController.disableContinuousInput();
@@ -167,6 +168,13 @@ public class Arm extends SubsystemBase {
             reefVolt += change;
             state = ArmStates.VOLTAGE;
         });
+
+    }
+
+    public Command runMotorOffCommand() {
+        return runOnce(() -> {
+            state = ArmStates.OFF;
+        });
     }
 
     /**
@@ -219,11 +227,11 @@ public class Arm extends SubsystemBase {
     }
 
     // private void setContinuousInput() {
-    //     if (getArmSafety().enableContinuousInput) {
-    //         var range = getArmSafety().range;
-    //         pidController.enableContinuousInput(range[0], range[1]);
-    //     } else
-    //         pidController.disableContinuousInput();
+    // if (getArmSafety().enableContinuousInput) {
+    // var range = getArmSafety().range;
+    // pidController.enableContinuousInput(range[0], range[1]);
+    // } else
+    // pidController.disableContinuousInput();
     // }
 
     private double safeRangeClamp(double value) {
@@ -272,6 +280,7 @@ public class Arm extends SubsystemBase {
                 motor.setVoltage(reefVolt);
                 break;
             default:
+
                 break;
         }
 
@@ -285,6 +294,7 @@ public class Arm extends SubsystemBase {
         SmartDashboard.putNumber("PID Velocity", pidController.getSetpoint().velocity);
         SmartDashboard.putBoolean("Arm Danger", isInDanger);
         SmartDashboard.putNumber("degrees", getDegrees(getArmAngleRad()));
-        
+        SmartDashboard.putString("State", state.toString());
+
     }
 }

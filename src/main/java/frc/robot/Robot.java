@@ -9,6 +9,8 @@ import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
 
 /**
  * The methods in this class are called automatically corresponding to each
@@ -19,8 +21,12 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private final RobotContainer robotContainer = new RobotContainer();
+  // private final Elevator elevator = new Elevator();
+  // private final Arm arm = new Arm(elevator);
+  
 
-  private final RobotContainer m_robotContainer;
+ 
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -31,7 +37,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+
     SignalLogger.setPath("/media/sda1/ctre");
   }
 
@@ -73,7 +79,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -95,8 +101,13 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    m_robotContainer.resetArmPid();
-    // SignalLogger.start();
+    robotContainer.runArmMotorOff();
+    robotContainer.resetArmPid();
+ 
+   
+    
+    // arm.runMotorOffCommand();
+    SignalLogger.start();
   }
 
   /** This function is called periodically during operator control. */

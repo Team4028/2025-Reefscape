@@ -64,11 +64,11 @@ public class RobotContainer {
     // driverController.povRight().whileTrue(elevator.quasiStaticTest(Direction.kReverse));
     // driverController.povUp().whileTrue(elevator.dynamicTest(Direction.kForward));
     // driverController.povDown().whileTrue(elevator.dynamicTest(Direction.kReverse));
-    // driverController.a().onTrue(elevator.runToPosition(53));
-    // driverController.y().onTrue(elevator.runToPosition(7));
+    driverController.b().onTrue(elevator.runToPosition(40));
+    driverController.y().onTrue(elevator.runToPosition(10));
     // driverController.x().onTrue(elevator.reefStateChangeCommand());
-    // driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.65)).onFalse(elevator.runMotorsCommand(0));
-    // driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.65)).onFalse(elevator.runMotorsCommand(0));
+    driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.4)).onFalse(elevator.runMotorsCommand(0));
+    driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.4)).onFalse(elevator.runMotorsCommand(0));
 
     // driverController.rightBumper().onTrue(elevator.reefCountChange(1));
     // driverController.leftBumper().onTrue(elevator.reefCountChange(-1));
@@ -78,22 +78,25 @@ public class RobotContainer {
     // driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
 
     // driverController.povRight().onTrue(arm.runToPositionCommand(Math.PI / 4));
-    // driverController.povUp().onTrue(arm.runToPositionCommand(3 * Math.PI / 4));
-    // driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
+    driverController.povUp().onTrue(arm.runToPositionCommand(Math.PI));
+    driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
     // driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) / 4));
     
     
-    // driverController.a().onTrue(Commands.runOnce(() -> arm.setInDanger(!arm.isInDanger())));
+    driverController.a().onTrue(Commands.runOnce(() -> arm.setInDanger(!arm.isInDanger())));
     
-    driverController.x().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
-    driverController.b().onTrue(coral.runMotorCommand(-.6)).onFalse(coral.runMotorCommand(0));
+  //   driverController.x().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
+  //   driverController.b().onTrue(coral.runMotorCommand(-.6)).onFalse(coral.runMotorCommand(0));
+
 
   }
 
   public void resetArmPid() {
     arm.pidReset();
   }
-
+  public Command runArmMotorOff(){
+    return arm.runMotorOffCommand();
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
