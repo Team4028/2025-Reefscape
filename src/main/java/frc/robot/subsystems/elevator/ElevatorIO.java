@@ -2,6 +2,8 @@ package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import frc.robot.util.GetMotorData.MotorData;
+
 public interface ElevatorIO {
     @AutoLog
     public static class ElevatorIOInputs {
@@ -15,6 +17,8 @@ public interface ElevatorIO {
         public double followerAcceleration = 0.0;
         public double followerAppliedVolts = 0.0;
         public double followerCurrentAmps = 0.0;
+        public MotorData leaderData = MotorData.empty();
+        public MotorData followerData = MotorData.empty();
     }
 
     public default void updateInputs(ElevatorIOInputs inputs) {

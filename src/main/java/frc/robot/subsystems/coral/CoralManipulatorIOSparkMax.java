@@ -2,6 +2,8 @@ package frc.robot.subsystems.coral;
 
 import com.revrobotics.spark.SparkMax;
 
+import frc.robot.util.GetMotorData;
+
 public class CoralManipulatorIOSparkMax implements CoralManipulatorIO {
     private final SparkMax motor;
 
@@ -14,6 +16,7 @@ public class CoralManipulatorIOSparkMax implements CoralManipulatorIO {
     public void updateInputs(CoralManipulatorIOInputs inputs) {
         inputs.appliedVolts = motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
+        inputs.motorData = GetMotorData.getSparkMaxData(motor);
     }
 
     @Override

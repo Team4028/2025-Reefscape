@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.GetMotorData;
 
 public class ArmIOSparkEncoderTalonFX implements ArmIO {
     private final SparkMax encoderReader;
@@ -41,6 +42,8 @@ public class ArmIOSparkEncoderTalonFX implements ArmIO {
         inputs.armEncoderRad = getEncoderPositionRad();
         inputs.armEncoderRaw = getRawEncoderPositon();
         inputs.armVelocityRotPerSec = encoder.getVelocity();
+        inputs.motorData = GetMotorData.getTalonFXData(motor);
+        ArmIO.super.updateInputs(inputs);
     }
 
     public double getRawEncoderPositon() {

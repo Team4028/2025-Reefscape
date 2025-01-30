@@ -2,13 +2,14 @@ package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.bskd.annotations.CreateState;
+
 import java.util.Map;
 
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.elevator.ElevatorStateTracker.*;
 import frc.robot.util.SysIDUtil;
 
 public class Elevator extends SubsystemBase {
@@ -73,32 +74,39 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        stateTracker.state.execute(this);
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
+    }
 
-        switch (stateTracker.state) {
-            case IDLE:
-                io.setVbus(0);
-                break;
-            case PREPARE_TO_MOVE:
-                stateTracker.state = ElevatorStates.MOVING_POSITION;
-                break;
-            case MOVING_POSITION:
-                io.setPid(targetPostition);
-                break;
-            case VBUS_BACKWARD:
-            case VBUS_FORWARD:
-                io.setVbus(targetVbus);
-                break;
-            case VOLTAGE_BACKWARD:
-            case VOLTAGE_FORWARD:
-                io.setVoltage(targetVoltage);
-                break;
-            case HOLDING_POSITION:
-                break;
-            default:
-                break;
-        }
+    @CreateState("off")
+    public void stop() {
+        io.setVbus(0);
+    }
+
+    @CreateState("holding_position")
+    public void hold() {}
+
+    @CreateState("prepare_to_move")
+    public void movementPreparation() {
+        stateTracker.state = ElevatorStates.MOVING_POSITION;
+    }
+
+    @CreateState("moving_position")
+    public void runTargetPosition() {
+        io.setPid(targetPostition);
+    }
+
+    @CreateState("vbus_forward")
+    @CreateState("vbus_reverse")
+    public void runTargetVBus() {
+        io.setVbus(targetVbus);
+    }
+
+    @CreateState("voltage_forward")
+    @CreateState("voltage_reverse")
+    public void runTargetVoltage() {
+        io.setVoltage(targetVoltage);
     }
 
     public SimData getSimData() {

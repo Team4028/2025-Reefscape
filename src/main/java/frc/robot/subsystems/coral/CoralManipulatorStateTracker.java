@@ -2,21 +2,13 @@ package frc.robot.subsystems.coral;
 
 public class CoralManipulatorStateTracker {
     public boolean hasCoral;
-    public CoralStates state;
-
-    public enum CoralStates {
-        OFF,
-        VBUS_FORWARD,
-        VBUS_REVERSE,
-        VOLTAGE_FORWARD,
-        VOLTAGE_REVERSE,
-    }
+    public CoralManipulatorStates state;
 
     public void setStateVBus(double vbus) {
-        state = vbus > 0 ? CoralStates.VBUS_FORWARD : (vbus < 0 ? CoralStates.VBUS_REVERSE : CoralStates.OFF);
+        state = vbus > 0 ? CoralManipulatorStates.VBUS_FORWARD : (vbus < 0 ? CoralManipulatorStates.VBUS_REVERSE : CoralManipulatorStates.OFF);
     }
 
     public void setStateVoltage(double volts) {
-        state = volts > 0 ? CoralStates.VOLTAGE_FORWARD : (volts < 0 ? CoralStates.VOLTAGE_REVERSE : CoralStates.OFF);
+        state = volts > 0 ? CoralManipulatorStates.VOLTAGE_FORWARD : (volts < 0 ? CoralManipulatorStates.VOLTAGE_REVERSE : CoralManipulatorStates.OFF);
     }
 }

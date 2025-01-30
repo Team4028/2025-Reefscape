@@ -4,11 +4,12 @@ import java.util.Map;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.bskd.annotations.CreateState;
+
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.coral.CoralManipulatorStateTracker.CoralStates;
 import frc.robot.util.SysIDUtil;
 
 public class CoralManipulator extends SubsystemBase {
@@ -48,41 +49,47 @@ public class CoralManipulator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        stateTracker.state.execute(this);
         io.updateInputs(inputs);
         Logger.processInputs("Coral Manipulator", inputs);
-        switch (stateTracker.state) {
-            case OFF:
-                io.setVbus(0);
-                break;
-            case VBUS_FORWARD:
-                if (inputs.currentAmps < CoralManipulatorConstants.SUPPLY_LIMIT) {
-                    io.setVbus(targetVBus);
-                } else {
-                    io.setVbus(0);
-                    stateTracker.hasCoral = true;
-                    stateTracker.state = CoralStates.OFF;
-                }
-                break;
-            case VBUS_REVERSE:
-                io.setVbus(targetVBus);
-                stateTracker.hasCoral = false;
-                break;
-            case VOLTAGE_FORWARD:
-                if (inputs.currentAmps < CoralManipulatorConstants.SUPPLY_LIMIT) {
-                    io.setVoltage(targetVoltage);
-                } else {
-                    io.setVbus(0);
-                    stateTracker.hasCoral = true;
-                    stateTracker.state = CoralStates.OFF;
-                }
-                break;
-            case VOLTAGE_REVERSE:
-                io.setVoltage(targetVoltage);
-                stateTracker.hasCoral = false;
-                break;
-            default:
-                break;
+    }
+
+    @CreateState("off")
+    public void stop() {
+        io.setVbus(0);
+    }
+
+    @CreateState("vbus_forward")
+    public void infeedVBus() {
+        if (inputs.currentAmps < CoralManipulatorConstants.SUPPLY_LIMIT) {
+            io.setVbus(targetVBus);
+        } else {
+            io.setVbus(0);
+            stateTracker.hasCoral = true;
+            stateTracker.state = CoralManipulatorStates.OFF;
         }
+    }
+
+    @CreateState("vbus_reverse")
+    public void outfeedVBus() {
+        stateTracker.hasCoral = false;
+    }
+
+    @CreateState("voltage_forward")
+    public void infeedVoltage() {
+        if (inputs.currentAmps < CoralManipulatorConstants.SUPPLY_LIMIT) {
+            io.setVoltage(targetVoltage);
+        } else {
+            io.setVbus(0);
+            stateTracker.hasCoral = true;
+            stateTracker.state = CoralManipulatorStates.OFF;
+        }
+    }
+
+    @CreateState("voltage_reverse")
+    public void outfeedVoltage() {
+        io.setVoltage(targetVoltage);
+        stateTracker.hasCoral = false;
     }
 
     public SimData getSimData() {

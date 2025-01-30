@@ -12,8 +12,4 @@ public class LedsStateTracker {
     public LedsStateTracker() {
         state = LedsStates.SOLID_COLOR;
     }
-
-    public enum LedsStates {
-        SOLID_COLOR,
-    }
 }

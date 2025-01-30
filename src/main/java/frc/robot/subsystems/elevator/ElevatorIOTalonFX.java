@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.GetMotorData;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX leader = new TalonFX(ElevatorConstants.TalonFX.LEADER_ID);
@@ -57,6 +58,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.followerAppliedVolts = appliedVoltageFollower.getValueAsDouble();
         inputs.leaderCurrentAmps = currentAmpsLeader.getValueAsDouble();
         inputs.followerCurrentAmps = currentAmpsFollower.getValueAsDouble();
+        inputs.leaderData = GetMotorData.getTalonFXData(leader);
+        inputs.followerData = GetMotorData.getTalonFXData(follower);
     }
     
     @Override

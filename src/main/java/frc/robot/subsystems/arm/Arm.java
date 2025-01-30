@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
-import frc.robot.subsystems.arm.ArmStateTracker.ArmStates;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.util.SysIDUtil;
 
@@ -29,11 +28,6 @@ public class Arm extends SubsystemBase {
     private final Elevator parentElevator;
 
     public static final record SimData(double currentAmps, double armAngle) {
-    }
-    
-    @CreateState("simple_run")
-    public void runMotorSimple() {
-        io.setVBus(0.5);
     }
 
     public Arm(ArmIO io, Elevator parentElevator) {
@@ -93,32 +87,37 @@ public class Arm extends SubsystemBase {
     public void pidReset() {
         pid.reset(inputs.armEncoderRad);
     }
-
+    
     @Override
     public void periodic() {
+        stateTracker.state.execute(this);
         io.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
-
-        switch (stateTracker.state) {
-            case OFF:
-                io.setVBus(0);
-                break;
-            case VBUS_BACKWARD:
-            case VBUS_FORWARD:
-                io.setVBus(targetVbus);
-                break;
-            case VOLTAGE_BACKWARD:
-            case VOLTAGE_FORWARD:
-                io.setVoltage(targetVoltage);
-                break;
-            case POSITION:
-                io.setVoltage(pid.calculate(inputs.armEncoderRad, stateTracker.safeClampRange(targetPositionRad))
-                        + armFF.calculate(inputs.armAngleRad, pid.getSetpoint().velocity));
-                break;
-            default:
-                break;
-        }
     }
+
+    @CreateState("vbus_forward")
+    @CreateState("vbus_reverse")
+    public void runTargetVBus() {
+        io.setVBus(targetVbus);
+    }
+
+    @CreateState("off")
+    public void stop() {
+        io.setVBus(0);
+    }
+
+    @CreateState("voltage_forward")
+    @CreateState("voltage_reverse")
+    public void runTargetVoltage() {
+        io.setVoltage(targetVoltage);
+    }
+
+    @CreateState("position")
+    public void runTargetPosition() {
+        io.setVoltage(pid.calculate(inputs.armEncoderRad, stateTracker.safeClampRange(targetPositionRad))
+                + armFF.calculate(inputs.armAngleRad, pid.getSetpoint().velocity));
+    }
+
 
     public SimData getSimData() {
         return new SimData(inputs.currentAmps, inputs.armAngleRad);

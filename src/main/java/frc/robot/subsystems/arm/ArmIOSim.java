@@ -8,12 +8,14 @@ public class ArmIOSim implements ArmIO {
     private final SingleJointedArmSim arm;
     private double lastVolts = 0.0;
 
-    public ArmIOSim() {        
+    public ArmIOSim() {
         arm = new SingleJointedArmSim(
-            LinearSystemId.createSingleJointedArmSystem(ArmConstants.Sim.simGearbox, ArmConstants.Sim.ARM_MOI_KgMSquared,
-                    ArmConstants.GEAR_RATIO),
-            ArmConstants.Sim.simGearbox, ArmConstants.GEAR_RATIO, ArmConstants.ARM_LENGTH_METRES, 0, ArmConstants.PI_2,
-            true, 0);
+                LinearSystemId.createSingleJointedArmSystem(ArmConstants.Sim.simGearbox,
+                        ArmConstants.Sim.ARM_MOI_KgMSquared,
+                        ArmConstants.GEAR_RATIO),
+                ArmConstants.Sim.simGearbox, ArmConstants.GEAR_RATIO, ArmConstants.ARM_LENGTH_METRES, 0,
+                ArmConstants.PI_2,
+                true, 0);
     }
 
     @Override
@@ -26,6 +28,7 @@ public class ArmIOSim implements ArmIO {
         inputs.armVelocityRotPerSec = arm.getOutput(1) / ArmConstants.PI_2;
         inputs.armMotorVelocityRotPerSec = inputs.armVelocityRotPerSec / ArmConstants.GEAR_RATIO;
         inputs.currentAmps = arm.getCurrentDrawAmps();
+        ArmIO.super.updateInputs(inputs);
     }
 
     @Override

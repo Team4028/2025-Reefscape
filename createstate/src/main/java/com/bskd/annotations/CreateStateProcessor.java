@@ -17,13 +17,12 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 
 import com.palantir.javapoet.*;
 
-@SupportedAnnotationTypes("com.bskd.annotations.CreateState")
+@SupportedAnnotationTypes({ "com.bskd.annotations.CreateState", "com.bskd.annotations.CreateStates" })
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
 public class CreateStateProcessor extends AbstractProcessor {
 
@@ -39,9 +38,24 @@ public class CreateStateProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Map<String, String> methodMap = new LinkedHashMap<>();
-        Map<String, String> classMap = new LinkedHashMap<>();
+        // Group methods by their enclosing class
+        Map<TypeElement, Map<String, String>> classToStatesMap = new LinkedHashMap<>();
 
+        for (Element element : roundEnv.getElementsAnnotatedWith(CreateStates.class)) {
+            if (element.getKind() != ElementKind.METHOD) {
+                continue;
+            }
+
+            ExecutableElement method = (ExecutableElement) element;
+            TypeElement classElement = (TypeElement) method.getEnclosingElement();
+            String methodName = method.getSimpleName().toString();
+
+            classToStatesMap
+                    .computeIfAbsent(classElement, k -> new LinkedHashMap<>())
+                    .putAll(getStateMappings(method.getAnnotation(CreateStates.class), methodName));
+        }
+
+        // Handle @CreateState separately (single annotation case)
         for (Element element : roundEnv.getElementsAnnotatedWith(CreateState.class)) {
             if (element.getKind() != ElementKind.METHOD) {
                 continue;
@@ -49,49 +63,71 @@ public class CreateStateProcessor extends AbstractProcessor {
 
             ExecutableElement method = (ExecutableElement) element;
             TypeElement classElement = (TypeElement) method.getEnclosingElement();
-
             String methodName = method.getSimpleName().toString();
-            String className = classElement.getSimpleName().toString();
-            String packageName = elementUtils.getPackageOf(classElement).getQualifiedName().toString();
 
-            String enumConstant = element.getAnnotation(CreateState.class).value().toUpperCase();
-            methodMap.put(enumConstant, methodName);
-            classMap.put(enumConstant, className);
+            // Create a singleton mapping for a single @CreateState annotation
+            Map<String, String> singleStateMapping = getStateMappings(method.getAnnotation(CreateState.class),
+                    methodName);
 
+            classToStatesMap
+                    .computeIfAbsent(classElement, k -> new LinkedHashMap<>())
+                    .putAll(singleStateMapping);
+        }
+
+        // Generate an enum for each class
+        for (var entry : classToStatesMap.entrySet()) {
             try {
-                genEnum(packageName, className, methodMap, classMap, method.getEnclosingElement());
+                genEnum(entry.getKey(), entry.getValue());
             } catch (IOException e) {
                 processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                        "Failed to generate enum: " + e.getMessage() + ", error: " + e.getMessage());
+                        "Failed to generate enum: " + e.getMessage());
             }
         }
 
         return true;
     }
 
-    private void genEnum(String packageName, String className, Map<String, String> methodMap,
-            Map<String, String> classMap, Element enclosingClass) throws IOException {
-        String enumName = className + "StateEnum";
+    private Map<String, String> getStateMappings(CreateStates annotation, String methodName) {
+        Map<String, String> stateMap = new LinkedHashMap<>();
+        if (annotation != null) {
+            for (CreateState state : annotation.value()) {
+                stateMap.put(state.value().toUpperCase(), methodName);
+            }
+        }
+        return stateMap;
+    }
+
+    private Map<String, String> getStateMappings(CreateState annotation, String methodName) {
+        Map<String, String> stateMap = new LinkedHashMap<>();
+        if (annotation != null) {
+            stateMap.put(annotation.value().toUpperCase(), methodName);
+        }
+        return stateMap;
+    }
+
+    private void genEnum(TypeElement classElement, Map<String, String> stateMap) throws IOException {
+        String packageName = elementUtils.getPackageOf(classElement).getQualifiedName().toString();
+        String className = classElement.getSimpleName().toString();
+        String enumName = className + "States";
 
         // Define the Enum class
         TypeSpec.Builder enumBuilder = TypeSpec.enumBuilder(enumName)
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(MethodSpec.methodBuilder("execute")
-                        .addModifiers(Modifier.PUBLIC)
-                        .addParameter(Object.class, "instance").build());
+                        .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
+                        .addParameter(Object.class, "instance")
+                        .build());
 
-        for (Map.Entry<String, String> entry : methodMap.entrySet()) {
+        for (Map.Entry<String, String> entry : stateMap.entrySet()) {
             String enumConstant = entry.getKey();
             String methodName = entry.getValue();
-            String containingClass = classMap.get(enumConstant);
 
             TypeSpec subclass = TypeSpec.anonymousClassBuilder("")
                     .addMethod(MethodSpec.methodBuilder("execute")
                             .addModifiers(Modifier.PUBLIC)
                             .addAnnotation(Override.class)
                             .addParameter(Object.class, "instance")
-                            .addStatement("(($T) instance).$L()", ClassName.get(packageName, containingClass),
-                                    methodName)
+                            .addStatement("(($T) instance).$L()", ClassName.get(classElement), methodName)
                             .build())
                     .build();
 

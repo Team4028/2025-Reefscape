@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.GetMotorData;
 
 public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
     private final TalonFX motor = new TalonFX(CoralManipulatorConstants.TalonFX.CAN_ID);
@@ -29,6 +30,7 @@ public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
 
         inputs.appliedVolts = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorAmps.getValueAsDouble();
+        inputs.motorData = GetMotorData.getTalonFXData(motor);
     }
 
     @Override

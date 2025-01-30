@@ -4,9 +4,10 @@ import java.util.Arrays;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.bskd.annotations.CreateState;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.leds.LedsStateTracker.LedsStates;
 
 public class Leds extends SubsystemBase {
 
@@ -80,17 +81,15 @@ public class Leds extends SubsystemBase {
 
     @Override
     public void periodic() {
+        stateTracker.state.execute(this);
         io.updateInputs(inputs);
         Logger.processInputs("Leds", inputs);
+    }
 
-        switch (stateTracker.state) {
-            case SOLID_COLOR:
-                for (int i = 0; i < targetColors.length; i++)
-                    io.setLed(targetColors[i].r, targetColors[i].g, targetColors[i].b, 0, i);
-                break;
-            default:
-                break;
-        }
+    @CreateState("solid_color")
+    public void fillSolidColor() {
+        for (int i = 0; i < targetColors.length; i++)
+            io.setLed(targetColors[i].r, targetColors[i].g, targetColors[i].b, 0, i);
     }
 
     public SimData getSimData() {

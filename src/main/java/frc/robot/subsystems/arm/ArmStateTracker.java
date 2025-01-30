@@ -9,15 +9,6 @@ public class ArmStateTracker {
 
     public ArmStates state;
     private boolean isInDanger;
-    
-    public enum ArmStates {
-        OFF,
-        VBUS_FORWARD,
-        VBUS_BACKWARD,
-        VOLTAGE_FORWARD,
-        VOLTAGE_BACKWARD,
-        POSITION,
-    }
 
     public ArmStateTracker() {
         state = ArmStates.OFF;
@@ -39,10 +30,11 @@ public class ArmStateTracker {
     }
 
     public void setStateVBus(double vbus) {
-        state = vbus > 0 ? ArmStates.VBUS_FORWARD : (vbus < 0 ? ArmStates.VBUS_BACKWARD : ArmStates.OFF);
+        state = vbus > 0 ? ArmStates.VBUS_FORWARD : (vbus < 0 ? ArmStates.VBUS_REVERSE : ArmStates.OFF);
     }
 
     public void setStateVoltage(double volts) {
-        state = volts > 0 ? ArmStates.VOLTAGE_FORWARD : (volts < 0 ? ArmStates.VOLTAGE_BACKWARD : ArmStates.OFF);
+        state = volts > 0 ? ArmStates.VOLTAGE_FORWARD
+                : (volts < 0 ? ArmStates.VOLTAGE_REVERSE : ArmStates.OFF);
     }
 }

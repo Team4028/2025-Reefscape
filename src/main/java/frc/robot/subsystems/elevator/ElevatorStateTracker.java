@@ -3,9 +3,6 @@ package frc.robot.subsystems.elevator;
 import frc.robot.util.MathUtil;
 
 public class ElevatorStateTracker {
-    public enum ElevatorStates {
-        IDLE, PREPARE_TO_MOVE, MOVING_POSITION, HOLDING_POSITION, VBUS_FORWARD, VBUS_BACKWARD, VOLTAGE_FORWARD, VOLTAGE_BACKWARD,
-    }
 
     // Change values later for realzies
     public static final class ElevatorPositions {
@@ -43,16 +40,16 @@ public class ElevatorStateTracker {
     }
 
     public ElevatorStateTracker() {
-        state = ElevatorStates.IDLE;
+        state = ElevatorStates.OFF;
         reefState = ElevatorPositions.Reef.OFF;
         reefCount = 0;
     }
 
     public void setStateVBus(double vbus) {
-        state = vbus > 0 ? ElevatorStates.VBUS_FORWARD : (vbus < 0 ? ElevatorStates.VBUS_BACKWARD : ElevatorStates.IDLE);
+        state = vbus > 0 ? ElevatorStates.VBUS_FORWARD : (vbus < 0 ? ElevatorStates.VBUS_REVERSE : ElevatorStates.OFF);
     }
 
     public void setStateVoltage(double volts) {
-        state = volts > 0 ? ElevatorStates.VOLTAGE_FORWARD : (volts < 0 ? ElevatorStates.VOLTAGE_BACKWARD : ElevatorStates.IDLE);
+        state = volts > 0 ? ElevatorStates.VOLTAGE_FORWARD : (volts < 0 ? ElevatorStates.VOLTAGE_REVERSE : ElevatorStates.OFF);
     }
 }
