@@ -74,7 +74,7 @@ public class Elevator extends SubsystemBase {
 
     public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
-    public static final double PID_TOLERANCE = 0.5;
+    public static final double PID_TOLERANCE = 2;
 
     public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(.4).withKI(0).withKD(0)
         .withGravityType(GravityTypeValue.Elevator_Static)
@@ -82,7 +82,10 @@ public class Elevator extends SubsystemBase {
 
     public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.Clockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);// Brake
+        .withNeutralMode(NeutralModeValue.Brake)
+        .withPeakForwardDutyCycle(0.3)
+        .withPeakReverseDutyCycle(-0.05);// Brake
+
 
     public static final MotorOutputConfigs followerConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.CounterClockwise_Positive)
@@ -104,6 +107,7 @@ public class Elevator extends SubsystemBase {
     follower = new TalonFX(ElevatorConstants.FOLLOWER_ID);
     leader.getConfigurator().apply(ElevatorConstants.leaderConfigs);
     follower.getConfigurator().apply(ElevatorConstants.followerConfigs);
+  
 
     state = ElevatorStates.IDLE;
 
@@ -134,6 +138,11 @@ public class Elevator extends SubsystemBase {
 
   public double getTargetPosition() {
     return targetPostition;
+  }
+
+  
+  public double getCurrentPosition() {
+    return leader.getPosition().getValueAsDouble();
   }
 
   public Command setNeutralMode(NeutralModeValue value) {

@@ -118,8 +118,8 @@ public class Arm extends SubsystemBase {
         public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
         public static final double GEAR_RATIO = 0.03333333333333;
         public static final MotorData motorType = MotorData.KRAKEN_X60_FOC;
-        public static final double SAFETY_THRESH = 40;
-        public static final double PID_TOLERANCE = 0.5;
+        public static final double SAFETY_THRESH = 20;
+        public static final double PID_TOLERANCE = 1;
     }
 
     public Command quasiStaticTest(Direction direction) {
@@ -271,9 +271,9 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
 
-        isInDanger = parentElevator.getTargetPosition() < ArmConstants.SAFETY_THRESH;
+        isInDanger = parentElevator.getTargetPosition() < ArmConstants.SAFETY_THRESH
+                || parentElevator.getCurrentPosition() < ArmConstants.SAFETY_THRESH;
 
-        
         encoderPosition = absEncoder.getPosition();
         encoderVelocity = absEncoder.getVelocity();
 
