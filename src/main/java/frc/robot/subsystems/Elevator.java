@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -72,17 +74,19 @@ public class Elevator extends SubsystemBase {
 
     public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
-    public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(.8).withKI(0).withKD(0)
+    public static final double PID_TOLERANCE = 0.5;
+
+    public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(.4).withKI(0).withKD(0)
         .withGravityType(GravityTypeValue.Elevator_Static)
-        .withKS(0.098167).withKV(0.11512).withKA(0.0029619).withKG(0.22606);
+        .withKS(0.05).withKV(0.11512).withKA(0.0029619).withKG(0.6);
 
     public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.Clockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);//Brake
+        .withNeutralMode(NeutralModeValue.Brake);// Brake
 
     public static final MotorOutputConfigs followerConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.CounterClockwise_Positive)
-        .withNeutralMode(NeutralModeValue.Brake);//Brake
+        .withNeutralMode(NeutralModeValue.Brake);// Brake
 
     public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs().withStatorCurrentLimit(30)
         .withStatorCurrentLimitEnable(true)
@@ -127,6 +131,10 @@ public class Elevator extends SubsystemBase {
     follower.getConfigurator().apply(ElevatorConstants.softLimits);
 
   };
+
+  public double getTargetPosition() {
+    return targetPostition;
+  }
 
   public Command setNeutralMode(NeutralModeValue value) {
     return runOnce(() -> {
@@ -226,6 +234,10 @@ public class Elevator extends SubsystemBase {
     });
   }
 
+  public BooleanSupplier atTargetPosition() {
+    return () -> Math.abs(targetPostition - leader.getPosition().getValueAsDouble()) <= ElevatorConstants.PID_TOLERANCE;
+  }
+
   // Use addRequirements() here to declare subsystem dependencies.
 
   // Called when the command is initially scheduled.
@@ -254,24 +266,24 @@ public class Elevator extends SubsystemBase {
         break;
     }
     // switch (reefState) {
-    //   case OFF:
-    //     leader.setControl(vbusControl.withOutput(0));
-    //     break;
-    //   case HOLD:
-    //     leader.setControl(pidControl.withPosition(ElevatorPositions.HOLD.position));
-    //     break;
-    //   case L1:
-    //     leader.setControl(pidControl.withPosition(ElevatorPositions.L1.position));
-    //     break;
-    //   case L2:
-    //     leader.setControl(pidControl.withPosition(ElevatorPositions.L2.position));
-    //     break;
-    //   case L3:
-    //     leader.setControl(pidControl.withPosition(ElevatorPositions.L3.position));
-    //     break;
-    //   case L4:
-    //     leader.setControl(pidControl.withPosition(ElevatorPositions.L4.position));
-    //     break;
+    // case OFF:
+    // leader.setControl(vbusControl.withOutput(0));
+    // break;
+    // case HOLD:
+    // leader.setControl(pidControl.withPosition(ElevatorPositions.HOLD.position));
+    // break;
+    // case L1:
+    // leader.setControl(pidControl.withPosition(ElevatorPositions.L1.position));
+    // break;
+    // case L2:
+    // leader.setControl(pidControl.withPosition(ElevatorPositions.L2.position));
+    // break;
+    // case L3:
+    // leader.setControl(pidControl.withPosition(ElevatorPositions.L3.position));
+    // break;
+    // case L4:
+    // leader.setControl(pidControl.withPosition(ElevatorPositions.L4.position));
+    // break;
     // }
     follower.setControl(new StrictFollower(15));
 

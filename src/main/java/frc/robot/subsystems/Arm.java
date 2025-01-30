@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -57,12 +59,12 @@ public class Arm extends SubsystemBase {
 
     private double encoderPosition, encoderVelocity;
 
-    private static final double PI_1_2 = 0.5 * Math.PI;
-    private static final double PI_3_2 = 1.5 * Math.PI;
-    private static final double PI_5_8 = 5 * Math.PI / 8;
-    private static final double PI_2 = 2 * Math.PI;
-    private static final double PI_7_4 = 7 * Math.PI / 4;
-    private double reefVolt = 0;
+    public static final double PI_1_2 = 0.5 * Math.PI;
+    public static final double PI_3_2 = 1.5 * Math.PI;
+    public static final double PI_5_8 = 5 * Math.PI / 8;
+    public static final double PI_2 = 2 * Math.PI;
+    public static final double PI_7_4 = 7 * Math.PI / 4;
+    public double reefVolt = 0;
 
     private static final class ArmSafetyData {
         public ArmSafetyData(double[] range, boolean enableContinuousInput) {
@@ -110,12 +112,14 @@ public class Arm extends SubsystemBase {
         pidController.reset(getEncoderPositionRad());
     }
 
-    private static final class ArmConstants {
+    public static final class ArmConstants {
         public static final double ARM_LENGTH_METRES = 0;
         public static final double ARM_MASS_KG = 0;
         public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
         public static final double GEAR_RATIO = 0.03333333333333;
         public static final MotorData motorType = MotorData.KRAKEN_X60_FOC;
+        public static final double SAFETY_THRESH = 40;
+        public static final double PID_TOLERANCE = 0.5;
     }
 
     public Command quasiStaticTest(Direction direction) {
@@ -240,6 +244,10 @@ public class Arm extends SubsystemBase {
         return MathUtil.clamp(value, range[0], range[1]);
     }
 
+    public BooleanSupplier atTargetPosition() {
+        return () -> Math.abs(targetPositionRad - getEncoderPositionRad()) <= ArmConstants.PID_TOLERANCE;
+    }
+
     public ArmSafetyData getArmSafety() {
         return isInDanger ? SAFE_RANGE : UNSAFE_RANGE;
     }
@@ -262,6 +270,10 @@ public class Arm extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        isInDanger = parentElevator.getTargetPosition() < ArmConstants.SAFETY_THRESH;
+
+        
         encoderPosition = absEncoder.getPosition();
         encoderVelocity = absEncoder.getVelocity();
 
