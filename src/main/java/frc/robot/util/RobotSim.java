@@ -6,10 +6,15 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import frc.robot.Robot;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.coral.CoralManipulatorIO;
 import frc.robot.subsystems.coral.CoralManipulatorIOSim;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 
@@ -24,6 +29,13 @@ public class RobotSim {
 
     public static final CoralManipulatorIO coralManipulatorSimSwitch(CoralManipulatorIO realCoralManipulator) {
         return Robot.isReal() ? realCoralManipulator : new CoralManipulatorIOSim();
+    }
+
+    public static final Drive driveSimSwitch(GyroIO io, ModuleIO[] moduleIOs) {
+        return Robot.isReal() ? new Drive(io, moduleIOs[0], moduleIOs[1], moduleIOs[2], moduleIOs[3])
+                : new Drive(new GyroIO() {
+                }, new ModuleIOSim(TunerConstants.FrontLeft), new ModuleIOSim(TunerConstants.FrontRight),
+                        new ModuleIOSim(TunerConstants.BackLeft), new ModuleIOSim(TunerConstants.BackRight));
     }
 
     private static final Mechanism2d baseMech = new Mechanism2d(5, 5);

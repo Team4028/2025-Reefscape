@@ -5,10 +5,15 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOSparkEncoderTalonFX;
 import frc.robot.subsystems.coral.CoralManipulator;
 import frc.robot.subsystems.coral.CoralManipulatorIOTalonSRX;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.RobotSim;
@@ -33,6 +38,11 @@ public class RobotContainer {
     private final Arm arm = new Arm(RobotSim.armSimSwitch(new ArmIOSparkEncoderTalonFX()), elevator);
     private final CoralManipulator coralManipulator = new CoralManipulator(
             RobotSim.coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX()));
+
+    private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(),
+            new ModuleIO[] { new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                    new ModuleIOTalonFX(TunerConstants.FrontRight), new ModuleIOTalonFX(TunerConstants.BackLeft),
+                    new ModuleIOTalonFX(TunerConstants.BackRight) });
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     @SuppressWarnings("unused")
