@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,7 +40,9 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(edu.wpi.first.units.Units.MetersPerSecond); // kSpeedAt12Volts
                                                                                                             // desired
-                                                                                                            // top
+
+    private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
+    // top
     // speed
     private double MaxAngularRate = edu.wpi.first.units.Units.RotationsPerSecond.of(0.75)
             .in(edu.wpi.first.units.Units.RadiansPerSecond); // 3/4 of a rotation per
@@ -65,7 +68,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-
+        xLimiter = yLimiter = thetaLimiter = new SlewRateLimiter(4);
         NamedCommands.registerCommand("L4 Score",
                 elevator.runToPosition(54).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
                         .andThen(arm.runToPositionCommand(edu.wpi.first.math.util.Units.degreesToRadians(123))));
@@ -97,14 +100,22 @@ public class RobotContainer {
         // cancelling on release.
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive
-                                                                                                           // forward
-                                                                                                           // with
-                        // negative Y (forward)
-                        .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise
-                                                                                            // with negative
-                                                                                            // X (left)
+                drivetrain.applyRequest(
+                        () -> drive.withVelocityX(xLimiter.calculate(-driverController.getLeftY() * 0.1) * MaxSpeed) // Drive
+                                // forward
+                                // with
+                                // negative Y (forward)
+                                .withVelocityY(yLimiter.calculate(-driverController.getLeftX() * 0.1) * MaxSpeed) // Drive
+                                                                                                                   // left
+                                                                                                                   // with
+                                                                                                                   // negative
+                                                                                                                   // X
+                                                                                                                   // (left)
+                                .withRotationalRate(
+                                        thetaLimiter.calculate(-driverController.getRightX() * 0.1) * MaxAngularRate) // Drive
+                                                                                                                       // counterclockwise
+                // with negative
+                // X (left)
                 ));
 
         driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
