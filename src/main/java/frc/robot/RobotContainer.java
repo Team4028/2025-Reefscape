@@ -68,7 +68,9 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        xLimiter = yLimiter = thetaLimiter = new SlewRateLimiter(4);
+        xLimiter = new SlewRateLimiter(4);
+        yLimiter = new SlewRateLimiter(4);
+        thetaLimiter = new SlewRateLimiter(4);
         NamedCommands.registerCommand("L4 Score",
                 elevator.runToPosition(54).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
                         .andThen(arm.runToPositionCommand(edu.wpi.first.math.util.Units.degreesToRadians(123))));
@@ -112,29 +114,39 @@ public class RobotContainer {
                                                                                                                    // X
                                                                                                                    // (left)
                                 .withRotationalRate(
-                                        thetaLimiter.calculate(-driverController.getRightX() * 0.1) * MaxAngularRate) // Drive
+                                        thetaLimiter.calculate(-driverController.getRightX() * 0.4) * MaxAngularRate) // Drive
                                                                                                                        // counterclockwise
                 // with negative
                 // X (left)
                 ));
+// ====================================================================================================================
+// ====================================================================================================================
+// GABE STUK PLEASE EXPLAIN WHAT HAPPENED
+// ====================================================================================================================
+// ====================================================================================================================
 
-        driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        driverController.b().whileTrue(drivetrain
-                .applyRequest(() -> point
-                        .withModuleDirection(
-                                new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // driverController.b().whileTrue(drivetrain
+        //         .applyRequest(() -> point
+        //                 .withModuleDirection(
+        //                         new Rotation2d(-driverController.getLeftY(), -driverController.getLeftX()))));
 
-        // reset the field-centric heading on left bumper press
-        driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // // Run SysId routines when holding back/start and X/Y.
+        // // Note that each routine should be run exactly once in a single log.
+        // driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
 
-        driverController.b().onTrue(elevator.quasiStaticTest(Direction.kForward));
-        driverController.x().onTrue(elevator.dynamicTest(Direction.kReverse));
-        driverController.a().onTrue(elevator.runToPosition(2));
+// ====================================================================================================================// 
+// ====================================================================================================================
+// ====================================================================================================================
+
+        // // reset the field-centric heading on left bumper press
+        // driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        // driverController.b().onTrue(elevator.quasiStaticTest(Direction.kForward));
+        // driverController.x().onTrue(elevator.dynamicTest(Direction.kReverse));
+        // driverController.a().onTrue(elevator.runToPosition(2));
 
         // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
@@ -173,7 +185,7 @@ public class RobotContainer {
         driverController.leftTrigger().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
         driverController.leftBumper().onTrue(coral.runMotorCommand(-.6)).onFalse(coral.runMotorCommand(0));
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
