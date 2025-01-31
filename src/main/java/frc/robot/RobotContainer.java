@@ -8,9 +8,13 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Coral;
 import frc.robot.subsystems.Elevator;
+
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -57,7 +61,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-
+    
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
     // cancelling on release.
@@ -68,38 +72,30 @@ public class RobotContainer {
     // driverController.b().onTrue(elevator.runToPosition(40));
     // driverController.y().onTrue(elevator.runToPosition(10));
     // driverController.x().onTrue(elevator.reefStateChangeCommand());
-    driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.4)).onFalse(elevator.runMotorsCommand(0));
-    driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.4)).onFalse(elevator.runMotorsCommand(0));
+
+    // driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.4)).onFalse(elevator.runMotorsCommand(0));
+    // driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.4)).onFalse(elevator.runMotorsCommand(0));
 
     // driverController.rightBumper().onTrue(elevator.reefCountChange(1));
     // driverController.leftBumper().onTrue(elevator.reefCountChange(-1));
     // driverController.b().onTrue(elevator.runToReefCount());
 
-    // driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
-    // driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
+    // driverController.leftTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
+    // driverController.leftBumper().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
 
-    driverController.povRight().onTrue(arm.runToPositionCommand(Math.PI / 4));
-    driverController.povUp().onTrue(arm.runToPositionCommand(Math.PI));
-    driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
-    driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) / 4));
     // Run to L4
-    driverController.x().onTrue(elevator.runToPosition(54).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-        .andThen(arm.runToPositionCommand(Units.degreesToRadians(123.))));
+    driverController.x().onTrue(runToL4());
     // Run to L3
-    driverController.a().onTrue(
-        arm.runToPositionCommand(Units.degreesToRadians(55)).alongWith(Commands.waitUntil(arm.atTargetPosition()))
-            .andThen(elevator.runToPosition(49.6)));
+    driverController.a().onTrue(runToL3());
     // Run to L2
-    driverController.b().onTrue(
-        arm.runToPositionCommand(Units.degreesToRadians(55)).alongWith(Commands.waitUntil(arm.atTargetPosition()))
-            .andThen(elevator.runToPosition(33)));
+    driverController.b().onTrue(runToL2());
     // Acquire
-    driverController.y().onTrue(
-        arm.runToPositionCommand(Units.degreesToRadians(215)).alongWith(Commands.waitUntil(arm.atTargetPosition()))
-            .andThen(elevator.runToPosition(15)));
+    driverController.y().onTrue(runAquire());
 
-    // driverController.x().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
-    // driverController.b().onTrue(coral.runMotorCommand(-.6)).onFalse(coral.runMotorCommand(0));
+    driverController.rightBumper().onTrue(runToStore());
+
+    driverController.leftTrigger().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
+    driverController.leftBumper().onTrue(coral.runMotorCommand(-.6)).onFalse(coral.runMotorCommand(0));
 
   }
 
@@ -120,4 +116,30 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return null;
   }
+
+  public Command runToL4() {
+    return elevator.runToPosition(54).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+    .andThen(arm.runToPositionCommand(Units.degreesToRadians(123.)));
+  }
+  public Command runToL3() {
+    return elevator.runToPosition(49.6).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+    .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+  }
+
+  public Command runToL2() {
+    return elevator.runToPosition(33).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+    .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+  }
+
+  public Command runAquire() {
+    return elevator.runToPosition(17.5).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+    .andThen(arm.runToPositionCommand(Units.degreesToRadians(235)));
+  }
+
+  public Command runToStore() {
+    return elevator.runToPosition(17.5).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+    .andThen(arm.runToPositionCommand(Units.degreesToRadians(180)));
+  }
+
+ 
 }

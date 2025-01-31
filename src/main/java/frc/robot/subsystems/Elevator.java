@@ -84,7 +84,7 @@ public class Elevator extends SubsystemBase {
         .withInverted(InvertedValue.Clockwise_Positive)
         .withNeutralMode(NeutralModeValue.Brake)
         .withPeakForwardDutyCycle(0.3)
-        .withPeakReverseDutyCycle(-0.05);// Brake
+        .withPeakReverseDutyCycle(0.01);// Brake
 
 
     public static final MotorOutputConfigs followerConfigs = new MotorOutputConfigs()
