@@ -114,13 +114,13 @@ public class RobotContainer {
                                 // Drivetrain will execute this command periodically
                                 drivetrain.applyRequest(
                                                 () -> drive.withVelocityX(
-                                                                xLimiter.calculate(-driverController.getLeftY() * 0.1)
+                                                                xLimiter.calculate(-driverController.getLeftY() * 0.25)
                                                                                 * MaxSpeed) // Drive
                                                                 // forward
                                                                 // with
                                                                 // negative Y (forward)
                                                                 .withVelocityY(yLimiter.calculate(
-                                                                                -driverController.getLeftX() * 0.1)
+                                                                                -driverController.getLeftX() * 0.25)
                                                                                 * MaxSpeed) // Drive
                                                                                             // left
                                                                                             // with
@@ -169,11 +169,12 @@ public class RobotContainer {
 
                 // Schedule `exampleMethodCommand` when the Xbox controller's B button is
                 // pressed,
-                // cancelling on release.
+                // // cancelling on release.
                 // driverController.povLeft().whileTrue(elevator.quasiStaticTest(Direction.kForward));
                 // driverController.povRight().whileTrue(elevator.quasiStaticTest(Direction.kReverse));
                 // driverController.povUp().whileTrue(elevator.dynamicTest(Direction.kForward));
                 // driverController.povDown().whileTrue(elevator.dynamicTest(Direction.kReverse));
+                // driverController.a().onTrue(arm.runToPositionCommand(Math.PI));
                 // driverController.b().onTrue(elevator.runToPosition(40));
                 // driverController.y().onTrue(elevator.runToPosition(10));
                 // driverController.x().onTrue(elevator.reefStateChangeCommand());

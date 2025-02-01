@@ -76,9 +76,9 @@ public class Elevator extends SubsystemBase {
 
     public static final double PID_TOLERANCE = 10;
 
-    public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(.4).withKI(0).withKD(0)
+    public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(.8).withKI(0).withKD(0)
         .withGravityType(GravityTypeValue.Elevator_Static)
-        .withKS(0.05).withKV(0.11512).withKA(0.0029619).withKG(0.6);
+        .withKS(0.18011).withKV(0.1089).withKA(0.0053374).withKG(0.13827);
 
     public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
         .withInverted(InvertedValue.Clockwise_Positive)
