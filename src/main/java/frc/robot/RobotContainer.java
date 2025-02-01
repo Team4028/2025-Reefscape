@@ -185,7 +185,7 @@ public class RobotContainer {
         driverController.leftTrigger().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
         driverController.leftBumper().onTrue(coral.runMotorCommand(-.6)).onFalse(coral.runMotorCommand(0));
 
-        // drivetrain.registerTelemetry(logger::telemeterize);
+        drivetrain.registerTelemetry(logger::telemeterize);
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
