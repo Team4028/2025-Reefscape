@@ -20,7 +20,7 @@ public class Coral extends SubsystemBase {
   /** Creates a new Infeed. */
   public Coral() {
     motor = new TalonSRX(17);
-    motor.setInverted(true);
+    motor.setInverted(false);
     state = InfeedStates.OFF;
   }
 

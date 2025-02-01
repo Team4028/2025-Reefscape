@@ -96,7 +96,7 @@ public class Elevator extends SubsystemBase {
         .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
 
     public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-        .withForwardSoftLimitThreshold(55)
+        .withForwardSoftLimitThreshold(58)
         .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(5).withReverseSoftLimitEnable(true);
   }
 

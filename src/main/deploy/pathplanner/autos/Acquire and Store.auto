@@ -5,21 +5,27 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "Acquire and Score.0"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Stow"
+            "name": "Acquire"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Test"
+            "pathName": "Acquire and Score.1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L4 Score"
+            "name": "L3 Score"
           }
         }
       ]
