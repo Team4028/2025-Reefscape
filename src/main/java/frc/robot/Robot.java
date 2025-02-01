@@ -81,7 +81,6 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autonomousCommand = robotContainer.getAutonomousCommand();
 
-    robotContainer.runArmMotorOff().schedule();
     robotContainer.resetArmPid();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -103,7 +102,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    robotContainer.runArmMotorOff().schedule();
     robotContainer.resetArmPid();
  
    

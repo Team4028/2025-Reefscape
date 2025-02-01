@@ -13,6 +13,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Acquire"
           }
         },
@@ -25,7 +31,85 @@
         {
           "type": "named",
           "data": {
-            "name": "L3 Score"
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Outfeed"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Acquire and Score.2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Acquire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Acquire and Score.3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Outfeed"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Acquire and Score.4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Acquire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Acquire and Score.5"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Outfeed"
           }
         }
       ]

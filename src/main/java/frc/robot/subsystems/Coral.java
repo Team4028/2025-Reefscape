@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -15,7 +17,7 @@ public class Coral extends SubsystemBase {
   private final TalonSRX motor;
   private InfeedStates state;
   private double targetVbus = 0;
-  private boolean hasGamePiece;
+  private boolean hasGamePiece = false;
 
   /** Creates a new Infeed. */
   public Coral() {
@@ -28,6 +30,10 @@ public class Coral extends SubsystemBase {
     INFEED,
     OUTFEED,
     OFF
+  }
+
+  public BooleanSupplier hasGamePieceSupplier() {
+    return () -> hasGamePiece;
   }
 
   public Command runMotorCommand(double vbus) {
@@ -50,7 +56,7 @@ public class Coral extends SubsystemBase {
       case OUTFEED:
         hasGamePiece = false;
       case INFEED:
-        if (motor.getStatorCurrent() < 35)
+        if (motor.getStatorCurrent() < 40)
           motor.set(TalonSRXControlMode.PercentOutput, targetVbus);
         else {
           motor.set(TalonSRXControlMode.PercentOutput, 0);
