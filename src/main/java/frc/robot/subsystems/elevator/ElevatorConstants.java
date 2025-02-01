@@ -19,7 +19,7 @@ public class ElevatorConstants {
 
     public static final boolean USE_FOC = true;
 
-    public static final PIDStruct pidConstants = new PIDStruct(1.25, 0, 0, 6, 6, 0.11895, 0.19185, 0.11526, 0.0031419);
+    public static final PIDStruct pidConstants = new PIDStruct(0.4, 0, 0, 3, 6, 0.05, 0.6, 0.11512, 0.0029619);
 
     // cascading: 1 : 2 per stage (not base stage)
     public static final double CARRIAGE_MASS_KG = 5;
@@ -31,6 +31,8 @@ public class ElevatorConstants {
     public static final double ROT_TO_METRES = 1.5 * DRUM_RADIUS * Math.PI * MOTOR_TO_DRUM_RATIO;
 
     public static final double MAX_HEIGHT_METERS = 60 * ROT_TO_METRES;
+
+    public static final double PID_TOLERANCE = 10.0;
 
     public static final class TalonFX {
         public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
@@ -53,7 +55,7 @@ public class ElevatorConstants {
                 .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
 
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitThreshold(55)
+                .withForwardSoftLimitThreshold(58)
                 .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(5).withReverseSoftLimitEnable(true);
     }
 

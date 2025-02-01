@@ -23,7 +23,7 @@ public class CoralManipulatorConstants {
     }
 
     public static final class TalonSRX {
-        public static final int CAN_ID = 0;
+        public static final int CAN_ID = 17;
         public static final boolean INVERT = false;
         public static final NeutralMode NEUTRALMODE = NeutralMode.Brake;
     }

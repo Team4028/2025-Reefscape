@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOSparkEncoderTalonFX;
@@ -17,9 +18,22 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.RobotSim;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -44,6 +58,10 @@ public class RobotContainer {
                     new ModuleIOTalonFX(TunerConstants.FrontRight), new ModuleIOTalonFX(TunerConstants.BackLeft),
                     new ModuleIOTalonFX(TunerConstants.BackRight) });
 
+    private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
+
+    private final LoggedDashboardChooser<Command> autoChooser;
+
     // Replace with CommandPS4Controller or CommandJoystick if needed
     @SuppressWarnings("unused")
     private final CommandXboxController driverController = new CommandXboxController(
@@ -53,7 +71,38 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        // Configure the trigger bindings
+        xLimiter = new SlewRateLimiter(4);
+        yLimiter = new SlewRateLimiter(4);
+        thetaLimiter = new SlewRateLimiter(4);
+        NamedCommands.registerCommand("L4 Score",
+                runToL4());
+        NamedCommands.registerCommand("Stow",
+                runToStow());
+        NamedCommands.registerCommand("Acquire",
+                runAquire().andThen(coralManipulator.runMotorCommand(.7).alongWith(Commands.waitSeconds(1))
+                        .andThen(coralManipulator.runMotorCommand(0))));
+        NamedCommands.registerCommand("L3 Score",
+                runToL3().andThen(Commands.waitUntil(arm.atTargetPosition()))
+                        .andThen(coralManipulator.runMotorCommand(-.8)
+                                .alongWith(Commands.waitSeconds(1))
+                                .andThen(coralManipulator.runMotorCommand(0))));
+
+        autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
+        // Set up SysId routines
+        autoChooser.addOption(
+                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+        autoChooser.addOption(
+                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Forward)",
+                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Reverse)",
+                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
         configureBindings();
     }
 
@@ -63,56 +112,46 @@ public class RobotContainer {
                 coralManipulator.getSimData().currentAmps());
     }
 
-    /**
-     * Use this method to define your trigger->command mappings. Triggers can be
-     * created via the
-     * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-     * an arbitrary
-     * predicate, or via the named factories in {@link
-     * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-     * {@link
-     * CommandXboxController
-     * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-     * PS4} controllers or
-     * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-     * joysticks}.
-     */
     private void configureBindings() {
-        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+        drive.setDefaultCommand(
+                DriveCommands.joystickDrive(
+                        drive,
+                        () -> -driverController.getLeftY(),
+                        () -> -driverController.getLeftX(),
+                        () -> -driverController.getRightX()));
 
-        // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-        // pressed,
-        // cancelling on release.
-        // driverController.povLeft().whileTrue(elevator.quasiStaticTest(Direction.kForward));
-        // driverController.povRight().whileTrue(elevator.quasiStaticTest(Direction.kReverse));
-        // driverController.povUp().whileTrue(elevator.dynamicTest(Direction.kForward));
-        // driverController.povDown().whileTrue(elevator.dynamicTest(Direction.kReverse));
-        // driverController.a().onTrue(elevator.runToPosition(53));
-        // driverController.y().onTrue(elevator.runToPosition(7));
-        // driverController.x().onTrue(elevator.reefStateChangeCommand());
-        // driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.65)).onFalse(elevator.runMotorsCommand(0));
-        // driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.65)).onFalse(elevator.runMotorsCommand(0));
+        driverController.x().onTrue(runToL4());
+        // Run to L3
+        driverController.a().onTrue(runToL3());
+        // Run to L2
+        driverController.b().onTrue(runToL2());
+        // Acquire
+        driverController.y().onTrue(runAquire());
 
-        // driverController.rightBumper().onTrue(elevator.reefCountChange(1));
-        // driverController.leftBumper().onTrue(elevator.reefCountChange(-1));
-        // driverController.b().onTrue(elevator.runToReefCount());
+        driverController.rightBumper().onTrue(runToStow());
 
-        // driverController.rightTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
-        // driverController.leftTrigger().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
+        driverController.leftTrigger().onTrue(coralManipulator.runMotorCommand(.7))
+                .onFalse(coralManipulator.runMotorCommand(0));
+        driverController.leftBumper().onTrue(coralManipulator.runMotorCommand(-.7))
+                .onFalse(coralManipulator.runMotorCommand(0));
 
-        // driverController.povRight().onTrue(arm.runToPositionCommand(Math.PI / 4));
-        // driverController.povUp().onTrue(arm.runToPositionCommand(3 * Math.PI / 4));
-        // driverController.povLeft().onTrue(arm.runToPositionCommand(5 * Math.PI / 4));
-        // driverController.povDown().onTrue(arm.runToPositionCommand((7 * Math.PI) /
-        // 4));
-
-        // driverController.a().onTrue(Commands.runOnce(() ->
-        // arm.setInDanger(!arm.isInDanger())));
-
+        // Reset gyro to 0° when B button is pressed
+        driverController
+                .start()
+                .onTrue(
+                        Commands.runOnce(
+                                () -> drive.setPose(
+                                        new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                                drive)
+                                .ignoringDisable(true));
     }
 
     public void resetArmPid() {
-        // arm.pidReset();
+        arm.pidReset();
+    }
+
+    public void runArmOff() {
+        arm.stop();
     }
 
     /**
@@ -122,6 +161,31 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return null;
+        return autoChooser.get();
+    }
+
+    public Command runToL4() {
+        return elevator.runToPositionCommand(50).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(65.)));
+    }
+
+    public Command runToL3() {
+        return elevator.runToPositionCommand(56).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+    }
+
+    public Command runToL2() {
+        return elevator.runToPositionCommand(40.5).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+    }
+
+    public Command runAquire() {
+        return elevator.runToPositionCommand(16).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(235)));
+    }
+
+    public Command runToStow() {
+        return elevator.runToPositionCommand(8).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(180)));
     }
 }

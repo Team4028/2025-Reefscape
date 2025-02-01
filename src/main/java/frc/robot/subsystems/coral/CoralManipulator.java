@@ -72,6 +72,7 @@ public class CoralManipulator extends SubsystemBase {
 
     @CreateState("vbus_reverse")
     public void outfeedVBus() {
+        io.setVbus(targetVBus);
         stateTracker.hasCoral = false;
     }
 

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.arm;
 
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -50,6 +51,10 @@ public class Arm extends SubsystemBase {
                 inputs.armMotorVelocityRotPerSec * ArmConstants.PI_2, parentElevator);
     }
 
+    public BooleanSupplier atTargetPosition() {
+        return () -> Math.abs(targetPositionRad - inputs.armEncoderRad) <= ArmConstants.PID_TOLERANCE;
+    }
+
     public Command runMotorCommand(double vbus) {
         return runOnce(() -> {
             targetVbus = vbus;
@@ -87,7 +92,7 @@ public class Arm extends SubsystemBase {
     public void pidReset() {
         pid.reset(inputs.armEncoderRad);
     }
-    
+
     @Override
     public void periodic() {
         stateTracker.state.execute(this);
@@ -117,7 +122,6 @@ public class Arm extends SubsystemBase {
         io.setVoltage(pid.calculate(inputs.armEncoderRad, stateTracker.safeClampRange(targetPositionRad))
                 + armFF.calculate(inputs.armAngleRad, pid.getSetpoint().velocity));
     }
-
 
     public SimData getSimData() {
         return new SimData(inputs.currentAmps, inputs.armAngleRad);

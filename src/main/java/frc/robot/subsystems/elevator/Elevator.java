@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.Logger;
 import com.bskd.annotations.CreateState;
 
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,6 +33,10 @@ public class Elevator extends SubsystemBase {
             targetVbus = vbus;
             stateTracker.setStateVBus(vbus);
         });
+    }
+
+    public BooleanSupplier atTargetPosition() {
+        return () -> Math.abs(targetPostition - inputs.leaderPosition) <= ElevatorConstants.PID_TOLERANCE;
     }
 
     public Command runMotorsCommand(Voltage volts) {
@@ -85,7 +90,8 @@ public class Elevator extends SubsystemBase {
     }
 
     @CreateState("holding_position")
-    public void hold() {}
+    public void hold() {
+    }
 
     @CreateState("prepare_to_move")
     public void movementPreparation() {
