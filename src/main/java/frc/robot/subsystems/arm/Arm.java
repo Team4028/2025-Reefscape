@@ -28,9 +28,6 @@ public class Arm extends SubsystemBase {
     private boolean hasAlgae;
     private final Elevator parentElevator;
 
-    public static final record SimData(double currentAmps, double armAngle) {
-    }
-
     public Arm(ArmIO io, Elevator parentElevator) {
         this.io = io;
         this.parentElevator = parentElevator;
@@ -123,7 +120,7 @@ public class Arm extends SubsystemBase {
                 + armFF.calculate(inputs.armAngleRad, pid.getSetpoint().velocity));
     }
 
-    public SimData getSimData() {
-        return new SimData(inputs.currentAmps, inputs.armAngleRad);
+    public double getSimAngle() {
+        return inputs.armAngleRad;
     }
 }

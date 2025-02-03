@@ -16,8 +16,6 @@ public class Leds extends SubsystemBase {
     private final LedsStateTracker stateTracker;
     private final Color[] targetColors = new Color[LedsConstants.NUM_LEDS];
 
-    public static final record SimData(int[] ledColors) {}
-
     public enum Color {
         GREEN(0, 254, 0),
         PURPLE(118, 0, 254),
@@ -92,7 +90,7 @@ public class Leds extends SubsystemBase {
             io.setLed(targetColors[i].r, targetColors[i].g, targetColors[i].b, 0, i);
     }
 
-    public SimData getSimData() {
-        return new SimData(inputs.ledColors);
+    public int[] getSimData() {
+        return inputs.ledColors;
     }
 }

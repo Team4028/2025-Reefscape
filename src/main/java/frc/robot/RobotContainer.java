@@ -28,11 +28,9 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
@@ -106,10 +104,14 @@ public class RobotContainer {
         configureBindings();
     }
 
+    public static final double notNaN(double x) {
+        return x == Double.NaN ? 0 : x;
+    }
+
     public final void simCallback() {
-        RobotSim.update(elevator.getSimData().lengthMetres(), arm.getSimData().armAngle(),
-                elevator.getSimData().currentAmps(), arm.getSimData().currentAmps(),
-                coralManipulator.getSimData().currentAmps());
+        RobotSim.update(elevator.getSimPos(), arm.getSimAngle());
+
+        RobotSim.logMechanism();
     }
 
     private void configureBindings() {
@@ -130,10 +132,8 @@ public class RobotContainer {
 
         driverController.rightBumper().onTrue(runToStow());
 
-        driverController.leftTrigger().onTrue(coralManipulator.runMotorCommand(.7))
-                .onFalse(coralManipulator.runMotorCommand(0));
-        driverController.leftBumper().onTrue(coralManipulator.runMotorCommand(-.7))
-                .onFalse(coralManipulator.runMotorCommand(0));
+        driverController.leftTrigger().onTrue(elevator.runMotorsCommand(0.8)).onFalse(elevator.runMotorsCommand(0));
+        driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.8)).onFalse(elevator.runMotorsCommand(0));
 
         // Reset gyro to 0° when B button is pressed
         driverController

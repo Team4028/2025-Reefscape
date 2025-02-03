@@ -20,11 +20,9 @@ public class Elevator extends SubsystemBase {
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
 
-    public static final record SimData(double currentAmps, double lengthMetres) {
-    }
-
     public Elevator(ElevatorIO io) {
         this.io = io;
+        stateTracker = new ElevatorStateTracker();
         sysIDCommands = SysIDUtil.generateTests(ElevatorConstants.sysIDConfig, this::runMotorsCommand, this);
     }
 
@@ -115,8 +113,7 @@ public class Elevator extends SubsystemBase {
         io.setVoltage(targetVoltage);
     }
 
-    public SimData getSimData() {
-        return new SimData(inputs.leaderCurrentAmps + inputs.followerCurrentAmps,
-                inputs.leaderPosition * ElevatorConstants.ROT_TO_METRES);
+    public double getSimPos() {
+        return inputs.leaderPosition * ElevatorConstants.ROT_TO_METRES;
     }
 }

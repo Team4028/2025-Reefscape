@@ -4,7 +4,9 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 
 public class ElevatorIOSim implements ElevatorIO {
     private final ProfiledPIDController pid;
@@ -12,7 +14,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
     private final ElevatorSim elevator;
 
-    private double fakeAccel = 0, lastVel = 0, lastVolts = 0;
+    private double fakeAccel = 0, lastVel = 0, targetVolts = 0;
 
     public ElevatorIOSim() {
         pid = ElevatorConstants.pidConstants.makeProfiledPIDController();
@@ -27,25 +29,26 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
+        elevator.setInput(targetVolts);
         elevator.update(0.02);
+        fakeAccel = (elevator.getOutput(1) - lastVel) / 0.02;
+        lastVel = elevator.getOutput(1);
         inputs.leaderPosition = elevator.getOutput(0) / ElevatorConstants.ROT_TO_METRES;
         inputs.followerPosition = elevator.getOutput(0) / ElevatorConstants.ROT_TO_METRES;
         inputs.leaderVelocity = elevator.getOutput(1) / ElevatorConstants.ROT_TO_METRES;
         inputs.followerVelocity = elevator.getOutput(1) / ElevatorConstants.ROT_TO_METRES;
         inputs.leaderAcceleration = fakeAccel / ElevatorConstants.ROT_TO_METRES;
         inputs.followerAcceleration = fakeAccel / ElevatorConstants.ROT_TO_METRES;
-        inputs.leaderAppliedVolts = lastVolts;
-        inputs.followerAppliedVolts = lastVolts;
+        inputs.leaderAppliedVolts = targetVolts;
+        inputs.followerAppliedVolts = targetVolts;
         inputs.leaderCurrentAmps = elevator.getCurrentDrawAmps() / 2;
         inputs.followerCurrentAmps = elevator.getCurrentDrawAmps() / 2;
+        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(elevator.getCurrentDrawAmps()));
     }
 
     @Override
     public void setVoltage(double volts) {
-        lastVolts = volts;
-        elevator.setInput(volts);
-        fakeAccel = (elevator.getOutput(1) - lastVel) / 0.02;
-        lastVel = elevator.getOutput(1);
+        targetVolts = volts;
     }
 
     @Override

@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import edu.wpi.first.wpilibj.RobotBase;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -17,10 +18,17 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static final double ALGAE_RADIUS_M = 0.206375;
-  public static final double ALGAE_WEIGHT_KG = 0.680389;
+    public static final double ALGAE_RADIUS_M = 0.206375;
+    public static final double ALGAE_WEIGHT_KG = 0.680389;
 
-  public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
-  }
+    public static final Mode simMode = Mode.SIM;
+    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+    public static class OperatorConstants {
+        public static final int kDriverControllerPort = 0;
+    }
+
+    public static enum Mode {
+        REAL, SIM, REPLAY
+    }
 }
