@@ -1,6 +1,7 @@
 package frc.robot.subsystems.coral;
 
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -45,6 +46,10 @@ public class CoralManipulator extends SubsystemBase {
             targetVoltage = volts.magnitude();
             stateTracker.setStateVoltage(volts.magnitude());
         });
+    }
+
+    public BooleanSupplier hasGamePieceSupplier() {
+        return () -> stateTracker.hasCoral;
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -72,18 +73,24 @@ public class RobotContainer {
         xLimiter = new SlewRateLimiter(4);
         yLimiter = new SlewRateLimiter(4);
         thetaLimiter = new SlewRateLimiter(4);
+        NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("L4 Score",
-                runToL4());
+                runToL4().andThen(Commands.waitUntil(arm.atTargetPosition())));
         NamedCommands.registerCommand("Stow",
                 runToStow());
         NamedCommands.registerCommand("Acquire",
-                runAquire().andThen(coralManipulator.runMotorCommand(.7).alongWith(Commands.waitSeconds(1))
-                        .andThen(coralManipulator.runMotorCommand(0))));
-        NamedCommands.registerCommand("L3 Score",
-                runToL3().andThen(Commands.waitUntil(arm.atTargetPosition()))
-                        .andThen(coralManipulator.runMotorCommand(-.8)
-                                .alongWith(Commands.waitSeconds(1))
+                runAquire()
+                        .andThen(coralManipulator.runMotorCommand(.7)
+                                .alongWith(Commands.waitUntil(
+                                        coralManipulator.hasGamePieceSupplier()))
                                 .andThen(coralManipulator.runMotorCommand(0))));
+        NamedCommands.registerCommand("L3 Score",
+                runToL3().andThen(Commands.waitUntil(arm.readyToScore())));
+        NamedCommands.registerCommand("Score Outfeed",
+                Commands.waitUntil(arm.readyToScore()).andThen(Commands.waitSeconds(0.5))
+                        .andThen(coralManipulator.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
+                                .andThen(coralManipulator.runMotorCommand(0))));
+        NamedCommands.registerCommand("Stow Arm", arm.runToPositionCommand(Units.degreesToRadians(180)));
 
         autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
         // Set up SysId routines
@@ -103,7 +110,6 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
         configureBindings();
     }
-
 
     public final void simCallback() {
         RobotSim.update(elevator.getSimPos(), arm.getSimAngle());
@@ -128,6 +134,9 @@ public class RobotContainer {
         driverController.y().onTrue(runAquire());
 
         driverController.rightBumper().onTrue(runToStow());
+
+        driverController.povLeft().onTrue(arm.runMotorCommand(1)).onFalse(arm.runMotorCommand(0));
+        driverController.povRight().onTrue(arm.runMotorCommand(-1)).onFalse(arm.runMotorCommand(0));
 
         driverController.leftTrigger().onTrue(elevator.runMotorsCommand(0.8)).onFalse(elevator.runMotorsCommand(0));
         driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.8)).onFalse(elevator.runMotorsCommand(0));
@@ -184,5 +193,10 @@ public class RobotContainer {
     public Command runToStow() {
         return elevator.runToPositionCommand(8).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
                 .andThen(arm.runToPositionCommand(Units.degreesToRadians(180)));
+    }
+
+    public Command realDrivetrainStop() {
+        return drive
+                .runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0)));
     }
 }

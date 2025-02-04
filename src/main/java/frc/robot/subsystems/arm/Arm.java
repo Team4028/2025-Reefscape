@@ -39,6 +39,11 @@ public class Arm extends SubsystemBase {
         pid.reset(inputs.armEncoderRad);
     }
 
+    public BooleanSupplier readyToScore() {
+        return () -> Math.abs(targetPositionRad - inputs.armEncoderRad) <= ArmConstants.PID_TOLERANCE
+                && parentElevator.atTargetPosition().getAsBoolean();
+    }
+
     public Command sysIDTest(boolean dynamic, Direction direction) {
         return sysIDCommands.get(dynamic).get(direction);
     }
