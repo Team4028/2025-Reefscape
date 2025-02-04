@@ -58,6 +58,7 @@ public class RobotContainer {
                     new ModuleIOTalonFX(TunerConstants.BackRight) });
 
     private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
+    private final double DEFAULT_BASE_SPEED = 0.3;
 
     private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -70,9 +71,9 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        xLimiter = new SlewRateLimiter(4);
-        yLimiter = new SlewRateLimiter(4);
-        thetaLimiter = new SlewRateLimiter(4);
+        xLimiter = new SlewRateLimiter(3);
+        yLimiter = new SlewRateLimiter(3);
+        thetaLimiter = new SlewRateLimiter(3);
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("L4 Score",
                 runToL4().andThen(Commands.waitUntil(arm.atTargetPosition())));
@@ -121,10 +122,11 @@ public class RobotContainer {
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drive,
-                        () -> -driverController.getLeftY(),
-                        () -> -driverController.getLeftX(),
-                        () -> -driverController.getRightX()));
+                        () -> scaleDriverController(-driverController.getLeftY(), yLimiter),
+                        () -> scaleDriverController(-driverController.getLeftX(), xLimiter),
+                        () -> scaleDriverController(-driverController.getRightX(), thetaLimiter)));
 
+        // Run to L4
         driverController.x().onTrue(runToL4());
         // Run to L3
         driverController.a().onTrue(runToL3());
@@ -132,24 +134,23 @@ public class RobotContainer {
         driverController.b().onTrue(runToL2());
         // Acquire
         driverController.y().onTrue(runAquire());
-
+        // Stow
         driverController.rightBumper().onTrue(runToStow());
 
-        driverController.povLeft().onTrue(arm.runMotorCommand(1)).onFalse(arm.runMotorCommand(0));
-        driverController.povRight().onTrue(arm.runMotorCommand(-1)).onFalse(arm.runMotorCommand(0));
+        //Nudges
+        driverController.povLeft().onTrue(arm.nudgeCommand(0.1));
+        driverController.povRight().onTrue(arm.nudgeCommand(-0.1));
 
-        driverController.leftTrigger().onTrue(elevator.runMotorsCommand(0.8)).onFalse(elevator.runMotorsCommand(0));
-        driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.8)).onFalse(elevator.runMotorsCommand(0));
+        driverController.povUp().onTrue(elevator.nudgeCommand(0.5));
+        driverController.povDown().onTrue(elevator.nudgeCommand(-0.5));
 
-        // Reset gyro to 0° when B button is pressed
-        driverController
-                .start()
-                .onTrue(
-                        Commands.runOnce(
-                                () -> drive.setPose(
-                                        new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                                drive)
-                                .ignoringDisable(true));
+        // Reset gyro to 0° when start button is pressed
+        driverController.start().onTrue(
+                Commands.runOnce(
+                        () -> drive.setPose(
+                                new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                        drive)
+                        .ignoringDisable(true));
     }
 
     public void resetArmPid() {
@@ -198,5 +199,11 @@ public class RobotContainer {
     public Command realDrivetrainStop() {
         return drive
                 .runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0)));
+    }
+
+    private double scaleDriverController(double controllerInput, SlewRateLimiter limiter) {
+        return limiter.calculate(
+                controllerInput * (DEFAULT_BASE_SPEED
+                        + driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED)));
     }
 }

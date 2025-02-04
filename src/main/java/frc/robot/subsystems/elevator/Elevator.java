@@ -75,6 +75,10 @@ public class Elevator extends SubsystemBase {
         return runToPositionCommand(stateTracker.reefState.position);
     }
 
+    public Command nudgeCommand(double amount) {
+        return runToPositionCommand(targetPostition + amount);
+    }
+
     @Override
     public void periodic() {
         stateTracker.state.execute(this);

@@ -78,6 +78,10 @@ public class Arm extends SubsystemBase {
         });
     }
 
+    public Command nudgeCommand(double amount) {
+        return runToPositionCommand(targetPositionRad + amount);
+    }
+
     public void setContinuousInput(ArmSafetyData data) {
         if (data.enableContinuousInput())
             pid.enableContinuousInput(data.range()[0], data.range()[1]);
