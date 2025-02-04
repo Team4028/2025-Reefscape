@@ -37,7 +37,19 @@
         {
           "type": "named",
           "data": {
+            "name": "L3 Score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Score Outfeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Arm Stow"
           }
         },
         {
@@ -73,7 +85,19 @@
         {
           "type": "named",
           "data": {
+            "name": "L3 Score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Score Outfeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Arm Stow"
           }
         },
         {
@@ -109,7 +133,19 @@
         {
           "type": "named",
           "data": {
+            "name": "L3 Score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Score Outfeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Arm Stow"
           }
         }
       ]

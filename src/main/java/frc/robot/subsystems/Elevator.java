@@ -74,7 +74,7 @@ public class Elevator extends SubsystemBase {
 
     public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
-    public static final double PID_TOLERANCE = 20;
+    public static final double PID_TOLERANCE = 10;
 
     public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(.8).withKI(0).withKD(0)
         .withGravityType(GravityTypeValue.Elevator_Static)

@@ -1,5 +1,5 @@
 {
- "name":"Acquire and Score",
+ "name":"Acquire and Score drive test",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -329,12 +329,5 @@
     {"t":13.42111, "x":4.5, "y":4.12063, "heading":-1.5708, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
   "splits":[0,24,74,124,174,224]
  },
- "events":[
-   {"name":"Init Stow", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Stow acquire 1", "from":{"target":1, "targetTimestamp":1.15495, "offset":{"exp":"0.5 s", "val":0.5}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Stow score 1", "from":{"target":2, "targetTimestamp":3.60818, "offset":{"exp":"0.25 s", "val":0.25}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Stow acquire 2", "from":{"target":3, "targetTimestamp":6.06142, "offset":{"exp":"0.5 s", "val":0.5}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Stow score 2", "from":{"target":4, "targetTimestamp":8.51465, "offset":{"exp":"0.25 s", "val":0.25}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Stow acquire 3", "from":{"target":5, "targetTimestamp":10.96788, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Stow score 3", "from":{"target":6, "targetTimestamp":13.42111, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}}]
+ "events":[]
 }

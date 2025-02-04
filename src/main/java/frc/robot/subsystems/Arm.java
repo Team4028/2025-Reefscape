@@ -119,7 +119,7 @@ public class Arm extends SubsystemBase {
         public static final double GEAR_RATIO = 0.03333333333333;
         public static final MotorData motorType = MotorData.KRAKEN_X60_FOC;
         public static final double SAFETY_THRESH = 20;
-        public static final double PID_TOLERANCE = 1;
+        public static final double PID_TOLERANCE = .25;
     }
 
     public Command quasiStaticTest(Direction direction) {
@@ -247,6 +247,11 @@ public class Arm extends SubsystemBase {
     public BooleanSupplier atTargetPosition() {
         return () -> Math.abs(targetPositionRad - getEncoderPositionRad()) <= ArmConstants.PID_TOLERANCE;
     }
+
+    public BooleanSupplier readyToScore() {
+        return () -> Math.abs(targetPositionRad - getEncoderPositionRad()) <= ArmConstants.PID_TOLERANCE && parentElevator.atTargetPosition().getAsBoolean();
+    }
+
 
     public ArmSafetyData getArmSafety() {
         return isInDanger ? SAFE_RANGE : UNSAFE_RANGE;
