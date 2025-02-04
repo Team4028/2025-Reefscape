@@ -5,30 +5,33 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Coral;
-import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIOSparkEncoderTalonFX;
+import frc.robot.subsystems.coral.CoralManipulator;
+import frc.robot.subsystems.coral.CoralManipulatorIOTalonSRX;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.util.RobotSim;
 
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import java.util.function.BooleanSupplier;
-
-import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -40,235 +43,146 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-        private final SendableChooser<Command> autoChooser;
-        private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(edu.wpi.first.units.Units.MetersPerSecond); // kSpeedAt12Volts
-                                                                                                                // desired
+    // TODO: log motor pos + vel + temp in all subsystems (& also test) (& also
+    // TODO: replace or augment stateTracker with annotation states)
+    // The robot's subsystems and commands are defined here...
+    private final Elevator elevator = new Elevator(RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX()));
+    private final Arm arm = new Arm(RobotSim.armSimSwitch(new ArmIOSparkEncoderTalonFX()), elevator);
+    private final CoralManipulator coralManipulator = new CoralManipulator(
+            RobotSim.coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX()));
 
-        private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
-        // top
-        // speed
-        private double MaxAngularRate = 2 * Arm.PI_2;
-        private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-                        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
-                                                                                 // motors
-        private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-        private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(),
+            new ModuleIO[] { new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                    new ModuleIOTalonFX(TunerConstants.FrontRight), new ModuleIOTalonFX(TunerConstants.BackLeft),
+                    new ModuleIOTalonFX(TunerConstants.BackRight) });
 
-        // The robot's subsystems and commands are defined here...
-        private final Elevator elevator = new Elevator();
-        private final Arm arm = new Arm(elevator);
-        private final Coral coral = new Coral();
-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        // Replace with CommandPS4Controller or CommandJoystick if needed
-        private final Telemetry logger = new Telemetry(MaxSpeed);
-        private final CommandXboxController driverController = new CommandXboxController(
-                        OperatorConstants.kDriverControllerPort);
+    private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
 
-        /**
-         * The container for the robot. Contains subsystems, OI devices, and commands.
-         */
-        public RobotContainer() {
-                xLimiter = new SlewRateLimiter(2);
-                yLimiter = new SlewRateLimiter(2);
-                thetaLimiter = new SlewRateLimiter(4);
-                NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
-                NamedCommands.registerCommand("L4 Score",
-                                runToL4().andThen(Commands.waitUntil(arm.atTargetPosition())));
-                NamedCommands.registerCommand("Stow",
-                                runToStow());
-                NamedCommands.registerCommand("Acquire",
-                                runAquire()
-                                                .andThen(coral.runMotorCommand(.7)
-                                                                .alongWith(Commands.waitUntil(
-                                                                                coral.hasGamePieceSupplier()))
-                                                                .andThen(coral.runMotorCommand(0))));
-                NamedCommands.registerCommand("L3 Score",
-                                runToL3().andThen(Commands.waitUntil(arm.readyToScore())));
-                NamedCommands.registerCommand("Score Outfeed",
-                                Commands.waitUntil(arm.readyToScore()).andThen(Commands.waitSeconds(0.5)).andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
-                                                .andThen(coral.runMotorCommand(0))));
-                NamedCommands.registerCommand("Stow Arm", arm.runToPositionCommand(Units.degreesToRadians(180)));
-                autoChooser = AutoBuilder.buildAutoChooser();
+    private final LoggedDashboardChooser<Command> autoChooser;
 
-                // Configure the trigger bindings
-                configureBindings();
-        }
+    // Replace with CommandPS4Controller or CommandJoystick if needed
+    @SuppressWarnings("unused")
+    private final CommandXboxController driverController = new CommandXboxController(
+            OperatorConstants.kDriverControllerPort);
 
-        /**
-         * Use this method to define your trigger->command mappings. Triggers can be
-         * created via the
-         * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-         * an arbitrary
-         * predicate, or via the named factories in {@link
-         * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-         * {@link
-         * CommandXboxController
-         * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-         * PS4} controllers or
-         * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-         * joysticks}.
-         */
-        private void configureBindings() {
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
+    public RobotContainer() {
+        xLimiter = new SlewRateLimiter(4);
+        yLimiter = new SlewRateLimiter(4);
+        thetaLimiter = new SlewRateLimiter(4);
+        NamedCommands.registerCommand("L4 Score",
+                runToL4());
+        NamedCommands.registerCommand("Stow",
+                runToStow());
+        NamedCommands.registerCommand("Acquire",
+                runAquire().andThen(coralManipulator.runMotorCommand(.7).alongWith(Commands.waitSeconds(1))
+                        .andThen(coralManipulator.runMotorCommand(0))));
+        NamedCommands.registerCommand("L3 Score",
+                runToL3().andThen(Commands.waitUntil(arm.atTargetPosition()))
+                        .andThen(coralManipulator.runMotorCommand(-.8)
+                                .alongWith(Commands.waitSeconds(1))
+                                .andThen(coralManipulator.runMotorCommand(0))));
 
-                // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-                // pressed,
-                // cancelling on release.
-                drivetrain.setDefaultCommand(
-                                // Drivetrain will execute this command periodically
-                                drivetrain.applyRequest(
-                                                () -> drive.withVelocityX(
-                                                                scaleDriverController(-driverController.getLeftY(),
-                                                                                yLimiter, 0.25)
-                                                                                * MaxSpeed) // Drive
-                                                                // forward
-                                                                // with
-                                                                // negative Y (forward)
-                                                                .withVelocityY(scaleDriverController(
-                                                                                -driverController.getLeftX(), xLimiter,
-                                                                                0.25)
-                                                                                * MaxSpeed) // Drive
-                                                                                            // left
-                                                                                            // with
-                                                                                            // negative
-                                                                                            // X
-                                                                                            // (left)
-                                                                .withRotationalRate(
-                                                                                scaleDriverController(-driverController
-                                                                                                .getRightX(),
-                                                                                                thetaLimiter, 0.25)
-                                                                                                * MaxAngularRate) // Drive
-                                                                                                                  // counterclockwise
-                                // with negative
-                                // X (left)
-                                ));
-                // ====================================================================================================================
-                // ====================================================================================================================
-                // GABE STUK PLEASE EXPLAIN WHAT HAPPENED -- idk
-                // ====================================================================================================================
-                // ====================================================================================================================
+        autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
+        // Set up SysId routines
+        autoChooser.addOption(
+                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+        autoChooser.addOption(
+                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Forward)",
+                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Reverse)",
+                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        configureBindings();
+    }
 
-                // driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-                // driverController.b().whileTrue(drivetrain
-                // .applyRequest(() -> point
-                // .withModuleDirection(
-                // new Rotation2d(-driverController.getLeftY(),
-                // -driverController.getLeftX()))));
 
-                // // Run SysId routines when holding back/start and X/Y.
-                // // Note that each routine should be run exactly once in a single log.
-                // driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-                // driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+    public final void simCallback() {
+        RobotSim.update(elevator.getSimPos(), arm.getSimAngle());
 
-                // ====================================================================================================================//
-                // ====================================================================================================================
-                // ====================================================================================================================
+        RobotSim.logMechanism();
+    }
 
-                // // reset the field-centric heading on left bumper press
-                driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+    private void configureBindings() {
+        drive.setDefaultCommand(
+                DriveCommands.joystickDrive(
+                        drive,
+                        () -> -driverController.getLeftY(),
+                        () -> -driverController.getLeftX(),
+                        () -> -driverController.getRightX()));
 
-                // driverController.b().onTrue(elevator.quasiStaticTest(Direction.kForward));
-                // driverController.x().onTrue(elevator.dynamicTest(Direction.kReverse));
-                // driverController.a().onTrue(elevator.runToPosition(2));
+        driverController.x().onTrue(runToL4());
+        // Run to L3
+        driverController.a().onTrue(runToL3());
+        // Run to L2
+        driverController.b().onTrue(runToL2());
+        // Acquire
+        driverController.y().onTrue(runAquire());
 
-                // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+        driverController.rightBumper().onTrue(runToStow());
 
-                // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-                // pressed,
-                // // cancelling on release.
-                // driverController.povLeft().whileTrue(elevator.quasiStaticTest(Direction.kForward));
-                // driverController.povRight().whileTrue(elevator.quasiStaticTest(Direction.kReverse));
-                // driverController.povUp().whileTrue(elevator.dynamicTest(Direction.kForward));
-                // driverController.povDown().whileTrue(elevator.dynamicTest(Direction.kReverse));
-                // driverController.a().onTrue(arm.runToPositionCommand(Math.PI));
-                // driverController.b().onTrue(elevator.runToPosition(40));
-                // driverController.y().onTrue(elevator.runToPosition(10));
-                // driverController.x().onTrue(elevator.reefStateChangeCommand());
+        driverController.leftTrigger().onTrue(elevator.runMotorsCommand(0.8)).onFalse(elevator.runMotorsCommand(0));
+        driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.8)).onFalse(elevator.runMotorsCommand(0));
 
-                // driverController.rightBumper().onTrue(elevator.runMotorsCommand(0.4)).onFalse(elevator.runMotorsCommand(0));
-                // driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.4)).onFalse(elevator.runMotorsCommand(0));
+        // Reset gyro to 0° when B button is pressed
+        driverController
+                .start()
+                .onTrue(
+                        Commands.runOnce(
+                                () -> drive.setPose(
+                                        new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                                drive)
+                                .ignoringDisable(true));
+    }
 
-                // driverController.rightBumper().onTrue(elevator.reefCountChange(1));
-                // driverController.leftBumper().onTrue(elevator.reefCountChange(-1));
-                // driverController.b().onTrue(elevator.runToReefCount());
+    public void resetArmPid() {
+        arm.pidReset();
+    }
 
-                // driverController.leftTrigger().onTrue(elevator.runVoltageCommand(1)).onFalse(elevator.runMotorsCommand(0));
-                // driverController.leftBumper().onTrue(elevator.runVoltageCommand(-1)).onFalse(elevator.runMotorsCommand(0));
+    public void runArmOff() {
+        arm.stop();
+    }
 
-                // Run to L4
-                driverController.x().onTrue(runToL4());
-                // Run to L3
-                driverController.a().onTrue(runToL3());
-                // Run to L2
-                driverController.b().onTrue(runToL2());
-                // Acquire
-                driverController.y().onTrue(runAquire());
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        // An example command will be run in autonomous
+        return autoChooser.get();
+    }
 
-                driverController.rightBumper().onTrue(runToStow());
+    public Command runToL4() {
+        return elevator.runToPositionCommand(50).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(65.)));
+    }
 
-                driverController.leftTrigger().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
-                driverController.leftBumper().onTrue(coral.runMotorCommand(-.7)).onFalse(coral.runMotorCommand(0));
+    public Command runToL3() {
+        return elevator.runToPositionCommand(56).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+    }
 
-                drivetrain.registerTelemetry(logger::telemeterize);
-                SmartDashboard.putData("Auto Chooser", autoChooser);
-        }
+    public Command runToL2() {
+        return elevator.runToPositionCommand(40.5).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+    }
 
-        public void resetArmPid() {
-                arm.pidReset();
-        }
+    public Command runAquire() {
+        return elevator.runToPositionCommand(16).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(235)));
+    }
 
-        public Command runArmMotorOff() {
-                return arm.runMotorOffCommand();
-        }
-
-        public BooleanSupplier armAndElevatorKosher() {
-                return () -> arm.atTargetPosition().getAsBoolean() && elevator.atTargetPosition().getAsBoolean();
-        }
-
-        /**
-         * Use this to pass the autonomous command to the main {@link Robot} class.
-         *
-         * @return the command to run in autonomous
-         */
-        public Command getAutonomousCommand() {
-                return autoChooser.getSelected();
-                // An example command will be run in autonomous
-        }
-
-        public Command runToL4() {
-                return elevator.runToPosition(62).alongWith(arm.runToPositionCommand(Units.degreesToRadians(125.)))
-                                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
-        }
-
-        public Command runToL3() {
-                return elevator.runToPosition(56).alongWith(arm.runToPositionCommand(Units.degreesToRadians(55)))
-                                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
-        }
-
-        public Command runToL2() {
-                return elevator.runToPosition(40.5).alongWith(arm.runToPositionCommand(Units.degreesToRadians(55)))
-                                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
-        }
-
-        public Command runAquire() {
-                return elevator.runToPosition(16.5).alongWith(arm.runToPositionCommand(Units.degreesToRadians(235)))
-                                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
-        }
-
-        public Command runToStow() {
-                return elevator.runToPosition(8).alongWith(arm.runToPositionCommand(Units.degreesToRadians(180)))
-                                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
-        }
-
-        private double scaleDriverController(double controllerInput, SlewRateLimiter limiter, double baseSpeedPercent) {
-                return limiter.calculate(
-                                controllerInput * (baseSpeedPercent
-                                                + driverController.getRightTriggerAxis() * (1 - baseSpeedPercent)));
-        }
-
-        public Command realDrivetrainStop() {
-                return drivetrain
-                                .runOnce(() -> drivetrain.setControl(
-                                                drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0)));
-        }
+    public Command runToStow() {
+        return elevator.runToPositionCommand(8).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                .andThen(arm.runToPositionCommand(Units.degreesToRadians(180)));
+    }
 }
