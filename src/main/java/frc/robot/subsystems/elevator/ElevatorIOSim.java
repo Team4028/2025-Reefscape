@@ -59,6 +59,6 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setPid(double positionRot) {
         setVoltage(
-                pid.calculate(elevator.getOutput(0), positionRot) + elevatorFF.calculate(pid.getSetpoint().velocity));
+                pid.calculate(elevator.getOutput(0) / ElevatorConstants.ROT_TO_METRES, positionRot) + elevatorFF.calculate(pid.getSetpoint().velocity));
     }
 }

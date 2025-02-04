@@ -11,6 +11,7 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.coral.CoralManipulatorIO;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 
@@ -47,9 +49,9 @@ public class RobotSim {
 
     @SuppressWarnings("unused")
     private static LoggedMechanismLigament2d elevatorMech = elevatorRoot
-            .append(new LoggedMechanismLigament2d("Elevator", 5, 90));
+            .append(new LoggedMechanismLigament2d("Elevator", ElevatorConstants.MAX_HEIGHT_METERS, 90));
     private static LoggedMechanismRoot2d armRoot = baseMech.getRoot("ArmRoot", 2.5, 0);
-    private static LoggedMechanismLigament2d armMech = armRoot.append(new LoggedMechanismLigament2d("Arm", 2, 0));
+    private static LoggedMechanismLigament2d armMech = armRoot.append(new LoggedMechanismLigament2d("Arm", ArmConstants.ARM_LENGTH_METRES, 0));
 
     public static final void update(double elevatorHeightMetres, double armAngleRad) {
         armRoot.setPosition(2.5, elevatorHeightMetres);
