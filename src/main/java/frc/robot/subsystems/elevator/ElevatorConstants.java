@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -37,9 +38,7 @@ public class ElevatorConstants {
     public static final class TalonFX {
         public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
-        public static final Slot0Configs pidConfigs = new Slot0Configs().withKP(pidConstants.kP()).withKI(pidConstants.kI()).withKD(pidConstants.kD())
-                .withGravityType(GravityTypeValue.Elevator_Static)
-                .withKS(pidConstants.kS()).withKV(pidConstants.kV()).withKA(pidConstants.kA()).withKG(pidConstants.kG());
+        public static final Slot0Configs pidConfigs = pidConstants.makeSlotConfigs(GravityTypeValue.Elevator_Static);
 
         public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive)

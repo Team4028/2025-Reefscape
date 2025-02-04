@@ -1,5 +1,9 @@
 package frc.robot.util;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
+
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -22,5 +26,17 @@ public record PIDStruct(double kP, double kI, double kD, double maxVel, double m
 
     public ArmFeedforward makeArmFeedforward() {
         return new ArmFeedforward(kS, kG, kV, kA);
+    }
+
+    public Slot0Configs makeSlotConfigs(GravityTypeValue gravityType, StaticFeedforwardSignValue staticFFSign) {
+        return new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKG(kG).withGravityType(gravityType).withKV(kV).withKA(kA).withStaticFeedforwardSign(staticFFSign);
+    }
+    
+    public Slot0Configs makeSlotConfigs(GravityTypeValue gravityType) {
+        return new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKG(kG).withGravityType(gravityType).withKV(kV).withKA(kA);
+    }
+
+    public Slot0Configs makeSlotConfigs() {
+        return new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKG(kG).withKV(kV).withKA(kA);
     }
 }
