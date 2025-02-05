@@ -2,6 +2,7 @@ package frc.robot.subsystems.arm;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+import java.util.function.UnaryOperator;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -25,8 +26,9 @@ public class Arm extends SubsystemBase {
     private double targetVbus = 0.0, targetVoltage = 0.0, targetPositionRad = 0.0;
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private boolean hasAlgae;
+    private final UnaryOperator<Double> clampHandler; 
 
-    public Arm(ArmIO io) {
+    public Arm(ArmIO io, UnaryOperator<Double> clampHandler) {
         this.io = io;
         pid = ArmConstants.pidConfig.makeProfiledPIDController();
         armFF = ArmConstants.pidConfig.makeArmFeedforward();
@@ -34,6 +36,7 @@ public class Arm extends SubsystemBase {
         sysIDCommands = SysIDUtil.generateTests(ArmConstants.sysIDConfig, this::runMotorCommand, this);
         io.updateInputs(inputs);
         pid.reset(inputs.armEncoderRad);
+        this.clampHandler = clampHandler;
     }
 
     public Command sysIDTest(boolean dynamic, Direction direction) {
@@ -113,7 +116,7 @@ public class Arm extends SubsystemBase {
 
     @CreateState("position")
     public void runTargetPosition() {
-        io.setVoltage(pid.calculate(inputs.armEncoderRad, targetPositionRad)
+        io.setVoltage(pid.calculate(inputs.armEncoderRad, clampHandler.apply(targetPositionRad))
                 + armFF.calculate(inputs.armAngleRad, pid.getSetpoint().velocity));
     }
 

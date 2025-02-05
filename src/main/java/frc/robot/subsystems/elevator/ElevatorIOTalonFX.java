@@ -58,6 +58,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.followerAppliedVolts = appliedVoltageFollower.getValueAsDouble();
         inputs.leaderCurrentAmps = currentAmpsLeader.getValueAsDouble();
         inputs.followerCurrentAmps = currentAmpsFollower.getValueAsDouble();
+        inputs.elevatorPositionInches = inputs.leaderPosition * ElevatorConstants.ROT_TO_IN;
+        inputs.elevatorVelocityInchesPerSecond = inputs.leaderVelocity * ElevatorConstants.ROT_TO_IN;
         inputs.leaderData = GetMotorData.getTalonFXData(leader);
         inputs.followerData = GetMotorData.getTalonFXData(follower);
     }
@@ -75,8 +77,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     @Override
-    public void setPid(double positionRot) {
-        leader.setControl(pidControl.withPosition(positionRot));
+    public void setPid(double positionInches) {
+        leader.setControl(pidControl.withPosition(positionInches / ElevatorConstants.ROT_TO_IN));
         follower.setControl(followerControl);
     }
 }

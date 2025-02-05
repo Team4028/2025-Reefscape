@@ -10,5 +10,9 @@ public class MathUtil {
         if (value.doubleValue() < min.doubleValue()) return min;
         else if (value.doubleValue() > max.doubleValue()) return max;
         else return value;
-    } 
+    }
+
+    public static final int boolToInt(boolean b) {
+        return b ? 1 : 0;
+    }
 }

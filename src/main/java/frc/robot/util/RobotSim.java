@@ -1,10 +1,17 @@
 package frc.robot.util;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.*;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.Constants;
+import frc.robot.Armistice.SimData;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.ArmConstants;
@@ -21,6 +28,14 @@ import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 
 public class RobotSim {
+
+    public static final Map<String, DoubleSupplier> currentInputs = new HashMap<>();
+
+    public static final void registerCurrentInput(String key, DoubleSupplier currentSupplier) {
+        if (currentInputs.putIfAbsent(key, currentSupplier) != null)
+            currentInputs.replace(key, currentSupplier);
+    }
+
     public static final ArmIO armSimSwitch(ArmIO realArm) {
         return Constants.currentMode == Mode.REAL ? realArm : new ArmIOSim();
     }
@@ -52,9 +67,11 @@ public class RobotSim {
     private static LoggedMechanismLigament2d armMech = armRoot
             .append(new LoggedMechanismLigament2d("Arm", ArmConstants.ARM_LENGTH_METRES, 0));
 
-    public static final void update(double elevatorHeightMetres, double armAngleRad) {
-        armRoot.setPosition(2.5, elevatorHeightMetres);
-        armMech.setAngle(Units.radiansToDegrees(armAngleRad));
+    public static final void update(SimData simData) {
+        armRoot.setPosition(2.5, simData.elevatorPositionMeters());
+        armMech.setAngle(Units.radiansToDegrees(simData.armPositionRadians()));
+        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(currentInputs.values().stream()
+                .mapToDouble(DoubleSupplier::getAsDouble).toArray()));
     }
 
     public static final LoggedMechanism2d getMechanism() {

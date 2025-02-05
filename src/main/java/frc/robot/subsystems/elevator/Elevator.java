@@ -20,7 +20,7 @@ public class Elevator extends SubsystemBase {
     private ElevatorStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput 
-    private double targetPostition = 0.0;
+    private double targetPostitionInches = 0.0;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
 
@@ -38,7 +38,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public BooleanSupplier atTargetPosition() {
-        return () -> Math.abs(targetPostition - inputs.leaderPosition) <= ElevatorConstants.PID_TOLERANCE;
+        return () -> Math.abs(targetPostitionInches - inputs.leaderPosition * ElevatorConstants.ROT_TO_IN) <= ElevatorConstants.PID_TOLERANCE;
     }
 
     public Command runMotorsCommand(Voltage volts) {
@@ -48,9 +48,9 @@ public class Elevator extends SubsystemBase {
         });
     }
 
-    public Command runToPositionCommand(double positionRot) {
+    public Command runToPositionCommand(double positionInches) {
         return runOnce(() -> {
-            targetPostition = positionRot;
+            targetPostitionInches = positionInches;
             stateTracker.state = ElevatorStates.PREPARE_TO_MOVE;
         });
     }
@@ -89,7 +89,7 @@ public class Elevator extends SubsystemBase {
 
     public Command nudgeCommand(double amount) {
         return runOnce(() -> {
-            targetPostition += amount;
+            targetPostitionInches += amount;
             stateTracker.state = ElevatorStates.PREPARE_TO_MOVE;
         });
     }
@@ -117,7 +117,7 @@ public class Elevator extends SubsystemBase {
 
     @CreateState("moving_position")
     public void runTargetPosition() {
-        io.setPid(targetPostition);
+        io.setPid(targetPostitionInches);
     }
 
     @CreateState("vbus_forward")
@@ -133,6 +133,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getSimPos() {
-        return Units.inchesToMeters(inputs.leaderPosition * ElevatorConstants.ROT_TO_IN);
+        return Units.inchesToMeters(inputs.elevatorPositionInches);
     }
 }

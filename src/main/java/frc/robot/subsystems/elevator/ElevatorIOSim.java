@@ -5,9 +5,8 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import frc.robot.util.RobotSim;
 
 public class ElevatorIOSim implements ElevatorIO {
     private final ProfiledPIDController pid;
@@ -27,6 +26,7 @@ public class ElevatorIOSim implements ElevatorIO {
                         Units.lbsToKilograms(ElevatorConstants.CARRIAGE_MASS_LBS),
                         Units.inchesToMeters(ElevatorConstants.DRUM_RADIUS_IN), ElevatorConstants.MOTOR_TO_DRUM_RATIO),
                 ElevatorConstants.simGearbox, 0, Units.inchesToMeters(ElevatorConstants.MAX_HEIGHT_INCHES), true, 0);
+        RobotSim.registerCurrentInput("Elevator", elevator::getCurrentDrawAmps);
     }
 
     @Override
@@ -41,11 +41,12 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.followerVelocity = Units.metersToInches(elevator.getOutput(1)) / ElevatorConstants.ROT_TO_IN;
         inputs.leaderAcceleration = Units.metersToInches(fakeAccel) / ElevatorConstants.ROT_TO_IN;
         inputs.followerAcceleration = Units.metersToInches(fakeAccel) / ElevatorConstants.ROT_TO_IN;
+        inputs.elevatorPositionInches = inputs.leaderPosition * ElevatorConstants.ROT_TO_IN;
+        inputs.elevatorVelocityInchesPerSecond = inputs.leaderVelocity * ElevatorConstants.ROT_TO_IN;
         inputs.leaderAppliedVolts = targetVolts;
         inputs.followerAppliedVolts = targetVolts;
         inputs.leaderCurrentAmps = elevator.getCurrentDrawAmps() / 2;
         inputs.followerCurrentAmps = elevator.getCurrentDrawAmps() / 2;
-        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(elevator.getCurrentDrawAmps()));
     }
 
     @Override
@@ -59,9 +60,9 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     @Override
-    public void setPid(double positionRot) {
+    public void setPid(double positionInches) {
         setVoltage(
-                pid.calculate(Units.metersToInches(elevator.getOutput(0)) / ElevatorConstants.ROT_TO_IN, positionRot)
+                pid.calculate(Units.metersToInches(Units.metersToInches(elevator.getOutput(0))), positionInches)
                         + elevatorFF.calculate(pid.getSetpoint().velocity));
     }
 }

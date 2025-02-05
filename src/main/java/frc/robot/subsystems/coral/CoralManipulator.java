@@ -20,9 +20,6 @@ public class CoralManipulator extends SubsystemBase {
     private final CoralManipulatorStateTracker stateTracker;
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
 
-    public static final record SimData(double currentAmps) {
-    }
-
     public CoralManipulator(CoralManipulatorIO io) {
         this.io = io;
         inputs = new CoralManipulatorIOInputsAutoLogged();
@@ -96,9 +93,5 @@ public class CoralManipulator extends SubsystemBase {
     public void outfeedVoltage() {
         io.setVoltage(targetVoltage);
         stateTracker.hasCoral = false;
-    }
-
-    public SimData getSimData() {
-        return new SimData(inputs.currentAmps);
     }
 }

@@ -34,7 +34,7 @@ public class ElevatorConstants {
 
     public static final double MAX_HEIGHT_INCHES = 65.5 * ROT_TO_IN;
 
-    public static final double PID_TOLERANCE = 10.0;
+    public static final double PID_TOLERANCE = 9.1629;
 
     public static final class TalonFX {
         public static final int LEADER_ID = 15, FOLLOWER_ID = 14;

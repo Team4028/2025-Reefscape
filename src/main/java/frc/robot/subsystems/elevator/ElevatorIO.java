@@ -17,6 +17,8 @@ public interface ElevatorIO {
         public double followerAcceleration = 0.0;
         public double followerAppliedVolts = 0.0;
         public double followerCurrentAmps = 0.0;
+        public double elevatorPositionInches = 0.0;
+        public double elevatorVelocityInchesPerSecond = 0.0;
         public MotorData leaderData = MotorData.empty();
         public MotorData followerData = MotorData.empty();
     }
@@ -24,7 +26,7 @@ public interface ElevatorIO {
     public default void updateInputs(ElevatorIOInputs inputs) {
     }
 
-    public default void setPid(double positionRot) {
+    public default void setPid(double positionInches) {
     }
 
     public default void setVoltage(double volts) {

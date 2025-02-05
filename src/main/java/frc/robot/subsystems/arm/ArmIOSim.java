@@ -2,9 +2,8 @@ package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.util.RobotSim;
 
 public class ArmIOSim implements ArmIO {
     private final SingleJointedArmSim arm;
@@ -15,11 +14,13 @@ public class ArmIOSim implements ArmIO {
                 LinearSystemId.createSingleJointedArmSystem(ArmConstants.Sim.simGearbox,
                         ArmConstants.Sim.ARM_MOI_KgMSquared,
                         ArmConstants.GEAR_RATIO),
-                ArmConstants.Sim.simGearbox, ArmConstants.GEAR_RATIO, ArmConstants.ARM_LENGTH_METRES, -ArmConstants.PI_2,
+                ArmConstants.Sim.simGearbox, ArmConstants.GEAR_RATIO, ArmConstants.ARM_LENGTH_METRES,
+                -ArmConstants.PI_2,
                 ArmConstants.PI_2,
                 true, 0);
-            }
-            
+        RobotSim.registerCurrentInput("Arm", arm::getCurrentDrawAmps);
+    }
+
     @Override
     public void updateInputs(ArmIOInputs inputs) {
         arm.setInput(targetVolts);
@@ -32,7 +33,6 @@ public class ArmIOSim implements ArmIO {
         inputs.armMotorVelocityRotPerSec = inputs.armVelocityRotPerSec / ArmConstants.GEAR_RATIO;
         inputs.currentAmps = arm.getCurrentDrawAmps();
         ArmIO.super.updateInputs(inputs);
-        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(arm.getCurrentDrawAmps()));
     }
 
     @Override

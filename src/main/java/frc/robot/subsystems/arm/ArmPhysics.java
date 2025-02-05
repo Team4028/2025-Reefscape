@@ -1,7 +1,6 @@
 package frc.robot.subsystems.arm;
 
 import frc.robot.Constants;
-import frc.robot.subsystems.elevator.Elevator;
 
 public class ArmPhysics {
         /**
