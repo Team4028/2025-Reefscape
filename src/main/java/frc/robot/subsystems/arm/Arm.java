@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.util.SysIDUtil;
 
 public class Arm extends SubsystemBase {
@@ -79,9 +80,11 @@ public class Arm extends SubsystemBase {
     }
 
     public Command nudgeCommand(double amount) {
-        return runToPositionCommand(targetPositionRad + amount);
+        return runOnce(() -> {
+            targetPositionRad += amount;
+            stateTracker.state = ArmStates.POSITION;
+        });
     }
-
     public void setContinuousInput(ArmSafetyData data) {
         if (data.enableContinuousInput())
             pid.enableContinuousInput(data.range()[0], data.range()[1]);
@@ -101,9 +104,10 @@ public class Arm extends SubsystemBase {
 
     @Override
     public void periodic() {
-        stateTracker.state.execute(this);
         io.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
+        stateTracker.checkInDanger(parentElevator, this::setContinuousInput);
+        stateTracker.state.execute(this);
     }
 
     @CreateState("vbus_forward")

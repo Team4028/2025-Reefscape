@@ -18,6 +18,8 @@ public class ElevatorConstants {
     public static final double MOTOR_TO_DRUM_RATIO = 0.833333333;
     public static final int STAGES = 2;
 
+    public static final double SAFETY_THRESHOLD = 20;
+
     public static final boolean USE_FOC = true;
 
     public static final PIDStruct pidConstants = new PIDStruct(0.4, 0, 0, 3, 6, 0.05, 0.6, 0.11512, 0.0029619);
@@ -29,7 +31,7 @@ public class ElevatorConstants {
     public static final double DRUM_RADIUS = 0.009;
     public static final double DRUM_MOI_KgMSquared = 0.001;
 
-    public static final double ROT_TO_METRES = 1.5 * DRUM_RADIUS * Math.PI * MOTOR_TO_DRUM_RATIO;
+    public static final double ROT_TO_METRES = 2 * DRUM_RADIUS * Math.PI * MOTOR_TO_DRUM_RATIO;
 
     public static final double MAX_HEIGHT_METERS = 60 * ROT_TO_METRES;
 

@@ -19,6 +19,8 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.RobotSim;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -161,6 +163,10 @@ public class RobotContainer {
         arm.stop();
     }
 
+    public BooleanSupplier armAndElevatorKosher() {
+        return () -> arm.atTargetPosition().getAsBoolean() && elevator.atTargetPosition().getAsBoolean();
+    }
+
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
@@ -172,28 +178,28 @@ public class RobotContainer {
     }
 
     public Command runToL4() {
-        return elevator.runToPositionCommand(50).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(65.)));
+        return elevator.runToPositionCommand(62).alongWith(arm.runToPositionCommand(Units.degreesToRadians(125.)))
+                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
     }
 
     public Command runToL3() {
-        return elevator.runToPositionCommand(56).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+        return elevator.runToPositionCommand(56).alongWith(arm.runToPositionCommand(Units.degreesToRadians(55)))
+                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
     }
 
     public Command runToL2() {
-        return elevator.runToPositionCommand(40.5).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+        return elevator.runToPositionCommand(40.5).alongWith(arm.runToPositionCommand(Units.degreesToRadians(55)))
+                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
     }
 
     public Command runAquire() {
-        return elevator.runToPositionCommand(16).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(235)));
+        return elevator.runToPositionCommand(16.5).alongWith(arm.runToPositionCommand(Units.degreesToRadians(235)))
+                .alongWith(Commands.waitUntil(armAndElevatorKosher()));
     }
 
     public Command runToStow() {
-        return elevator.runToPositionCommand(8).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(180)));
+        return elevator.runToPositionCommand(8).alongWith(arm.runToPositionCommand(Units.degreesToRadians(180)))
+        .alongWith(Commands.waitUntil(armAndElevatorKosher()));
     }
 
     public Command realDrivetrainStop() {

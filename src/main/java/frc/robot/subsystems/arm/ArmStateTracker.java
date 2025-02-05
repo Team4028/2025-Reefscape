@@ -2,12 +2,17 @@ package frc.robot.subsystems.arm;
 
 import java.util.function.Consumer;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.util.MathUtil;
 
 public class ArmStateTracker {
 
     public ArmStates state;
+    @AutoLogOutput
     private boolean isInDanger;
 
     public ArmStateTracker() {
@@ -17,6 +22,12 @@ public class ArmStateTracker {
 
     public void setInDanger(boolean isInDanger, Consumer<ArmSafetyData> pidContinuousOutputUpdateHandler) {
         this.isInDanger = isInDanger;
+        pidContinuousOutputUpdateHandler.accept(getArmSafety());
+    }
+
+    public void checkInDanger(Elevator elevator, Consumer<ArmSafetyData> pidContinuousOutputUpdateHandler) {
+        this.isInDanger = elevator.getTargetPosition() < ElevatorConstants.SAFETY_THRESHOLD
+                || elevator.getCurrentPosition() < ElevatorConstants.SAFETY_THRESHOLD;
         pidContinuousOutputUpdateHandler.accept(getArmSafety());
     }
 

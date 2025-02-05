@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
@@ -16,7 +17,9 @@ import frc.robot.util.SysIDUtil;
 public class Elevator extends SubsystemBase {
     private final ElevatorIO io;
     private ElevatorStateTracker stateTracker;
-    private double targetVbus = 0.0, targetPostition = 0.0, targetVoltage = 0.0;
+    private double targetVbus = 0.0, targetVoltage = 0.0;
+    @AutoLogOutput 
+    private double targetPostition = 0.0;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
 
@@ -63,6 +66,14 @@ public class Elevator extends SubsystemBase {
         return runOnce(stateTracker::cycleReefState);
     }
 
+    public double getTargetPosition() {
+        return inputs.leaderPosition;
+    }
+
+    public double getCurrentPosition() {
+        return inputs.leaderPosition;
+    }
+
     public Command reefCountChange(int shift) {
         return runOnce(() -> {
             stateTracker.shiftReefCount(shift);
@@ -76,7 +87,10 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command nudgeCommand(double amount) {
-        return runToPositionCommand(targetPostition + amount);
+        return runOnce(() -> {
+            targetPostition += amount;
+            stateTracker.state = ElevatorStates.PREPARE_TO_MOVE;
+        });
     }
 
     @Override
