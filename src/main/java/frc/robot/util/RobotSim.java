@@ -1,14 +1,10 @@
 package frc.robot.util;
 
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.*;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.ArmConstants;
@@ -38,7 +34,8 @@ public class RobotSim {
     }
 
     public static final Drive driveSimSwitch(GyroIO io, ModuleIO[] moduleIOs) {
-        return Constants.currentMode == Mode.REAL ? new Drive(io, moduleIOs[0], moduleIOs[1], moduleIOs[2], moduleIOs[3])
+        return Constants.currentMode == Mode.REAL
+                ? new Drive(io, moduleIOs[0], moduleIOs[1], moduleIOs[2], moduleIOs[3])
                 : new Drive(new GyroIO() {
                 }, new ModuleIOSim(TunerConstants.FrontLeft), new ModuleIOSim(TunerConstants.FrontRight),
                         new ModuleIOSim(TunerConstants.BackLeft), new ModuleIOSim(TunerConstants.BackRight));
@@ -49,9 +46,11 @@ public class RobotSim {
 
     @SuppressWarnings("unused")
     private static LoggedMechanismLigament2d elevatorMech = elevatorRoot
-            .append(new LoggedMechanismLigament2d("Elevator", ElevatorConstants.MAX_HEIGHT_METERS, 90));
+            .append(new LoggedMechanismLigament2d("Elevator", Units.inchesToMeters(ElevatorConstants.MAX_HEIGHT_INCHES),
+                    90));
     private static LoggedMechanismRoot2d armRoot = baseMech.getRoot("ArmRoot", 2.5, 0);
-    private static LoggedMechanismLigament2d armMech = armRoot.append(new LoggedMechanismLigament2d("Arm", ArmConstants.ARM_LENGTH_METRES, 0));
+    private static LoggedMechanismLigament2d armMech = armRoot
+            .append(new LoggedMechanismLigament2d("Arm", ArmConstants.ARM_LENGTH_METRES, 0));
 
     public static final void update(double elevatorHeightMetres, double armAngleRad) {
         armRoot.setPosition(2.5, elevatorHeightMetres);

@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.util.SysIDUtil;
 
 public class Arm extends SubsystemBase {
@@ -27,11 +25,9 @@ public class Arm extends SubsystemBase {
     private double targetVbus = 0.0, targetVoltage = 0.0, targetPositionRad = 0.0;
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private boolean hasAlgae;
-    private final Elevator parentElevator;
 
-    public Arm(ArmIO io, Elevator parentElevator) {
+    public Arm(ArmIO io) {
         this.io = io;
-        this.parentElevator = parentElevator;
         pid = ArmConstants.pidConfig.makeProfiledPIDController();
         armFF = ArmConstants.pidConfig.makeArmFeedforward();
         stateTracker = new ArmStateTracker();
@@ -40,18 +36,13 @@ public class Arm extends SubsystemBase {
         pid.reset(inputs.armEncoderRad);
     }
 
-    public BooleanSupplier readyToScore() {
-        return () -> Math.abs(targetPositionRad - inputs.armEncoderRad) <= ArmConstants.PID_TOLERANCE
-                && parentElevator.atTargetPosition().getAsBoolean();
-    }
-
     public Command sysIDTest(boolean dynamic, Direction direction) {
         return sysIDCommands.get(dynamic).get(direction);
     }
 
-    public double calculateArmFFkG() {
+    public double calculateArmFFkG(double elevatorAcceleration) {
         return ArmPhysics.armGravityFF(hasAlgae, inputs.armAngleRad,
-                inputs.armMotorVelocityRotPerSec * ArmConstants.PI_2, parentElevator);
+                inputs.armMotorVelocityRotPerSec * ArmConstants.PI_2, elevatorAcceleration);
     }
 
     public BooleanSupplier atTargetPosition() {
@@ -92,12 +83,6 @@ public class Arm extends SubsystemBase {
             pid.disableContinuousInput();
     }
 
-    public Command setIsIsDanger(boolean isInDanger) {
-        return runOnce(() -> {
-            stateTracker.setInDanger(isInDanger, this::setContinuousInput);
-        });
-    }
-
     public void pidReset() {
         pid.reset(inputs.armEncoderRad);
     }
@@ -106,7 +91,6 @@ public class Arm extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
-        stateTracker.checkInDanger(parentElevator, this::setContinuousInput);
         stateTracker.state.execute(this);
     }
 
@@ -129,7 +113,7 @@ public class Arm extends SubsystemBase {
 
     @CreateState("position")
     public void runTargetPosition() {
-        io.setVoltage(pid.calculate(inputs.armEncoderRad, stateTracker.safeClampRange(targetPositionRad))
+        io.setVoltage(pid.calculate(inputs.armEncoderRad, targetPositionRad)
                 + armFF.calculate(inputs.armAngleRad, pid.getSetpoint().velocity));
     }
 

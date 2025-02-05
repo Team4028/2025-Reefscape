@@ -3,7 +3,6 @@ package frc.robot.subsystems.elevator;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -15,7 +14,7 @@ import frc.robot.util.PIDStruct;
 import frc.robot.util.SysIDUtil;
 
 public class ElevatorConstants {
-    public static final double MOTOR_TO_DRUM_RATIO = 0.833333333;
+    public static final double MOTOR_TO_DRUM_RATIO = 0.0833333333;
     public static final int STAGES = 2;
 
     public static final double SAFETY_THRESHOLD = 20;
@@ -25,15 +24,15 @@ public class ElevatorConstants {
     public static final PIDStruct pidConstants = new PIDStruct(0.4, 0, 0, 3, 6, 0.05, 0.6, 0.11512, 0.0029619);
 
     // cascading: 1 : 2 per stage (not base stage)
-    public static final double CARRIAGE_MASS_KG = 5;
+    public static final double CARRIAGE_MASS_LBS = 5;
     public static final double CARRIAGE_GEAR_RATIO = MOTOR_TO_DRUM_RATIO * Math.pow(2, STAGES - 1);
     public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(2) : DCMotor.getKrakenX60(2);
-    public static final double DRUM_RADIUS = 0.009;
+    public static final double DRUM_RADIUS_IN = 0.875;
     public static final double DRUM_MOI_KgMSquared = 0.001;
 
-    public static final double ROT_TO_METRES = 2 * DRUM_RADIUS * Math.PI * MOTOR_TO_DRUM_RATIO;
+    public static final double ROT_TO_IN = 4 * DRUM_RADIUS_IN * Math.PI * MOTOR_TO_DRUM_RATIO;
 
-    public static final double MAX_HEIGHT_METERS = 60 * ROT_TO_METRES;
+    public static final double MAX_HEIGHT_INCHES = 65.5 * ROT_TO_IN;
 
     public static final double PID_TOLERANCE = 10.0;
 

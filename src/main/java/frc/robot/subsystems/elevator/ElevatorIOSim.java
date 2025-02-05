@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -22,9 +23,10 @@ public class ElevatorIOSim implements ElevatorIO {
         elevatorFF = ElevatorConstants.pidConstants.makeElevatorFeedforward();
 
         elevator = new ElevatorSim(
-                LinearSystemId.createElevatorSystem(ElevatorConstants.simGearbox, ElevatorConstants.CARRIAGE_MASS_KG,
-                        ElevatorConstants.DRUM_RADIUS, ElevatorConstants.MOTOR_TO_DRUM_RATIO),
-                ElevatorConstants.simGearbox, 0, ElevatorConstants.MAX_HEIGHT_METERS, true, 0);
+                LinearSystemId.createElevatorSystem(ElevatorConstants.simGearbox,
+                        Units.lbsToKilograms(ElevatorConstants.CARRIAGE_MASS_LBS),
+                        Units.inchesToMeters(ElevatorConstants.DRUM_RADIUS_IN), ElevatorConstants.MOTOR_TO_DRUM_RATIO),
+                ElevatorConstants.simGearbox, 0, Units.inchesToMeters(ElevatorConstants.MAX_HEIGHT_INCHES), true, 0);
     }
 
     @Override
@@ -33,12 +35,12 @@ public class ElevatorIOSim implements ElevatorIO {
         elevator.update(0.02);
         fakeAccel = (elevator.getOutput(1) - lastVel) / 0.02;
         lastVel = elevator.getOutput(1);
-        inputs.leaderPosition = elevator.getOutput(0) / ElevatorConstants.ROT_TO_METRES;
-        inputs.followerPosition = elevator.getOutput(0) / ElevatorConstants.ROT_TO_METRES;
-        inputs.leaderVelocity = elevator.getOutput(1) / ElevatorConstants.ROT_TO_METRES;
-        inputs.followerVelocity = elevator.getOutput(1) / ElevatorConstants.ROT_TO_METRES;
-        inputs.leaderAcceleration = fakeAccel / ElevatorConstants.ROT_TO_METRES;
-        inputs.followerAcceleration = fakeAccel / ElevatorConstants.ROT_TO_METRES;
+        inputs.leaderPosition = Units.metersToInches(elevator.getOutput(0)) / ElevatorConstants.ROT_TO_IN;
+        inputs.followerPosition = Units.metersToInches(elevator.getOutput(0)) / ElevatorConstants.ROT_TO_IN;
+        inputs.leaderVelocity = Units.metersToInches(elevator.getOutput(1)) / ElevatorConstants.ROT_TO_IN;
+        inputs.followerVelocity = Units.metersToInches(elevator.getOutput(1)) / ElevatorConstants.ROT_TO_IN;
+        inputs.leaderAcceleration = Units.metersToInches(fakeAccel) / ElevatorConstants.ROT_TO_IN;
+        inputs.followerAcceleration = Units.metersToInches(fakeAccel) / ElevatorConstants.ROT_TO_IN;
         inputs.leaderAppliedVolts = targetVolts;
         inputs.followerAppliedVolts = targetVolts;
         inputs.leaderCurrentAmps = elevator.getCurrentDrawAmps() / 2;
@@ -59,6 +61,7 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setPid(double positionRot) {
         setVoltage(
-                pid.calculate(elevator.getOutput(0) / ElevatorConstants.ROT_TO_METRES, positionRot) + elevatorFF.calculate(pid.getSetpoint().velocity));
+                pid.calculate(Units.metersToInches(elevator.getOutput(0)) / ElevatorConstants.ROT_TO_IN, positionRot)
+                        + elevatorFF.calculate(pid.getSetpoint().velocity));
     }
 }

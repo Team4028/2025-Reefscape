@@ -49,8 +49,6 @@ public class RobotContainer {
     // TODO: log motor pos + vel + temp in all subsystems (& also test) (& also
     // TODO: replace or augment stateTracker with annotation states)
     // The robot's subsystems and commands are defined here...
-    private final Elevator elevator = new Elevator(RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX()));
-    private final Arm arm = new Arm(RobotSim.armSimSwitch(new ArmIOSparkEncoderTalonFX()), elevator);
     private final CoralManipulator coralManipulator = new CoralManipulator(
             RobotSim.coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX()));
 

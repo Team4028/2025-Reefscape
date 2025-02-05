@@ -8,6 +8,7 @@ import com.bskd.annotations.CreateState;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -132,6 +133,6 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getSimPos() {
-        return inputs.leaderPosition * ElevatorConstants.ROT_TO_METRES;
+        return Units.inchesToMeters(inputs.leaderPosition * ElevatorConstants.ROT_TO_IN);
     }
 }

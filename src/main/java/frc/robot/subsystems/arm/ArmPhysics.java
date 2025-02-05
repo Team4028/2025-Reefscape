@@ -11,13 +11,13 @@ public class ArmPhysics {
      * @param angleRad the angle of the arm
      * @return The arm torque (Nm)
      */
-    private static double armTorqueGravityNM(boolean hasAlgae, double angleRad, Elevator parentElevator) {
+    private static double armTorqueGravityNM(boolean hasAlgae, double angleRad, double elevatorAcceleration) {
         // Arm torque assuming no algae and uniform density
         // where L = arm length, m = arm mass, g = apparent gravitational acceleration
         // (g + elevator accel)
         // T = (1/2)L * mg * sin(armAngle)
         // use effective gravity to compensate for elevator carriage acceleration
-        double baseTau = ArmConstants.CG * ArmConstants.ARM_MASS_KG * (9.80665 + parentElevator.getAccelaration())
+        double baseTau = ArmConstants.CG * ArmConstants.ARM_MASS_KG * (9.80665 + elevatorAcceleration)
                 * Math.sin(angleRad);
         if (hasAlgae) {
             // Arm torque with algae
@@ -29,7 +29,7 @@ public class ArmPhysics {
             // (~1.5 lbs per this post:
             // https://www.chiefdelphi.com/t/reefscape-rule-questions/478346/88?u=7dblackhole)
             return baseTau + ((ArmConstants.ARM_LENGTH_METRES + Constants.ALGAE_RADIUS_M)
-                    * (9.80665 + parentElevator.getAccelaration())
+                    * (9.80665 + elevatorAcceleration)
                     * Constants.ALGAE_WEIGHT_KG * Math.sin(angleRad));
         }
 
@@ -47,9 +47,9 @@ public class ArmPhysics {
      * 
      * @return the voltage (volts)
      */
-    public static double armGravityFF(boolean hasAlgae, double armPositionRad, double motorVelocity, Elevator parentElevator) {
+    public static double armGravityFF(boolean hasAlgae, double armPositionRad, double motorVelocity, double elevatorAccelaration) {
         return ArmConstants.Sim.simGearbox.getVoltage(
-                armTorqueGravityNM(hasAlgae, armPositionRad, parentElevator) * ArmConstants.GEAR_RATIO,
+                armTorqueGravityNM(hasAlgae, armPositionRad, elevatorAccelaration) * ArmConstants.GEAR_RATIO,
                 motorVelocity * ArmConstants.PI_2);
     }
 }

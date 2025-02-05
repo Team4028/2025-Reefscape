@@ -12,32 +12,9 @@ import frc.robot.util.MathUtil;
 public class ArmStateTracker {
 
     public ArmStates state;
-    @AutoLogOutput
-    private boolean isInDanger;
 
     public ArmStateTracker() {
         state = ArmStates.OFF;
-        isInDanger = true;
-    }
-
-    public void setInDanger(boolean isInDanger, Consumer<ArmSafetyData> pidContinuousOutputUpdateHandler) {
-        this.isInDanger = isInDanger;
-        pidContinuousOutputUpdateHandler.accept(getArmSafety());
-    }
-
-    public void checkInDanger(Elevator elevator, Consumer<ArmSafetyData> pidContinuousOutputUpdateHandler) {
-        this.isInDanger = elevator.getTargetPosition() < ElevatorConstants.SAFETY_THRESHOLD
-                || elevator.getCurrentPosition() < ElevatorConstants.SAFETY_THRESHOLD;
-        pidContinuousOutputUpdateHandler.accept(getArmSafety());
-    }
-
-    public double safeClampRange(double value) {
-        var range = getArmSafety().range();
-        return MathUtil.clamp(value, range[0], range[1]);
-    }
-
-    public ArmSafetyData getArmSafety() {
-        return isInDanger ? ArmConstants.SAFETY_RANGE : ArmConstants.UNSAFE_RANGE;
     }
 
     public void setStateVBus(double vbus) {
