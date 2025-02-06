@@ -15,8 +15,8 @@ public class ArmIOSim implements ArmIO {
                         ArmConstants.Sim.ARM_MOI_KgMSquared,
                         ArmConstants.GEAR_RATIO),
                 ArmConstants.Sim.simGearbox, ArmConstants.GEAR_RATIO, ArmConstants.ARM_LENGTH_METRES,
-                -ArmConstants.PI_2,
-                ArmConstants.PI_2,
+                Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY,
                 true, 0);
         RobotSim.registerCurrentInput("Arm", arm::getCurrentDrawAmps);
     }

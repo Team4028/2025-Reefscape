@@ -22,13 +22,15 @@ public class ElevatorConstants {
     public static final boolean USE_FOC = true;
 
     public static final PIDStruct pidConstants = new PIDStruct(0.4, 0, 0, 3, 6, 0.05, 0.6, 0.11512, 0.0029619);
+    public static final PIDStruct simPidConstants = new PIDStruct(0.4, 0, 0, 3, 6, 0.05, 0.6, 0.11512, 0.0029619);
+    // public static final PIDStruct simPidConstants = new PIDStruct(5, 0, 0, 3, 6, 0, 0, 0, 0);
 
     // cascading: 1 : 2 per stage (not base stage)
-    public static final double CARRIAGE_MASS_LBS = 5;
+    public static final double CARRIAGE_MASS_Kg = 3.628 / 9.8;
     public static final double CARRIAGE_GEAR_RATIO = MOTOR_TO_DRUM_RATIO * Math.pow(2, STAGES - 1);
     public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(2) : DCMotor.getKrakenX60(2);
     public static final double DRUM_RADIUS_IN = 0.875;
-    public static final double DRUM_MOI_KgMSquared = 0.001;
+    public static final double DRUM_MOI_KgMSquared = 0.1;
 
     public static final double ROT_TO_IN = 4 * DRUM_RADIUS_IN * Math.PI * MOTOR_TO_DRUM_RATIO;
 

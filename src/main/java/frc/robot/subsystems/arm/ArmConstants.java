@@ -14,8 +14,8 @@ import frc.robot.util.SysIDUtil;
 
 public class ArmConstants {
 
-    public static final double ARM_LENGTH_METRES = 0.5;
-    public static final double ARM_MASS_KG = 6;
+    public static final double ARM_LENGTH_METRES = 0.635;
+    public static final double ARM_MASS_Kg = 3.63 / 9.8;
     public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
     public static final double GEAR_RATIO = 0.03333333333333;
     public static final double PID_TOLERANCE = 1;
@@ -27,7 +27,7 @@ public class ArmConstants {
 
     public static final class Sim {
         public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
-        public static final double ARM_MOI_KgMSquared = 20;
+        public static final double ARM_MOI_KgMSquared = ARM_MASS_Kg * ARM_LENGTH_METRES * ARM_LENGTH_METRES * 0.7;
     }
 
     public static class TalonFX {

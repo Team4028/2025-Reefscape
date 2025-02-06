@@ -6,6 +6,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import frc.robot.util.MathUtil;
 import frc.robot.util.RobotSim;
 
 public class ElevatorIOSim implements ElevatorIO {
@@ -17,13 +18,13 @@ public class ElevatorIOSim implements ElevatorIO {
     private double fakeAccel = 0, lastVel = 0, targetVolts = 0;
 
     public ElevatorIOSim() {
-        pid = ElevatorConstants.pidConstants.makeProfiledPIDController();
+        pid = ElevatorConstants.simPidConstants.makeProfiledPIDController();
 
-        elevatorFF = ElevatorConstants.pidConstants.makeElevatorFeedforward();
+        elevatorFF = ElevatorConstants.simPidConstants.makeElevatorFeedforward();
 
         elevator = new ElevatorSim(
                 LinearSystemId.createElevatorSystem(ElevatorConstants.simGearbox,
-                        Units.lbsToKilograms(ElevatorConstants.CARRIAGE_MASS_LBS),
+                        ElevatorConstants.CARRIAGE_MASS_Kg,
                         Units.inchesToMeters(ElevatorConstants.DRUM_RADIUS_IN), ElevatorConstants.MOTOR_TO_DRUM_RATIO),
                 ElevatorConstants.simGearbox, 0, Units.inchesToMeters(ElevatorConstants.MAX_HEIGHT_INCHES), true, 0);
         RobotSim.registerCurrentInput("Elevator", elevator::getCurrentDrawAmps);
@@ -51,7 +52,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void setVoltage(double volts) {
-        targetVolts = volts;
+        var rbv = RobotController.getBatteryVoltage();
+        targetVolts = MathUtil.clamp(volts, -rbv, rbv);
     }
 
     @Override
@@ -62,7 +64,7 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setPid(double positionInches) {
         setVoltage(
-                pid.calculate(Units.metersToInches(Units.metersToInches(elevator.getOutput(0))), positionInches)
+                pid.calculate(elevator.getOutput(0), Units.inchesToMeters(positionInches))
                         + elevatorFF.calculate(pid.getSetpoint().velocity));
     }
 }

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -27,32 +26,26 @@ public class Elevator extends SubsystemBase {
     public Elevator(ElevatorIO io) {
         this.io = io;
         stateTracker = new ElevatorStateTracker();
-        sysIDCommands = SysIDUtil.generateTests(ElevatorConstants.sysIDConfig, this::runMotorsCommand, this);
+        sysIDCommands = SysIDUtil.generateTests(ElevatorConstants.sysIDConfig, this::runMotorsVoltage, this);
     }
 
-    public Command runMotorsCommand(double vbus) {
-        return runOnce(() -> {
-            targetVbus = vbus;
-            stateTracker.setStateVBus(vbus);
-        });
+    public void runMotors(double vbus) {
+        targetVbus = vbus;
+        stateTracker.setStateVBus(vbus);
     }
 
     public BooleanSupplier atTargetPosition() {
         return () -> Math.abs(targetPostitionInches - inputs.leaderPosition * ElevatorConstants.ROT_TO_IN) <= ElevatorConstants.PID_TOLERANCE;
     }
 
-    public Command runMotorsCommand(Voltage volts) {
-        return runOnce(() -> {
-            targetVoltage = volts.magnitude();
-            stateTracker.setStateVoltage(volts.magnitude());
-        });
+    public void runMotorsVoltage(double volts) {
+        targetVoltage = volts;
+        stateTracker.setStateVoltage(volts);
     }
 
-    public Command runToPositionCommand(double positionInches) {
-        return runOnce(() -> {
-            targetPostitionInches = positionInches;
-            stateTracker.state = ElevatorStates.PREPARE_TO_MOVE;
-        });
+    public void runToPosition(double positionInches) {
+        targetPostitionInches = positionInches;
+        stateTracker.state = ElevatorStates.PREPARE_TO_MOVE;
     }
 
     public double getAccelaration() {
@@ -81,17 +74,14 @@ public class Elevator extends SubsystemBase {
         });
     }
 
-    public Command runToReefPosition(boolean useReefCount) {
+    public void runToReefPosition(boolean useReefCount) {
         if (useReefCount)
             stateTracker.applyReefCount();
-        return runToPositionCommand(stateTracker.reefState.position);
+        runToPosition(stateTracker.reefState.position);
     }
 
-    public Command nudgeCommand(double amount) {
-        return runOnce(() -> {
-            targetPostitionInches += amount;
-            stateTracker.state = ElevatorStates.PREPARE_TO_MOVE;
-        });
+    public void nudge(double amount) {
+        runToPosition(targetPostitionInches + amount);
     }
 
     @Override

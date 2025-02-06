@@ -70,8 +70,8 @@ public class RobotSim {
     public static final void update(SimData simData) {
         armRoot.setPosition(2.5, simData.elevatorPositionMeters());
         armMech.setAngle(Units.radiansToDegrees(simData.armPositionRadians()));
-        RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(currentInputs.values().stream()
-                .mapToDouble(DoubleSupplier::getAsDouble).toArray()));
+        // RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(currentInputs.values().stream()
+        //         .mapToDouble(DoubleSupplier::getAsDouble).toArray()));
     }
 
     public static final LoggedMechanism2d getMechanism() {

@@ -1,13 +1,12 @@
 package frc.robot.util;
 
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
 
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.SignalLogger;
 
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -31,9 +30,9 @@ public class SysIDUtil {
     /**
      * Boolean value of map is dynamic (true) or quasi (false)
      */
-    public static Map<Boolean, Map<Direction, Command>> generateTests(SysIdRoutine.Config config, Consumer<Voltage> drive,
+    public static Map<Boolean, Map<Direction, Command>> generateTests(SysIdRoutine.Config config, DoubleConsumer drive,
             Subsystem subsystem) {
-        var mech = new SysIdRoutine.Mechanism(null, null, subsystem);
+        var mech = new SysIdRoutine.Mechanism(v -> drive.accept(v.magnitude()), null, subsystem);
         var sys = new SysIdRoutine(config, mech);
         return Map.of(
             true, Map.of(Direction.kForward, sys.dynamic(Direction.kForward), Direction.kReverse,

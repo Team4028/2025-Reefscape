@@ -7,7 +7,6 @@ import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
 
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -24,7 +23,7 @@ public class CoralManipulator extends SubsystemBase {
         this.io = io;
         inputs = new CoralManipulatorIOInputsAutoLogged();
         stateTracker = new CoralManipulatorStateTracker();
-        sysIDCommands = SysIDUtil.generateTests(CoralManipulatorConstants.sysIDConfig, this::runMotorCommand, this);
+        sysIDCommands = SysIDUtil.generateTests(CoralManipulatorConstants.sysIDConfig, this::runMotorVoltage, this);
     }
 
     public Command sysIDTest(boolean dynamic, Direction direction) {
@@ -38,11 +37,13 @@ public class CoralManipulator extends SubsystemBase {
         });
     }
 
-    public Command runMotorCommand(Voltage volts) {
-        return runOnce(() -> {
-            targetVoltage = volts.magnitude();
-            stateTracker.setStateVoltage(volts.magnitude());
-        });
+    public void runMotorVoltage(double volts) {
+        targetVoltage = volts;
+        stateTracker.setStateVoltage(volts);
+    }
+
+    public Command runMotorVoltageCommand(double volts) {
+        return runOnce(() -> runMotorVoltage(volts));
     }
 
     public BooleanSupplier hasGamePieceSupplier() {

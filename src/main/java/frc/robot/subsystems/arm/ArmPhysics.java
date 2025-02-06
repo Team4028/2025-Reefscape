@@ -16,7 +16,7 @@ public class ArmPhysics {
         // (g + elevator accel)
         // T = (1/2)L * mg * sin(armAngle)
         // use effective gravity to compensate for elevator carriage acceleration
-        double baseTau = ArmConstants.CG * ArmConstants.ARM_MASS_KG * (9.80665 + elevatorAcceleration)
+        double baseTau = ArmConstants.CG * ArmConstants.ARM_MASS_Kg * (9.80665 + elevatorAcceleration)
                 * Math.sin(angleRad);
         if (hasAlgae) {
             // Arm torque with algae

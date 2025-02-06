@@ -2,8 +2,8 @@ package frc.robot.subsystems.arm;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
-import java.util.function.UnaryOperator;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
@@ -23,20 +23,20 @@ public class Arm extends SubsystemBase {
     private final ArmIO io;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
     private final ArmStateTracker stateTracker;
-    private double targetVbus = 0.0, targetVoltage = 0.0, targetPositionRad = 0.0;
+    private double targetVbus = 0.0, targetVoltage = 0.0;
+    @AutoLogOutput
+    private double targetPositionRad = Math.PI;
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private boolean hasAlgae;
-    private final UnaryOperator<Double> clampHandler; 
 
-    public Arm(ArmIO io, UnaryOperator<Double> clampHandler) {
+    public Arm(ArmIO io) {
         this.io = io;
         pid = ArmConstants.pidConfig.makeProfiledPIDController();
         armFF = ArmConstants.pidConfig.makeArmFeedforward();
-        stateTracker = new ArmStateTracker();
-        sysIDCommands = SysIDUtil.generateTests(ArmConstants.sysIDConfig, this::runMotorCommand, this);
+    stateTracker = new ArmStateTracker();
+        sysIDCommands = SysIDUtil.generateTests(ArmConstants.sysIDConfig, this::runMotor, this);
         io.updateInputs(inputs);
         pid.reset(inputs.armEncoderRad);
-        this.clampHandler = clampHandler;
     }
 
     public Command sysIDTest(boolean dynamic, Direction direction) {
@@ -52,33 +52,26 @@ public class Arm extends SubsystemBase {
         return () -> Math.abs(targetPositionRad - inputs.armEncoderRad) <= ArmConstants.PID_TOLERANCE;
     }
 
-    public Command runMotorCommand(double vbus) {
-        return runOnce(() -> {
-            targetVbus = vbus;
-            stateTracker.setStateVBus(vbus);
-        });
+    public void runMotor(double vbus) {
+        targetVbus = vbus;
+        stateTracker.setStateVBus(vbus);
     }
 
-    public Command runMotorCommand(Voltage volts) {
-        return runOnce(() -> {
-            targetVoltage = volts.magnitude();
-            stateTracker.setStateVoltage(volts.magnitude());
-        });
+    public void runMotor(Voltage volts) {
+        targetVoltage = volts.magnitude();
+        stateTracker.setStateVoltage(volts.magnitude());
     }
 
-    public Command runToPositionCommand(double positionRad) {
-        return runOnce(() -> {
-            targetPositionRad = positionRad;
-            stateTracker.state = ArmStates.POSITION;
-        });
+    public void runToPosition(double positionRad) {
+        targetPositionRad = positionRad;
+        stateTracker.state = ArmStates.POSITION;
     }
 
-    public Command nudgeCommand(double amount) {
-        return runOnce(() -> {
-            targetPositionRad += amount;
-            stateTracker.state = ArmStates.POSITION;
-        });
+    public void nudge(double amount) {
+        targetPositionRad += amount;
+        stateTracker.state = ArmStates.POSITION;
     }
+
     public void setContinuousInput(ArmSafetyData data) {
         if (data.enableContinuousInput())
             pid.enableContinuousInput(data.range()[0], data.range()[1]);
@@ -88,6 +81,14 @@ public class Arm extends SubsystemBase {
 
     public void pidReset() {
         pid.reset(inputs.armEncoderRad);
+    }
+
+    public double getTargetPosition() {
+        return targetPositionRad;
+    }
+
+    public double getCurrentPosition() {
+        return inputs.armEncoderRad;
     }
 
     @Override
@@ -116,7 +117,7 @@ public class Arm extends SubsystemBase {
 
     @CreateState("position")
     public void runTargetPosition() {
-        io.setVoltage(pid.calculate(inputs.armEncoderRad, clampHandler.apply(targetPositionRad))
+        io.setVoltage(pid.calculate(inputs.armEncoderRad, targetPositionRad)
                 + armFF.calculate(inputs.armAngleRad, pid.getSetpoint().velocity));
     }
 
