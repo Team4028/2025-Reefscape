@@ -7,6 +7,8 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.algae.AlgaeManipulator;
+import frc.robot.subsystems.algae.AlgaeManipulatorIOTalonSRX;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOSparkEncoderTalonFX;
 import frc.robot.subsystems.coral.CoralManipulator;
@@ -44,159 +46,168 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    // TODO: log motor pos + vel + temp in all subsystems (& also test) (& also
-    // TODO: replace or augment stateTracker with annotation states)
-    // The robot's subsystems and commands are defined here...
-    private final Elevator elevator = new Elevator(RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX()));
-    private final Arm arm = new Arm(RobotSim.armSimSwitch(new ArmIOSparkEncoderTalonFX()), elevator);
-    private final CoralManipulator coralManipulator = new CoralManipulator(
-            RobotSim.coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX()));
+        // TODO: log motor pos + vel + temp in all subsystems (& also test) (& also
+        // TODO: replace or augment stateTracker with annotation states)
+        // The robot's subsystems and commands are defined here...
+        private final Elevator elevator = new Elevator(RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX()));
+        private final Arm arm = new Arm(RobotSim.armSimSwitch(new ArmIOSparkEncoderTalonFX()), elevator);
+        private final CoralManipulator coralManipulator = new CoralManipulator(
+                        RobotSim.coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX()));
+        private final AlgaeManipulator algae = new AlgaeManipulator(
+                        RobotSim.algaeSimSwitch(new AlgaeManipulatorIOTalonSRX()));
 
-    private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(),
-            new ModuleIO[] { new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                    new ModuleIOTalonFX(TunerConstants.FrontRight), new ModuleIOTalonFX(TunerConstants.BackLeft),
-                    new ModuleIOTalonFX(TunerConstants.BackRight) });
+        private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(),
+                        new ModuleIO[] { new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                                        new ModuleIOTalonFX(TunerConstants.BackRight) });
 
-    private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
+        private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
 
-    private final LoggedDashboardChooser<Command> autoChooser;
+        private final LoggedDashboardChooser<Command> autoChooser;
 
-    // Replace with CommandPS4Controller or CommandJoystick if needed
-    @SuppressWarnings("unused")
-    private final CommandXboxController driverController = new CommandXboxController(
-            OperatorConstants.kDriverControllerPort);
+        // Replace with CommandPS4Controller or CommandJoystick if needed
+        @SuppressWarnings("unused")
+        private final CommandXboxController driverController = new CommandXboxController(
+                        OperatorConstants.kDriverControllerPort);
 
-    /**
-     * The container for the robot. Contains subsystems, OI devices, and commands.
-     */
-    public RobotContainer() {
-        xLimiter = new SlewRateLimiter(4);
-        yLimiter = new SlewRateLimiter(4);
-        thetaLimiter = new SlewRateLimiter(4);
-        NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
-        NamedCommands.registerCommand("L4 Score",
-                runToL4().andThen(Commands.waitUntil(arm.atTargetPosition())));
-        NamedCommands.registerCommand("Stow",
-                runToStow());
-        NamedCommands.registerCommand("Acquire",
-                runAquire()
-                        .andThen(coralManipulator.runMotorCommand(.7)
-                                .alongWith(Commands.waitUntil(
-                                        coralManipulator.hasGamePieceSupplier()))
-                                .andThen(coralManipulator.runMotorCommand(0))));
-        NamedCommands.registerCommand("L3 Score",
-                runToL3().andThen(Commands.waitUntil(arm.readyToScore())));
-        NamedCommands.registerCommand("Score Outfeed",
-                Commands.waitUntil(arm.readyToScore()).andThen(Commands.waitSeconds(0.5))
-                        .andThen(coralManipulator.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
-                                .andThen(coralManipulator.runMotorCommand(0))));
-        NamedCommands.registerCommand("Stow Arm", arm.runToPositionCommand(Units.degreesToRadians(180)));
+        /**
+         * The container for the robot. Contains subsystems, OI devices, and commands.
+         */
+        public RobotContainer() {
+                xLimiter = new SlewRateLimiter(4);
+                yLimiter = new SlewRateLimiter(4);
+                thetaLimiter = new SlewRateLimiter(4);
+                NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
+                NamedCommands.registerCommand("L4 Score",
+                                runToL4().andThen(Commands.waitUntil(arm.atTargetPosition())));
+                NamedCommands.registerCommand("Stow",
+                                runToStow());
+                NamedCommands.registerCommand("Acquire",
+                                runAquire()
+                                                .andThen(coralManipulator.runMotorCommand(.7)
+                                                                .alongWith(Commands.waitUntil(
+                                                                                coralManipulator.hasGamePieceSupplier()))
+                                                                .andThen(coralManipulator.runMotorCommand(0))));
+                NamedCommands.registerCommand("L3 Score",
+                                runToL3().andThen(Commands.waitUntil(arm.readyToScore())));
+                NamedCommands.registerCommand("Score Outfeed",
+                                Commands.waitUntil(arm.readyToScore()).andThen(Commands.waitSeconds(0.5))
+                                                .andThen(coralManipulator.runMotorCommand(-.8)
+                                                                .alongWith(Commands.waitSeconds(1))
+                                                                .andThen(coralManipulator.runMotorCommand(0))));
+                NamedCommands.registerCommand("Stow Arm", arm.runToPositionCommand(Units.degreesToRadians(180)));
 
-        autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
-        // Set up SysId routines
-        autoChooser.addOption(
-                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-        autoChooser.addOption(
-                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Forward)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Reverse)",
-                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-        configureBindings();
-    }
+                autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
+                // Set up SysId routines
+                autoChooser.addOption(
+                                "Drive Wheel Radius Characterization",
+                                DriveCommands.wheelRadiusCharacterization(drive));
+                autoChooser.addOption(
+                                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+                autoChooser.addOption(
+                                "Drive SysId (Quasistatic Forward)",
+                                drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+                autoChooser.addOption(
+                                "Drive SysId (Quasistatic Reverse)",
+                                drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+                autoChooser.addOption(
+                                "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+                autoChooser.addOption(
+                                "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+                configureBindings();
+        }
 
-    public final void simCallback() {
-        RobotSim.update(elevator.getSimPos(), arm.getSimAngle());
+        public final void simCallback() {
+                RobotSim.update(elevator.getSimPos(), arm.getSimAngle());
 
-        RobotSim.logMechanism();
-    }
+                RobotSim.logMechanism();
+        }
 
-    private void configureBindings() {
-        drive.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        drive,
-                        () -> -driverController.getLeftY(),
-                        () -> -driverController.getLeftX(),
-                        () -> -driverController.getRightX()));
+        private void configureBindings() {
+                drive.setDefaultCommand(
+                                DriveCommands.joystickDrive(
+                                                drive,
+                                                () -> -driverController.getLeftY(),
+                                                () -> -driverController.getLeftX(),
+                                                () -> -driverController.getRightX()));
 
-        driverController.x().onTrue(runToL4());
-        // Run to L3
-        driverController.a().onTrue(runToL3());
-        // Run to L2
-        driverController.b().onTrue(runToL2());
-        // Acquire
-        driverController.y().onTrue(runAquire());
+                driverController.x().onTrue(runToL4());
+                // Run to L3
+                driverController.a().onTrue(runToL3());
+                // Run to L2
+                driverController.b().onTrue(runToL2());
+                // Acquire
+                driverController.y().onTrue(runAquire());
 
-        driverController.rightBumper().onTrue(runToStow());
+                driverController.rightBumper().onTrue(runToStow());
 
-        driverController.povLeft().onTrue(arm.runMotorCommand(1)).onFalse(arm.runMotorCommand(0));
-        driverController.povRight().onTrue(arm.runMotorCommand(-1)).onFalse(arm.runMotorCommand(0));
+                driverController.povLeft().onTrue(arm.runMotorCommand(1)).onFalse(arm.runMotorCommand(0));
+                driverController.povRight().onTrue(arm.runMotorCommand(-1)).onFalse(arm.runMotorCommand(0));
 
-        driverController.leftTrigger().onTrue(elevator.runMotorsCommand(0.8)).onFalse(elevator.runMotorsCommand(0));
-        driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.8)).onFalse(elevator.runMotorsCommand(0));
+                driverController.leftTrigger().onTrue(elevator.runMotorsCommand(0.8))
+                                .onFalse(elevator.runMotorsCommand(0));
+                driverController.leftBumper().onTrue(elevator.runMotorsCommand(-0.8))
+                                .onFalse(elevator.runMotorsCommand(0));
 
-        // Reset gyro to 0° when B button is pressed
-        driverController
-                .start()
-                .onTrue(
-                        Commands.runOnce(
-                                () -> drive.setPose(
-                                        new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                                drive)
-                                .ignoringDisable(true));
-    }
+                // Reset gyro to 0° when B button is pressed
+                driverController
+                                .start()
+                                .onTrue(
+                                                Commands.runOnce(
+                                                                () -> drive.setPose(
+                                                                                new Pose2d(drive.getPose()
+                                                                                                .getTranslation(),
+                                                                                                new Rotation2d())),
+                                                                drive)
+                                                                .ignoringDisable(true));
+        }
 
-    public void resetArmPid() {
-        arm.pidReset();
-    }
+        public void resetArmPid() {
+                arm.pidReset();
+        }
 
-    public void runArmOff() {
-        arm.stop();
-    }
+        public void runArmOff() {
+                arm.stop();
+        }
 
-    /**
-     * Use this to pass the autonomous command to the main {@link Robot} class.
-     *
-     * @return the command to run in autonomous
-     */
-    public Command getAutonomousCommand() {
-        // An example command will be run in autonomous
-        return autoChooser.get();
-    }
+        /**
+         * Use this to pass the autonomous command to the main {@link Robot} class.
+         *
+         * @return the command to run in autonomous
+         */
+        public Command getAutonomousCommand() {
+                // An example command will be run in autonomous
+                return autoChooser.get();
+        }
 
-    public Command runToL4() {
-        return elevator.runToPositionCommand(50).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(65.)));
-    }
+        public Command runToL4() {
+                return elevator.runToPositionCommand(50).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                                .andThen(arm.runToPositionCommand(Units.degreesToRadians(65.)));
+        }
 
-    public Command runToL3() {
-        return elevator.runToPositionCommand(56).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
-    }
+        public Command runToL3() {
+                return elevator.runToPositionCommand(56).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+        }
 
-    public Command runToL2() {
-        return elevator.runToPositionCommand(40.5).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
-    }
+        public Command runToL2() {
+                return elevator.runToPositionCommand(40.5).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                                .andThen(arm.runToPositionCommand(Units.degreesToRadians(55)));
+        }
 
-    public Command runAquire() {
-        return elevator.runToPositionCommand(16).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(235)));
-    }
+        public Command runAquire() {
+                return elevator.runToPositionCommand(16).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                                .andThen(arm.runToPositionCommand(Units.degreesToRadians(235)));
+        }
 
-    public Command runToStow() {
-        return elevator.runToPositionCommand(8).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
-                .andThen(arm.runToPositionCommand(Units.degreesToRadians(180)));
-    }
+        public Command runToStow() {
+                return elevator.runToPositionCommand(8).alongWith(Commands.waitUntil(elevator.atTargetPosition()))
+                                .andThen(arm.runToPositionCommand(Units.degreesToRadians(180)));
+        }
 
-    public Command realDrivetrainStop() {
-        return drive
-                .runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0)));
-    }
+        public Command realDrivetrainStop() {
+                return drive
+                                .runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0)));
+        }
 }

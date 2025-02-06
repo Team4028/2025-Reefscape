@@ -11,6 +11,8 @@ import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.algae.AlgaeManipulatorIO;
+import frc.robot.subsystems.algae.AlgaeManipulatorIOSim;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
@@ -25,6 +27,10 @@ import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 
 public class RobotSim {
+
+    public static final AlgaeManipulatorIO algaeSimSwitch(AlgaeManipulatorIO realAlgae){
+        return Constants.currentMode == Mode.REAL ? realAlgae : new AlgaeManipulatorIOSim();
+    }
     public static final ArmIO armSimSwitch(ArmIO realArm) {
         return Constants.currentMode == Mode.REAL ? realArm : new ArmIOSim();
     }
