@@ -44,7 +44,7 @@ public class RobotContainer {
     private final Armistice armistice = new Armistice();
 
     private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
-    private static final double DEFAULT_BASE_SPEED = 0.3;
+    private static final double DEFAULT_BASE_SPEED = 0.6;
 
     private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -94,15 +94,12 @@ public class RobotContainer {
 
     private void configureBindings() {
         drive.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        drive,
-                        () -> {
-                            var a = scaleDriverController(() -> -driverController.getLeftY(), xLimiter);
-                            System.out.println(a);
-                            return a;
-                        },
-                        () -> scaleDriverController(() -> -driverController.getLeftX(), yLimiter),
-                        () -> scaleDriverController(() -> -driverController.getRightX(), thetaLimiter)));
+        DriveCommands.joystickDrive(
+        drive,
+        () -> scaleDriverController(() -> -driverController.getLeftY(), xLimiter),
+        () -> scaleDriverController(() -> -driverController.getLeftX(), yLimiter),
+        () -> scaleDriverController(() -> -driverController.getRightX(),
+        thetaLimiter)));
 
         // Run to L4
         driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
