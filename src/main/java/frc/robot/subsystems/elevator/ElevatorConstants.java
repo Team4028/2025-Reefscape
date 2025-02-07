@@ -23,7 +23,7 @@ public class ElevatorConstants {
 
     public static final boolean USE_FOC = true;
 
-    public static final PIDStruct pidConstants = new PIDStruct(0.4, 0, 0, 60, 120, Constants.THE_BEST_NUMBER, 0.05, 0.6, 0.11512, 0.0029619);
+    public static final PIDStruct pidConstants = new PIDStruct(0.8, 0, 0, 95, 95, 400, 0.05, 0.2, 0.11512, 0);
     public static final PIDStruct simPidConstants = new PIDStruct(0.4, 0, 0, 118, 254, Constants.THE_BEST_NUMBER, 0.05, 0.6, 0.11512, 0.0029619);
     // public static final PIDStruct simPidConstants = new PIDStruct(5, 0, 0, 3, 6, 0, 0, 0, 0);
 
@@ -60,7 +60,7 @@ public class ElevatorConstants {
                 .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
 
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitThreshold(62)
+                .withForwardSoftLimitThreshold(64.5)
                 .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(5).withReverseSoftLimitEnable(true);
     }
 
