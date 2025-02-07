@@ -26,6 +26,11 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private boolean isInDanger = true;
 
+    @AutoLogOutput
+    private double elevatorTargetInches = ArmisticePositions.STOW.elevatorPositionInches;
+    @AutoLogOutput
+    private double armTargetRad = Units.degreesToRadians(ArmisticePositions.STOW.armPositionDeg);
+
     public static enum ArmisticePositions {
         STOW(180, 7),
         ACQUIRE(235, 15),
@@ -64,12 +69,15 @@ public class Armistice extends SudoSubsystem {
                 : disarm.sysIDTest(dynamic.getAsBoolean(), direction.get());
     }
 
-    public double safeClampRange(double inputDeg) {
-        double inputRad = Units.degreesToRadians(inputDeg);
+    public double safeClampRangeDeg(double inputDeg) {
+        return Units.radiansToDegrees(safeClampRange(Units.degreesToRadians(inputDeg)));
+    }
+
+    public double safeClampRange(double inputRad) {
         isInDanger = (summit.getCurrentPosition() < ElevatorConstants.SAFETY_THRESHOLD
                 || summit.getTargetPosition() < ElevatorConstants.SAFETY_THRESHOLD);
         double[] range = getArmSafetyData().range();
-        return Units.radiansToDegrees(MathUtil.clamp(inputRad, range[0], range[1]));
+        return MathUtil.clamp(inputRad, range[0], range[1]);
     }
 
     public void resetArmPid() {
@@ -78,15 +86,15 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionCommand(Supplier<ArmisticePositions> position) {
         return Commands.runOnce(() -> {
-            summit.runToPosition(position.get().elevatorPositionInches);
-            disarm.runToPosition(Units.degreesToRadians(position.get().armPositionDeg));
+            elevatorTargetInches = position.get().elevatorPositionInches;
+            armTargetRad = Units.degreesToRadians(position.get().armPositionDeg);
         }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
     }
 
     public Command nudgeCommand(double elevatorInches, double armDegrees) {
         return Commands.runOnce(() -> {
-            summit.nudge(elevatorInches);
-            disarm.nudge(Units.degreesToRadians(armDegrees));
+            elevatorTargetInches += elevatorInches;
+            armTargetRad += Units.degreesToRadians(armDegrees);
         }, summit, disarm);
     }
 
@@ -112,6 +120,7 @@ public class Armistice extends SudoSubsystem {
 
     @Override
     public void periodic() {
-        disarm.runToPosition(Units.degreesToRadians(safeClampRange(Units.radiansToDegrees(disarm.getTargetPosition()))));
+        disarm.runToPosition(safeClampRange(armTargetRad));
+        summit.runToPosition(elevatorTargetInches);
     }
 }

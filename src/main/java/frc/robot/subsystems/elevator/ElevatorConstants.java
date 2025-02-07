@@ -29,7 +29,7 @@ public class ElevatorConstants {
 
     // cascading: 1 : 2 per stage (not base stage)
     public static final double CARRIAGE_MASS_Kg = 3.628;
-    public static final double CARRIAGE_GEAR_RATIO = MOTOR_TO_DRUM_RATIO * Math.pow(2, STAGES - 1);
+    public static final double CARRIAGE_GEAR_RATIO = MOTOR_TO_DRUM_RATIO * 2;
     public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(2) : DCMotor.getKrakenX60(2);
     public static final double DRUM_RADIUS_IN = 0.875;
     public static final double DRUM_MOI_KgMSquared = 1 * DRUM_RADIUS_IN * DRUM_RADIUS_IN * 0.8;

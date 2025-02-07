@@ -18,7 +18,7 @@ public class Elevator extends SubsystemBase {
     private final ElevatorIO io;
     private ElevatorStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
-    @AutoLogOutput 
+    @AutoLogOutput
     private double targetPostitionInches = 0.0;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
@@ -35,7 +35,8 @@ public class Elevator extends SubsystemBase {
     }
 
     public BooleanSupplier atTargetPosition() {
-        return () -> Math.abs(targetPostitionInches - inputs.leaderPosition * ElevatorConstants.ROT_TO_IN) <= ElevatorConstants.PID_TOLERANCE;
+        return () -> Math.abs(targetPostitionInches
+                - inputs.leaderPosition * ElevatorConstants.ROT_TO_IN) <= ElevatorConstants.PID_TOLERANCE;
     }
 
     public void runMotorsVoltage(double volts) {
@@ -45,7 +46,9 @@ public class Elevator extends SubsystemBase {
 
     public void runToPosition(double positionInches) {
         targetPostitionInches = positionInches;
-        stateTracker.state = ElevatorStates.PREPARE_TO_MOVE;
+        stateTracker.state = stateTracker.state == ElevatorStates.MOVING_POSITION
+                || stateTracker.state == ElevatorStates.PREPARE_TO_MOVE ? ElevatorStates.MOVING_POSITION
+                        : ElevatorStates.PREPARE_TO_MOVE;
     }
 
     public double getAccelaration() {
@@ -61,11 +64,11 @@ public class Elevator extends SubsystemBase {
     }
 
     public double getTargetPosition() {
-        return inputs.leaderPosition;
+        return targetPostitionInches;
     }
 
     public double getCurrentPosition() {
-        return inputs.leaderPosition;
+        return inputs.leaderPosition * ElevatorConstants.ROT_TO_IN;
     }
 
     public Command reefCountChange(int shift) {

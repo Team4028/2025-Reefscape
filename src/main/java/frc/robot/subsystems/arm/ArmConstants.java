@@ -56,7 +56,7 @@ public class ArmConstants {
     public static final ArmSafetyData SAFETY_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_3_2 }, false);
 
     public static final PIDStruct pidConfig = new PIDStruct(4, 0, 0, PI_2, 2 * PI_2, 0, 0.0875, 0.375, 0, 0);
-    public static final PIDStruct simPidConfig = new PIDStruct(4, 0, 0, PI_2, 2 * PI_2, 0, 0.0875, 0.375, 0, 0);
+    public static final PIDStruct simPidConfig = new PIDStruct(16, 0, 0, PI_2, 2 * PI_2, 0, 0.2, 0.5, 0, 0);
 
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();
 }

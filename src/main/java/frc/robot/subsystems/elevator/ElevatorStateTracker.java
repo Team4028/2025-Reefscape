@@ -1,5 +1,7 @@
 package frc.robot.subsystems.elevator;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import frc.robot.util.MathUtil;
 
 public class ElevatorStateTracker {
@@ -17,6 +19,7 @@ public class ElevatorStateTracker {
         }
     }
 
+    @AutoLogOutput
     public ElevatorStates state;
     public ElevatorPositions.Reef reefState;
     private int reefCount;
