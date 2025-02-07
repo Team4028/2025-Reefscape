@@ -25,7 +25,7 @@ public class ElevatorIOSim implements ElevatorIO {
         elevator = new ElevatorSim(
                 LinearSystemId.createElevatorSystem(ElevatorConstants.simGearbox,
                         ElevatorConstants.CARRIAGE_MASS_Kg,
-                        Units.inchesToMeters(ElevatorConstants.DRUM_RADIUS_IN), ElevatorConstants.MOTOR_TO_DRUM_RATIO),
+                        Units.inchesToMeters(ElevatorConstants.DRUM_RADIUS_IN), 1 / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
                 ElevatorConstants.simGearbox, 0, Units.inchesToMeters(ElevatorConstants.MAX_HEIGHT_INCHES), true, 0);
         RobotSim.registerCurrentInput("Elevator", elevator::getCurrentDrawAmps);
     }
@@ -64,7 +64,7 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setPid(double positionInches) {
         setVoltage(
-                pid.calculate(elevator.getOutput(0), Units.inchesToMeters(positionInches))
+                pid.calculate(Units.metersToInches(elevator.getOutput(0)) / ElevatorConstants.ROT_TO_IN, positionInches / ElevatorConstants.ROT_TO_IN)
                         + elevatorFF.calculate(pid.getSetpoint().velocity));
     }
 }

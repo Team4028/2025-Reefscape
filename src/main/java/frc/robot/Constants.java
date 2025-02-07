@@ -9,6 +9,8 @@ public final class Constants {
     public static final double ALGAE_RADIUS_M = 0.206375;
     public static final double ALGAE_WEIGHT_KG = 0.680389;
 
+    public static final int THE_BEST_NUMBER = 4028;
+
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 

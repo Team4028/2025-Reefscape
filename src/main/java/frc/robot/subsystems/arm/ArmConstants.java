@@ -15,7 +15,7 @@ import frc.robot.util.SysIDUtil;
 public class ArmConstants {
 
     public static final double ARM_LENGTH_METRES = 0.635;
-    public static final double ARM_MASS_Kg = 3.63 / 9.8;
+    public static final double ARM_MASS_Kg = 3.63;
     public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
     public static final double GEAR_RATIO = 0.03333333333333;
     public static final double PID_TOLERANCE = 1;
@@ -55,7 +55,8 @@ public class ArmConstants {
     public static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_3_2 }, false);
     public static final ArmSafetyData SAFETY_RANGE = new ArmSafetyData(new double[] { PI_1_2, PI_3_2 }, false);
 
-    public static final PIDStruct pidConfig = new PIDStruct(4, 0, 0, PI_2, 2 * PI_2, 0.0875, 0.375, 0, 0);
+    public static final PIDStruct pidConfig = new PIDStruct(4, 0, 0, PI_2, 2 * PI_2, 0, 0.0875, 0.375, 0, 0);
+    public static final PIDStruct simPidConfig = new PIDStruct(4, 0, 0, PI_2, 2 * PI_2, 0, 0.0875, 0.375, 0, 0);
 
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();
 }

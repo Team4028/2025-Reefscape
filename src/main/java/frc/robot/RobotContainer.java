@@ -44,7 +44,7 @@ public class RobotContainer {
     private final Armistice armistice = new Armistice();
 
     private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
-    private static final double DEFAULT_BASE_SPEED = 0.6;
+    private static final double DEFAULT_BASE_SPEED = 0.3;
 
     private final LoggedDashboardChooser<Command> autoChooser;
 

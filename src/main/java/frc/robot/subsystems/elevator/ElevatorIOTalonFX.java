@@ -3,7 +3,7 @@ package frc.robot.subsystems.elevator;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -29,7 +29,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final StatusSignal<Voltage> appliedVoltageFollower = follower.getMotorVoltage();
     private final StatusSignal<Current> currentAmpsFollower = follower.getSupplyCurrent();
 
-    private final PositionVoltage pidControl = new PositionVoltage(0).withEnableFOC(ElevatorConstants.USE_FOC).withSlot(0);
+    private final MotionMagicVoltage pidControl = new MotionMagicVoltage(0).withSlot(0);
     private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(ElevatorConstants.USE_FOC);
     private final DutyCycleOut vbusControl = new DutyCycleOut(0).withEnableFOC(ElevatorConstants.USE_FOC);
     private final StrictFollower followerControl = new StrictFollower(ElevatorConstants.TalonFX.LEADER_ID);
@@ -38,6 +38,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs);
         follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.mmConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
         follower.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
     }

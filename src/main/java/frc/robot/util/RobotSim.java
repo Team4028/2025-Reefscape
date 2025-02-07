@@ -8,8 +8,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.*;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.Constants;
 import frc.robot.Armistice.SimData;
 import frc.robot.Constants.Mode;

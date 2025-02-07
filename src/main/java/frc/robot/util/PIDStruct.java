@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
@@ -10,7 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
-public record PIDStruct(double kP, double kI, double kD, double maxVel, double maxAccel, double kS, double kG, double kV, double kA)
+public record PIDStruct(double kP, double kI, double kD, double maxVel, double maxAccel, double maxJerk, double kS, double kG, double kV, double kA)
 {
     public PIDController makeController() {
         return new PIDController(kP, kI, kD);
@@ -26,6 +27,10 @@ public record PIDStruct(double kP, double kI, double kD, double maxVel, double m
 
     public ArmFeedforward makeArmFeedforward() {
         return new ArmFeedforward(kS, kG, kV, kA);
+    }
+
+    public MotionMagicConfigs makeMMConfigs() {
+        return new MotionMagicConfigs().withMotionMagicCruiseVelocity(maxVel).withMotionMagicAcceleration(maxAccel).withMotionMagicJerk(maxJerk);
     }
 
     public Slot0Configs makeSlotConfigs(GravityTypeValue gravityType, StaticFeedforwardSignValue staticFFSign) {

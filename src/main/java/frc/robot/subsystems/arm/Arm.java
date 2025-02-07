@@ -31,9 +31,9 @@ public class Arm extends SubsystemBase {
 
     public Arm(ArmIO io) {
         this.io = io;
-        pid = ArmConstants.pidConfig.makeProfiledPIDController();
-        armFF = ArmConstants.pidConfig.makeArmFeedforward();
-    stateTracker = new ArmStateTracker();
+        pid = io instanceof ArmIOSim ? ArmConstants.simPidConfig.makeProfiledPIDController() : ArmConstants.pidConfig.makeProfiledPIDController();
+        armFF = io instanceof ArmIOSim ? ArmConstants.simPidConfig.makeArmFeedforward() : ArmConstants.pidConfig.makeArmFeedforward();
+        stateTracker = new ArmStateTracker();
         sysIDCommands = SysIDUtil.generateTests(ArmConstants.sysIDConfig, this::runMotor, this);
         io.updateInputs(inputs);
         pid.reset(inputs.armEncoderRad);
