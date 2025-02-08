@@ -50,6 +50,8 @@ public class Armistice extends SudoSubsystem {
     public Armistice() {
         NamedCommands.registerCommand("L4 Score", runToPositionCommand(() -> ArmisticePositions.L4));
         NamedCommands.registerCommand("Stow", runToPositionCommand(() -> ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Stow No Wait", runToPositionNoWait(() -> ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Acquire Pos", runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
         NamedCommands.registerCommand("L3 Score", runToPositionCommand(() -> ArmisticePositions.L3));
         NamedCommands.registerCommand("Stow Arm",
                 Commands.runOnce(
@@ -89,6 +91,13 @@ public class Armistice extends SudoSubsystem {
             elevatorTargetInches = position.get().elevatorPositionInches;
             armTargetRad = Units.degreesToRadians(position.get().armPositionDeg);
         }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
+    }
+
+    public Command runToPositionNoWait(Supplier<ArmisticePositions> position) {
+        return Commands.runOnce(() -> {
+            elevatorTargetInches = position.get().elevatorPositionInches;
+            armTargetRad = Units.degreesToRadians(position.get().armPositionDeg);
+        }, summit, disarm);
     }
 
     public Command nudgeCommand(double elevatorInches, double armDegrees) {

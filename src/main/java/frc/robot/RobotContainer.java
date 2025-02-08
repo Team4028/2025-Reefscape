@@ -56,12 +56,10 @@ public class RobotContainer {
         yLimiter = new SlewRateLimiter(4);
         thetaLimiter = new SlewRateLimiter(4);
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
-        NamedCommands.registerCommand("Acquire",
-                armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE)
-                        .andThen(coralManipulator.runMotorCommand(.7)
+        NamedCommands.registerCommand("Acquire", coralManipulator.runMotorCommand(.7)
                                 .alongWith(Commands.waitUntil(
                                         coralManipulator.hasGamePieceSupplier()))
-                                .andThen(coralManipulator.runMotorCommand(0))));
+                                .andThen(coralManipulator.runMotorCommand(0)));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(0.5))
                         .andThen(coralManipulator.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
