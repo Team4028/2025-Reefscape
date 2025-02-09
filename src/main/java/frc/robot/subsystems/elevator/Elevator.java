@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.util.SysIDUtil;
 
 public class Elevator extends SubsystemBase {
@@ -19,7 +20,7 @@ public class Elevator extends SubsystemBase {
     private ElevatorStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput
-    private double targetPostitionInches = 0.0;
+    private double targetPostitionInches = ArmisticePositions.STOW.elevatorPositionInches;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
 

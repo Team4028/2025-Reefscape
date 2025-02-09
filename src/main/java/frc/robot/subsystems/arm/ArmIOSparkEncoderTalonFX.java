@@ -51,7 +51,7 @@ public class ArmIOSparkEncoderTalonFX implements ArmIO {
     }
 
     public double getEncoderPositionRad() {
-        var rot = encoder.getPosition() - 0.9145;
+        var rot = encoder.getPosition() - ArmConstants.SparkEncoder.ENCODER_OFFSET;
         rot = rot > 0 ? rot : 1 + rot;
         return rot * ArmConstants.PI_2;
     }

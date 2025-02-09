@@ -11,7 +11,7 @@ public final class Constants {
 
     public static final int THE_BEST_NUMBER = 4028;
 
-    public static final Mode simMode = Mode.SIM;
+    public static final Mode simMode = Mode.REPLAY;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
     public static class OperatorConstants {
