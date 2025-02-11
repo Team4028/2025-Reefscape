@@ -67,6 +67,11 @@ public class Armistice extends SudoSubsystem {
         return isInDanger ? ArmConstants.SAFETY_RANGE : ArmConstants.UNSAFE_RANGE;
     }
 
+    /** Kills the arm(y) */
+    public void orbitalStrike() {
+        disarm.runMotor(0);
+    }
+
     public Command sysIDCommandElevator(BooleanSupplier dynamic, Supplier<Direction> direction) {
         return summit.sysIDTest(dynamic.getAsBoolean(), direction.get());
     }

@@ -94,6 +94,10 @@ public class RobotContainer {
         RobotSim.logMechanism();
     }
 
+    public void disableArmistice() {
+        armistice.orbitalStrike();
+    }
+
     private void configureBindings() {
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(

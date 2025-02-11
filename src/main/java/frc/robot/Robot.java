@@ -63,8 +63,9 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         SignalLogger.stop();
+        robotContainer.disableArmistice();
     }
-
+    
     @Override
     public void disabledPeriodic() {
     }
@@ -91,7 +92,7 @@ public class Robot extends LoggedRobot {
     }
     robotContainer.resetArmPid();
 
-    SignalLogger.start();
+    // SignalLogger.start();
   }
 
     @Override
