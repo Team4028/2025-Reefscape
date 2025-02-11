@@ -27,7 +27,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -157,7 +156,7 @@ public class RobotContainer {
 
     public Command realDrivetrainStop() {
         return drive
-                .runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, 0, 0)));
+                .runOnce(drive::stop);
     }
 
     private double scaleDriverController(DoubleSupplier controllerInput, SlewRateLimiter limiter) {
