@@ -9,6 +9,7 @@ import com.bskd.annotations.CreateState;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.util.SysIDUtil;
 
@@ -94,5 +95,13 @@ public class CoralManipulator extends SubsystemBase {
     public void outfeedVoltage() {
         io.setVoltage(targetVoltage);
         stateTracker.hasCoral = false;
+    }
+
+    public Trigger hasCoral() {
+        return new Trigger(() -> stateTracker.hasCoral);
+    }
+
+    public void toggleHasCoral() {
+        stateTracker.hasCoral = !stateTracker.hasCoral;
     }
 }
