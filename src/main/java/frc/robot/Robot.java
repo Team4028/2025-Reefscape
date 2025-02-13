@@ -58,6 +58,8 @@ public class Robot extends LoggedRobot {
             SudoSubsystem.periodicAll();
         }
         CommandScheduler.getInstance().run();
+        robotContainer.logLLPoses();
+        robotContainer.seedll4IMU();
     }
 
     @Override
@@ -65,9 +67,11 @@ public class Robot extends LoggedRobot {
         SignalLogger.stop();
         robotContainer.disableArmistice();
     }
-    
+
     @Override
     public void disabledPeriodic() {
+        robotContainer.periodicLL4IMU(false);
+        robotContainer.seedll4IMU();
     }
 
     @Override
@@ -83,20 +87,21 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousPeriodic() {
+        robotContainer.periodicLL4IMU(true);
     }
 
-  @Override
-  public void teleopInit() {
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
+    @Override
+    public void teleopInit() {
+        if (autonomousCommand != null) {
+            autonomousCommand.cancel();
+        }
+        robotContainer.resetArmPid();
+        // SignalLogger.start();
     }
-    robotContainer.resetArmPid();
-
-    // SignalLogger.start();
-  }
 
     @Override
     public void teleopPeriodic() {
+        robotContainer.periodicLL4IMU(true);
     }
 
     @Override
@@ -107,11 +112,11 @@ public class Robot extends LoggedRobot {
     @Override
     public void testPeriodic() {
     }
-    
+
     @Override
     public void simulationInit() {
     }
-    
+
     @Override
     public void simulationPeriodic() {
         robotContainer.simCallback();

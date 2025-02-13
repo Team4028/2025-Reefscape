@@ -15,8 +15,14 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.limelight.Limelight;
+import frc.robot.subsystems.limelight.LimelightConstants;
+import frc.robot.subsystems.limelight.LimelightIO;
+import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.util.RobotSim;
+import frc.robot.util.VisionUtil;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -27,6 +33,10 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -44,6 +54,9 @@ public class RobotContainer {
 
     private final AlgaeManipulator algae = RobotSim.algaeSimSwitch(new AlgaeManipulatorIOTalonSRX());
     private final Armistice armistice = new Armistice();
+    private final Limelight ll4 = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), new Transform3d(
+            new Translation3d(Units.inchesToMeters(-6.375), Units.inchesToMeters(12), Units.inchesToMeters(8.75)),
+            new Rotation3d(Units.degreesToRadians(180), Units.degreesToRadians(13), Units.degreesToRadians(135)))));
 
     private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -87,10 +100,35 @@ public class RobotContainer {
         configureBindings();
     }
 
+    private void addVisionMeasurement(LoggablePoseEstimate poseEstimate) {
+        drive.addVisionMeasurement(poseEstimate.pose(), poseEstimate.timestampSeconds(),
+                LimelightConstants.GOOD_STD_DEVS);
+    }
+
+    public void addMeasurements() {
+        VisionUtil.addMeasurements(this::addVisionMeasurement, drive);
+    }
+
+    public Command addMeasurementsCommand() {
+        return VisionUtil.addMeasurementsCommand(this::addVisionMeasurement, drive);
+    }
+
     public final void simCallback() {
         RobotSim.update(armistice.getSimData());
 
         RobotSim.logMechanism();
+    }
+
+    public void periodicLL4IMU(boolean on) {
+        ll4.setIMUInternal(on);
+    }
+
+    public void logLLPoses() {
+        VisionUtil.logPoses(drive);
+    }
+
+    public void seedll4IMU() {
+        ll4.seedLLSolverYaw(drive.getPose().getRotation().getDegrees());
     }
 
     public void disableArmistice() {
