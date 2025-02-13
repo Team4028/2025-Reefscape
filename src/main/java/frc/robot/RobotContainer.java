@@ -9,6 +9,8 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.algae.*;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIOSparkEncoderTalonFX;
 import frc.robot.subsystems.coral.CoralManipulator;
 import frc.robot.subsystems.coral.CoralManipulatorIOTalonSRX;
 import frc.robot.subsystems.drive.Drive;
@@ -32,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 public class RobotContainer {
     private final CoralManipulator coralManipulator = RobotSim
             .coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX());
@@ -44,6 +47,7 @@ public class RobotContainer {
 
     private final AlgaeManipulator algae = RobotSim.algaeSimSwitch(new AlgaeManipulatorIOTalonSRX());
     private final Armistice armistice = new Armistice();
+
 
     private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -85,6 +89,8 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
         configureBindings();
+        autoChooser.addOption("Elevator static", armistice.runStaticCharacterizationElevator(2.0));
+
     }
 
     public final void simCallback() {

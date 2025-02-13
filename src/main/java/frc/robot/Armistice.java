@@ -67,6 +67,10 @@ public class Armistice extends SudoSubsystem {
         return isInDanger ? ArmConstants.SAFETY_RANGE : ArmConstants.UNSAFE_RANGE;
     }
 
+
+    public Command runStaticCharacterizationElevator(double output) {
+        return Commands.runOnce(() -> summit.staticCharacterization(output));
+    }
     /** Kills the arm(y) */
     public void orbitalStrike() {
         disarm.runMotor(0);

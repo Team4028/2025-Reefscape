@@ -9,13 +9,21 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
+import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.SysIDUtil;
 
 public class Elevator extends SubsystemBase {
+    private boolean stopProfile = false;
+    private static final LoggedTunableNumber staticCharacterizationVelocityThresh = new LoggedTunableNumber(
+            "Elevator/StaticCharacterizationVelocityThresh", 0.1);
+
+           
     private final ElevatorIO io;
     private ElevatorStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
@@ -30,6 +38,30 @@ public class Elevator extends SubsystemBase {
         sysIDCommands = SysIDUtil.generateTests(ElevatorConstants.sysIDConfig, this::runMotorsVoltage, this);
     }
 
+
+
+    public Command staticCharacterization(double outputRampRate) {
+        final StaticCharacterizationState state = new StaticCharacterizationState();
+        Timer timer = new Timer();
+        return Commands.startRun(
+                () -> {
+                    stopProfile = true;
+                    timer.restart();
+                },
+                () -> {
+                    state.characterizationOutput = outputRampRate * timer.get();
+                    io.runOpenLoop(state.characterizationOutput);
+                    Logger.recordOutput(
+                            "Arm/StaticCharacterizationOutput", state.characterizationOutput);
+                })
+                .until(() -> inputs.velocityRadPerSec >= staticCharacterizationVelocityThresh.get())
+                .finallyDo(
+                        () -> {
+                            stopProfile = false;
+                            timer.stop();
+                            Logger.recordOutput("ArmCharacterizationOutput", state.characterizationOutput);
+                        });
+    }
     public void runMotors(double vbus) {
         targetVbus = vbus;
         stateTracker.setStateVBus(vbus);
@@ -128,5 +160,9 @@ public class Elevator extends SubsystemBase {
 
     public double getSimPos() {
         return Units.inchesToMeters(inputs.elevatorPositionInches);
+    }
+
+    private static class StaticCharacterizationState {
+        public double characterizationOutput = 0.0;
     }
 }

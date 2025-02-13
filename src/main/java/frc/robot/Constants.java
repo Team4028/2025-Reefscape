@@ -6,6 +6,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
+
+    public static final boolean TUNING_MODE = false;
     public static final double ALGAE_RADIUS_M = 0.206375;
     public static final double ALGAE_WEIGHT_KG = 0.680389;
 

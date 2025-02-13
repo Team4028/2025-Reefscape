@@ -5,9 +5,11 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -16,6 +18,12 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.GetMotorData;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
+     /*
+     * So far, the only motor type that works with this is a TalonFX.
+     * TalonSRX does Not work with this method.
+     */
+    private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
+    
     private final TalonFX leader = new TalonFX(ElevatorConstants.TalonFX.LEADER_ID);
     private final TalonFX follower = new TalonFX(ElevatorConstants.TalonFX.FOLLOWER_ID);
     private final StatusSignal<Angle> positionRotLeader = leader.getPosition();
@@ -61,10 +69,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.followerCurrentAmps = currentAmpsFollower.getValueAsDouble();
         inputs.elevatorPositionInches = inputs.leaderPosition * ElevatorConstants.ROT_TO_IN;
         inputs.elevatorVelocityInchesPerSecond = inputs.leaderVelocity * ElevatorConstants.ROT_TO_IN;
+        inputs.velocityRadPerSec = Units.rotationsToRadians(velocityRotPerSecLeader.getValueAsDouble());
         inputs.leaderData = GetMotorData.getTalonFXData(leader);
         inputs.followerData = GetMotorData.getTalonFXData(follower);
     }
-    
+
+    @Override
+    public void runOpenLoop(double output) {
+        leader.setControl(torqueCurrentRequest.withOutput(output));
+    }
+
     @Override
     public void setVoltage(double volts) {
         leader.setControl(voltageControl.withOutput(volts));

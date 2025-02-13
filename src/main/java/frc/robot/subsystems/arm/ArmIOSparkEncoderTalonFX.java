@@ -43,8 +43,11 @@ public class ArmIOSparkEncoderTalonFX implements ArmIO {
         inputs.armEncoderRaw = getRawEncoderPositon();
         inputs.armVelocityRotPerSec = encoder.getVelocity();
         inputs.motorData = GetMotorData.getTalonFXData(motor);
+
         ArmIO.super.updateInputs(inputs);
     }
+
+   
 
     public double getRawEncoderPositon() {
         return encoder.getPosition();

@@ -30,4 +30,7 @@ public interface ArmIO {
 
     public default void setVBus(double vBus) {
     }
+    public default void runOpenLoop(double output) {
+
+    }
 }
