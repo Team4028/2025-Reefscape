@@ -106,7 +106,15 @@ public class Leds extends SubsystemBase {
         return Commands.repeatingSequence(setColorGreenCommand(), setNoColorCommand(), setNoColorCommand(), setColorGreenCommand());
     }
 
-    public Command hasntCoralAnimation() {
+    public Command gettingCoralAnimation() {
         return Commands.repeatingSequence(setColorRedCommand(), setNoColorCommand(), setNoColorCommand(), setColorRedCommand());
+    }
+
+    public Command gettingCoralAnimationSlow() {
+        return Commands.repeatingSequence(setColorRedCommand(), setColorRedCommand(), setColorRedCommand(), setColorRedCommand(), setColorRedCommand(), setNoColorCommand(), setNoColorCommand(), setNoColorCommand(), setNoColorCommand(), setNoColorCommand(), setNoColorCommand(), setColorRedCommand());
+    }
+    
+    public Command shootingCoralAnimation() {
+        return Commands.repeatingSequence(setColorPurpleCommand(), setNoColorCommand(), setNoColorCommand(), setColorPurpleCommand());
     }
 }

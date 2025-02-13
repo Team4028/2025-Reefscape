@@ -10,6 +10,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coral.CoralManipulator;
 import frc.robot.subsystems.coral.CoralManipulatorIOTalonSRX;
+import frc.robot.subsystems.coral.CoralManipulatorStateTracker;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -42,9 +43,9 @@ public class RobotContainer {
                                         new ModuleIOTalonFX(TunerConstants.BackRight) });
 
         private final Armistice armistice = new Armistice();
-        
+
         private final Leds candle = new Leds();
-        
+        private final CoralManipulatorStateTracker coralManipulatorStateTracker = new CoralManipulatorStateTracker();
 
         private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
         private static final double DEFAULT_BASE_SPEED = 0.6;
@@ -108,7 +109,7 @@ public class RobotContainer {
                                                                 yLimiter),
                                                 () -> scaleDriverController(() -> -driverController.getRightX(),
                                                                 thetaLimiter)));
-                
+
                 // Run to L4
                 // driverController.x().onTrue(armistice.runToPositionCommand(() ->
                 // ArmisticePositions.L4));
@@ -138,9 +139,13 @@ public class RobotContainer {
                 // new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                 // drive)
                 // .ignoringDisable(true));
-                
+
                 driverController.x().onTrue(Commands.runOnce(() -> coralManipulator.toggleHasCoral()));
-                coralManipulator.hasCoral().onTrue(candle.hasCoralAnimation()).onFalse(candle.hasntCoralAnimation());
+                driverController.a().onTrue(Commands.runOnce(() -> coralManipulatorStateTracker.toggleFeed()));
+                coralManipulator.hasCoral().onTrue(candle.hasCoralAnimation()).onFalse(candle.setNoColorCommand());
+                coralManipulatorStateTracker.outfeeding().onTrue(candle.shootingCoralAnimation()).onFalse(candle.setNoColorCommand());
+                coralManipulatorStateTracker.infeeding().onTrue(candle.gettingCoralAnimationSlow());
+
         }
 
         public void resetArmPid() {

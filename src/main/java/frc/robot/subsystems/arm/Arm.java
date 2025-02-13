@@ -13,6 +13,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
 import frc.robot.util.SysIDUtil;
@@ -21,6 +22,7 @@ public class Arm extends SubsystemBase {
     private final ProfiledPIDController pid;
     private final ArmFeedforward armFF;
     private final ArmIO io;
+    private boolean atPosition;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
     private final ArmStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
@@ -123,5 +125,18 @@ public class Arm extends SubsystemBase {
 
     public double getSimAngle() {
         return inputs.armAngleRad;
+    }
+
+    public Trigger atPosition() {
+        if ((targetPositionRad - inputs.armEncoderRad) > 0) {
+            atPosition = false;
+        } else {
+            atPosition = true;
+        }
+        return new Trigger(() -> atPosition);
+    }
+    
+    public void toggleAtPosition() {
+        atPosition = !atPosition;
     }
 }
