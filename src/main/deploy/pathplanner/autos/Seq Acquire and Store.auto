@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Acquire and Score drive test.0"
+            "pathName": "Acquire and Score Seq.0"
           }
         },
         {
@@ -23,9 +23,15 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Stow No Wait"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Acquire and Score drive test.1"
+            "pathName": "Acquire and Score Seq.1"
           }
         },
         {
@@ -37,25 +43,19 @@
         {
           "type": "named",
           "data": {
-            "name": "L3 Score"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "Score Outfeed"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Arm Stow"
+            "name": "Stow No Wait"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Acquire and Score drive test.2"
+            "pathName": "Acquire and Score Seq.2"
           }
         },
         {
@@ -71,9 +71,15 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Stow No Wait"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Acquire and Score drive test.2"
+            "pathName": "Acquire and Score Seq.3"
           }
         },
         {
@@ -85,25 +91,19 @@
         {
           "type": "named",
           "data": {
-            "name": "L3 Score"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "Score Outfeed"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Arm Stow"
+            "name": "Stow No Wait"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Acquire and Score drive test.3"
+            "pathName": "Acquire and Score Seq.4"
           }
         },
         {
@@ -119,9 +119,15 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Stow No Wait"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Acquire and Score drive test.4"
+            "pathName": "Acquire and Score Seq.5"
           }
         },
         {
@@ -133,19 +139,13 @@
         {
           "type": "named",
           "data": {
-            "name": "L3 Score"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "Score Outfeed"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Arm Stow"
+            "name": "Stow No Wait"
           }
         }
       ]

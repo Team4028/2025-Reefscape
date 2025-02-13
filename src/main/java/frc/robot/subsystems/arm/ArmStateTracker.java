@@ -1,7 +1,10 @@
 package frc.robot.subsystems.arm;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 public class ArmStateTracker {
 
+    @AutoLogOutput
     public ArmStates state;
 
     public ArmStateTracker() {

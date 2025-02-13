@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.SignalLogger;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -53,17 +54,24 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        SudoSubsystem.periodicAll();
+        if (DriverStation.isEnabled()) {
+            SudoSubsystem.periodicAll();
+        }
         CommandScheduler.getInstance().run();
+        robotContainer.logLLPoses();
+        robotContainer.seedll4IMU();
     }
 
     @Override
     public void disabledInit() {
         SignalLogger.stop();
+        robotContainer.disableArmistice();
     }
 
     @Override
     public void disabledPeriodic() {
+        robotContainer.periodicLL4IMU(false);
+        robotContainer.seedll4IMU();
     }
 
     @Override
@@ -79,18 +87,21 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousPeriodic() {
+        robotContainer.periodicLL4IMU(true);
     }
 
-  @Override
-  public void teleopInit() {
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
+    @Override
+    public void teleopInit() {
+        if (autonomousCommand != null) {
+            autonomousCommand.cancel();
+        }
+        robotContainer.resetArmPid();
+        // SignalLogger.start();
     }
-    robotContainer.resetArmPid();
-  }
 
     @Override
     public void teleopPeriodic() {
+        robotContainer.periodicLL4IMU(true);
     }
 
     @Override
@@ -101,11 +112,11 @@ public class Robot extends LoggedRobot {
     @Override
     public void testPeriodic() {
     }
-    
+
     @Override
     public void simulationInit() {
     }
-    
+
     @Override
     public void simulationPeriodic() {
         robotContainer.simCallback();

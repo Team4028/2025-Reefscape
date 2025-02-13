@@ -3,7 +3,29 @@
  "version":1,
  "type":"Swerve",
  "variables":{
-  "expressions":{},
+  "expressions":{
+   "InitialAcquireDelay":{
+    "dimension":"Time",
+    "var":{
+     "exp":"0.25 s",
+     "val":0.25
+    }
+   },
+   "AcquireDelay":{
+    "dimension":"Time",
+    "var":{
+     "exp":"0.8 s",
+     "val":0.8
+    }
+   },
+   "ScoreDelay":{
+    "dimension":"Time",
+    "var":{
+     "exp":"1.5 s",
+     "val":1.5
+    }
+   }
+  },
   "poses":{
    "Start":{
     "x":{

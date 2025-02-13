@@ -8,21 +8,25 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.*;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.simulation.BatterySim;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import frc.robot.Constants;
 import frc.robot.Armistice.SimData;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.algae.AlgaeManipulator;
+import frc.robot.subsystems.algae.AlgaeManipulatorIO;
+import frc.robot.subsystems.algae.AlgaeManipulatorIOSim;
+import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.coral.CoralManipulator;
 import frc.robot.subsystems.coral.CoralManipulatorIO;
 import frc.robot.subsystems.coral.CoralManipulatorIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -36,16 +40,21 @@ public class RobotSim {
             currentInputs.replace(key, currentSupplier);
     }
 
-    public static final ArmIO armSimSwitch(ArmIO realArm) {
-        return Constants.currentMode == Mode.REAL ? realArm : new ArmIOSim();
+    public static final AlgaeManipulator algaeSimSwitch(AlgaeManipulatorIO realAlgae) {
+        return new AlgaeManipulator(Constants.currentMode == Mode.REAL ? realAlgae : new AlgaeManipulatorIOSim());
     }
 
-    public static final ElevatorIO elevatorSimSwitch(ElevatorIO realElevator) {
-        return Constants.currentMode == Mode.REAL ? realElevator : new ElevatorIOSim();
+    public static final Arm armSimSwitch(ArmIO realArm) {
+        return new Arm(Constants.currentMode == Mode.REAL ? realArm : new ArmIOSim());
     }
 
-    public static final CoralManipulatorIO coralManipulatorSimSwitch(CoralManipulatorIO realCoralManipulator) {
-        return Constants.currentMode == Mode.REAL ? realCoralManipulator : new CoralManipulatorIOSim();
+    public static final Elevator elevatorSimSwitch(ElevatorIO realElevator) {
+        return new Elevator(Constants.currentMode == Mode.REAL ? realElevator : new ElevatorIOSim());
+    }
+
+    public static final CoralManipulator coralManipulatorSimSwitch(CoralManipulatorIO realCoralManipulator) {
+        return new CoralManipulator(
+                Constants.currentMode == Mode.REAL ? realCoralManipulator : new CoralManipulatorIOSim());
     }
 
     public static final Drive driveSimSwitch(GyroIO io, ModuleIO[] moduleIOs) {
@@ -71,7 +80,7 @@ public class RobotSim {
         armRoot.setPosition(2.5, simData.elevatorPositionMeters());
         armMech.setAngle(Units.radiansToDegrees(simData.armPositionRadians()));
         // RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(currentInputs.values().stream()
-        //         .mapToDouble(DoubleSupplier::getAsDouble).toArray()));
+        // .mapToDouble(DoubleSupplier::getAsDouble).toArray()));
     }
 
     public static final LoggedMechanism2d getMechanism() {

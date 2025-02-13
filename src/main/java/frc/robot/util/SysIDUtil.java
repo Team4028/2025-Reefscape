@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 public class SysIDUtil {
-    private static final boolean USE_AK_LOGGER = true;
+    private static final boolean USE_AK_LOGGER = false;
 
     public static void logSysIdState(State state) {
         if (USE_AK_LOGGER)

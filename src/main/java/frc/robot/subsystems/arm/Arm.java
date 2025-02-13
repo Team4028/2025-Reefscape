@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
 import frc.robot.util.SysIDUtil;
 
@@ -27,15 +28,15 @@ public class Arm extends SubsystemBase {
     private final ArmStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput
-    private double targetPositionRad = Math.PI;
+    private double targetPositionRad = ArmisticePositions.STOW.armPositionRad;
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private boolean hasAlgae;
 
     public Arm(ArmIO io) {
         this.io = io;
-        pid = ArmConstants.pidConfig.makeProfiledPIDController();
-        armFF = ArmConstants.pidConfig.makeArmFeedforward();
-    stateTracker = new ArmStateTracker();
+        pid = io instanceof ArmIOSim ? ArmConstants.simPidConfig.makeProfiledPIDController() : ArmConstants.pidConfig.makeProfiledPIDController();
+        armFF = io instanceof ArmIOSim ? ArmConstants.simPidConfig.makeArmFeedforward() : ArmConstants.pidConfig.makeArmFeedforward();
+        stateTracker = new ArmStateTracker();
         sysIDCommands = SysIDUtil.generateTests(ArmConstants.sysIDConfig, this::runMotor, this);
         io.updateInputs(inputs);
         pid.reset(inputs.armEncoderRad);
