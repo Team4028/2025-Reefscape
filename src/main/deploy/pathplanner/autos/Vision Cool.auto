@@ -1,0 +1,163 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionAuto.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Acquire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow No Wait"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionAuto.1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Outfeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionAuto.2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Acquire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow No Wait"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionAuto.1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Outfeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionAuto.2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Acquire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow No Wait"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionAuto.1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Outfeed"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionAuto.2"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": true
+}
