@@ -54,7 +54,7 @@ public class Elevator extends SubsystemBase {
                     Logger.recordOutput(
                             "Arm/StaticCharacterizationOutput", state.characterizationOutput);
                 })
-                .until(() -> inputs.velocityRadPerSec >= staticCharacterizationVelocityThresh.get())
+                .until(() -> inputs.leaderVelocity >= staticCharacterizationVelocityThresh.get())
                 .finallyDo(
                         () -> {
                             stopProfile = false;

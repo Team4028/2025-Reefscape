@@ -23,7 +23,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
      * TalonSRX does Not work with this method.
      */
     private final TorqueCurrentFOC torqueCurrentRequest = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
-    
+
     private final TalonFX leader = new TalonFX(ElevatorConstants.TalonFX.LEADER_ID);
     private final TalonFX follower = new TalonFX(ElevatorConstants.TalonFX.FOLLOWER_ID);
     private final StatusSignal<Angle> positionRotLeader = leader.getPosition();
@@ -69,7 +69,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.followerCurrentAmps = currentAmpsFollower.getValueAsDouble();
         inputs.elevatorPositionInches = inputs.leaderPosition * ElevatorConstants.ROT_TO_IN;
         inputs.elevatorVelocityInchesPerSecond = inputs.leaderVelocity * ElevatorConstants.ROT_TO_IN;
-        inputs.velocityRadPerSec = Units.rotationsToRadians(velocityRotPerSecLeader.getValueAsDouble());
         inputs.leaderData = GetMotorData.getTalonFXData(leader);
         inputs.followerData = GetMotorData.getTalonFXData(follower);
     }

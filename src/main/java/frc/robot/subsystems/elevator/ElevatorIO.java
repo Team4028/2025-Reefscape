@@ -19,7 +19,6 @@ public interface ElevatorIO {
         public double followerCurrentAmps = 0.0;
         public double elevatorPositionInches = 0.0;
         public double elevatorVelocityInchesPerSecond = 0.0;
-        public double velocityRadPerSec = 0.0;
         public MotorData leaderData = MotorData.empty();
         public MotorData followerData = MotorData.empty();
     }
@@ -36,6 +35,6 @@ public interface ElevatorIO {
     public default void setVbus(double vBus) {
     }
     public default void runOpenLoop(double output) {
-        
+
     }
 }
