@@ -107,19 +107,28 @@ public class Limelight extends SubsystemBase {
         double txnc = vRes.rawFiducials()[0].txnc();
         Pose2d tagPose2d = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get()
                 .toPose2d();
-        Translation2d camToTagTranslation = new Pose3d(Translation3d.kZero, new Rotation3d(0, Units.degreesToRadians(tync), Units.degreesToRadians(-txnc)))
-                .transformBy(new Transform3d(new Translation3d(vRes.rawFiducials()[0].distToCamera(), 0, 0),
+        Translation2d camToTagTranslation = 
+            new Pose3d(Translation3d.kZero, new Rotation3d(0, Units.degreesToRadians(tync), Units.degreesToRadians(-txnc)))
+                .transformBy(
+                    new Transform3d(new Translation3d(vRes.rawFiducials()[0].distToCamera(), 0, 0),
                         Rotation3d.kZero))
-                .getTranslation().rotateBy(new Rotation3d(0, io.getRobotToCamera().getY(), 0))
+                .getTranslation()
+                .rotateBy(new Rotation3d(0, io.getRobotToCamera().getRotation().getY(), 0))
                 .toTranslation2d();
-        double camToTagRot = driveYawRad + io.getRobotToCamera().getRotation().getMeasureZ().in(Radians)
+
+        double camToTagRotation = 
+            driveYawRad + io.getRobotToCamera().getRotation().getMeasureZ().in(Radians)
                 + camToTagTranslation.getAngle().getRadians();
-        Translation2d fieldToCamera = new Pose2d(tagPose2d.getTranslation(),
-                Rotation2d.fromRadians(camToTagRot + Math.PI))
+
+        Translation2d fieldToCameraTranslation = 
+            new Pose2d(tagPose2d.getTranslation(),
+                Rotation2d.fromRadians(camToTagRotation + Math.PI))
                 .transformBy(new Transform2d(camToTagTranslation.getNorm(), 0, new Rotation2d()))
                 .getTranslation();
-        Pose2d robotPose = new Pose2d(fieldToCamera,
-                Rotation2d.fromRadians(driveYawRad + io.getRobotToCamera().getRotation().getMeasureZ().in(Radians)))
+
+        Pose2d robotPose = 
+            new Pose2d(fieldToCameraTranslation,
+                Rotation2d.fromRadians(driveYawRad + io.getRobotToCamera().getRotation().getZ()))
                 .transformBy(new Transform2d(new Pose2d(io.getRobotToCamera().getX(), io.getRobotToCamera().getY(),
                         io.getRobotToCamera().getRotation().toRotation2d()), Pose2d.kZero));
 
