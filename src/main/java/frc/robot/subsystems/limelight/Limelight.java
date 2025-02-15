@@ -100,7 +100,7 @@ public class Limelight extends SubsystemBase {
         int tagID = vRes.rawFiducials()[0].id();
         double tync = vRes.rawFiducials()[0].tync();
         double txnc = vRes.rawFiducials()[0].txnc();
-        Pose3d tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
+        Pose3d tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded).getTagPose(tagID).get();
         double dist2d = Math
                 .cos(io.getRobotToCamera().getRotation().getMeasureY().in(Radians) + Units.degreesToRadians(tync))
                 * vRes.rawFiducials()[0].distToCamera();

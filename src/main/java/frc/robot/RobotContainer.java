@@ -62,7 +62,7 @@ public class RobotContainer {
                             Units.degreesToRadians(135)))));
 
     //add actual limits
-    private final SlewRateLimiter xLimiter, thetaLimiter, xLimiter1;
+    private final SlewRateLimiter xyLimiter1, thetaLimiter, xyLimiter2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
 
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -74,8 +74,8 @@ public class RobotContainer {
         // change the rate limit values for these when everything else is done
 
         // xlimiter is used for x and y!!
-        xLimiter = new SlewRateLimiter(4);
-        xLimiter1 = new SlewRateLimiter(4);
+        xyLimiter1 = new SlewRateLimiter(4);
+        xyLimiter2 = new SlewRateLimiter(4);
 
         thetaLimiter = new SlewRateLimiter(3.0);
 
@@ -151,8 +151,8 @@ public class RobotContainer {
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drive,
-                        () -> scaleDriverController(() -> -driverController.getLeftY(), chooseXYLimiter()),
-                        () -> scaleDriverController(() -> -driverController.getLeftX(), chooseXYLimiter()),
+                        () -> scaleDriverController(() -> -driverController.getLeftY(), chooseLimiter()),
+                        () -> scaleDriverController(() -> -driverController.getLeftX(), chooseLimiter()),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 thetaLimiter)));
 
@@ -210,14 +210,11 @@ public class RobotContainer {
                 .runOnce(drive::stop);
     }
 
-    public SlewRateLimiter chooseXYLimiter() {
-        xLimiter.calculate(-driverController.getLeftY());
-        xLimiter1.calculate(-driverController.getLeftY);
-
+    public SlewRateLimiter chooseLimiter() {  
         if (armistice.getElevatorPosition() > 40) {
-            return xLimiter;
+            return xyLimiter1;
         } else {
-            return xLimiter1;
+            return xyLimiter2;
         }
     }
 
