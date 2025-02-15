@@ -128,14 +128,14 @@ public class Limelight extends SubsystemBase {
 
         Translation2d fieldToCameraTranslation = 
             new Pose2d(tagPose2d.getTranslation(),
-                Rotation2d.fromRadians(camToTagRotation + Math.PI))
+                Rotation2d.fromRadians(camToTagRotation - Math.PI/2))
                 .transformBy(new Transform2d(camToTagTranslation.getNorm(), 0, Rotation2d.kZero))
                 .getTranslation();
 
         Pose2d robotPose = 
             new Pose2d(fieldToCameraTranslation,
-                Rotation2d.fromRadians(driveYawRad + io.getRobotToCamera().getRotation().getZ()))
-                .transformBy(new Transform2d(new Pose2d(io.getRobotToCamera().getX(), io.getRobotToCamera().getY(),
+                Rotation2d.fromRadians(driveYawRad - io.getRobotToCamera().getRotation().getZ()))
+                .transformBy(new Transform2d(new Pose2d(-io.getRobotToCamera().getX(), -io.getRobotToCamera().getY(),
                         io.getRobotToCamera().getRotation().toRotation2d()), Pose2d.kZero));
 
         
