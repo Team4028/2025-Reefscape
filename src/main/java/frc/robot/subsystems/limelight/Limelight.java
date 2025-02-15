@@ -6,8 +6,8 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -100,17 +100,24 @@ public class Limelight extends SubsystemBase {
         int tagID = vRes.rawFiducials()[0].id();
         double tync = vRes.rawFiducials()[0].tync();
         double txnc = vRes.rawFiducials()[0].txnc();
-        Pose3d tagPose = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get();
-        double dist2d = Math
-                .cos(io.getRobotToCamera().getRotation().getMeasureY().in(Radians) + Units.degreesToRadians(tync))
-                * vRes.rawFiducials()[0].distToCamera();
-        var dYawRad = io.getRobotToCamera().getRotation().getMeasureZ().in(Radians) + Units.degreesToRadians(txnc);
-        return new LoggablePoseEstimate(
-                new Pose2d(tagPose.toPose2d().getTranslation().minus(new Translation2d(Math.cos(dYawRad) * dist2d,
-                        Math.sin(dYawRad) * dist2d)).plus(io.getRobotToCamera().getTranslation().toTranslation2d()),
-                        Rotation2d.fromRadians(driveYawRad)),
-                vRes.timestampSeconds(), vRes.latency(), 1, vRes.tagSpan(), dist2d, vRes.avgTagArea(),
-                vRes.rawFiducials(), vRes.isMT2());
+        Pose2d tagPose2d = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get()
+                .toPose2d();
+        double dist2d = vRes.rawFiducials()[0].distToCamera()
+                * Math.cos(io.getRobotToCamera().getRotation().getMeasureY().in(Radians) + tync);
+        double camToTagRot = driveYawRad + io.getRobotToCamera().getRotation().getMeasureZ().in(Radians)
+                - Units.degreesToRadians(txnc);
+        Translation2d fieldToCamera = new Pose2d(tagPose2d.getTranslation(),
+                Rotation2d.fromRadians(camToTagRot + Math.PI)).transformBy(new Transform2d(dist2d, 0, new Rotation2d()))
+                .getTranslation();
+        Pose2d robotPose = new Pose2d(fieldToCamera,
+                Rotation2d.fromRadians(driveYawRad + io.getRobotToCamera().getRotation().getMeasureZ().in(Radians)))
+                .transformBy(new Transform2d(new Pose2d(io.getRobotToCamera().getX(), io.getRobotToCamera().getY(),
+                        io.getRobotToCamera().getRotation().toRotation2d()), Pose2d.kZero));
+
+        return new LoggablePoseEstimate(new Pose2d(robotPose.getTranslation(), Rotation2d.fromRadians(driveYawRad)),
+                vRes.timestampSeconds(), vRes.latency(), vRes.tagCount(), vRes.tagSpan(), vRes.avgTagDist(),
+                vRes.avgTagArea(), vRes.rawFiducials(), vRes.isMT2());
+
     }
 
     public boolean setIMUInternal(boolean on) {
