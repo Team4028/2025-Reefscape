@@ -1,6 +1,9 @@
 package frc.robot.subsystems.limelight;
 
 import static edu.wpi.first.units.Units.Radians;
+
+import javax.print.attribute.standard.Fidelity;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -103,7 +106,7 @@ public class Limelight extends SubsystemBase {
         Pose2d tagPose2d = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get()
                 .toPose2d();
         double dist2d = vRes.rawFiducials()[0].distToCamera()
-                * Math.cos(io.getRobotToCamera().getRotation().getMeasureY().in(Radians) + tync);
+                * Math.cos(io.getRobotToCamera().getRotation().getMeasureY().in(Radians) + Units.degreesToRadians(tync));
         double camToTagRot = driveYawRad + io.getRobotToCamera().getRotation().getMeasureZ().in(Radians)
                 - Units.degreesToRadians(txnc);
         Translation2d fieldToCamera = new Pose2d(tagPose2d.getTranslation(),
