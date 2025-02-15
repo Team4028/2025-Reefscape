@@ -124,12 +124,12 @@ public class Limelight extends SubsystemBase {
 
         double camToTagRotation = 
             driveYawRad + io.getRobotToCamera().getRotation().getMeasureZ().in(Radians)
-                + camToTagTranslation.getAngle().getRadians();
+                - camToTagTranslation.getAngle().getRadians();
 
         Translation2d fieldToCameraTranslation = 
             new Pose2d(tagPose2d.getTranslation(),
                 Rotation2d.fromRadians(camToTagRotation + Math.PI))
-                .transformBy(new Transform2d(camToTagTranslation.getNorm(), 0, new Rotation2d()))
+                .transformBy(new Transform2d(camToTagTranslation.getNorm(), 0, Rotation2d.kZero))
                 .getTranslation();
 
         Pose2d robotPose = 

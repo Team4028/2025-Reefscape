@@ -73,7 +73,7 @@ public class LimelightIO {
     }
 
     public void updateInputs(LimelightIOInputs inputs) {
-        if (LimelightHelpers.getTV(limelightName)) {
+        if (LimelightHelpers.getTV(limelightName) || LimelightHelpers.getRawFiducials(limelightName).length != 0) {
             inputs.ta = LimelightHelpers.getTA(limelightName);
             inputs.targetCount = LimelightHelpers.getTargetCount(limelightName);
             inputs.solverPoseBlue = LoggablePoseEstimate
