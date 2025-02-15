@@ -139,6 +139,9 @@ public class Armistice extends SudoSubsystem {
     public void setInDanger(boolean isInDanger) {
         this.isInDanger = isInDanger;
     }
+    public double getElevatorPosition() {
+        return summit.getCurrentPosition();
+    }
 
     @Override
     public void periodic() {

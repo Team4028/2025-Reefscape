@@ -54,11 +54,15 @@ public class RobotContainer {
 
     private final AlgaeManipulator algae = RobotSim.algaeSimSwitch(new AlgaeManipulatorIOTalonSRX());
     private final Armistice armistice = new Armistice();
-    private final Limelight ll4 = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), new Transform3d(
-            new Translation3d(Units.inchesToMeters(-6.375), Units.inchesToMeters(12), Units.inchesToMeters(8.75)),
-            new Rotation3d(Units.degreesToRadians(180), Units.degreesToRadians(13), Units.degreesToRadians(135)))));
+    private final Limelight ll4 = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(),
+            new Transform3d(
+                    new Translation3d(Units.inchesToMeters(-6.375), Units.inchesToMeters(12),
+                            Units.inchesToMeters(8.75)),
+                    new Rotation3d(Units.degreesToRadians(180), Units.degreesToRadians(13),
+                            Units.degreesToRadians(135)))));
 
-    private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
+    //add actual limits
+    private final SlewRateLimiter xLimiter, thetaLimiter, xLimiter1;
     private static final double DEFAULT_BASE_SPEED = 0.3;
 
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -67,9 +71,16 @@ public class RobotContainer {
             OperatorConstants.kDriverControllerPort);
 
     public RobotContainer() {
+        // change the rate limit values for these when everything else is done
+
+        // xlimiter is used for x and y!!
         xLimiter = new SlewRateLimiter(4);
-        yLimiter = new SlewRateLimiter(4);
-        thetaLimiter = new SlewRateLimiter(4);
+        xLimiter1 = new SlewRateLimiter(4);
+
+        thetaLimiter = new SlewRateLimiter(3.0);
+
+        
+
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire", coralManipulator.runMotorCommand(.7)
                 .alongWith(Commands.waitUntil(
@@ -136,11 +147,12 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        //not working
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drive,
-                        () -> scaleDriverController(() -> -driverController.getLeftY(), xLimiter),
-                        () -> scaleDriverController(() -> -driverController.getLeftX(), yLimiter),
+                        () -> scaleDriverController(() -> -driverController.getLeftY(), chooseXYLimiter()),
+                        () -> scaleDriverController(() -> -driverController.getLeftX(), chooseXYLimiter()),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 thetaLimiter)));
 
@@ -184,6 +196,7 @@ public class RobotContainer {
                         .ignoringDisable(true));
     }
 
+  
     public void resetArmPid() {
         armistice.resetArmPid();
     }
@@ -195,6 +208,17 @@ public class RobotContainer {
     public Command realDrivetrainStop() {
         return drive
                 .runOnce(drive::stop);
+    }
+
+    public SlewRateLimiter chooseXYLimiter() {
+        xLimiter.calculate(-driverController.getLeftY());
+        xLimiter1.calculate(-driverController.getLeftY);
+
+        if (armistice.getElevatorPosition() > 40) {
+            return xLimiter;
+        } else {
+            return xLimiter1;
+        }
     }
 
     private double scaleDriverController(DoubleSupplier controllerInput, SlewRateLimiter limiter) {
