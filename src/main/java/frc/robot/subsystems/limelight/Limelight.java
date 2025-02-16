@@ -156,6 +156,7 @@ public class Limelight extends SubsystemBase {
         getBotposeEstimateMT2(0);
         setIMUInternal(false);
         seedLLSolverYaw(0);
+        periodic();
     }
 
     public boolean setIMUInternal(boolean on) {
