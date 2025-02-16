@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.util.VisionUtil;
@@ -32,8 +31,9 @@ public class Limelight extends SubsystemBase {
     }
 
     public boolean trustPose(Translation2d driveTrans) {
-        return driveTrans.getDistance(
-                inputs.solverPoseBlue.pose().getTranslation()) <= LimelightConstants.STD_DEV_POSE_DIFF_THRESHOLD;
+        return getTV();
+        //driveTrans.getDistance(
+          //      inputs.solverPoseBlue.pose().getTranslation()) <= LimelightConstants.STD_DEV_POSE_DIFF_THRESHOLD;
     }
 
     public double getTX() {
@@ -138,12 +138,12 @@ public class Limelight extends SubsystemBase {
                 .transformBy(new Transform2d(new Pose2d(-io.getRobotToCamera().getX(), -io.getRobotToCamera().getY(),
                         io.getRobotToCamera().getRotation().toRotation2d()), Pose2d.kZero));
 
-        
-        Logger.recordOutput("bp/Fiducial", vRes.rawFiducials()[0]);
-        Logger.recordOutput("bp/Cam to Tag Tran", camToTagTranslation);
-        Logger.recordOutput("bp/Cam to Tag Rot", camToTagRotation);
-        Logger.recordOutput("bp/Feid to Cam", fieldToCameraTranslation);
-        Logger.recordOutput("bp/Robot Pose", robotPose);
+        // Debug logs
+        // Logger.recordOutput("bp/Fiducial", vRes.rawFiducials()[0]);
+        // Logger.recordOutput("bp/Cam to Tag Tran", camToTagTranslation);
+        // Logger.recordOutput("bp/Cam to Tag Rot", camToTagRotation);
+        // Logger.recordOutput("bp/Feid to Cam", fieldToCameraTranslation);
+        // Logger.recordOutput("bp/Robot Pose", robotPose);
 
         return new LoggablePoseEstimate(new Pose2d(robotPose.getTranslation(), Rotation2d.fromRadians(driveYawRad)),
                 vRes.timestampSeconds(), vRes.latency(), vRes.tagCount(), vRes.tagSpan(), vRes.avgTagDist(),
