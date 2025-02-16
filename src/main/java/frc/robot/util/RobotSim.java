@@ -11,21 +11,10 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.Armistice.SimData;
 import frc.robot.Constants.Mode;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.algae.AlgaeManipulator;
-import frc.robot.subsystems.algae.AlgaeManipulatorIO;
-import frc.robot.subsystems.algae.AlgaeManipulatorIOSim;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
-import frc.robot.subsystems.coral.CoralManipulator;
-import frc.robot.subsystems.coral.CoralManipulatorIO;
-import frc.robot.subsystems.coral.CoralManipulatorIOSim;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -40,9 +29,7 @@ public class RobotSim {
             currentInputs.replace(key, currentSupplier);
     }
 
-    public static final AlgaeManipulator algaeSimSwitch(AlgaeManipulatorIO realAlgae) {
-        return new AlgaeManipulator(Constants.currentMode == Mode.REAL ? realAlgae : new AlgaeManipulatorIOSim());
-    }
+    
 
     public static final Arm armSimSwitch(ArmIO realArm) {
         return new Arm(Constants.currentMode == Mode.REAL ? realArm : new ArmIOSim());
@@ -50,19 +37,6 @@ public class RobotSim {
 
     public static final Elevator elevatorSimSwitch(ElevatorIO realElevator) {
         return new Elevator(Constants.currentMode == Mode.REAL ? realElevator : new ElevatorIOSim());
-    }
-
-    public static final CoralManipulator coralManipulatorSimSwitch(CoralManipulatorIO realCoralManipulator) {
-        return new CoralManipulator(
-                Constants.currentMode == Mode.REAL ? realCoralManipulator : new CoralManipulatorIOSim());
-    }
-
-    public static final Drive driveSimSwitch(GyroIO io, ModuleIO[] moduleIOs) {
-        return Constants.currentMode == Mode.REAL
-                ? new Drive(io, moduleIOs[0], moduleIOs[1], moduleIOs[2], moduleIOs[3])
-                : new Drive(new GyroIO() {
-                }, new ModuleIOSim(TunerConstants.FrontLeft), new ModuleIOSim(TunerConstants.FrontRight),
-                        new ModuleIOSim(TunerConstants.BackLeft), new ModuleIOSim(TunerConstants.BackRight));
     }
 
     private static LoggedMechanism2d baseMech = new LoggedMechanism2d(5, 5);

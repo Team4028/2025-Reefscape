@@ -58,8 +58,6 @@ public class Robot extends LoggedRobot {
             SudoSubsystem.periodicAll();
         }
         CommandScheduler.getInstance().run();
-        robotContainer.logLLPoses();
-        robotContainer.seedll4IMU();
     }
 
     @Override
@@ -70,8 +68,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        robotContainer.periodicLL4IMU(false);
-        robotContainer.seedll4IMU();
+     
     }
 
     @Override
@@ -87,7 +84,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousPeriodic() {
-        robotContainer.periodicLL4IMU(true);
+
     }
 
     @Override
@@ -101,7 +98,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopPeriodic() {
-        robotContainer.periodicLL4IMU(true);
+
         
     }
 
