@@ -67,6 +67,14 @@ public class Armistice extends SudoSubsystem {
         return isInDanger ? ArmConstants.SAFETY_RANGE : ArmConstants.UNSAFE_RANGE;
     }
 
+
+    public void runArmVbus(double vbus) {
+        disarm.runMotor(vbus);
+    }
+
+    public void runElevatorVbus(double vbus) {
+        summit.runMotors(vbus);
+    }
     /** Kills the arm(y) */
     public void orbitalStrike() {
         disarm.runMotor(0);

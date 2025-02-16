@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
@@ -71,22 +72,25 @@ public class RobotContainer {
     private void configureBindings() {
         // not working
 
+
+
         // Run to L4
-        driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
-        // Run to L3
-        driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
-        // Run to L2
-        driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
-        // Acquire
-        driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        // Stow
-        driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
+        // driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        // // Run to L3
+        // driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
+        // // Run to L2
+        // driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+        // // Acquire
+        // driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
+        // // Stow
+        // driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
 
         // //Nudges
-        driverController.povUp().onTrue(armistice.nudgeCommand(1, 0));
-        driverController.povDown().onTrue(armistice.nudgeCommand(-1, 0));
-        driverController.povLeft().onTrue(armistice.nudgeCommand(0, 0.05));
-        driverController.povRight().onTrue(armistice.nudgeCommand(0, -0.05));
+        driverController.povUp().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(20)));
+        driverController.povDown().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-20)));
+
+        driverController.povLeft().onTrue(Commands.runOnce(() -> armistice.runArmVbus(20)));
+        driverController.povRight().onTrue(Commands.runOnce(() -> armistice.runArmVbus(-20)));
 
         // Characterization
         // driverController.povRight().onTrue(armistice.runArmVoltageForChar()).onFalse(armistice.stopArm());
