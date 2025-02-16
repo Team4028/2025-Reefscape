@@ -19,6 +19,7 @@ public interface ArmIO {
         public double currentAmps = 0.0;
         public double canMagPosition = 0.0;
         public double canMagVelocity = 0.0;
+        public boolean canMagInRange = false;
         public MotorData motorData = MotorData.empty();
     }
 
