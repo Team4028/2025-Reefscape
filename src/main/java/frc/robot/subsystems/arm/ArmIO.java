@@ -17,6 +17,8 @@ public interface ArmIO {
         public double armMotorVelocityRotPerSec = 0.0;
         public double appliedVoltage = 0.0;
         public double currentAmps = 0.0;
+        public double canMagPosition = 0.0;
+        public double canMagVelocity = 0.0;
         public MotorData motorData = MotorData.empty();
     }
 
