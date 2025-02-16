@@ -151,6 +151,13 @@ public class Limelight extends SubsystemBase {
 
     }
 
+    public void warmup() {
+        io.updateInputsWarmup(inputs);
+        getBotposeEstimateMT2(0);
+        setIMUInternal(false);
+        seedLLSolverYaw(0);
+    }
+
     public boolean setIMUInternal(boolean on) {
         return io.setIMUInternal(on);
     }

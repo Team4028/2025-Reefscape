@@ -27,7 +27,6 @@ public class LimelightIO {
         }
 
         this.robotToCamera = new Transform3d(new Pose3d(), LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
-        // LimelightHelpers.SetIMUMode(limelightName, 0);
     }
 
     @AutoLog
@@ -97,6 +96,20 @@ public class LimelightIO {
         } else {
             inputs.tv = false;
         }
+    }
+
+    public void updateInputsWarmup(LimelightIOInputs inputs) {
+        inputs.tv = false;
+        inputs.tid = 0;
+        inputs.tx = 0.0;
+        inputs.txnc = 0.0;
+        inputs.ty = 0.0;
+        inputs.tync = 0.0;
+        inputs.ta = 0.0;
+        inputs.targetCount = 0;
+        inputs.solverPoseBlue = LoggablePoseEstimate.empty();
+        inputs.targetPoseCameraSpace = new double[0];
+        inputs.rawFiducials = new LoggableRawFiducial[0];
     }
 
     public void seedSolverYaw(double yaw) {
