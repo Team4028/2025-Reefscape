@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -50,6 +51,11 @@ public class Robot extends LoggedRobot {
         }
 
         Logger.start();
+    }
+
+    @Override
+    public void robotInit() {
+      FollowPathCommand.warmupCommand().schedule();
     }
 
     @Override
