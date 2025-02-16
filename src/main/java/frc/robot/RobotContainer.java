@@ -43,6 +43,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class RobotContainer {
+    public enum LimiterState {
+        X,
+        Y,
+        THETA
+    }
+
     private final CoralManipulator coralManipulator = RobotSim
             .coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX());
 
@@ -61,8 +67,9 @@ public class RobotContainer {
                     new Rotation3d(Units.degreesToRadians(180), Units.degreesToRadians(13),
                             Units.degreesToRadians(135)))));
 
-    //add actual limits
-    private final SlewRateLimiter xyLimiter1, thetaLimiter, xyLimiter2;
+    // add actual limits
+    private final SlewRateLimiter xLimiter1, xLimiter2, xLimiter3, xLimiter4, yLimiter1, yLimiter2, yLimiter3,
+            yLimiter4, thetaLimiter1, thetaLimiter2, thetaLimiter3, thetaLimiter4;
     private static final double DEFAULT_BASE_SPEED = 0.3;
 
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -74,12 +81,20 @@ public class RobotContainer {
         // change the rate limit values for these when everything else is done
 
         // xlimiter is used for x and y!!
-        xyLimiter1 = new SlewRateLimiter(4);
-        xyLimiter2 = new SlewRateLimiter(4);
+        xLimiter1 = new SlewRateLimiter(0.3); //l4
+        xLimiter2 = new SlewRateLimiter(1.0); //l3
+        xLimiter3 = new SlewRateLimiter(2.0); //l2
+        xLimiter4 = new SlewRateLimiter(4); //ll1
 
-        thetaLimiter = new SlewRateLimiter(3.0);
+        yLimiter1 = new SlewRateLimiter(0.3); //l4
+        yLimiter2 = new SlewRateLimiter(1.0);
+        yLimiter3 = new SlewRateLimiter(2.0);
+        yLimiter4 = new SlewRateLimiter(4);
 
-        
+        thetaLimiter1 = new SlewRateLimiter(0.5); //l4
+        thetaLimiter2 = new SlewRateLimiter(3.0);
+        thetaLimiter3 = new SlewRateLimiter(3.0);
+        thetaLimiter4 = new SlewRateLimiter(3.0);
 
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire", coralManipulator.runMotorCommand(.7)
@@ -147,14 +162,14 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        //not working
+        // not working
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drive,
-                        () -> scaleDriverController(() -> -driverController.getLeftY(), chooseLimiter()),
-                        () -> scaleDriverController(() -> -driverController.getLeftX(), chooseLimiter()),
+                        () -> scaleDriverController(() -> driverController.getLeftY(), LimiterState.X),
+                        () -> scaleDriverController(() -> driverController.getLeftX(), LimiterState.Y),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
-                                thetaLimiter)));
+                                LimiterState.THETA)));
 
         // Run to L4
         driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
@@ -196,7 +211,6 @@ public class RobotContainer {
                         .ignoringDisable(true));
     }
 
-  
     public void resetArmPid() {
         armistice.resetArmPid();
     }
@@ -206,21 +220,61 @@ public class RobotContainer {
     }
 
     public Command realDrivetrainStop() {
-        return drive
-                .runOnce(drive::stop);
+        return drive.runOnce(drive::stop);
     }
 
-    public SlewRateLimiter chooseLimiter() {  
-        if (armistice.getElevatorPosition() > 40) {
-            return xyLimiter1;
-        } else {
-            return xyLimiter2;
+    public double chooseXLimiter(double input) {
+        if (armistice.getElevatorPosition() > 40) {//40
+            return xLimiter1.calculate(input);
+        } else if (armistice.getElevatorPosition() > 30 && armistice.getElevatorPosition() < 40) {//30
+            return xLimiter2.calculate(input);
+        } else if (armistice.getElevatorPosition() > 8 && armistice.getElevatorPosition() < 30) {//15
+            return xLimiter3.calculate(input);
+        } else {//3
+            return xLimiter4.calculate(input);
         }
     }
 
-    private double scaleDriverController(DoubleSupplier controllerInput, SlewRateLimiter limiter) {
-        return limiter.calculate(
-                controllerInput.getAsDouble() * (DEFAULT_BASE_SPEED
-                        + (driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED))));
+    public double chooseYLimiter(double input) {
+        if (armistice.getElevatorPosition() >= 40) {
+            return yLimiter1.calculate(input);
+        } else if (armistice.getElevatorPosition() > 30 && armistice.getElevatorPosition() < 40) {
+            return yLimiter2.calculate(input);
+        } else if (armistice.getElevatorPosition() >= 8 && armistice.getElevatorPosition() <= 30) {
+            return yLimiter3.calculate(input);
+        } else {
+            return yLimiter4.calculate(input);
+        }
+    }
+
+    public double chooseThetaLimiter(double input) {
+        if (armistice.getElevatorPosition() > 40) {
+            return thetaLimiter1.calculate(input);
+        } else if (armistice.getElevatorPosition() > 30 && armistice.getElevatorPosition() < 40) {
+            return thetaLimiter2.calculate(input);
+        } else if (armistice.getElevatorPosition() > 20 && armistice.getElevatorPosition() < 30) {
+            return thetaLimiter3.calculate(input);
+        } else {
+            return thetaLimiter4.calculate(input);
+        }
+    }
+
+    // enum
+
+    private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {
+        double input = controllerInput.getAsDouble() * (DEFAULT_BASE_SPEED
+                + (driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED)));
+
+        switch (type) {
+            case X:
+                return chooseXLimiter(input);
+            case Y:
+                return chooseYLimiter(input);
+            case THETA:
+                return chooseThetaLimiter(input);
+            default:
+                return 0.0;
+        }
+
     }
 }
