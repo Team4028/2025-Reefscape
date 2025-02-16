@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.littletonrobotics.junction.AutoLog;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.MathUtil;
@@ -17,7 +18,7 @@ public class LimelightIO {
     private final String limelightName;
     private final Transform3d robotToCamera;
 
-    public LimelightIO(String limelightName, boolean is4, Optional<Integer[]> tagFilter, Transform3d robotToCamera) {
+    public LimelightIO(String limelightName, boolean is4, Optional<Integer[]> tagFilter) {
         this.is4 = is4;
         this.limelightName = limelightName;
         if (tagFilter.isPresent()) {
@@ -25,7 +26,7 @@ public class LimelightIO {
                     Arrays.stream(tagFilter.get()).mapToInt(Integer::intValue).toArray());
         }
 
-        this.robotToCamera = robotToCamera;
+        this.robotToCamera = new Transform3d(new Pose3d(), LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
         // LimelightHelpers.SetIMUMode(limelightName, 0);
     }
 
@@ -72,7 +73,7 @@ public class LimelightIO {
     }
 
     public void updateInputs(LimelightIOInputs inputs) {
-        if (LimelightHelpers.getTV(limelightName)) {
+        if (LimelightHelpers.getTV(limelightName) && LimelightHelpers.getRawFiducials(limelightName).length != 0) {
             inputs.ta = LimelightHelpers.getTA(limelightName);
             inputs.targetCount = LimelightHelpers.getTargetCount(limelightName);
             inputs.solverPoseBlue = LoggablePoseEstimate

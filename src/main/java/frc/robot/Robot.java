@@ -88,6 +88,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousPeriodic() {
         robotContainer.periodicLL4IMU(true);
+        robotContainer.addMeasurements();
     }
 
     @Override
@@ -102,6 +103,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         robotContainer.periodicLL4IMU(true);
+        robotContainer.addMeasurements();
     }
 
     @Override
