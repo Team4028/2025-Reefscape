@@ -30,7 +30,7 @@ public class RobotContainer {
     private final SlewRateLimiter xLimiter1, xLimiter2, xLimiter3, xLimiter4, yLimiter1, yLimiter2, yLimiter3,
             yLimiter4, thetaLimiter1, thetaLimiter2, thetaLimiter3, thetaLimiter4;
 
-    private final LoggedDashboardChooser<Command> autoChooser;
+
 
     private final CommandXboxController driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
@@ -54,7 +54,7 @@ public class RobotContainer {
         thetaLimiter3 = new SlewRateLimiter(3.0);
         thetaLimiter4 = new SlewRateLimiter(3.0);
 
-        autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
+      
         // Set up SysId routines
         configureBindings();
     }
@@ -70,27 +70,26 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // not working
 
-
+        driverController.a().and(driverController.b()).onTrue(Commands.runOnce(() -> disableArmistice()));
 
         // Run to L4
-        // driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
         // // Run to L3
-        // driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
+        driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
         // // Run to L2
-        // driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+        driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
         // // Acquire
-        // driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
+        driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
         // // Stow
-        // driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
+        driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
 
         // //Nudges
-        driverController.povUp().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(20)));
-        driverController.povDown().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-20)));
+        driverController.povUp().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.20)));
+        driverController.povDown().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.20)));
 
-        driverController.povLeft().onTrue(Commands.runOnce(() -> armistice.runArmVbus(20)));
-        driverController.povRight().onTrue(Commands.runOnce(() -> armistice.runArmVbus(-20)));
+        driverController.povLeft().onTrue(Commands.runOnce(() -> armistice.runArmVbus(.20)));
+        driverController.povRight().onTrue(Commands.runOnce(() -> armistice.runArmVbus(-.20)));
 
         // Characterization
         // driverController.povRight().onTrue(armistice.runArmVoltageForChar()).onFalse(armistice.stopArm());
@@ -102,10 +101,6 @@ public class RobotContainer {
 
     public void resetArmPid() {
         armistice.resetArmPid();
-    }
-
-    public Command getAutonomousCommand() {
-        return autoChooser.get();
     }
 
     public double chooseXLimiter(double input) {

@@ -34,11 +34,13 @@ public class Arm extends SubsystemBase {
         this.io = io;
         pid = io instanceof ArmIOSim ? ArmConstants.simPidConfig.makeProfiledPIDController() : ArmConstants.pidConfig.makeProfiledPIDController();
         armFF = io instanceof ArmIOSim ? ArmConstants.simPidConfig.makeArmFeedforward() : ArmConstants.pidConfig.makeArmFeedforward();
-        stateTracker = new ArmStateTracker();
+        stateTracker = new ArmStateTracker();;
         sysIDCommands = SysIDUtil.generateTests(ArmConstants.sysIDConfig, this::runMotor, this);
         io.updateInputs(inputs);
         pid.reset(inputs.armEncoderRad);
     }
+
+ 
 
     public Command sysIDTest(boolean dynamic, Direction direction) {
         return sysIDCommands.get(dynamic).get(direction);
@@ -90,6 +92,11 @@ public class Arm extends SubsystemBase {
 
     public double getCurrentPosition() {
         return inputs.armEncoderRad;
+    }
+
+
+    public double getCanMagPosition() {
+        return inputs.canMagPosition; //working
     }
 
     @Override

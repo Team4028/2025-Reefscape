@@ -61,7 +61,16 @@ public class Armistice extends SudoSubsystem {
     }
 
     private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX());
-    private final Arm disarm = RobotSim.armSimSwitch(new ArmIOSparkEncoderTalonFX());
+
+
+    //Mag Arm is exactly the same as disarm, but uses a can encoder instead of spark. 
+  
+    private final Arm disarm = RobotSim.armSimSwitch(new ArmIOCanEncoderTalonFX());
+
+
+    public void getCanMagPosition() {
+        disarm.getCanMagPosition();;
+    }
 
     public ArmSafetyData getArmSafetyData() {
         return isInDanger ? ArmConstants.SAFETY_RANGE : ArmConstants.UNSAFE_RANGE;

@@ -49,6 +49,7 @@ public class ArmConstants {
         public static final boolean INVERTED = true;
     }
 
+
     public static final double PI_1_2 = 0.5 * Math.PI;
     public static final double PI_3_2 = 1.5 * Math.PI;
     public static final double PI_2 = 2 * Math.PI;
