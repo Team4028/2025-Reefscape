@@ -7,6 +7,8 @@ import com.revrobotics.spark.SparkMax;
 import frc.robot.subsystems.arm.ArmConstants;
 
 public class GetMotorData {
+
+    private GetMotorData() {}
     public static final record MotorData(double positionRad, double velocityRadPerSec, double tempCelcius) {
         public static final MotorData empty() {
             return new MotorData(0, 0, 0);

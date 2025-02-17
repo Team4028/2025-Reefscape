@@ -33,6 +33,8 @@ import frc.robot.subsystems.elevator.ElevatorIOSim;
 
 public class RobotSim {
 
+    private RobotSim() {}
+
     public static final Map<String, DoubleSupplier> currentInputs = new HashMap<>();
 
     public static final void registerCurrentInput(String key, DoubleSupplier currentSupplier) {

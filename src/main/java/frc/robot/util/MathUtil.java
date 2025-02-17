@@ -6,6 +6,9 @@ package frc.robot.util;
 
 /** Add your docs here. */
 public class MathUtil {
+
+    private MathUtil() {}
+    
     public static final <T extends Number> T clamp(T value, T min, T max) {
         if (value.doubleValue() < min.doubleValue())
             return min;

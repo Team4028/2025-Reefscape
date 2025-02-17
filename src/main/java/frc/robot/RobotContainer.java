@@ -50,9 +50,7 @@ public class RobotContainer {
 
     private final AlgaeManipulator algae = RobotSim.algaeSimSwitch(new AlgaeManipulatorIOTalonSRX());
     private final Armistice armistice = new Armistice();
-    private final Limelight ll4 = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty())); //new Transform3d(
-            //new Translation3d(Units.inchesToMeters(-6.375), Units.inchesToMeters(12), Units.inchesToMeters(8.75)),
-            //new Rotation3d(Units.degreesToRadians(180), Units.degreesToRadians(13), Units.degreesToRadians(-135)))));
+    private final Limelight ll4;
 
     private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -63,6 +61,7 @@ public class RobotContainer {
             OperatorConstants.kDriverControllerPort);
 
     public RobotContainer() {
+        ll4 = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty()));
         xLimiter = new SlewRateLimiter(4);
         yLimiter = new SlewRateLimiter(4);
         thetaLimiter = new SlewRateLimiter(4);
@@ -111,6 +110,7 @@ public class RobotContainer {
 
     public void subsystemWarmup() {
         ll4.warmup(); // just you for now
+        logLLPoses();
     }
 
     public final void simCallback() {

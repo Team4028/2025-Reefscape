@@ -98,20 +98,6 @@ public class LimelightIO {
         }
     }
 
-    public void updateInputsWarmup(LimelightIOInputs inputs) {
-        inputs.tv = false;
-        inputs.tid = 0;
-        inputs.tx = 0.0;
-        inputs.txnc = 0.0;
-        inputs.ty = 0.0;
-        inputs.tync = 0.0;
-        inputs.ta = 0.0;
-        inputs.targetCount = 0;
-        inputs.solverPoseBlue = LoggablePoseEstimate.empty();
-        inputs.targetPoseCameraSpace = new double[0];
-        inputs.rawFiducials = new LoggableRawFiducial[0];
-    }
-
     public void seedSolverYaw(double yaw) {
         LimelightHelpers.SetRobotOrientation(limelightName, yaw, 0, 0, 0, 0, 0);
     }

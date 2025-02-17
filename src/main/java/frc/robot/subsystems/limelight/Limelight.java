@@ -23,6 +23,7 @@ public class Limelight extends SubsystemBase {
     private final LimelightIO io;
     private final LimelightIOInputsAutoLogged inputs = new LimelightIOInputsAutoLogged();
     private final String name;
+    private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape); // 6-11; 17-22
 
     public Limelight(LimelightIO io) {
         this.io = io;
@@ -111,8 +112,7 @@ public class Limelight extends SubsystemBase {
         int tagID = vRes.rawFiducials()[0].id();
         double tync = vRes.rawFiducials()[0].tync();
         double txnc = vRes.rawFiducials()[0].txnc();
-        Pose2d tagPose2d = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape).getTagPose(tagID).get()
-                .toPose2d();
+        Pose2d tagPose2d = field.getTagPose(tagID).get().toPose2d();
         Translation2d camToTagTranslation = 
             new Pose3d(Translation3d.kZero, new Rotation3d(0, Units.degreesToRadians(tync), Units.degreesToRadians(-txnc)))
                 .transformBy(
@@ -152,11 +152,10 @@ public class Limelight extends SubsystemBase {
     }
 
     public void warmup() {
-        io.updateInputsWarmup(inputs);
+        periodic();
         getBotposeEstimateMT2(0);
         setIMUInternal(false);
         seedLLSolverYaw(0);
-        periodic();
     }
 
     public boolean setIMUInternal(boolean on) {

@@ -21,6 +21,8 @@ import edu.wpi.first.util.function.FloatSupplier;
 public final class DashboardStore {
     private static Map<NetworkTableEntry, Supplier<NetworkTableValue>> values = new HashMap<NetworkTableEntry, Supplier<NetworkTableValue>>();
 
+    private DashboardStore() {}
+
     @FunctionalInterface
     public static interface ByteArraySupplier {
         byte[] get();

@@ -16,6 +16,8 @@ import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 public class VisionUtil {
     public static Map<Limelight, DoubleFunction<LoggablePoseEstimate>> poseSources = new HashMap<>();
 
+    private VisionUtil() {}
+
     public static void registerPoseSource(Limelight ll, DoubleFunction<LoggablePoseEstimate> source) {
         poseSources.put(ll, source);
     }

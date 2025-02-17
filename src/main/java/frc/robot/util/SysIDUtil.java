@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 public class SysIDUtil {
     private static final boolean USE_AK_LOGGER = false;
 
+    private SysIDUtil() {}
+
     public static void logSysIdState(State state) {
         if (USE_AK_LOGGER)
             Logger.recordOutput("test-mode", state.toString());
