@@ -17,10 +17,18 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.GetMotorData;
 
+import com.reduxrobotics.canand.CanandEventLoop;
+
+//...
+
+// This will start Redux CANLink manually for Java
+
 public class ArmIOCanEncoderTalonFX implements ArmIO {
     private final Canandmag canMag = new Canandmag(5);
     private CanandmagSettings settings = new CanandmagSettings();
     CanandmagFaults faults;
+    CanandEventLoop canandEventLoop;
+    
 
     private final TalonFX motor = new TalonFX(ArmConstants.TalonFX.MOTOR_ID);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
@@ -39,6 +47,8 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
 
         canMag.setPartyMode(10);
         motor.getConfigurator().apply(ArmConstants.TalonFX.motorConfigs);
+        canandEventLoop.getInstance();
+    
     }
 
     @Override
