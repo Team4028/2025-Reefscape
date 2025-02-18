@@ -39,7 +39,7 @@ public class Armistice extends SudoSubsystem {
         ACQUIRE(0.43, 3.6),
         L2(3.64, 16),
         L3(3.64, 31.6),
-        L4(4.62, 39.46),
+        L4(3.411, 32.44),
         ALGAE_AQUIRE_L2(5.33, 8.64),
         LOLLIPOP_ACQUIRE(4.85, 2);
 

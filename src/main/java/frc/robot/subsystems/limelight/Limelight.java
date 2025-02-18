@@ -1,7 +1,5 @@
 package frc.robot.subsystems.limelight;
 
-import static edu.wpi.first.units.Units.Radians;
-
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -23,7 +21,8 @@ public class Limelight extends SubsystemBase {
     private final LimelightIO io;
     private final LimelightIOInputsAutoLogged inputs = new LimelightIOInputsAutoLogged();
     private final String name;
-    private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape); // 6-11; 17-22
+    private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape); // 6-11;
+                                                                                                                   // 17-22
 
     public Limelight(LimelightIO io) {
         this.io = io;
@@ -33,8 +32,9 @@ public class Limelight extends SubsystemBase {
 
     public boolean trustPose(Translation2d driveTrans) {
         return getTV();
-        //driveTrans.getDistance(
-          //      inputs.solverPoseBlue.pose().getTranslation()) <= LimelightConstants.STD_DEV_POSE_DIFF_THRESHOLD;
+        // driveTrans.getDistance(
+        // inputs.solverPoseBlue.pose().getTranslation()) <=
+        // LimelightConstants.STD_DEV_POSE_DIFF_THRESHOLD;
     }
 
     public double getTX() {
@@ -98,10 +98,10 @@ public class Limelight extends SubsystemBase {
     public String getName() {
         return io.getName();
     }
-     
+
     public LoggablePoseEstimate getBotposeEstimateMT2(double driveYawRad) {
         var vRes = inputs.solverPoseBlue;
-        if (vRes.tagCount() > 1) 
+        if (vRes.tagCount() > 1)
             return vRes;
 
         if (vRes.tagCount() < 1 || !getTV())
@@ -113,34 +113,31 @@ public class Limelight extends SubsystemBase {
         double tync = vRes.rawFiducials()[0].tync();
         double txnc = vRes.rawFiducials()[0].txnc();
         Pose2d tagPose2d = field.getTagPose(tagID).get().toPose2d();
-        Translation2d camToTagTranslation = 
-            new Pose3d(Translation3d.kZero, new Rotation3d(0, Units.degreesToRadians(tync), Units.degreesToRadians(-txnc)))
+        Translation2d camToTagTranslation = new Pose3d(Translation3d.kZero,
+                new Rotation3d(0, Units.degreesToRadians(-tync), Units.degreesToRadians(txnc)))
                 .transformBy(
-                    new Transform3d(new Translation3d(vRes.rawFiducials()[0].distToCamera(), 0, 0),
-                        Rotation3d.kZero))
+                        new Transform3d(new Translation3d(vRes.rawFiducials()[0].distToCamera(), 0, 0),
+                                Rotation3d.kZero))
                 .getTranslation()
                 .rotateBy(new Rotation3d(0, io.getRobotToCamera().getRotation().getY(), 0))
                 .toTranslation2d();
 
-        double camToTagRotation = 
-            driveYawRad + io.getRobotToCamera().getRotation().getMeasureZ().in(Radians)
-                - camToTagTranslation.getAngle().getRadians();
+        double camToTagRotation = driveYawRad + io.getRobotToCamera().getRotation().getZ()
+                + camToTagTranslation.getAngle().getRadians();
 
-        Translation2d fieldToCameraTranslation = 
-            new Pose2d(tagPose2d.getTranslation(),
-                Rotation2d.fromRadians(camToTagRotation - Math.PI/2))
+        Translation2d fieldToCameraTranslation = new Pose2d(tagPose2d.getTranslation(),
+                Rotation2d.fromRadians(camToTagRotation - Math.PI / 2))
                 .transformBy(new Transform2d(camToTagTranslation.getNorm(), 0, Rotation2d.kZero))
                 .getTranslation();
 
-        Pose2d robotPose = 
-            new Pose2d(fieldToCameraTranslation,
+        Pose2d robotPose = new Pose2d(fieldToCameraTranslation,
                 Rotation2d.fromRadians(driveYawRad - io.getRobotToCamera().getRotation().getZ()))
-                .transformBy(new Transform2d(new Pose2d(-io.getRobotToCamera().getX(), -io.getRobotToCamera().getY(),
-                        io.getRobotToCamera().getRotation().toRotation2d()), Pose2d.kZero));
+                .transformBy(new Transform2d(new Pose2d(io.getRobotToCamera().getX(), -io.getRobotToCamera().getY(),
+                        io.getRobotToCamera().getRotation().toRotation2d().times(-1)), Pose2d.kZero));
 
         // Debug logs
-        // Logger.recordOutput("bp/Fiducial", vRes.rawFiducials()[0]);
-        // Logger.recordOutput("bp/Cam to Tag Tran", camToTagTranslation);
+        Logger.recordOutput("bp/Fiducial", vRes.rawFiducials()[0]);
+        Logger.recordOutput("bp/Cam to Tag Tran Nor", camToTagTranslation.getNorm());
         // Logger.recordOutput("bp/Cam to Tag Rot", camToTagRotation);
         // Logger.recordOutput("bp/Feid to Cam", fieldToCameraTranslation);
         // Logger.recordOutput("bp/Robot Pose", robotPose);

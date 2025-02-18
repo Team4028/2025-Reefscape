@@ -16,7 +16,7 @@ public class LimelightIO {
 
     private final boolean is4;
     private final String limelightName;
-    private final Transform3d robotToCamera;
+    private Transform3d robotToCamera;
 
     public LimelightIO(String limelightName, boolean is4, Optional<Integer[]> tagFilter) {
         this.is4 = is4;
@@ -26,7 +26,20 @@ public class LimelightIO {
                     Arrays.stream(tagFilter.get()).mapToInt(Integer::intValue).toArray());
         }
 
-        this.robotToCamera = new Transform3d(new Pose3d(), LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
+        robotToCamera = new Transform3d(new Pose3d(), LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
+
+        new Thread(() -> {
+            while (robotToCamera.equals(new Transform3d())) {
+                System.out.println(limelightName + " is looking for robotToCamera transform...");
+                robotToCamera = new Transform3d(new Pose3d(),
+                        LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException ignored) {
+                }
+            }
+            System.out.println(limelightName + " found robotToCamera transform");
+        }).start();
     }
 
     @AutoLog
@@ -78,7 +91,10 @@ public class LimelightIO {
             inputs.solverPoseBlue = LoggablePoseEstimate
                     .fromPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName));
             inputs.targetPoseCameraSpace = LimelightHelpers.getTargetPose_CameraSpace(limelightName);
-            inputs.tid = LimelightHelpers.getRawFiducials(limelightName)[0].id;
+            try {
+                inputs.tid = LimelightHelpers.getRawFiducials(limelightName)[0].id;
+            } catch (ArrayIndexOutOfBoundsException ignored) {
+            }
             inputs.targetCount = LimelightHelpers.getTargetCount(limelightName);
             inputs.rawFiducials = Arrays.stream(LimelightHelpers.getRawFiducials(limelightName))
                     .map(LoggableRawFiducial::fromRawFiducial).toArray(LoggableRawFiducial[]::new);
