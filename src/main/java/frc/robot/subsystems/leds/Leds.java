@@ -1,15 +1,20 @@
 package frc.robot.subsystems.leds;
 
+import java.util.Arrays;
+
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.limelight.Limelight;
 
 public class Leds extends SubsystemBase {
     public final CANdle candle;
     private Color color;
+    private boolean seeAnyTag = false;
 
     public enum Color {
         RED(254, 0, 0),
@@ -42,6 +47,22 @@ public class Leds extends SubsystemBase {
         candle.configBrightnessScalar(.25);
         candle.configLEDType(LEDStripType.GRB);
         setColor(Color.WHITE);
+    }
+
+    public Command limelightToLeds(int aprilTagCount) {
+        if (aprilTagCount == 1) {
+            return seesAprilTag();
+        } else if (aprilTagCount == 2) {
+            return seeTwoAprilTag();
+        } else if (aprilTagCount == 3) {
+            return seeThreeAprilTag();
+        } else if (aprilTagCount == 4) {
+            return seeFourAprilTag();
+        } else if (aprilTagCount > 4) {
+            return seeMoreAprilTag();
+        } else {
+            return setNoColorCommand();
+        }
     }
 
     public void setLedsColor(int ledIndex, int count, int color) {
@@ -103,18 +124,84 @@ public class Leds extends SubsystemBase {
     }
 
     public Command hasCoralAnimation() {
-        return Commands.repeatingSequence(setColorGreenCommand(), setNoColorCommand(), setNoColorCommand(), setColorGreenCommand());
+        return Commands.repeatingSequence(setColorGreenCommand(), setNoColorCommand(), setNoColorCommand(),
+                setColorGreenCommand());
     }
 
     public Command gettingCoralAnimation() {
-        return Commands.repeatingSequence(setColorRedCommand(), setNoColorCommand(), setNoColorCommand(), setColorRedCommand());
+        return Commands.repeatingSequence(setColorRedCommand(), setNoColorCommand(), setNoColorCommand(),
+                setColorRedCommand());
     }
 
     public Command gettingCoralAnimationSlow() {
-        return Commands.repeatingSequence(setColorRedCommand(), setColorRedCommand(), setColorRedCommand(), setColorRedCommand(), setColorRedCommand(), setNoColorCommand(), setNoColorCommand(), setNoColorCommand(), setNoColorCommand(), setNoColorCommand(), setNoColorCommand(), setColorRedCommand());
+        return Commands.repeatingSequence(setColorRedCommand().andThen(Commands.waitSeconds(.5))
+                .andThen(setNoColorCommand()).andThen(Commands.waitSeconds(.5)));
     }
-    
+
     public Command shootingCoralAnimation() {
-        return Commands.repeatingSequence(setColorPurpleCommand(), setNoColorCommand(), setNoColorCommand(), setColorPurpleCommand());
+        return Commands.repeatingSequence(setColorPurpleCommand(), setNoColorCommand(), setNoColorCommand(),
+                setColorPurpleCommand());
+    }
+
+    public Command seesAprilTag() {
+        return Commands.repeatingSequence(setColorWhiteCommand().andThen(Commands.waitSeconds(.25))
+                .andThen(setNoColorCommand()).andThen(Commands.waitSeconds(.115)));
+    }
+
+    public Command seeTwoAprilTag() {
+        return Commands.repeatingSequence(setColorGreenCommand().andThen(Commands.waitSeconds(.25))
+                .andThen(setNoColorCommand()).andThen(Commands.waitSeconds(.115)));
+    }
+
+    public Command seeThreeAprilTag() {
+        return Commands.repeatingSequence(setColorPurpleCommand().andThen(Commands.waitSeconds(.25))
+                .andThen(setNoColorCommand()).andThen(Commands.waitSeconds(.115)));
+    }
+
+    public Command seeFourAprilTag() {
+        return Commands.repeatingSequence(setColorRedCommand().andThen(Commands.waitSeconds(.25))
+                .andThen(setNoColorCommand()).andThen(Commands.waitSeconds(.115)));
+    }
+
+    public Command seeMoreAprilTag() {
+        return Commands.repeatingSequence(setColorBlueCommand().andThen(Commands.waitSeconds(.25))
+                .andThen(setColorGreenCommand()).andThen(Commands.waitSeconds(.25)));
+    }
+
+    public Command sevenAnimation() {
+        return Commands.repeatingSequence(setColorRedCommand()
+                .andThen(Commands.waitSeconds(.65).andThen(setNoColorCommand()).andThen(Commands.waitSeconds(.05))
+                        .andThen(setColorRedCommand()).andThen(Commands.waitSeconds(.25))
+                        .andThen(setColorYellowCommand())
+                        .andThen(Commands.waitSeconds(.35))
+                        .andThen(setColorRedCommand()).andThen(Commands.waitSeconds(.35))
+                        .andThen(setColorOrangeCommand()).andThen(Commands.waitSeconds(.25))
+                        .andThen(setColorGreenCommand()).andThen(Commands.waitSeconds(.9))
+                        .andThen(setColorBlueCommand()).andThen(Commands.waitSeconds(1)).andThen(setNoColorCommand())
+                        .andThen(Commands.waitSeconds(.4))
+                        .andThen(setColorRedCommand())
+                        .andThen(Commands.waitSeconds(.65)).andThen(setNoColorCommand())
+                        .andThen(Commands.waitSeconds(.05))
+                        .andThen(setColorRedCommand()).andThen(Commands.waitSeconds(.25))
+                        .andThen(setColorYellowCommand()).andThen(Commands.waitSeconds(.35))
+                        .andThen(setColorRedCommand()).andThen(Commands.waitSeconds(.35))
+                        .andThen(setColorOrangeCommand()).andThen(Commands.waitSeconds(.25))
+                        .andThen(setColorGreenCommand()).andThen(Commands.waitSeconds(.4))
+                        .andThen(setColorOrangeCommand()).andThen(Commands.waitSeconds(.5))
+                        .andThen(setColorGreenCommand()).andThen(Commands.waitSeconds(.25))
+                        .andThen(setColorBlueCommand()).andThen(Commands.waitSeconds(.6))
+                        .andThen(setColorPurpleCommand()).andThen(Commands.waitSeconds(.8))));
+    }
+
+    public void updateLL(Limelight... ll) {
+        seeAnyTag = Arrays.stream(ll).anyMatch(Limelight::getTV);
+    }
+
+    public int totalTags(Limelight... ll) {
+        return Arrays.stream(ll).mapToInt(Limelight::getTargetCount).sum();
+    }
+
+    public Trigger sendLimeColors() {
+        return new Trigger(() -> seeAnyTag);
     }
 }
