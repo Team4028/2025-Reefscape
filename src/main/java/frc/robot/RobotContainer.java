@@ -4,18 +4,12 @@
 
 package frc.robot;
 
-import frc.robot.Armistice.ArmisticePositions;
-import frc.robot.Constants.OperatorConstants;
-
-import frc.robot.util.RobotSim;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Armistice.ArmisticePositions;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.util.RobotSim;
 
 public class RobotContainer {
     public enum LimiterState {
@@ -71,25 +65,25 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        driverController.a().and(driverController.b()).onTrue(Commands.runOnce(() -> disableArmistice()));
+        driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
 
-        // Run to L4
-        driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
-        // // Run to L3
-        driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
-        // // Run to L2
-        driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
-        // // Acquire
-        driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        // // Stow
-        driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
+        // // Run to L4
+        // driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        // // // Run to L3
+        // driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
+        // // // Run to L2
+        // driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+        // // // Acquire
+        // driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
+        // // // Stow
+        // driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
 
         // //Nudges
-        driverController.povUp().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.20)));
-        driverController.povDown().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.20)));
+        driverController.povUp().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.95), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
+        driverController.povDown().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.95), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
 
-        driverController.povLeft().onTrue(Commands.runOnce(() -> armistice.runArmVbus(.20)));
-        driverController.povRight().onTrue(Commands.runOnce(() -> armistice.runArmVbus(-.20)));
+        // driverController.povLeft().onTrue(Commands.runOnce(() -> armistice.runArmVbus(.20)));
+        // driverController.povRight().onTrue(Commands.runOnce(() -> armistice.runArmVbus(-.20)));
 
         // Characterization
         // driverController.povRight().onTrue(armistice.runArmVoltageForChar()).onFalse(armistice.stopArm());

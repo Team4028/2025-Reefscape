@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.*;
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
@@ -75,7 +76,6 @@ public class Armistice extends SudoSubsystem {
     public ArmSafetyData getArmSafetyData() {
         return isInDanger ? ArmConstants.SAFETY_RANGE : ArmConstants.UNSAFE_RANGE;
     }
-
 
     public void runArmVbus(double vbus) {
         disarm.runMotor(vbus);
@@ -160,9 +160,13 @@ public class Armistice extends SudoSubsystem {
         return summit.getCurrentPosition();
     }
 
+    public SubsystemBase[] getSubsystems() {
+        return new SubsystemBase[]{disarm, summit};
+    }
+
     @Override
     public void periodic() {
-        disarm.runToPosition(safeClampRange(armTargetRad));
-        summit.runToPosition(elevatorTargetInches);
+        // disarm.runToPosition(safeClampRange(armTargetRad));  
+        // summit.runToPosition(elevatorTargetInches);
     }
 }

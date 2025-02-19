@@ -8,9 +8,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.reduxrobotics.sensors.canandmag.Canandmag;
 import com.reduxrobotics.sensors.canandmag.CanandmagFaults;
 import com.reduxrobotics.sensors.canandmag.CanandmagSettings;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -44,6 +41,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
         settings.setDisableZeroButton(false);
         settings.setVelocityFilterWidth(25);
         settings.setPositionFramePeriod(0.020);
+        canMag.setSettings(settings);
 
         canMag.setPartyMode(10);
         motor.getConfigurator().apply(ArmConstants.TalonFX.motorConfigs);
@@ -85,10 +83,6 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
 
     public void setPosition(double newPosition) {
         canMag.setPosition(newPosition);
-    }
-
-    public void zeroCanMag() {
-        canMag.zeroAll();
     }
 
     @Override
