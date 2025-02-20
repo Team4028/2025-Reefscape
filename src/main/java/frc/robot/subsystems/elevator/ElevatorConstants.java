@@ -60,8 +60,8 @@ public class ElevatorConstants {
                 .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
 
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitThreshold(100)
-                .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(5).withReverseSoftLimitEnable(true);
+                .withForwardSoftLimitThreshold(32)
+                .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(1).withReverseSoftLimitEnable(true);
     }
 
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();

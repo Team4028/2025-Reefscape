@@ -80,7 +80,7 @@ public class RobotContainer {
 
         // //Nudges
         driverController.povUp().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.95), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
-        driverController.povDown().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.95), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
+        driverController.povDown().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.25), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
 
         // driverController.povLeft().onTrue(Commands.runOnce(() -> armistice.runArmVbus(.20)));
         // driverController.povRight().onTrue(Commands.runOnce(() -> armistice.runArmVbus(-.20)));
