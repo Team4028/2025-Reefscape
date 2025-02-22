@@ -102,11 +102,20 @@ public class Limelight extends SubsystemBase {
     public LoggablePoseEstimate getBotposeEstimateMT2(double driveYawRad) {
         var vRes = inputs.solverPoseBlue;
         if (vRes.tagCount() > 1)
+        {
             return vRes;
+        }
 
         if (vRes.tagCount() < 1 || !getTV())
+        {
             return LoggablePoseEstimate.empty();
+        }
 
+        if (vRes.rawFiducials()[0].distToCamera() > 2)
+        {
+            return LoggablePoseEstimate.empty();
+        }
+        
         // Mechanical Advantage shenanigens
         // https://www.chiefdelphi.com/t/frc-6328-mechanical-advantage-2025-build-thread/477314/85
         int tagID = vRes.rawFiducials()[0].id();
