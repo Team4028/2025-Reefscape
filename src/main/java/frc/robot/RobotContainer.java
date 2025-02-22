@@ -141,8 +141,8 @@ public class RobotContainer {
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drive,
-                        () -> scaleDriverController(() -> driverController.getLeftY(), xLimiter),
-                        () -> scaleDriverController(() -> driverController.getLeftX(), yLimiter),
+                        () -> scaleDriverController(() -> -driverController.getLeftY(), xLimiter),
+                        () -> scaleDriverController(() -> -driverController.getLeftX(), yLimiter),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 thetaLimiter)));
 

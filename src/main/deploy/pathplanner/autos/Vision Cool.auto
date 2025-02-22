@@ -47,12 +47,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "VisionAuto.2"
@@ -95,12 +89,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "VisionAuto.2"
@@ -140,12 +128,6 @@
           "type": "named",
           "data": {
             "name": "Score Outfeed"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stow"
           }
         },
         {
