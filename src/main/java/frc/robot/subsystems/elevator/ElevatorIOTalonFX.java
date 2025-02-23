@@ -33,7 +33,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.mmConfigs);
-        //leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
 
     }
 

@@ -40,6 +40,10 @@ public class ElevatorConstants {
 
     public static final double PID_TOLERANCE = 9.1629;
 
+    public static final double FORWARD_SOFT_LIMIT_INCHES = 64;
+    public static final double FORWARD_SOFT_LIMIT_ROTATIONS = 70;
+    // the hard stops are at 66 "inches" using bad math which is 72 rotations of the kraken.
+
     public static final class TalonFX {
         public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
@@ -60,7 +64,7 @@ public class ElevatorConstants {
                 .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
 
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitThreshold(48)
+                .withForwardSoftLimitThreshold(FORWARD_SOFT_LIMIT_ROTATIONS)
                 .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(1).withReverseSoftLimitEnable(true);
     }
 
