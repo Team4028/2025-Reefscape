@@ -9,17 +9,17 @@ public interface AlgaeManipulatorIO {
     public static class AlgaeManipulatorIOInputs {
         public double currentAmps = 0;
         public double appliedVolts = 0;
-        public double velocityRadPerSec = 0;
-        public double accelRadPerSecPerSec = 0;
+        public double position = 0;
+        public double velocity = 0;
+        public double accel = 0;
         public MotorData motorData = MotorData.empty();
     }
+        public default void updateInputs(AlgaeManipulatorIOInputs inputs) {
+        }
 
-    public default void updateInputs(AlgaeManipulatorIOInputs inputs) {
-    }
+        public default void setVoltage(double volts) {
+        }
 
-    public default void setVoltage(double volts) {
+        public default void setVbus(double vbus) {
+        }
     }
-
-    public default void setVbus(double vbus) {
-    }
-}

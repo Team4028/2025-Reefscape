@@ -12,6 +12,10 @@ public class AlgaeManipulatorConstants {
         public static final boolean INVERT = false;
 
     }
+    public static final class TalonFX {
+        public static final int CAN_ID = 18;
+        public static final boolean INVERT = false;
+    }
  public static final class Sim {
         public static final DCMotor simGearbox = DCMotor.getVex775Pro(1);
         public static final double MANIP_MOI_KgMSquared = 1;

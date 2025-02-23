@@ -21,8 +21,8 @@ public class AlgaeManipulatorIOSim implements AlgaeManipulatorIO {
     public void updateInputs(AlgaeManipulatorIOInputs inputs) {
         manip.setInput(targetVolts);
         manip.update(0.02);
-        inputs.velocityRadPerSec = manip.getOutput(0);
-        inputs.accelRadPerSecPerSec = manip.getAngularAccelerationRadPerSecSq();
+        inputs.velocity = manip.getOutput(0);
+        inputs.accel = manip.getAngularAccelerationRadPerSecSq();
         inputs.appliedVolts = targetVolts;
         inputs.currentAmps = manip.getCurrentDrawAmps();
     }

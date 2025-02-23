@@ -20,8 +20,7 @@ public class ClimberConstants {
     public static final double CLIMBER_POSITION1_RAD = 0.0;
 
     
-    public static final PIDStruct pidConstants = new PIDStruct(0.0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-
+    public static final PIDStruct pidConstants = new PIDStruct(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
     public static final class Sim {
         public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
         //get actual value for this:
@@ -33,7 +32,7 @@ public class ClimberConstants {
 
      public static final class TalonFX {
         //get actual value for this:
-        public static final int MOTOR_ID = 99;
+        public static final int MOTOR_ID = 19;
 
         public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs()
                 .withStatorCurrentLimit(30)

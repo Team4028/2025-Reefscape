@@ -35,7 +35,7 @@ public class CoralManipulatorConstants {
     }
 
     public static final class TalonFX {
-        public static final int CAN_ID = 0;
+        public static final int CAN_ID = 17;
         public static final boolean USE_FOC = true;
         public static final MotorOutputConfigs CONFIG = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
