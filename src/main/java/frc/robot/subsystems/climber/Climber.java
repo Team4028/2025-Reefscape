@@ -9,6 +9,7 @@ import com.bskd.annotations.CreateState;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.algae.AlgaeManipulatorStates;
 
 public class Climber extends SubsystemBase {
     private final ClimberIO io;
@@ -28,8 +29,15 @@ public class Climber extends SubsystemBase {
     public Command runVbusCommand(double vbus) {
         return runOnce(() -> {
             targetVbus = vbus;
-            stateTracker.setStateVBus(vbus);
+            stateTracker.state = vbus > 0 ? ClimberStates.VBUS_FORWARD
+                    : (vbus < 0 ? ClimberStates.VBUS_REVERSE : ClimberStates.OFF);
+
         });
+        
+        // return runOnce(() -> {
+        //     targetVbus = vbus;
+        //     stateTracker.setStateVBus(vbus);
+        // });
     }
 
     public Command runVoltsCommand(double volts) {
@@ -66,6 +74,13 @@ public class Climber extends SubsystemBase {
     @CreateState("voltage_forward")
     public void runTargetVolts() {
         io.setVoltage(targetVoltage);
+    }
+
+    @Override
+    public void periodic() {
+        stateTracker.state.execute(this);
+        io.updateInputs(inputs);
+        Logger.processInputs("Climber", inputs);
     }
 
 }

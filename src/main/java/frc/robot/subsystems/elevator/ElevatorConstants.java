@@ -60,7 +60,7 @@ public class ElevatorConstants {
                 .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
 
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-                .withForwardSoftLimitThreshold(32)
+                .withForwardSoftLimitThreshold(48)
                 .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(1).withReverseSoftLimitEnable(true);
     }
 

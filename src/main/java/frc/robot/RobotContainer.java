@@ -77,20 +77,20 @@ public class RobotContainer {
         driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
 
         // A - Elevator
-        driverController.a().and(driverController.rightBumper().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.95), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems())));
-        driverController.a().and(driverController.leftBumper().onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.25), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems())));
+        driverController.a().and(driverController.rightBumper()).onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.2), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
+        driverController.a().and(driverController.leftBumper()).onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.2), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
         // B - Arm
-        driverController.b().and(driverController.rightBumper().onTrue(Commands.runOnce(() -> armistice.runArmVbus(.25), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runArmVbus(0), armistice.getSubsystems())));
-        driverController.b().and(driverController.leftBumper().onTrue(Commands.runOnce(() -> armistice.runArmVbus(-.25), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runArmVbus(0), armistice.getSubsystems())));
+        driverController.b().and(driverController.rightBumper()).onTrue(Commands.runOnce(() -> armistice.runArmVbus(.2), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runArmVbus(0), armistice.getSubsystems()));
+        driverController.b().and(driverController.leftBumper()).onTrue(Commands.runOnce(() -> armistice.runArmVbus(-.2), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runArmVbus(0), armistice.getSubsystems()));
         // X - Coral
-        driverController.x().and(driverController.rightBumper().onTrue(coral.runMotorCommand(0.2)).onFalse(coral.runMotorCommand(0)));
-        driverController.x().and(driverController.leftBumper().onTrue(coral.runMotorCommand(-0.2)).onFalse(coral.runMotorCommand(0)));
+        driverController.x().and(driverController.rightBumper()).onTrue(coral.runMotorCommand(0.2)).onFalse(coral.runMotorCommand(0));
+        driverController.x().and(driverController.leftBumper()).onTrue(coral.runMotorCommand(-0.2)).onFalse(coral.runMotorCommand(0));
         // Y - Algae
-        driverController.y().and(driverController.rightBumper().onTrue(algae.runMotorCommand(0.2)).onFalse(algae.runMotorCommand(0)));
-        driverController.y().and(driverController.leftBumper().onTrue(algae.runMotorCommand(-0.2)).onFalse(algae.runMotorCommand(0)));
+        driverController.y().and(driverController.rightBumper()).onTrue(algae.runMotorCommand(0.2)).onFalse(algae.runMotorCommand(0));
+        driverController.y().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.2)).onFalse(algae.runMotorCommand(0));
         // Back - Climber
-        driverController.back().and(driverController.rightBumper().onTrue(climber.runVbusCommand(0.2)).onFalse(climber.runVbusCommand(0)));
-        driverController.back().and(driverController.leftBumper().onTrue(climber.runVbusCommand(-0.2)).onFalse(climber.runVbusCommand(0)));
+        driverController.back().and(driverController.rightBumper()).onTrue(climber.runVbusCommand(0.2)).onFalse(climber.runVbusCommand(0));
+        driverController.back().and(driverController.leftBumper()).onTrue(climber.runVbusCommand(-0.2)).onFalse(climber.runVbusCommand(0));
     }
 
     public void resetArmPid() {
