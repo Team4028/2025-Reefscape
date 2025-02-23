@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -17,6 +16,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.leds.Leds;
+import frc.robot.subsystems.leds.Leds.CandleState;
+import frc.robot.subsystems.leds.Leds.Color;
 import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.subsystems.limelight.LimelightConstants;
 import frc.robot.subsystems.limelight.LimelightIO;
@@ -40,7 +41,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class RobotContainer {
@@ -203,14 +203,18 @@ public class RobotContainer {
                 // drive)
                 // .ignoringDisable(true));
 
-
-                driverController.x().onTrue(Commands.runOnce(() -> coralManipulator.toggleHasCoral(), coralManipulator));
-                driverController.a().onTrue(Commands.runOnce(() -> coralManipulatorStateTracker.toggleFeed(), coralManipulator));
-                coralManipulator.hasCoral().onTrue(candle.hasCoralAnimation()).onFalse(candle.setNoColorCommand());
-                coralManipulatorStateTracker.outfeeding().onTrue(candle.shootingCoralAnimation())
-                                .onFalse(candle.setNoColorCommand());
-                coralManipulatorStateTracker.infeeding().onTrue(candle.gettingCoralAnimationSlow());
-                candle.sendLimeColors().onTrue(candle.limelightToLeds(candle.totalTags(ll4)));
+                driverController.y().onTrue(Commands.runOnce(() -> candle.candleColorAndMode(Color.ORANGE, CandleState.FLASH)));
+                driverController.x()
+                                .onTrue(Commands.runOnce(() -> coralManipulator.toggleHasCoral(), coralManipulator));
+                driverController.a().onTrue(
+                                Commands.runOnce(() -> coralManipulatorStateTracker.toggleFeed(), coralManipulator));
+                driverController.b().onTrue(Commands.runOnce(() -> algae.toggleHasAlgae(), algae));
+                // coralManipulator.hasCoral().onTrue(candle.hasCoralAnimationCandle()).onFalse(candle.setNoColorCandle());
+                // coralManipulatorStateTracker.outfeeding().onTrue(candle.shootingCoralAnimationCandle())
+                //                 .onFalse(candle.setNoColorCandle());
+                // coralManipulatorStateTracker.infeeding().onTrue(candle.sendLeds(candle.gettingCoralAnimationStrip(), false));
+                // algae.hasAlgaeTrigger().onTrue(candle.sendLeds(candle.hasAlgaeAnimationCandle(), true));
+                // candle.sendLimeColors().onTrue(candle.limelightToLeds(candle.totalTags(ll4)));
 
         }
 
@@ -223,8 +227,7 @@ public class RobotContainer {
         }
 
         public Command realDrivetrainStop() {
-                return drive
-                                .runOnce(drive::stop);
+                return drive.runOnce(drive::stop);
         }
 
         private double scaleDriverController(DoubleSupplier controllerInput, SlewRateLimiter limiter) {

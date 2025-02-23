@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import com.bskd.annotations.CreateState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.util.SysIDUtil;
 
@@ -100,5 +101,13 @@ public class AlgaeManipulator extends SubsystemBase {
     @CreateState("off")
     public void stop() {
         io.setVbus(0);
+    }
+
+    public Trigger hasAlgaeTrigger() {
+        return new Trigger(() -> hasAlgae);
+    }
+
+    public void toggleHasAlgae() {
+        hasAlgae = !hasAlgae;
     }
 }
