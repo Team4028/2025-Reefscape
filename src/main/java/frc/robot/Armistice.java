@@ -33,16 +33,19 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private double armTargetRad = ArmisticePositions.STOW.armPositionRad;
 
+    @AutoLogOutput
     private double armCharVoltage = 0;
 
     public static enum ArmisticePositions {
         STOW(0.43, 3.6),
-        ACQUIRE(0.43, 3.6),
-        L2(3.64, 16),
-        L3(3.64, 31.6),
-        L4(4.62, 39.46),
+        ACQUIRE(0.74, 4.6),
+        ACQUIRE_BLOCKED(0.94, 2.6),
+        L2(3.9, 9),
+        L3(3.9, 24.5),
+        L4(3.825, 51.01),
         ALGAE_AQUIRE_L2(5.33, 8.64),
-        LOLLIPOP_ACQUIRE(4.85, 2);
+        LOLLIPOP_ACQUIRE(4.85, 2),
+        BARGE(1.45, 50.1);
 
         public double armPositionRad;
         public double elevatorPositionInches;
@@ -166,7 +169,7 @@ public class Armistice extends SudoSubsystem {
 
     @Override
     public void periodic() {
-        // disarm.runToPosition(safeClampRange(armTargetRad));  
-        // summit.runToPosition(elevatorTargetInches);
+        disarm.runToPosition(safeClampRange(armTargetRad)); 
+        summit.runToPosition(elevatorTargetInches);
     }
 }

@@ -13,7 +13,7 @@ import frc.robot.util.GetMotorData;
 public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
     private final TalonFX motor = new TalonFX(CoralManipulatorConstants.TalonFX.CAN_ID);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
-    private final StatusSignal<Current> motorAmps = motor.getSupplyCurrent();
+    private final StatusSignal<Current> motorAmps = motor.getStatorCurrent();
 
     private final DutyCycleOut vbusControl = new DutyCycleOut(0)
             .withEnableFOC(CoralManipulatorConstants.TalonFX.USE_FOC);

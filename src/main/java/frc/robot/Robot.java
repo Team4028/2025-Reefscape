@@ -93,7 +93,9 @@ public class Robot extends LoggedRobot {
             autonomousCommand.cancel();
         }
         robotContainer.resetArmPid();
-        // SignalLogger.start();
+
+        // uncomment for use w/ sysid
+        SignalLogger.start();
     }
 
     @Override

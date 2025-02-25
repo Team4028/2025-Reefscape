@@ -66,11 +66,11 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     }
 
     public double getRawEncoderPositon() {
-        return canMag.getPosition();
+        return canMag.getAbsPosition();
     }
 
     public double getEncoderPositionRad() {
-        var rot = canMag.getPosition() - 0;
+        var rot = canMag.getAbsPosition() - 0;
         rot = rot > 0 ? rot : 1 + rot;
         return rot * ArmConstants.PI_2;
     }
@@ -79,10 +79,6 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
         var rad = getEncoderPositionRad() - ArmConstants.PI_1_2;
         rad = rad > 0 ? rad : ArmConstants.PI_2 + rad;
         return rad;
-    }
-
-    public void setPosition(double newPosition) {
-        canMag.setPosition(newPosition);
     }
 
     @Override

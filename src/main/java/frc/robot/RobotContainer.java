@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
@@ -27,13 +28,11 @@ public class RobotContainer {
     private final Armistice armistice = new Armistice();
     private final CoralManipulator coral = new CoralManipulator(new CoralManipulatorIOTalonFX());
     private final AlgaeManipulator algae = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
-    private final Climber climber = new Climber(new ClimberIOTalonFX()); 
+    private final Climber climber = new Climber(new ClimberIOTalonFX());
 
     // add actual limits
     private final SlewRateLimiter xLimiter1, xLimiter2, xLimiter3, xLimiter4, yLimiter1, yLimiter2, yLimiter3,
             yLimiter4, thetaLimiter1, thetaLimiter2, thetaLimiter3, thetaLimiter4;
-
-
 
     private final CommandXboxController driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
@@ -57,7 +56,6 @@ public class RobotContainer {
         thetaLimiter3 = new SlewRateLimiter(3.0);
         thetaLimiter4 = new SlewRateLimiter(3.0);
 
-      
         // Set up SysId routines
         configureBindings();
     }
@@ -77,20 +75,60 @@ public class RobotContainer {
         driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
 
         // A - Elevator
-        driverController.a().and(driverController.rightBumper()).onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.2), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
-        driverController.a().and(driverController.leftBumper()).onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.2), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0), armistice.getSubsystems()));
-        // B - Arm
-        driverController.b().and(driverController.rightBumper()).onTrue(Commands.runOnce(() -> armistice.runArmVbus(.2), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runArmVbus(0), armistice.getSubsystems()));
-        driverController.b().and(driverController.leftBumper()).onTrue(Commands.runOnce(() -> armistice.runArmVbus(-.2), armistice.getSubsystems())).onFalse(Commands.runOnce(() -> armistice.runArmVbus(0), armistice.getSubsystems()));
+        // driverController.a().and(driverController.rightBumper()).onTrue(Commands.runOnce(()
+        // -> armistice.runElevatorVbus(.2),
+        // armistice.getSubsystems())).onFalse(Commands.runOnce(() ->
+        // armistice.runElevatorVbus(0), armistice.getSubsystems()));
+        // driverController.a().and(driverController.leftBumper()).onTrue(Commands.runOnce(()
+        // -> armistice.runElevatorVbus(-.2),
+        // armistice.getSubsystems())).onFalse(Commands.runOnce(() ->
+        // armistice.runElevatorVbus(0), armistice.getSubsystems()));
+        // // B - Arm
+        // driverController.b().and(driverController.rightBumper()).onTrue(Commands.runOnce(()
+        // -> armistice.runArmVbus(.2),
+        // armistice.getSubsystems())).onFalse(Commands.runOnce(() ->
+        // armistice.runArmVbus(0), armistice.getSubsystems()));
+        // driverController.b().and(driverController.leftBumper()).onTrue(Commands.runOnce(()
+        // -> armistice.runArmVbus(-.2),
+        // armistice.getSubsystems())).onFalse(Commands.runOnce(() ->
+        // armistice.runArmVbus(0), armistice.getSubsystems()));
+        driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
+        driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
+        driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+        driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
+        driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        driverController.povUp().onTrue(armistice.nudgeCommand(0.5, 0.0));
+        driverController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0.0));
+        driverController.povRight().onTrue(armistice.nudgeCommand(0, 0.1));
+        driverController.povLeft().onTrue(armistice.nudgeCommand(0, -0.1));
+        driverController.back().and(driverController.leftTrigger()).onTrue(algae.runMotorCommand(0.5)).onFalse(algae.runMotorCommand(0));
+        driverController.back().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.9)).onFalse(algae.runMotorCommand(0));
+        driverController.leftTrigger().and(driverController.back().negate()).onTrue(coral.runMotorCommand(0.45)).onFalse(coral.runMotorCommand(0));
+        driverController.leftBumper().and(driverController.back().negate()).onTrue(coral.runMotorCommand(-0.7)).onFalse(coral.runMotorCommand(0));
+        // driverController.a().onTrue(armistice.runArmVoltageForChar());
+        // driverController.rightBumper().onTrue(armistice.deltaArmCharVolts(0.1));
+        // driverController.leftBumper().onTrue(armistice.deltaArmCharVolts(-0.1));
+
+        // driverController.x().and(driverController.rightBumper()).whileTrue(armistice.sysIDCommandElevator(()
+        // -> true, () -> Direction.kForward));
+        // driverController.x().and(driverController.leftBumper()).whileTrue(armistice.sysIDCommandElevator(()
+        // -> true, () -> Direction.kReverse));
+        // driverController.y().and(driverController.rightBumper()).whileTrue(armistice.sysIDCommandElevator(()
+        // -> false, () -> Direction.kForward));
+        // driverController.y().and(driverController.leftBumper()).whileTrue(armistice.sysIDCommandElevator(()
+        // -> false, () -> Direction.kReverse));
         // X - Coral
-        driverController.x().and(driverController.rightBumper()).onTrue(coral.runMotorCommand(0.2)).onFalse(coral.runMotorCommand(0));
-        driverController.x().and(driverController.leftBumper()).onTrue(coral.runMotorCommand(-0.2)).onFalse(coral.runMotorCommand(0));
-        // Y - Algae
-        driverController.y().and(driverController.rightBumper()).onTrue(algae.runMotorCommand(0.2)).onFalse(algae.runMotorCommand(0));
-        driverController.y().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.2)).onFalse(algae.runMotorCommand(0));
+        // driverController.x().and(driverController.rightBumper()).onTrue(coral.runMotorCommand(0.2)).onFalse(coral.runMotorCommand(0));
+        // driverController.x().and(driverController.leftBumper()).onTrue(coral.runMotorCommand(-0.2)).onFalse(coral.runMotorCommand(0));
+        // // Y - Algae
+        // driverController.y().and(driverController.rightBumper()).onTrue(algae.runMotorCommand(0.2)).onFalse(algae.runMotorCommand(0));
+        // driverController.y().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.2)).onFalse(algae.runMotorCommand(0));
+        
         // Back - Climber
-        driverController.back().and(driverController.rightBumper()).onTrue(climber.runVbusCommand(0.2)).onFalse(climber.runVbusCommand(0));
-        driverController.back().and(driverController.leftBumper()).onTrue(climber.runVbusCommand(-0.2)).onFalse(climber.runVbusCommand(0));
+        // driverController.back().and(driverController.rightBumper()).onTrue(climber.runVbusCommand(0.2))
+        //         .onFalse(climber.runVbusCommand(0));
+        // driverController.back().and(driverController.leftBumper()).onTrue(climber.runVbusCommand(-0.2))
+        //         .onFalse(climber.runVbusCommand(0));
     }
 
     public void resetArmPid() {

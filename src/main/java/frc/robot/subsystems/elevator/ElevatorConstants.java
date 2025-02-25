@@ -1,5 +1,7 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -16,25 +18,23 @@ import frc.robot.util.PIDStruct;
 import frc.robot.util.SysIDUtil;
 
 public class ElevatorConstants {
-    public static final double MOTOR_TO_DRUM_RATIO = 0.0833333333;
-    public static final int STAGES = 2;
+    public static final double MOTOR_TO_DRUM_RATIO = 0.11111111111111111111111111111;
 
     public static final double SAFETY_THRESHOLD = 20;
 
     public static final boolean USE_FOC = true;
 
-    public static final PIDStruct pidConstants = new PIDStruct(0.8, 0, 0, 95, 95, 400, 0.16239, 0.1667, 0.11808, 0.0019051);
+    public static final PIDStruct pidConstants = new PIDStruct(7, 0, 0, 118, 254, 400, 0.009548, 0.6, 0.13064, 0.0044169);
     public static final PIDStruct simPidConstants = new PIDStruct(0.4, 0, 0, 118, 254, Constants.THE_BEST_NUMBER, 0.05, 0.6, 0.11512, 0.0029619);
     // public static final PIDStruct simPidConstants = new PIDStruct(5, 0, 0, 3, 6, 0, 0, 0, 0);
 
     // cascading: 1 : 2 per stage (not base stage)
     public static final double CARRIAGE_MASS_Kg = 3.628;
-    public static final double CARRIAGE_GEAR_RATIO = MOTOR_TO_DRUM_RATIO * 2;
     public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(2) : DCMotor.getKrakenX60(2);
-    public static final double DRUM_RADIUS_IN = 0.875;
+    public static final double DRUM_RADIUS_IN = 0.875; // no longer real, wtvr
     public static final double DRUM_MOI_KgMSquared = 1 * DRUM_RADIUS_IN * DRUM_RADIUS_IN * 0.8;
 
-    public static final double ROT_TO_IN = 4 * DRUM_RADIUS_IN * Math.PI * MOTOR_TO_DRUM_RATIO;
+    public static final double ROT_TO_IN = 0.79174;
 
     public static final double MAX_HEIGHT_INCHES = 65.5 * ROT_TO_IN;
 
@@ -59,14 +59,14 @@ public class ElevatorConstants {
                 .withNeutralMode(NeutralModeValue.Brake);
 
         public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(30)
+                .withStatorCurrentLimit(40)
                 .withStatorCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
+                .withSupplyCurrentLimit(40).withSupplyCurrentLimitEnable(true);
 
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
                 .withForwardSoftLimitThreshold(FORWARD_SOFT_LIMIT_ROTATIONS)
-                .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(1).withReverseSoftLimitEnable(true);
+                .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(3).withReverseSoftLimitEnable(true);
     }
 
-    public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();
+    public static final SysIdRoutine.Config sysIDConfig = new SysIdRoutine.Config(null, Volts.of(4), null, SysIDUtil::logSysIdState);
 }

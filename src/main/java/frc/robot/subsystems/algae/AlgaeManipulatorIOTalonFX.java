@@ -1,5 +1,6 @@
 package frc.robot.subsystems.algae;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -25,16 +26,18 @@ public class AlgaeManipulatorIOTalonFX implements AlgaeManipulatorIO {
 
     public AlgaeManipulatorIOTalonFX() {
         motor = new TalonFX(AlgaeManipulatorConstants.TalonFX.CAN_ID);
+        motor.getConfigurator().apply(AlgaeManipulatorConstants.TalonFX.motorConfigs);
         
         motorVolts = motor.getMotorVoltage();
-        motorAmps = motor.getSupplyCurrent();
+        motorAmps = motor.getStatorCurrent();
         velocity = motor.getVelocity();
         position = motor.getPosition();
     }
     @Override
     public void updateInputs(AlgaeManipulatorIOInputs inputs) {
-        inputs.appliedVolts = motor.getMotorVoltage().getValueAsDouble();
-        inputs.currentAmps = motor.getStatorCurrent().getValueAsDouble();
+        BaseStatusSignal.refreshAll(motorAmps, motorVolts);
+        inputs.appliedVolts = motorVolts.getValueAsDouble();
+        inputs.currentAmps = motorAmps.getValueAsDouble();
     }
     @Override
     public void setVbus(double vbus) {
