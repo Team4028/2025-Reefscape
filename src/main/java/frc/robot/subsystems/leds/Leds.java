@@ -1,6 +1,5 @@
 package frc.robot.subsystems.leds;
 
-import java.lang.instrument.Instrumentation;
 import java.util.Arrays;
 
 import com.ctre.phoenix.led.CANdle;
@@ -17,10 +16,14 @@ public class Leds extends SubsystemBase {
     public final CANdle candle;
     private Color color;
     private CandleState candleState = CandleState.OFF;
-    private StripState stripState;
+    private StripState stripState = StripState.OFF;
     private boolean seeAnyTag = false;
     private Color canColor = Color.WHITE;
-    private Timer flasher;
+    private Color stripColor = Color.WHITE;
+    private Timer canflasher;
+    private Timer stripflasher;
+    private boolean isCanOn = true;
+    private boolean isStripOn = true;
 
     public enum Color {
         RED(254, 0, 0),
@@ -63,7 +66,9 @@ public class Leds extends SubsystemBase {
         candle.configBrightnessScalar(.25);
         candle.configLEDType(LEDStripType.GRB);
         setCandleColor(Color.WHITE);
-        flasher = new Timer();
+        setStripColor(Color.WHITE);
+        canflasher = new Timer();
+        stripflasher = new Timer();
     }
 
     public Command limelightToLeds(int aprilTagCount) {
@@ -319,23 +324,136 @@ public class Leds extends SubsystemBase {
         canColor = color;
     }
 
+    public void stripColorAndMode(Color color, StripState state) {
+        stripState = state;
+        stripColor = color;
+    }
+
     public void candleColor(Color color) {
         canColor = color;
+    }
+
+    public void stripColor(Color color) {
+        stripColor = color;
     }
 
     public void candleMode(CandleState state) {
         candleState = state;
     }
 
+    public void stripMode(StripState state) {
+        stripState = state;
+    }
+
+    public void toggleCandle() {
+        if (candleState == candleState.FLASH) {
+            candleState = candleState.OFF;
+        } else if (candleState == candleState.OFF) {
+            candleState = candleState.FLASH;
+        }
+    }
+
+    public void toggleStrip() {
+        if (stripState == stripState.FLASH) {
+            stripState = stripState.OFF;
+        } else if (stripState == stripState.OFF) {
+            stripState = stripState.FLASH;
+        }
+    }
+
+    public void toggleCanColor() {
+        if (canColor == Color.RED) {
+            canColor = Color.ORANGE;
+        } else if (canColor == Color.ORANGE) {
+            canColor = Color.YELLOW;
+        } else if (canColor == Color.YELLOW) {
+            canColor = Color.GREEN;
+        } else if (canColor == Color.GREEN) {
+            canColor = Color.LBLUE;
+        } else if (canColor == Color.LBLUE) {
+            canColor = Color.BLUE;
+        } else if (canColor == Color.BLUE) {
+            canColor = Color.PURPLE;
+        } else if (canColor == Color.PURPLE) {
+            canColor = Color.PINK;
+        } else if (canColor == Color.PINK) {
+            canColor = Color.WHITE;
+        } else if (canColor == Color.WHITE) {
+            canColor = Color.OFF;
+        } else if (canColor == Color.OFF) {
+            canColor = Color.RED;
+        }
+    }
+
+    public void toggleStripColor() {
+        if (stripColor == Color.RED) {
+            stripColor = Color.ORANGE;
+        } else if (stripColor == Color.ORANGE) {
+           stripColor = Color.YELLOW;
+        } else if (stripColor == Color.YELLOW) {
+            stripColor = Color.GREEN;
+        } else if (stripColor == Color.GREEN) {
+            stripColor = Color.LBLUE;
+        } else if (stripColor == Color.LBLUE) {
+            stripColor = Color.BLUE;
+        } else if (stripColor == Color.BLUE) {
+            stripColor = Color.PURPLE;
+        } else if (stripColor == Color.PURPLE) {
+            stripColor = Color.PINK;
+        } else if (stripColor == Color.PINK) {
+            stripColor = Color.WHITE;
+        } else if (stripColor == Color.WHITE) {
+            stripColor = Color.OFF;
+        } else if (stripColor == Color.OFF) {
+            stripColor = Color.RED;
+        }
+    }
+
     @Override
     public void periodic() {
-        System.out.println(candleState);
         switch (candleState) {
             case FLASH:
-                
+                if (canflasher.get() >= .1) {
+                    isCanOn = !isCanOn;
+                    canflasher.reset();
+                }
+                if (canflasher.isRunning() == false) {
+                    canflasher.start();
+                }
+                if (isCanOn) {
+                    setLedsColor(0, 8, this.canColor.r, this.canColor.g, this.canColor.b);
+                } else {
+                    setLedsColor(0, 8, 0, 0, 0);
+                }
+                break;
+            case OFF:
+                setLedsColor(0, 8, 0, 0, 0);
                 break;
             default:
-                setNoColorCandle();
+                setLedsColor(0, 8, 0, 0, 0);
+                break;
+        }
+
+        switch (stripState) {
+            case FLASH:
+                if (stripflasher.get() >= .1) {
+                    isStripOn = !isStripOn;
+                    stripflasher.reset();
+                }
+                if (stripflasher.isRunning() == false) {
+                    stripflasher.start();
+                }
+                if (isStripOn) {
+                    setLedsColor(8, 68, this.stripColor.r, this.stripColor.g, this.stripColor.b);
+                } else {
+                    setLedsColor(8, 68, 0, 0, 0);
+                }
+                break;
+            case OFF:
+                setLedsColor(8, 68, 0, 0, 0);
+                break;
+            default:
+                setLedsColor(8, 68, 0, 0, 0);
                 break;
         }
     }

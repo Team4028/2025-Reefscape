@@ -18,6 +18,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.leds.Leds.CandleState;
 import frc.robot.subsystems.leds.Leds.Color;
+import frc.robot.subsystems.leds.Leds.StripState;
 import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.subsystems.limelight.LimelightConstants;
 import frc.robot.subsystems.limelight.LimelightIO;
@@ -203,17 +204,20 @@ public class RobotContainer {
                 // drive)
                 // .ignoringDisable(true));
 
-                driverController.y().onTrue(Commands.runOnce(() -> candle.candleColorAndMode(Color.ORANGE, CandleState.FLASH)));
-                driverController.x()
-                                .onTrue(Commands.runOnce(() -> coralManipulator.toggleHasCoral(), coralManipulator));
-                driverController.a().onTrue(
-                                Commands.runOnce(() -> coralManipulatorStateTracker.toggleFeed(), coralManipulator));
-                driverController.b().onTrue(Commands.runOnce(() -> algae.toggleHasAlgae(), algae));
-                // coralManipulator.hasCoral().onTrue(candle.hasCoralAnimationCandle()).onFalse(candle.setNoColorCandle());
-                // coralManipulatorStateTracker.outfeeding().onTrue(candle.shootingCoralAnimationCandle())
-                //                 .onFalse(candle.setNoColorCandle());
-                // coralManipulatorStateTracker.infeeding().onTrue(candle.sendLeds(candle.gettingCoralAnimationStrip(), false));
-                // algae.hasAlgaeTrigger().onTrue(candle.sendLeds(candle.hasAlgaeAnimationCandle(), true));
+                driverController.y().onTrue(Commands.runOnce(() -> algae.toggleHasAlgae()));
+                driverController.x().onTrue(Commands.runOnce(() -> coralManipulator.toggleHasCoral()));
+                driverController.a().onTrue(Commands.runOnce(() -> candle.toggleStrip()));
+                driverController.b().onTrue(Commands.runOnce(() -> coralManipulatorStateTracker.toggleFeed()));
+                coralManipulator.hasCoral()
+                                .onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.BLUE, StripState.FLASH)))
+                                .onFalse(Commands.runOnce(() -> candle.stripMode(StripState.OFF)));
+                coralManipulatorStateTracker.outfeeding().onTrue(
+                                Commands.runOnce(() -> candle.candleColorAndMode(Color.PURPLE, CandleState.FLASH)));
+                coralManipulatorStateTracker.infeeding()
+                                .onTrue(Commands.runOnce(
+                                                () -> candle.candleColorAndMode(Color.GREEN, CandleState.FLASH)))
+                                .onFalse(Commands.runOnce(() -> candle.candleMode(CandleState.OFF)));
+                algae.hasAlgaeTrigger().onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.GREEN, StripState.FLASH)));
                 // candle.sendLimeColors().onTrue(candle.limelightToLeds(candle.totalTags(ll4)));
 
         }
