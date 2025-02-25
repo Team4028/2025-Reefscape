@@ -40,7 +40,8 @@ public class Armistice extends SudoSubsystem {
         L2(3.64, 16),
         L3(3.64, 31.6),
         L4(3.411, 32.9),
-        ALGAE_AQUIRE_L2(5.33, 8.64),
+        ALGAE_AQUIRE_L2(5.7, 8.64),
+        ALGAE_AQUIRE_L3(5.8, 18.9),
         LOLLIPOP_ACQUIRE(4.85, 2);
 
         public double armPositionRad;

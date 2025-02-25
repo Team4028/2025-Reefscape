@@ -39,7 +39,7 @@ import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
 
 public class RobotContainer {
-    private final CoralManipulator coralManipulator = RobotSim
+    private final CoralManipulator coral = RobotSim
             .coralManipulatorSimSwitch(new CoralManipulatorIOTalonSRX());
 
     private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(),
@@ -51,29 +51,33 @@ public class RobotContainer {
     private final AlgaeManipulator algae = RobotSim.algaeSimSwitch(new AlgaeManipulatorIOTalonSRX());
     private final Armistice armistice = new Armistice();
     private final Limelight ll4;
+    private final Limelight ll4station;
 
     private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
-    private static final double DEFAULT_BASE_SPEED = 0.3;
+    private static final double DEFAULT_BASE_SPEED = 0.2;
 
     private final LoggedDashboardChooser<Command> autoChooser;
 
     private final CommandXboxController driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
+    private final CommandXboxController operatorController = new CommandXboxController(
+            OperatorConstants.kOperatorControllerPort);
 
     public RobotContainer() {
         ll4 = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty()));
+        ll4station = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
         xLimiter = new SlewRateLimiter(4);
         yLimiter = new SlewRateLimiter(4);
         thetaLimiter = new SlewRateLimiter(4);
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
-        NamedCommands.registerCommand("Acquire", coralManipulator.runMotorCommand(.7)
+        NamedCommands.registerCommand("Acquire", coral.runMotorCommand(.7)
                 .alongWith(Commands.waitUntil(
-                        coralManipulator.hasGamePieceSupplier()))
-                .andThen(coralManipulator.runMotorCommand(0)));
+                        coral.hasGamePieceSupplier()))
+                .andThen(coral.runMotorCommand(0)));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(0.5))
-                        .andThen(coralManipulator.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
-                                .andThen(coralManipulator.runMotorCommand(0))));
+                        .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
+                                .andThen(coral.runMotorCommand(0))));
 
         autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
         // Set up SysId routines
@@ -112,6 +116,7 @@ public class RobotContainer {
 
     public void subsystemWarmup() {
         ll4.warmup(); // just you for now
+        ll4station.warmup();
         logLLPoses();
     }
 
@@ -123,6 +128,7 @@ public class RobotContainer {
 
     public void periodicLL4IMU(boolean on) {
         ll4.setIMUInternal(on);
+        ll4station.setIMUInternal(on);
     }
 
     public void logLLPoses() {
@@ -131,6 +137,7 @@ public class RobotContainer {
 
     public void seedll4IMU() {
         ll4.seedLLSolverYaw(drive.getPose().getRotation().getDegrees());
+        ll4station.seedLLSolverYaw(drive.getPose().getRotation().getDegrees());
     }
 
     public void disableArmistice() {
@@ -145,37 +152,29 @@ public class RobotContainer {
                         () -> scaleDriverController(() -> -driverController.getLeftX(), yLimiter),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 thetaLimiter)));
+        //Coral Manip
+        driverController.leftTrigger().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
+        driverController.leftBumper().onTrue(coral.runMotorCommand(-.8)).onFalse(coral.runMotorCommand(0));
 
-        // Run to L4
-        driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
-        // Run to L3
-        driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
-        // Run to L2
-        driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
-        // Acquire
-        driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        // Stow
-        driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
+        //Nudge commands
+        //elevator 
+        driverController.povUp().onTrue(armistice.nudgeCommand(.5, 0));
+        driverController.povDown().onTrue(armistice.nudgeCommand(-.5, 0));
+        //pivot nudge
+        driverController.povLeft().onTrue(armistice.nudgeCommand(0, .1));
+        driverController.povRight().onTrue(armistice.nudgeCommand(0, -.1));
 
-        driverController.leftTrigger().and(driverController.back().negate()).onTrue(algae.runMotorCommand(0.5))
-                .onFalse(algae.runMotorCommand(0));
-        driverController.leftBumper().and(driverController.back().negate()).onTrue(algae.runMotorCommand(-0.8))
-                .onFalse(algae.runMotorCommand(0));
-        driverController.leftTrigger().and(driverController.back()).onTrue(coralManipulator.runMotorCommand(0.7))
-                .onFalse(coralManipulator.runMotorCommand(0));
-        driverController.leftBumper().and(driverController.back()).onTrue(coralManipulator.runMotorCommand(-0.8))
-                .onFalse(coralManipulator.runMotorCommand(0));
-
-        // //Nudges
-        driverController.povUp().onTrue(armistice.nudgeCommand(1, 0));
-        driverController.povDown().onTrue(armistice.nudgeCommand(-1, 0));
-        driverController.povLeft().onTrue(armistice.nudgeCommand(0, 0.05));
-        driverController.povRight().onTrue(armistice.nudgeCommand(0, -0.05));
-
-        // Characterization
-        // driverController.povRight().onTrue(armistice.runArmVoltageForChar()).onFalse(armistice.stopArm());
-        // driverController.rightBumper().onTrue(armistice.deltaArmCharVolts(0.05));
-        // driverController.leftBumper().onTrue(armistice.deltaArmCharVolts(-0.05));
+        //Algae Manip
+        operatorController.leftTrigger().onTrue(algae.runMotorCommand(.7)).onFalse(algae.runMotorCommand(0));
+        operatorController.rightTrigger().onTrue(algae.runMotorCommand(-.7)).onFalse(algae.runMotorCommand(0));
+        //Elevator
+        operatorController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
+        operatorController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
+        operatorController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        operatorController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
+        operatorController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+        operatorController.povUp().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L2));
+        operatorController.povDown().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L3));
 
         // Reset gyro to 0° when start button is pressed
         driverController.start().onTrue(

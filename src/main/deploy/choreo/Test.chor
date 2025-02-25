@@ -4,18 +4,18 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
-   "InitialAcquireDelay":{
-    "dimension":"Time",
-    "var":{
-     "exp":"0.25 s",
-     "val":0.25
-    }
-   },
    "ScoreDelay":{
     "dimension":"Time",
     "var":{
      "exp":"1.5 s",
      "val":1.5
+    }
+   },
+   "InitialAcquireDelay":{
+    "dimension":"Time",
+    "var":{
+     "exp":"0.25 s",
+     "val":0.25
     }
    },
    "AcquireDelay":{
@@ -27,20 +27,6 @@
    }
   },
   "poses":{
-   "Acquire":{
-    "x":{
-     "exp":"9 m",
-     "val":9.0
-    },
-    "y":{
-     "exp":"4.120632648468018 m",
-     "val":4.120632648468018
-    },
-    "heading":{
-     "exp":"270 deg",
-     "val":4.71238898038469
-    }
-   },
    "Start":{
     "x":{
      "exp":"8 m",
@@ -48,20 +34,6 @@
     },
     "y":{
      "exp":"Score.y",
-     "val":4.120632648468018
-    },
-    "heading":{
-     "exp":"270 deg",
-     "val":4.71238898038469
-    }
-   },
-   "Score":{
-    "x":{
-     "exp":"4.5 m",
-     "val":4.5
-    },
-    "y":{
-     "exp":"4.120632648468018 m",
      "val":4.120632648468018
     },
     "heading":{
@@ -80,6 +52,62 @@
     },
     "heading":{
      "exp":"270 degrees",
+     "val":4.71238898038469
+    }
+   },
+   "CoralStation":{
+    "x":{
+     "exp":"646.37 in",
+     "val":16.417798
+    },
+    "y":{
+     "exp":"281.2 in",
+     "val":7.142479999999999
+    },
+    "heading":{
+     "exp":"234 deg",
+     "val":4.084070449666731
+    }
+   },
+   "ScoreL48":{
+    "x":{
+     "exp":"534.49 in",
+     "val":13.576046
+    },
+    "y":{
+     "exp":"191.83 in",
+     "val":4.872482
+    },
+    "heading":{
+     "exp":"240 deg",
+     "val":4.1887902047863905
+    }
+   },
+   "Score":{
+    "x":{
+     "exp":"4.5 m",
+     "val":4.5
+    },
+    "y":{
+     "exp":"4.120632648468018 m",
+     "val":4.120632648468018
+    },
+    "heading":{
+     "exp":"270 deg",
+     "val":4.71238898038469
+    }
+   },
+   "Acquire":{
+    "x":{
+     "exp":"9 m",
+     "val":9.0
+    },
+    "y":{
+     "exp":"4.120632648468018 m",
+     "val":4.120632648468018
+    },
+    "heading":{
+     "exp":"270 deg",
      "val":4.71238898038469
     }
    }
