@@ -78,7 +78,6 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledPeriodic() {
         robotContainer.periodicLL4IMU(false);
-        robotContainer.seedll4IMU();
     }
 
 

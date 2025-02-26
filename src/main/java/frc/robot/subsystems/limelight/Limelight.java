@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.VisionUtil;
 
 public class Limelight extends SubsystemBase {
@@ -28,6 +29,9 @@ public class Limelight extends SubsystemBase {
         this.io = io;
         name = io.getName();
         VisionUtil.registerPoseSource(this, this::getBotposeEstimateMT2);
+    }
+
+    public void throttle(int throttlevalue) {
     }
 
     public boolean trustPose(Translation2d driveTrans) {

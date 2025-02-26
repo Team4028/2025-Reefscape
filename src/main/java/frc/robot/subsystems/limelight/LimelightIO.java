@@ -124,7 +124,7 @@ public class LimelightIO {
 
     public boolean setIMUInternal(boolean on) {
         if (is4) {
-            LimelightHelpers.SetIMUMode(limelightName, on ? 2 : 1);
+            LimelightHelpers.SetIMUMode(limelightName, on ? 4 : 1);
             return true;
         }
 

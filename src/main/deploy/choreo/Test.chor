@@ -4,13 +4,6 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
-   "ScoreDelay":{
-    "dimension":"Time",
-    "var":{
-     "exp":"1.5 s",
-     "val":1.5
-    }
-   },
    "InitialAcquireDelay":{
     "dimension":"Time",
     "var":{
@@ -23,6 +16,13 @@
     "var":{
      "exp":"0.8 s",
      "val":0.8
+    }
+   },
+   "ScoreDelay":{
+    "dimension":"Time",
+    "var":{
+     "exp":"1.5 s",
+     "val":1.5
     }
    }
   },
@@ -41,6 +41,34 @@
      "val":4.71238898038469
     }
    },
+   "ScoreL48":{
+    "x":{
+     "exp":"13.72 m",
+     "val":13.72
+    },
+    "y":{
+     "exp":"5.1 m",
+     "val":5.1
+    },
+    "heading":{
+     "exp":"330 deg",
+     "val":5.759586531581287
+    }
+   },
+   "StartVision":{
+    "x":{
+     "exp":"17.85 m",
+     "val":17.85
+    },
+    "y":{
+     "exp":"3.67 m",
+     "val":3.67
+    },
+    "heading":{
+     "exp":"270 degrees",
+     "val":4.71238898038469
+    }
+   },
    "Acquire":{
     "x":{
      "exp":"9 m",
@@ -55,20 +83,6 @@
      "val":4.71238898038469
     }
    },
-   "ScoreL48":{
-    "x":{
-     "exp":"13.71 m",
-     "val":13.71
-    },
-    "y":{
-     "exp":"5.11 m",
-     "val":5.11
-    },
-    "heading":{
-     "exp":"335 deg",
-     "val":5.846852994181004
-    }
-   },
    "Score":{
     "x":{
      "exp":"4.5 m",
@@ -80,20 +94,6 @@
     },
     "heading":{
      "exp":"270 deg",
-     "val":4.71238898038469
-    }
-   },
-   "StartVision":{
-    "x":{
-     "exp":"17.85 m",
-     "val":17.85
-    },
-    "y":{
-     "exp":"3.67 m",
-     "val":3.67
-    },
-    "heading":{
-     "exp":"270 degrees",
      "val":4.71238898038469
     }
    },
