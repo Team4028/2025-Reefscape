@@ -4,17 +4,30 @@
 
 package frc.robot;
 
+import java.util.function.DoubleSupplier;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DriveCommands;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
 import frc.robot.subsystems.algae.AlgaeManipulatorIOTalonFX;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.coral.CoralManipulator;
 import frc.robot.subsystems.coral.CoralManipulatorIOTalonFX;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.util.RobotSim;
 
 public class RobotContainer {
@@ -28,33 +41,26 @@ public class RobotContainer {
     private final CoralManipulator coral = new CoralManipulator(new CoralManipulatorIOTalonFX());
     private final AlgaeManipulator algae = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
     private final Climber climber = new Climber(new ClimberIOTalonFX());
+    private static final double DEFAULT_BASE_SPEED = 0.3;
+    private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
+    private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
+        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+        new ModuleIOTalonFX(TunerConstants.FrontRight),
+        new ModuleIOTalonFX(TunerConstants.BackLeft),
+        new ModuleIOTalonFX(TunerConstants.BackRight)
+    });
 
     // add actual limits
-    private final SlewRateLimiter xLimiter1, xLimiter2, xLimiter3, xLimiter4, yLimiter1, yLimiter2, yLimiter3,
-            yLimiter4, thetaLimiter1, thetaLimiter2, thetaLimiter3, thetaLimiter4;
+    private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
 
     private final CommandXboxController driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
 
     public RobotContainer() {
-        // change the rate limit values for these when everything else is done
-
-        // xlimiter is used for x and y!!
-        xLimiter1 = new SlewRateLimiter(0.3); // l4
-        xLimiter2 = new SlewRateLimiter(1.0); // l3
-        xLimiter3 = new SlewRateLimiter(2.0); // l2
-        xLimiter4 = new SlewRateLimiter(4); // ll1
-
-        yLimiter1 = new SlewRateLimiter(0.3); // l4
-        yLimiter2 = new SlewRateLimiter(1.0);
-        yLimiter3 = new SlewRateLimiter(2.0);
-        yLimiter4 = new SlewRateLimiter(4);
-
-        thetaLimiter1 = new SlewRateLimiter(0.5); // l4
-        thetaLimiter2 = new SlewRateLimiter(3.0);
-        thetaLimiter3 = new SlewRateLimiter(3.0);
-        thetaLimiter4 = new SlewRateLimiter(3.0);
-
+        xLimiter = new SlewRateLimiter(4);
+        yLimiter = new SlewRateLimiter(4);
+        thetaLimiter = new SlewRateLimiter(4);
+        autonChooser.addDefaultOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
         // Set up SysId routines
         configureBindings();
     }
@@ -104,6 +110,23 @@ public class RobotContainer {
         driverController.back().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.9)).onFalse(algae.runMotorCommand(0));
         driverController.leftTrigger().and(driverController.back().negate()).onTrue(coral.runMotorCommand(0.45)).onFalse(coral.runMotorCommand(0));
         driverController.leftBumper().and(driverController.back().negate()).onTrue(coral.runMotorCommand(-0.7)).onFalse(coral.runMotorCommand(0));
+                drive.setDefaultCommand(
+                DriveCommands.joystickDrive(
+                        drive,
+                        () -> scaleDriverController(() -> driverController.getLeftY(), xLimiter),
+                        () -> scaleDriverController(() -> driverController.getLeftX(), yLimiter),
+                        () -> scaleDriverController(() -> -driverController.getRightX(),
+                                thetaLimiter)));
+                                
+        // Reset gyro to 0° when start button is pressed
+        driverController.start().onTrue(
+                Commands.runOnce(
+                        () -> drive.setPose(
+                                new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                        drive)
+                        .ignoringDisable(true));
+        
+
         // driverController.a().onTrue(armistice.runArmVoltageForChar());
         // driverController.rightBumper().onTrue(armistice.deltaArmCharVolts(0.1));
         // driverController.leftBumper().onTrue(armistice.deltaArmCharVolts(-0.1));
@@ -134,42 +157,14 @@ public class RobotContainer {
         armistice.resetArmPid();
     }
 
-    public double chooseXLimiter(double input) {
-        if (armistice.getElevatorPosition() > 40) {// 40
-            return xLimiter1.calculate(input);
-        } else if (armistice.getElevatorPosition() > 30 && armistice.getElevatorPosition() < 40) {// 30
-            return xLimiter2.calculate(input);
-        } else if (armistice.getElevatorPosition() > 8 && armistice.getElevatorPosition() < 30) {// 15
-            return xLimiter3.calculate(input);
-        } else {// 3
-            return xLimiter4.calculate(input);
-        }
+    public Command getAutonomousCommand() {
+        return autonChooser.get();
     }
 
-    public double chooseYLimiter(double input) {
-        if (armistice.getElevatorPosition() >= 40) {
-            return yLimiter1.calculate(input);
-        } else if (armistice.getElevatorPosition() > 30 && armistice.getElevatorPosition() < 40) {
-            return yLimiter2.calculate(input);
-        } else if (armistice.getElevatorPosition() >= 8 && armistice.getElevatorPosition() <= 30) {
-            return yLimiter3.calculate(input);
-        } else {
-            return yLimiter4.calculate(input);
-        }
+     private double scaleDriverController(DoubleSupplier controllerInput, SlewRateLimiter limiter) {
+        return limiter.calculate(
+                controllerInput.getAsDouble() * (DEFAULT_BASE_SPEED
+                        + (driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED))));
     }
-
-    public double chooseThetaLimiter(double input) {
-        if (armistice.getElevatorPosition() > 40) {
-            return thetaLimiter1.calculate(input);
-        } else if (armistice.getElevatorPosition() > 30 && armistice.getElevatorPosition() < 40) {
-            return thetaLimiter2.calculate(input);
-        } else if (armistice.getElevatorPosition() > 20 && armistice.getElevatorPosition() < 30) {
-            return thetaLimiter3.calculate(input);
-        } else {
-            return thetaLimiter4.calculate(input);
-        }
-    }
-
-    // enum
 
 }

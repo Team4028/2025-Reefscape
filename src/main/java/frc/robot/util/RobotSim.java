@@ -11,10 +11,15 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.Armistice.SimData;
 import frc.robot.Constants.Mode;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
@@ -29,7 +34,13 @@ public class RobotSim {
             currentInputs.replace(key, currentSupplier);
     }
 
-    
+    public static final Drive driveSimSwitch(GyroIO io, ModuleIO[] moduleIOs) {
+        return Constants.currentMode == Mode.REAL
+                ? new Drive(io, moduleIOs[0], moduleIOs[1], moduleIOs[2], moduleIOs[3])
+                : new Drive(new GyroIO() {
+                }, new ModuleIOSim(TunerConstants.FrontLeft), new ModuleIOSim(TunerConstants.FrontRight),
+                        new ModuleIOSim(TunerConstants.BackLeft), new ModuleIOSim(TunerConstants.BackRight));
+    }
 
     public static final Arm armSimSwitch(ArmIO realArm) {
         return new Arm(Constants.currentMode == Mode.REAL ? realArm : new ArmIOSim());
