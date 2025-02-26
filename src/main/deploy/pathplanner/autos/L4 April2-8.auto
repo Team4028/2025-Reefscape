@@ -5,18 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "L4 Score"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score Outfeed"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "VisionAuto2April2-8.0"
@@ -31,7 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Acquire"
+            "name": "Score Outfeed"
           }
         },
         {
@@ -49,13 +37,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Score Outfeed"
+            "name": "Acquire"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "VisionAuto2April2-8.0"
+            "pathName": "VisionAuto2April2-8.2"
           }
         },
         {
@@ -67,7 +55,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Acquire"
+            "name": "Score Outfeed"
           }
         },
         {
@@ -85,13 +73,31 @@
         {
           "type": "named",
           "data": {
+            "name": "Acquire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionAuto2April2-8.2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Score Outfeed"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "VisionAuto2April2-8.0"
+            "pathName": "VisionAuto2April2-8.1"
           }
         },
         {
@@ -103,7 +109,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": true
 }

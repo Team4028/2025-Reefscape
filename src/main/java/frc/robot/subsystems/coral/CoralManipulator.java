@@ -7,6 +7,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -18,12 +19,14 @@ public class CoralManipulator extends SubsystemBase {
     private double targetVBus = 0.0, targetVoltage = 0.0;
     private final CoralManipulatorStateTracker stateTracker;
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
+    private final Timer timer;
 
     public CoralManipulator(CoralManipulatorIO io) {
         this.io = io;
         inputs = new CoralManipulatorIOInputsAutoLogged();
         stateTracker = new CoralManipulatorStateTracker();
         sysIDCommands = SysIDUtil.generateTests(CoralManipulatorConstants.sysIDConfig, this::runMotorVoltage, this);
+        timer = new Timer();
     }
 
     public Command sysIDTest(boolean dynamic, Direction direction) {
@@ -60,17 +63,23 @@ public class CoralManipulator extends SubsystemBase {
     @CreateState("off")
     public void stop() {
         io.setVbus(0);
+        timer.stop();
+        timer.reset();
     }
 
     @CreateState("vbus_forward")
     public void infeedVBus() {
-        if (inputs.currentAmps < CoralManipulatorConstants.SUPPLY_LIMIT) {
+        timer.start();
+        if (timer.get() < .5 || inputs.currentAmps < CoralManipulatorConstants.SUPPLY_LIMIT) {
             io.setVbus(targetVBus);
         } else {
             io.setVbus(0);
             stateTracker.hasCoral = true;
             stateTracker.state = CoralManipulatorStates.OFF;
+            timer.stop();
+            timer.reset();
         }
+
     }
 
     @CreateState("vbus_reverse")

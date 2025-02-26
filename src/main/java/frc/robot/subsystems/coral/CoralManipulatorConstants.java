@@ -14,7 +14,7 @@ import frc.robot.util.SysIDUtil;
 
 public class CoralManipulatorConstants {
 
-    public static final double SUPPLY_LIMIT = 35;
+    public static final double SUPPLY_LIMIT = 15;
     public static final double GEARING = 1;
 
     public static final class Sim {

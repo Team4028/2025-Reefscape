@@ -111,7 +111,7 @@ public class Limelight extends SubsystemBase {
             return LoggablePoseEstimate.empty();
         }
 
-        if (vRes.rawFiducials()[0].distToCamera() > 3)  //was 2 meters, made it 3 instead.
+        if (vRes.rawFiducials()[0].distToCamera() > 2)  //was 2 meters, made it 3 instead.
         {
             return LoggablePoseEstimate.empty();
         }
@@ -131,11 +131,11 @@ public class Limelight extends SubsystemBase {
                 .rotateBy(new Rotation3d(0, io.getRobotToCamera().getRotation().getY(), 0))
                 .toTranslation2d();
 
-        double camToTagRotation = driveYawRad + io.getRobotToCamera().getRotation().getZ()
+        double camToTagRotation = driveYawRad - io.getRobotToCamera().getRotation().getZ()
                 + camToTagTranslation.getAngle().getRadians();
 
         Translation2d fieldToCameraTranslation = new Pose2d(tagPose2d.getTranslation(),
-                Rotation2d.fromRadians(camToTagRotation - Math.PI / 2))
+                Rotation2d.fromRadians(camToTagRotation + Math.PI/* Math.PI / 2*/))
                 .transformBy(new Transform2d(camToTagTranslation.getNorm(), 0, Rotation2d.kZero))
                 .getTranslation();
 

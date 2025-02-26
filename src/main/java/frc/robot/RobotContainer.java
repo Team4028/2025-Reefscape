@@ -153,7 +153,11 @@ public class RobotContainer {
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 thetaLimiter)));
         //Coral Manip
-        driverController.leftTrigger().onTrue(coral.runMotorCommand(.7)).onFalse(coral.runMotorCommand(0));
+        driverController.leftTrigger().onTrue(coral.runMotorCommand(.7)
+        .alongWith(Commands.waitUntil(
+                coral.hasGamePieceSupplier()))
+        .andThen(coral.runMotorCommand(0)));
+
         driverController.leftBumper().onTrue(coral.runMotorCommand(-.8)).onFalse(coral.runMotorCommand(0));
 
         //Nudge commands
