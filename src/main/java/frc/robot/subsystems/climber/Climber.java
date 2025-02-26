@@ -1,7 +1,5 @@
 package frc.robot.subsystems.climber;
 
-import java.util.Map;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -9,7 +7,6 @@ import com.bskd.annotations.CreateState;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.algae.AlgaeManipulatorStates;
 
 public class Climber extends SubsystemBase {
     private final ClimberIO io;

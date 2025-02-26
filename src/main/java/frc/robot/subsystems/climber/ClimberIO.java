@@ -2,7 +2,6 @@ package frc.robot.subsystems.climber;
 
 import org.littletonrobotics.junction.AutoLog;
 
-import edu.wpi.first.math.util.Units;
 import frc.robot.util.GetMotorData.MotorData;
 
 public interface ClimberIO {

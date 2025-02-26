@@ -1,6 +1,5 @@
 package frc.robot.subsystems.climber;
 
-import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -11,10 +10,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-
-import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.util.GetMotorData.MotorData;
 
 public class ClimberIOTalonFX implements ClimberIO {

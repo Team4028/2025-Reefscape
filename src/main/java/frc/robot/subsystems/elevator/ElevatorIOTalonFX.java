@@ -3,7 +3,7 @@ package frc.robot.subsystems.elevator;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -24,7 +24,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     ;
 
-    private final MotionMagicVoltage pidControl = new MotionMagicVoltage(0).withSlot(0);
+    private final MotionMagicTorqueCurrentFOC pidControl = new MotionMagicTorqueCurrentFOC(0).withSlot(0);
     private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(ElevatorConstants.USE_FOC);
     private final DutyCycleOut vbusControl = new DutyCycleOut(0).withEnableFOC(ElevatorConstants.USE_FOC);
 
@@ -33,6 +33,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.mmConfigs);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.tcConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
 
     }

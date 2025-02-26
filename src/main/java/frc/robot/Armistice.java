@@ -169,7 +169,7 @@ public class Armistice extends SudoSubsystem {
 
     @Override
     public void periodic() {
-        disarm.runToPosition(safeClampRange(armTargetRad)); 
+        // disarm.runToPosition(safeClampRange(armTargetRad)); 
         summit.runToPosition(elevatorTargetInches);
     }
 }

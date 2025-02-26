@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -24,13 +25,16 @@ public class ElevatorConstants {
 
     public static final boolean USE_FOC = true;
 
-    public static final PIDStruct pidConstants = new PIDStruct(7, 0, 0, 118, 254, 400, 0.009548, 0.6, 0.13064, 0.0044169);
-    public static final PIDStruct simPidConstants = new PIDStruct(0.4, 0, 0, 118, 254, Constants.THE_BEST_NUMBER, 0.05, 0.6, 0.11512, 0.0029619);
-    // public static final PIDStruct simPidConstants = new PIDStruct(5, 0, 0, 3, 6, 0, 0, 0, 0);
+    public static final DCMotor gearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
+
+    public static final PIDStruct pidConstants = /*new PIDStruct(7, 0, 0, 118, 254, 400, -30 * gearbox.KtNMPerAmp,
+            30 * gearbox.KtNMPerAmp, 0.009548, 0.6, 0.13064, 0.0044169);*/
+            new PIDStruct(12, 0, 0, 118, 254, 400, -60, 60, 0.009, 0.6, 0, 0);
+    public static final PIDStruct simPidConstants = new PIDStruct(0.4, 0, 0, 118, 254, Constants.THE_BEST_NUMBER, 0, 0,
+            0.05, 0.6, 0.11512, 0.0029619);
 
     // cascading: 1 : 2 per stage (not base stage)
     public static final double CARRIAGE_MASS_Kg = 3.628;
-    public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(2) : DCMotor.getKrakenX60(2);
     public static final double DRUM_RADIUS_IN = 0.875; // no longer real, wtvr
     public static final double DRUM_MOI_KgMSquared = 1 * DRUM_RADIUS_IN * DRUM_RADIUS_IN * 0.8;
 
@@ -42,13 +46,15 @@ public class ElevatorConstants {
 
     public static final double FORWARD_SOFT_LIMIT_INCHES = 64;
     public static final double FORWARD_SOFT_LIMIT_ROTATIONS = 70;
-    // the hard stops are at 66 "inches" using bad math which is 72 rotations of the kraken.
+    // the hard stops are at 66 "inches" using bad math which is 72 rotations of the
+    // kraken.
 
     public static final class TalonFX {
         public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
         public static final Slot0Configs pidConfigs = pidConstants.makeSlotConfigs(GravityTypeValue.Elevator_Static);
         public static final MotionMagicConfigs mmConfigs = pidConstants.makeMMConfigs();
+        public static final TorqueCurrentConfigs tcConfigs = pidConstants.makeTCConfigs();
 
         public static final MotorOutputConfigs leaderConfigs = new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive)
@@ -68,5 +74,6 @@ public class ElevatorConstants {
                 .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(3).withReverseSoftLimitEnable(true);
     }
 
-    public static final SysIdRoutine.Config sysIDConfig = new SysIdRoutine.Config(null, Volts.of(4), null, SysIDUtil::logSysIdState);
+    public static final SysIdRoutine.Config sysIDConfig = new SysIdRoutine.Config(null, Volts.of(4), null,
+            SysIDUtil::logSysIdState);
 }

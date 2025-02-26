@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
@@ -11,8 +12,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
-public record PIDStruct(double kP, double kI, double kD, double maxVel, double maxAccel, double maxJerk, double kS, double kG, double kV, double kA)
-{
+public record PIDStruct(double kP, double kI, double kD, double maxVel, double maxAccel, double maxJerk,
+        double maxTourqueReverse, double maxTourqueForward, double kS, double kG, double kV, double kA) {
     public PIDController makeController() {
         return new PIDController(kP, kI, kD);
     }
@@ -30,15 +31,23 @@ public record PIDStruct(double kP, double kI, double kD, double maxVel, double m
     }
 
     public MotionMagicConfigs makeMMConfigs() {
-        return new MotionMagicConfigs().withMotionMagicCruiseVelocity(maxVel).withMotionMagicAcceleration(maxAccel).withMotionMagicJerk(maxJerk);
+        return new MotionMagicConfigs().withMotionMagicCruiseVelocity(maxVel).withMotionMagicAcceleration(maxAccel)
+                .withMotionMagicJerk(maxJerk);
+    }
+
+    public TorqueCurrentConfigs makeTCConfigs() {
+        return new TorqueCurrentConfigs().withPeakForwardTorqueCurrent(maxTourqueForward)
+                .withPeakReverseTorqueCurrent(maxTourqueReverse);
     }
 
     public Slot0Configs makeSlotConfigs(GravityTypeValue gravityType, StaticFeedforwardSignValue staticFFSign) {
-        return new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKG(kG).withGravityType(gravityType).withKV(kV).withKA(kA).withStaticFeedforwardSign(staticFFSign);
+        return new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKG(kG).withGravityType(gravityType)
+                .withKV(kV).withKA(kA).withStaticFeedforwardSign(staticFFSign);
     }
-    
+
     public Slot0Configs makeSlotConfigs(GravityTypeValue gravityType) {
-        return new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKG(kG).withGravityType(gravityType).withKV(kV).withKA(kA);
+        return new Slot0Configs().withKP(kP).withKI(kI).withKD(kD).withKS(kS).withKG(kG).withGravityType(gravityType)
+                .withKV(kV).withKA(kA);
     }
 
     public Slot0Configs makeSlotConfigs() {

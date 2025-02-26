@@ -2,7 +2,6 @@ package frc.robot.subsystems.climber;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 
-
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.PIDStruct;
@@ -20,7 +19,7 @@ public class ClimberConstants {
     public static final double CLIMBER_POSITION1_RAD = 0.0;
 
     
-    public static final PIDStruct pidConstants = new PIDStruct(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+    public static final PIDStruct pidConstants = new PIDStruct(0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0);
     public static final class Sim {
         public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
         //get actual value for this:

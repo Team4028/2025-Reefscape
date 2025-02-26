@@ -23,10 +23,10 @@ public class ElevatorIOSim implements ElevatorIO {
         elevatorFF = ElevatorConstants.simPidConstants.makeElevatorFeedforward();
 
         elevator = new ElevatorSim(
-                LinearSystemId.createElevatorSystem(ElevatorConstants.simGearbox,
+                LinearSystemId.createElevatorSystem(ElevatorConstants.gearbox,
                         ElevatorConstants.CARRIAGE_MASS_Kg,
                         Units.inchesToMeters(ElevatorConstants.DRUM_RADIUS_IN), 1 / ElevatorConstants.MOTOR_TO_DRUM_RATIO),
-                ElevatorConstants.simGearbox, 0, Units.inchesToMeters(ElevatorConstants.MAX_HEIGHT_INCHES), true, 0);
+                ElevatorConstants.gearbox, 0, Units.inchesToMeters(ElevatorConstants.MAX_HEIGHT_INCHES), true, 0);
         RobotSim.registerCurrentInput("Elevator", elevator::getCurrentDrawAmps);
     }
 
