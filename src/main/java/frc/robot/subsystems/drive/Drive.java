@@ -1,6 +1,15 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -8,12 +17,15 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -35,6 +47,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -42,15 +55,8 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.MathUtil;
 import frc.robot.util.VisionUtil;
-
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
     // TunerConstants doesn't include these constants, so they are declared locally
@@ -69,6 +75,8 @@ public class Drive extends SubsystemBase {
     private static final double ROBOT_MASS_KG = 48.5344;
     private static final double ROBOT_MOI = 6.883;
     private static final double WHEEL_COF = 1.2;
+    private static final double PID_TRANSLATION_SPEED_MPS = 0.75;
+    private static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
     private static final RobotConfig PP_CONFIG = new RobotConfig(
             ROBOT_MASS_KG,
             ROBOT_MOI,
@@ -89,6 +97,8 @@ public class Drive extends SubsystemBase {
     private final SysIdRoutine sysId;
     private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.",
             AlertType.kError);
+
+    private final PIDController pidLineup = new PIDController(2, 0, 0), angleController = new PIDController(4, 0, 0);
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();
@@ -165,6 +175,8 @@ public class Drive extends SubsystemBase {
         xPid = new ProfiledPIDController(.28, 0, 0, new TrapezoidProfile.Constraints(3, 6));
         yPid = new ProfiledPIDController(.8, 0, 0, new TrapezoidProfile.Constraints(3, 6));
         rotPid = new ProfiledPIDController(.06, 0, 0, new TrapezoidProfile.Constraints(90, 180));
+        pidLineup.setTolerance(0.025);
+        angleController.setTolerance(Units.degreesToRadians(2));
     }
 
     @Override
@@ -228,6 +240,31 @@ public class Drive extends SubsystemBase {
             filteredY = yFilter.calculate(limelightLineupSource2d.getTA(ll2dLineupTagID));
             filteredRot = rotFilter.calculate(limelightLineupSource2d.getTargetPoseCameraSpace()[4]);
         }
+    }
+
+    public Command pathfindToPose(Pose2d pose) {
+        return AutoBuilder.pathfindToPose(pose, new PathConstraints(4, 4, 2 * Math.PI, 4 * Math.PI));
+    }
+    
+    @SuppressWarnings("removal") // PIDCommand is deprecated
+    public Command translateToPositionWithPID(Pose2d pose) {
+        DoubleSupplier theta = () -> new Pose2d(pose.getTranslation(), new Rotation2d())
+        .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d()))
+        .getTranslation().getAngle().getRadians();
+        return new PIDCommand(pidLineup,
+                () -> -new Pose2d(pose.getTranslation(), new Rotation2d())
+                        .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d())).getTranslation()
+                        .getNorm(),
+                0, (d) -> {
+                    runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
+                            MathUtil.clamp(d * Math.cos(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
+                                    PID_TRANSLATION_SPEED_MPS),
+                            MathUtil.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
+                                    PID_TRANSLATION_SPEED_MPS),
+                            MathUtil.clamp(angleController.calculate(getRotation().getRadians(), pose.getRotation().getRadians()),
+                                    -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
+                            getRotation()));
+                }, this);
     }
 
     public DoubleSupplier get2dFilteredX() {

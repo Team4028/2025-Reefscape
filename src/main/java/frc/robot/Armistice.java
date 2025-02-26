@@ -54,11 +54,11 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Armistice() {
-        NamedCommands.registerCommand("L4 Score", runToPositionCommand(() -> ArmisticePositions.L4));
-        NamedCommands.registerCommand("Stow", runToPositionCommand(() -> ArmisticePositions.STOW));
-        NamedCommands.registerCommand("Stow No Wait", runToPositionNoWait(() -> ArmisticePositions.STOW));
-        NamedCommands.registerCommand("Acquire Pos", runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        NamedCommands.registerCommand("L3 Score", runToPositionCommand(() -> ArmisticePositions.L3));
+        NamedCommands.registerCommand("L4 Score", runToPositionCommand(ArmisticePositions.L4));
+        NamedCommands.registerCommand("Stow", runToPositionCommand(ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Stow No Wait", runToPositionNoWait(ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Acquire Pos", runToPositionCommand(ArmisticePositions.ACQUIRE));
+        NamedCommands.registerCommand("L3 Score", runToPositionCommand(ArmisticePositions.L3));
     }
 
     private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX());
@@ -100,17 +100,17 @@ public class Armistice extends SudoSubsystem {
         return Commands.runOnce(() -> armCharVoltage += dVolts);
     }
 
-    public Command runToPositionCommand(Supplier<ArmisticePositions> position) {
+    public Command runToPositionCommand(ArmisticePositions position) {
         return Commands.runOnce(() -> {
-            elevatorTargetInches = position.get().elevatorPositionInches;
-            armTargetRad = position.get().armPositionRad;
+            elevatorTargetInches = position.elevatorPositionInches;
+            armTargetRad = position.armPositionRad;
         }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
     }
 
-    public Command runToPositionNoWait(Supplier<ArmisticePositions> position) {
+    public Command runToPositionNoWait(ArmisticePositions position) {
         return Commands.runOnce(() -> {
-            elevatorTargetInches = position.get().elevatorPositionInches;
-            armTargetRad = position.get().armPositionRad;
+            elevatorTargetInches = position.elevatorPositionInches;
+            armTargetRad = position.armPositionRad;
         }, summit, disarm);
     }
 

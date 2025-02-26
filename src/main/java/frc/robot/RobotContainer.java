@@ -152,33 +152,33 @@ public class RobotContainer {
                         () -> scaleDriverController(() -> -driverController.getLeftX(), yLimiter),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 thetaLimiter)));
-        //Coral Manip
+        // Coral Manip
         driverController.leftTrigger().onTrue(coral.runMotorCommand(.7)
-        .alongWith(Commands.waitUntil(
-                coral.hasGamePieceSupplier()))
-        .andThen(coral.runMotorCommand(0)));
+                .alongWith(Commands.waitUntil(
+                        coral.hasGamePieceSupplier()))
+                .andThen(coral.runMotorCommand(0)));
 
         driverController.leftBumper().onTrue(coral.runMotorCommand(-.8)).onFalse(coral.runMotorCommand(0));
 
-        //Nudge commands
-        //elevator 
+        // Nudge commands
+        // elevator
         driverController.povUp().onTrue(armistice.nudgeCommand(.5, 0));
         driverController.povDown().onTrue(armistice.nudgeCommand(-.5, 0));
-        //pivot nudge
+        // pivot nudge
         driverController.povLeft().onTrue(armistice.nudgeCommand(0, .1));
         driverController.povRight().onTrue(armistice.nudgeCommand(0, -.1));
 
-        //Algae Manip
+        // Algae Manip
         operatorController.leftTrigger().onTrue(algae.runMotorCommand(.7)).onFalse(algae.runMotorCommand(0));
         operatorController.rightTrigger().onTrue(algae.runMotorCommand(-.7)).onFalse(algae.runMotorCommand(0));
-        //Elevator
-        operatorController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
-        operatorController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        operatorController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
-        operatorController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
-        operatorController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
-        operatorController.povUp().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L2));
-        operatorController.povDown().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L3));
+        // Elevator
+        operatorController.rightBumper().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW));
+        operatorController.y().onTrue(armistice.runToPositionCommand(ArmisticePositions.ACQUIRE));
+        operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.L4));
+        operatorController.b().onTrue(armistice.runToPositionCommand(ArmisticePositions.L3));
+        operatorController.a().onTrue(armistice.runToPositionCommand(ArmisticePositions.L2));
+        operatorController.povUp().onTrue(armistice.runToPositionCommand(ArmisticePositions.ALGAE_AQUIRE_L2));
+        operatorController.povDown().onTrue(armistice.runToPositionCommand(ArmisticePositions.ALGAE_AQUIRE_L3));
 
         // Reset gyro to 0° when start button is pressed
         driverController.start().onTrue(
