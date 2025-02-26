@@ -66,6 +66,7 @@ public class RobotContainer {
 
         private final Leds candle = new Leds();
         private final CoralManipulatorStateTracker coralManipulatorStateTracker = new CoralManipulatorStateTracker();
+        private int aprilTagCount;
 
         private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
         private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -206,7 +207,7 @@ public class RobotContainer {
 
                 driverController.y().onTrue(Commands.runOnce(() -> algae.toggleHasAlgae()));
                 driverController.x().onTrue(Commands.runOnce(() -> coralManipulator.toggleHasCoral()));
-                driverController.a().onTrue(Commands.runOnce(() -> candle.toggleStrip()));
+                driverController.a().onTrue(Commands.runOnce(() -> aprilTagCount = candle.toggleAprilTags()));
                 driverController.b().onTrue(Commands.runOnce(() -> coralManipulatorStateTracker.toggleFeed()));
                 coralManipulator.hasCoral()
                                 .onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.BLUE, StripState.FLASH)))
@@ -218,7 +219,7 @@ public class RobotContainer {
                                                 () -> candle.candleColorAndMode(Color.GREEN, CandleState.FLASH)))
                                 .onFalse(Commands.runOnce(() -> candle.candleMode(CandleState.OFF)));
                 algae.hasAlgaeTrigger().onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.GREEN, StripState.FLASH)));
-                // candle.sendLimeColors().onTrue(candle.limelightToLeds(candle.totalTags(ll4)));
+                candle.sendLimeColors().onTrue(Commands.runOnce(() -> candle.limelightToLeds(aprilTagCount)).andThen(Commands.runOnce(() -> candle.offTag())));
 
         }
 

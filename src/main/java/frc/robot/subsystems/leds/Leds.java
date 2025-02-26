@@ -1,5 +1,6 @@
 package frc.robot.subsystems.leds;
 
+import java.security.AllPermission;
 import java.util.Arrays;
 
 import com.ctre.phoenix.led.CANdle;
@@ -24,6 +25,11 @@ public class Leds extends SubsystemBase {
     private Timer stripflasher;
     private boolean isCanOn = true;
     private boolean isStripOn = true;
+    private int aprilTagCount;
+    private int canLength = 8;
+    private int canInd = 0;
+    private int stripLength = 60;
+    private int stripInd = 8;
 
     public enum Color {
         RED(254, 0, 0),
@@ -53,6 +59,7 @@ public class Leds extends SubsystemBase {
 
     public enum CandleState {
         FLASH,
+        LIME,
         OFF;
     }
 
@@ -71,19 +78,19 @@ public class Leds extends SubsystemBase {
         stripflasher = new Timer();
     }
 
-    public Command limelightToLeds(int aprilTagCount) {
+    public void limelightToLeds(int aprilTagCount) {
         if (aprilTagCount == 1) {
-            return seesAprilTagCandle();
+            candleColorAndMode(Color.OFF, CandleState.LIME);
         } else if (aprilTagCount == 2) {
-            return seeTwoAprilTagCandle();
+            candleColorAndMode(Color.RED, CandleState.LIME);
         } else if (aprilTagCount == 3) {
-            return seeThreeAprilTagCandle();
+            candleColorAndMode(Color.PURPLE, CandleState.LIME);
         } else if (aprilTagCount == 4) {
-            return seeFourAprilTagCandle();
+            candleColorAndMode(Color.BLUE, CandleState.LIME);
         } else if (aprilTagCount > 4) {
-            return seeMoreAprilTagCandle();
+            candleColorAndMode(Color.WHITE, CandleState.LIME);
         } else {
-            return setNoColorCandle();
+            candleMode(CandleState.OFF);
         }
     }
 
@@ -98,13 +105,13 @@ public class Leds extends SubsystemBase {
     public void setCandleColor(Color color) {
         this.color = color;
         candle.animate(null);
-        candle.setLEDs(this.color.r, this.color.g, this.color.b, 0, 0, 8);
+        candle.setLEDs(this.color.r, this.color.g, this.color.b, 0, canInd, canLength);
     }
 
     public void setStripColor(Color color) {
         this.color = color;
         candle.animate(null);
-        candle.setLEDs(this.color.r, this.color.g, this.color.b, 0, 8, 60);
+        candle.setLEDs(this.color.r, this.color.g, this.color.b, 0, stripInd, stripLength);
     }
 
     public void setallColors(Color color) {
@@ -238,50 +245,6 @@ public class Leds extends SubsystemBase {
                 setStripRedCommand());
     }
 
-    public Command shootingCoralAnimationCandle() {
-        return Commands.sequence(setCandlePurpleCommand(), setNoColorCandle(), setNoColorCandle(),
-                setCandlePurpleCommand());
-    }
-
-    public Command shootingCoralAnimationStrip() {
-        return Commands.sequence(setStripPurpleCommand(), setNoColorStrip(), setNoColorStrip(),
-                setStripPurpleCommand());
-    }
-
-    public Command hasAlgaeAnimationCandle() {
-        return Commands.sequence(setCandleGreenCommand(), setCandleWhiteCommand(), setCandleWhiteCommand(),
-                setCandleGreenCommand());
-    }
-
-    public Command hasAlgaeAnimationStrip() {
-        return Commands.sequence(setCandleGreenCommand(), setCandleWhiteCommand(), setCandleWhiteCommand(),
-                setCandleGreenCommand());
-    }
-
-    public Command seesAprilTagCandle() {
-        return Commands.sequence(setCandleWhiteCommand(), setNoColorCandle(), setNoColorCandle(),
-                setCandleWhiteCommand());
-    }
-
-    public Command seeTwoAprilTagCandle() {
-        return Commands.sequence(setCandleGreenCommand(), setNoColorCandle(), setNoColorCandle(),
-                setCandleGreenCommand());
-    }
-
-    public Command seeThreeAprilTagCandle() {
-        return Commands.sequence(setCandlePurpleCommand(), setNoColorCandle(), setNoColorCandle(),
-                setCandlePurpleCommand());
-    }
-
-    public Command seeFourAprilTagCandle() {
-        return Commands.sequence(setCandleRedCommand(), setNoColorCandle(), setNoColorCandle(), setCandleRedCommand());
-    }
-
-    public Command seeMoreAprilTagCandle() {
-        return Commands.sequence(setCandleBlueCommand(), setCandleGreenCommand(), setCandleGreenCommand(),
-                setCandleBlueCommand());
-    }
-
     public Command sevenAnimationCandle() {
         return Commands.repeatingSequence(setCandleRedCommand()
                 .andThen(Commands.waitSeconds(.65).andThen(setNoColorCandle()).andThen(Commands.waitSeconds(.05))
@@ -386,27 +349,29 @@ public class Leds extends SubsystemBase {
     }
 
     public void toggleStripColor() {
-        if (stripColor == Color.RED) {
-            stripColor = Color.ORANGE;
-        } else if (stripColor == Color.ORANGE) {
-           stripColor = Color.YELLOW;
-        } else if (stripColor == Color.YELLOW) {
-            stripColor = Color.GREEN;
-        } else if (stripColor == Color.GREEN) {
-            stripColor = Color.LBLUE;
-        } else if (stripColor == Color.LBLUE) {
-            stripColor = Color.BLUE;
-        } else if (stripColor == Color.BLUE) {
-            stripColor = Color.PURPLE;
-        } else if (stripColor == Color.PURPLE) {
-            stripColor = Color.PINK;
-        } else if (stripColor == Color.PINK) {
-            stripColor = Color.WHITE;
-        } else if (stripColor == Color.WHITE) {
-            stripColor = Color.OFF;
-        } else if (stripColor == Color.OFF) {
-            stripColor = Color.RED;
+        switch (stripColor) {
+            case RED -> stripColor = Color.ORANGE;
+            case ORANGE -> stripColor = Color.YELLOW;
+            case YELLOW -> stripColor = Color.GREEN;
+            case GREEN -> stripColor = Color.LBLUE;
+            case LBLUE -> stripColor = Color.BLUE;
+            case BLUE -> stripColor = Color.PURPLE;
+            case PURPLE -> stripColor = Color.PINK;
+            case PINK -> stripColor = Color.WHITE;
+            case WHITE -> stripColor = Color.OFF;
+            case OFF -> stripColor = Color.RED;
+            default -> {}
         }
+    }
+
+    public int toggleAprilTags() {
+        seeAnyTag = true;
+        aprilTagCount = (aprilTagCount + 1) % 6;
+        return aprilTagCount;
+    }
+
+    public void offTag() {
+        seeAnyTag = false;
     }
 
     @Override
@@ -421,16 +386,30 @@ public class Leds extends SubsystemBase {
                     canflasher.start();
                 }
                 if (isCanOn) {
-                    setLedsColor(0, 8, this.canColor.r, this.canColor.g, this.canColor.b);
+                    setLedsColor(canInd, canLength, this.canColor.r, this.canColor.g, this.canColor.b);
                 } else {
-                    setLedsColor(0, 8, 0, 0, 0);
+                    setLedsColor(canInd, canLength, 0, 0, 0);
+                }
+                break;
+            case LIME:
+                if (canflasher.get() >= .1) {
+                    isCanOn = !isCanOn;
+                    canflasher.reset();
+                }
+                if (canflasher.isRunning() == false) {
+                    canflasher.start();
+                }
+                if (isCanOn) {
+                    setLedsColor(canInd, canLength, this.canColor.r, this.canColor.g, this.canColor.b);
+                } else {
+                    setLedsColor(canInd, canLength, 0, 120, 0);
                 }
                 break;
             case OFF:
-                setLedsColor(0, 8, 0, 0, 0);
+                setLedsColor(canInd, canLength, 0, 0, 0);
                 break;
             default:
-                setLedsColor(0, 8, 0, 0, 0);
+                setLedsColor(canInd, canLength, 0, 0, 0);
                 break;
         }
 
@@ -444,16 +423,16 @@ public class Leds extends SubsystemBase {
                     stripflasher.start();
                 }
                 if (isStripOn) {
-                    setLedsColor(8, 68, this.stripColor.r, this.stripColor.g, this.stripColor.b);
+                    setLedsColor(stripInd, stripLength, this.stripColor.r, this.stripColor.g, this.stripColor.b);
                 } else {
-                    setLedsColor(8, 68, 0, 0, 0);
+                    setLedsColor(stripInd, stripLength, 0, 0, 0);
                 }
                 break;
             case OFF:
-                setLedsColor(8, 68, 0, 0, 0);
+                setLedsColor(stripInd, stripLength, 0, 0, 0);
                 break;
             default:
-                setLedsColor(8, 68, 0, 0, 0);
+                setLedsColor(stripInd, stripLength, 0, 0, 0);
                 break;
         }
     }
