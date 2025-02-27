@@ -18,6 +18,11 @@ public class MathUtil {
             return value;
     }
 
+    public static final <T> T printAndReturn(T value, String prefix, String suffix) {
+        System.out.println(prefix + value + suffix);
+        return value;
+    }
+
     public static final int boolToInt(boolean b) {
         return b ? 1 : 0;
     }

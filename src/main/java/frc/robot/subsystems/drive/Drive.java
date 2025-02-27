@@ -175,8 +175,8 @@ public class Drive extends SubsystemBase {
         xPid = new ProfiledPIDController(.28, 0, 0, new TrapezoidProfile.Constraints(3, 6));
         yPid = new ProfiledPIDController(.8, 0, 0, new TrapezoidProfile.Constraints(3, 6));
         rotPid = new ProfiledPIDController(.06, 0, 0, new TrapezoidProfile.Constraints(90, 180));
-        pidLineup.setTolerance(0.025);
-        angleController.setTolerance(Units.degreesToRadians(2));
+        pidLineup.setTolerance(0.012);
+        angleController.setTolerance(Units.degreesToRadians(1));
     }
 
     @Override
@@ -243,26 +243,33 @@ public class Drive extends SubsystemBase {
     }
 
     public Command pathfindToPose(Pose2d pose) {
-        return AutoBuilder.pathfindToPose(pose, new PathConstraints(2, 2, 1 * Math.PI, 2 * Math.PI));
+        return AutoBuilder.pathfindToPose(pose, new PathConstraints(4, 3
+        , 1 * Math.PI, 2 * Math.PI));
     }
-    
+
     @SuppressWarnings("removal") // PIDCommand is deprecated
     public Command translateToPositionWithPID(Pose2d pose) {
         DoubleSupplier theta = () -> new Pose2d(pose.getTranslation(), new Rotation2d())
-        .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d()))
-        .getTranslation().getAngle().getRadians();
+                .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d()))
+                .getTranslation().getAngle().getRadians();
+        DoubleSupplier driveYaw = () -> (getRotation().getRadians() + 2 * Math.PI) % (2 * Math.PI);
         return new PIDCommand(pidLineup,
                 () -> -new Pose2d(pose.getTranslation(), new Rotation2d())
                         .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d())).getTranslation()
                         .getNorm(),
                 0, (d) -> {
+                    if (pidLineup.atSetpoint()) {
+                        stop();
+                        return;
+                    }
                     runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
                             MathUtil.clamp(d * Math.cos(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
                                     PID_TRANSLATION_SPEED_MPS),
                             MathUtil.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
                                     PID_TRANSLATION_SPEED_MPS),
-                            0),// MathUtil.clamp(angleController.calculate(getRotation().getRadians(), pose.getRotation().getRadians()),
-                            //         -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
+                            MathUtil.clamp(
+                                    angleController.calculate(MathUtil.printAndReturn(driveYaw.getAsDouble(), "Measure: ", ""), MathUtil.printAndReturn(pose.getRotation().getRadians(), "Setpoint: ", "")),
+                                    -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
                             getRotation()));
                 }, this);
     }

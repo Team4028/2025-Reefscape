@@ -4,6 +4,13 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
+   "AcquireDelay":{
+    "dimension":"Time",
+    "var":{
+     "exp":"0.8 s",
+     "val":0.8
+    }
+   },
    "ScoreDelay":{
     "dimension":"Time",
     "var":{
@@ -17,58 +24,9 @@
      "exp":"0.25 s",
      "val":0.25
     }
-   },
-   "AcquireDelay":{
-    "dimension":"Time",
-    "var":{
-     "exp":"0.8 s",
-     "val":0.8
-    }
    }
   },
   "poses":{
-   "Start":{
-    "x":{
-     "exp":"8 m",
-     "val":8.0
-    },
-    "y":{
-     "exp":"Score.y",
-     "val":4.120632648468018
-    },
-    "heading":{
-     "exp":"270 deg",
-     "val":4.71238898038469
-    }
-   },
-   "Acquire":{
-    "x":{
-     "exp":"9 m",
-     "val":9.0
-    },
-    "y":{
-     "exp":"4.120632648468018 m",
-     "val":4.120632648468018
-    },
-    "heading":{
-     "exp":"270 deg",
-     "val":4.71238898038469
-    }
-   },
-   "ScoreL48":{
-    "x":{
-     "exp":"13.71 m",
-     "val":13.71
-    },
-    "y":{
-     "exp":"5.11 m",
-     "val":5.11
-    },
-    "heading":{
-     "exp":"335 deg",
-     "val":5.846852994181004
-    }
-   },
    "Score":{
     "x":{
      "exp":"4.5 m",
@@ -97,18 +55,60 @@
      "val":4.71238898038469
     }
    },
-   "CoralStation":{
+   "Start":{
     "x":{
-     "exp":"646.37 in",
-     "val":16.417798
+     "exp":"8 m",
+     "val":8.0
     },
     "y":{
-     "exp":"281.2 in",
-     "val":7.142479999999999
+     "exp":"Score.y",
+     "val":4.120632648468018
+    },
+    "heading":{
+     "exp":"270 deg",
+     "val":4.71238898038469
+    }
+   },
+   "CoralStation":{
+    "x":{
+     "exp":"16.53 m",
+     "val":16.53
+    },
+    "y":{
+     "exp":"6.92 m",
+     "val":6.92
     },
     "heading":{
      "exp":"323 deg",
      "val":5.6374134839416845
+    }
+   },
+   "Acquire":{
+    "x":{
+     "exp":"9 m",
+     "val":9.0
+    },
+    "y":{
+     "exp":"4.120632648468018 m",
+     "val":4.120632648468018
+    },
+    "heading":{
+     "exp":"270 deg",
+     "val":4.71238898038469
+    }
+   },
+   "ScoreL48":{
+    "x":{
+     "exp":"13.72 m",
+     "val":13.72
+    },
+    "y":{
+     "exp":"5.1 m",
+     "val":5.1
+    },
+    "heading":{
+     "exp":"330 deg",
+     "val":5.759586531581287
     }
    }
   }
