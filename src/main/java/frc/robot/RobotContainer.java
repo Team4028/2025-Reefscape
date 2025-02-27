@@ -44,10 +44,10 @@ public class RobotContainer {
     private static final double DEFAULT_BASE_SPEED = 0.3;
     private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
-        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-        new ModuleIOTalonFX(TunerConstants.FrontRight),
-        new ModuleIOTalonFX(TunerConstants.BackLeft),
-        new ModuleIOTalonFX(TunerConstants.BackRight)
+            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+            new ModuleIOTalonFX(TunerConstants.FrontRight),
+            new ModuleIOTalonFX(TunerConstants.BackLeft),
+            new ModuleIOTalonFX(TunerConstants.BackRight)
     });
 
     // add actual limits
@@ -77,31 +77,39 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
+        // driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
 
-        // A - Elevator
-        // driverController.a().and(driverController.rightBumper()).onTrue(Commands.runOnce(()
-        // -> armistice.runElevatorVbus(.2),
-        // armistice.getSubsystems())).onFalse(Commands.runOnce(() ->
-        // armistice.runElevatorVbus(0), armistice.getSubsystems()));
-        // driverController.a().and(driverController.leftBumper()).onTrue(Commands.runOnce(()
-        // -> armistice.runElevatorVbus(-.2),
-        // armistice.getSubsystems())).onFalse(Commands.runOnce(() ->
-        // armistice.runElevatorVbus(0), armistice.getSubsystems()));
+        // // A - Elevator
+        // driverController.a().and(driverController.rightBumper())
+        // .onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.2),
+        // armistice.getSubsystems()))
+        // .onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0),
+        // armistice.getSubsystems()));
+        // driverController.a().and(driverController.leftBumper())
+        // .onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.2),
+        // armistice.getSubsystems()))
+        // .onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0),
+        // armistice.getSubsystems()));
         // // B - Arm
         // driverController.b().and(driverController.rightBumper()).onTrue(Commands.runOnce(()
         // -> armistice.runArmVbus(.2),
-        // armistice.getSubsystems())).onFalse(Commands.runOnce(() ->
-        // armistice.runArmVbus(0), armistice.getSubsystems()));
+        // armistice.getSubsystems()))
+        // .onFalse(Commands.runOnce(() -> armistice.runArmVbus(0),
+        // armistice.getSubsystems()));
         // driverController.b().and(driverController.leftBumper()).onTrue(Commands.runOnce(()
         // -> armistice.runArmVbus(-.2),
-        // armistice.getSubsystems())).onFalse(Commands.runOnce(() ->
-        // armistice.runArmVbus(0), armistice.getSubsystems()));
+        // armistice.getSubsystems()))
+        // .onFalse(Commands.runOnce(() -> armistice.runArmVbus(0),
+        // armistice.getSubsystems()));
         driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
-        driverController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        driverController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
-        driverController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
-        driverController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        driverController.y().and(driverController.back().negate()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
+        driverController.b().and(driverController.back().negate()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+        driverController.x().and(driverController.back().negate()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
+        driverController.a().and(driverController.back().negate()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        driverController.y().and(driverController.back()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.LOLLIPOP_ACQUIRE));
+        driverController.b().and(driverController.back()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L2));
+        driverController.x().and(driverController.back()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L3));
+        driverController.a().and(driverController.back()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.BARGE_REAL));
         driverController.povUp().onTrue(armistice.nudgeCommand(0.5, 0.0));
         driverController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0.0));
         driverController.povRight().onTrue(armistice.nudgeCommand(0, 0.1));
@@ -109,15 +117,15 @@ public class RobotContainer {
         driverController.back().and(driverController.leftTrigger()).onTrue(algae.runMotorCommand(0.5)).onFalse(algae.runMotorCommand(0));
         driverController.back().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.9)).onFalse(algae.runMotorCommand(0));
         driverController.leftTrigger().and(driverController.back().negate()).onTrue(coral.runMotorCommand(0.45)).onFalse(coral.runMotorCommand(0));
-        driverController.leftBumper().and(driverController.back().negate()).onTrue(coral.runMotorCommand(-0.7)).onFalse(coral.runMotorCommand(0));
-                drive.setDefaultCommand(
+        driverController.leftBumper().and(driverController.back().negate()).onTrue(coral.runMotorCommand(-0.55)).onFalse(coral.runMotorCommand(0));
+        drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drive,
                         () -> scaleDriverController(() -> driverController.getLeftY(), xLimiter),
                         () -> scaleDriverController(() -> driverController.getLeftX(), yLimiter),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 thetaLimiter)));
-                                
+
         // Reset gyro to 0° when start button is pressed
         driverController.start().onTrue(
                 Commands.runOnce(
@@ -125,7 +133,6 @@ public class RobotContainer {
                                 new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                         drive)
                         .ignoringDisable(true));
-        
 
         // driverController.a().onTrue(armistice.runArmVoltageForChar());
         // driverController.rightBumper().onTrue(armistice.deltaArmCharVolts(0.1));
@@ -145,23 +152,23 @@ public class RobotContainer {
         // // Y - Algae
         // driverController.y().and(driverController.rightBumper()).onTrue(algae.runMotorCommand(0.2)).onFalse(algae.runMotorCommand(0));
         // driverController.y().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.2)).onFalse(algae.runMotorCommand(0));
-        
+
         // Back - Climber
         // driverController.back().and(driverController.rightBumper()).onTrue(climber.runVbusCommand(0.2))
-        //         .onFalse(climber.runVbusCommand(0));
+        // .onFalse(climber.runVbusCommand(0));
         // driverController.back().and(driverController.leftBumper()).onTrue(climber.runVbusCommand(-0.2))
-        //         .onFalse(climber.runVbusCommand(0));
+        // .onFalse(climber.runVbusCommand(0));
     }
 
-    public void resetArmPid() {
-        armistice.resetArmPid();
-    }
+    // public void resetArmPid() {
+    //     armistice.resetArmPid();
+    // }
 
     public Command getAutonomousCommand() {
         return autonChooser.get();
     }
 
-     private double scaleDriverController(DoubleSupplier controllerInput, SlewRateLimiter limiter) {
+    private double scaleDriverController(DoubleSupplier controllerInput, SlewRateLimiter limiter) {
         return limiter.calculate(
                 controllerInput.getAsDouble() * (DEFAULT_BASE_SPEED
                         + (driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED))));

@@ -37,15 +37,17 @@ public class Armistice extends SudoSubsystem {
     private double armCharVoltage = 0;
 
     public static enum ArmisticePositions {
-        STOW(0.43, 3.6),
-        ACQUIRE(0.74, 4.6),
-        ACQUIRE_BLOCKED(0.94, 2.6),
-        L2(3.9, 9),
-        L3(3.9, 24.5),
-        L4(3.825, 51.01),
-        ALGAE_AQUIRE_L2(5.33, 8.64),
-        LOLLIPOP_ACQUIRE(4.85, 2),
-        BARGE(1.45, 50.1);
+        STOW(0.43, 7.1),
+        ACQUIRE(0.74, 8.1),
+        ACQUIRE_BLOCKED(0.94, 6.1),
+        L2(3.9, 12.5),
+        L3(4.096, 26.04),
+        L4(3.923, 55.51),
+        ALGAE_AQUIRE_L2(5.624, 9.14),
+        ALGAE_AQUIRE_L3(5.624, 25.14),
+        LOLLIPOP_ACQUIRE(2.68, 0.61),
+        BARGE_REAL(6.14, 55),
+        BARGE_ALT(1.515, 55);
 
         public double armPositionRad;
         public double elevatorPositionInches;
@@ -103,9 +105,9 @@ public class Armistice extends SudoSubsystem {
         return MathUtil.clamp(inputRad, range[0], range[1]);
     }
 
-    public void resetArmPid() {
-        disarm.pidReset();
-    }
+    // public void resetArmPid() {
+    //     disarm.pidReset();
+    // }
 
     public Command runArmVoltageForChar() {
         return Commands.runOnce(() -> disarm.runMotor(Volts.of(armCharVoltage)), disarm);
@@ -169,7 +171,7 @@ public class Armistice extends SudoSubsystem {
 
     @Override
     public void periodic() {
-        // disarm.runToPosition(safeClampRange(armTargetRad)); 
+        disarm.runToPosition(safeClampRange(armTargetRad)); 
         summit.runToPosition(elevatorTargetInches);
     }
 }

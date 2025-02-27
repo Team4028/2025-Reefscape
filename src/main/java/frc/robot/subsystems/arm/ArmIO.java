@@ -3,7 +3,7 @@ package frc.robot.subsystems.arm;
 import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.math.util.Units;
-import frc.robot.util.GetMotorData.MotorData;
+import frc.robot.util.MotorData;
 
 public interface ArmIO {
     @AutoLog
@@ -34,4 +34,6 @@ public interface ArmIO {
     public default void setVBus(double vBus) {
     }
 
+    public default void setPID(double position) {
+    }
 }

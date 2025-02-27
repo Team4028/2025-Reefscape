@@ -9,7 +9,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import frc.robot.util.GetMotorData;
+import frc.robot.util.MotorData;
 
 public class ArmIODIOEncoderTalonFX implements ArmIO {
     private final DigitalInput di;
@@ -39,7 +39,7 @@ public class ArmIODIOEncoderTalonFX implements ArmIO {
         fakeVel = (encoder.get() - lastPosition) / 0.02;
         lastPosition = encoder.get();
         inputs.armVelocityRotPerSec = fakeVel;
-        inputs.motorData = GetMotorData.getTalonFXData(motor);
+        inputs.motorData = MotorData.getMotorData(motor);
         ArmIO.super.updateInputs(inputs);
     }
 

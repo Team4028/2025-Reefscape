@@ -6,13 +6,13 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.util.GetMotorData;
+import frc.robot.util.MotorData;
 
 public class ArmIOSparkEncoderTalonFX implements ArmIO {
     private final SparkMax encoderReader;
@@ -42,7 +42,7 @@ public class ArmIOSparkEncoderTalonFX implements ArmIO {
         inputs.armEncoderRad = getEncoderPositionRad();
         inputs.armEncoderRaw = getRawEncoderPositon();
         inputs.armVelocityRotPerSec = encoder.getVelocity();
-        inputs.motorData = GetMotorData.getTalonFXData(motor);
+        inputs.motorData = MotorData.getMotorData(motor);
         ArmIO.super.updateInputs(inputs);
     }
 

@@ -79,7 +79,7 @@ public class Robot extends LoggedRobot {
             autonomousCommand.schedule();
         }
 
-        robotContainer.resetArmPid();
+        // robotContainer.resetArmPid();
     }
 
     @Override
@@ -92,10 +92,10 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        robotContainer.resetArmPid();
+        // robotContainer.resetArmPid();
 
         // uncomment for use w/ sysid
-        // SignalLogger.start();
+        SignalLogger.start();
     }
 
     @Override

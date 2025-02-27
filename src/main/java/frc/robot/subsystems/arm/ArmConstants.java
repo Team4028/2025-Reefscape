@@ -1,6 +1,8 @@
 package frc.robot.subsystems.arm;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
@@ -17,7 +19,7 @@ public class ArmConstants {
     public static final double ARM_LENGTH_METRES = 0.635;
     public static final double ARM_MASS_Kg = 3.63;
     public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
-    public static final double GEAR_RATIO = 0.03333333333333;
+    public static final double GEAR_RATIO = 79.347;
     public static final double PID_TOLERANCE = 1;
 
     public static final record ArmSafetyData(double[] range, boolean enableContinuousInput) {
@@ -34,6 +36,8 @@ public class ArmConstants {
         public static final int MOTOR_ID = 10;
         public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
+        public static final Slot0Configs pidConfigs = pidConfig.makeSlotConfigs();
+        public static final MotionMagicConfigs mmConfigs = pidConfig.makeMMConfigs();
 
     }
 
@@ -57,7 +61,7 @@ public class ArmConstants {
     public static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_2 }, false);
     public static final ArmSafetyData SAFETY_RANGE = new ArmSafetyData(new double[] { 0, PI_2 }, false);
 
-    public static final PIDStruct pidConfig = new PIDStruct(16, 0, 0, PI_2 * 1, 2 * PI_2, 0, 0, 0, 0.05, 0.15, 0, 0);
+    public static final PIDStruct pidConfig = new PIDStruct(2, 0, 0, 80, 160, 320, 0, 0, 0.05, 0.15, 0, 0);
     public static final PIDStruct simPidConfig = new PIDStruct(16, 0, 0, PI_2, 2 * PI_2, 0, 0, 0, 0.2, 0.5, 0, 0);
 
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();

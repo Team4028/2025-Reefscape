@@ -8,19 +8,14 @@ import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
-import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
 import frc.robot.util.SysIDUtil;
 
 public class Arm extends SubsystemBase {
-    private final ProfiledPIDController pid;
-    private final ArmFeedforward armFF;
     private final ArmIO io;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
     private final ArmStateTracker stateTracker;
@@ -32,12 +27,9 @@ public class Arm extends SubsystemBase {
 
     public Arm(ArmIO io) {
         this.io = io;
-        pid = io instanceof ArmIOSim ? ArmConstants.simPidConfig.makeProfiledPIDController() : ArmConstants.pidConfig.makeProfiledPIDController();
-        armFF = io instanceof ArmIOSim ? ArmConstants.simPidConfig.makeArmFeedforward() : ArmConstants.pidConfig.makeArmFeedforward();
         stateTracker = new ArmStateTracker();;
         sysIDCommands = SysIDUtil.generateTests(ArmConstants.sysIDConfig, this::runMotor, this);
         io.updateInputs(inputs);
-        pid.reset(inputs.armEncoderRad);
     }
 
  
@@ -75,16 +67,16 @@ public class Arm extends SubsystemBase {
         stateTracker.state = ArmStates.POSITION;
     }
 
-    public void setContinuousInput(ArmSafetyData data) {
-        if (data.enableContinuousInput())
-            pid.enableContinuousInput(data.range()[0], data.range()[1]);
-        else
-            pid.disableContinuousInput();
-    }
+    // public void setContinuousInput(ArmSafetyData data) {
+    //     if (data.enableContinuousInput())
+    //         pid.enableContinuousInput(data.range()[0], data.range()[1]);
+    //     else
+    //         pid.disableContinuousInput();
+    // }
 
-    public void pidReset() {
-        pid.reset(inputs.armEncoderRad);
-    }
+    // public void pidReset() {
+    //     pid.reset(inputs.armEncoderRad);
+    // }
 
     public double getTargetPosition() {
         return targetPositionRad;
@@ -125,8 +117,7 @@ public class Arm extends SubsystemBase {
 
     @CreateState("position")
     public void runTargetPosition() {
-        io.setVoltage(pid.calculate(inputs.armEncoderRad, targetPositionRad)
-                + armFF.calculate(inputs.armAngleRad, pid.getSetpoint().velocity));
+        io.setPID(targetPositionRad);
     }
 
     public double getSimAngle() {

@@ -2,7 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.AutoLog;
 
-import frc.robot.util.GetMotorData.MotorData;
+import frc.robot.util.MotorData;
 
 public interface ElevatorIO {
     @AutoLog
