@@ -51,15 +51,28 @@ public class RobotContainer {
     });
 
     // add actual limits
-    private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
+    private final SlewRateLimiter xLimiterL4, xLimiterL3, xLimiterL2, xLimiterL1, yLimiterL4, yLimiterL3, yLimiterL2,
+            yLimiterL1, thetaLimiterL4, thetaLimiterL3, thetaLimiterL2, thetaLimiterL1;
 
     private final CommandXboxController driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
 
     public RobotContainer() {
-        xLimiter = new SlewRateLimiter(4);
-        yLimiter = new SlewRateLimiter(4);
-        thetaLimiter = new SlewRateLimiter(4);
+        xLimiterL4 = new SlewRateLimiter(0.3);
+        xLimiterL3 = new SlewRateLimiter(1.0);
+        xLimiterL2 = new SlewRateLimiter(2.0);
+        xLimiterL1 = new SlewRateLimiter(4);
+
+        yLimiterL4 = new SlewRateLimiter(0.3);
+        yLimiterL3 = new SlewRateLimiter(1.0);
+        yLimiterL2 = new SlewRateLimiter(2.0);
+        yLimiterL1 = new SlewRateLimiter(4);
+
+        thetaLimiterL4 = new SlewRateLimiter(0.5);
+        thetaLimiterL3 = new SlewRateLimiter(3.0);
+        thetaLimiterL2 = new SlewRateLimiter(3.0);
+        thetaLimiterL1 = new SlewRateLimiter(3.0);
+
         autonChooser.addDefaultOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
         // Set up SysId routines
         configureBindings();
@@ -102,29 +115,41 @@ public class RobotContainer {
         // .onFalse(Commands.runOnce(() -> armistice.runArmVbus(0),
         // armistice.getSubsystems()));
         driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
-        driverController.y().and(driverController.back().negate()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        driverController.b().and(driverController.back().negate()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
-        driverController.x().and(driverController.back().negate()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
-        driverController.a().and(driverController.back().negate()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
-        driverController.y().and(driverController.back()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.LOLLIPOP_ACQUIRE));
-        driverController.b().and(driverController.back()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L2));
-        driverController.x().and(driverController.back()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L3));
-        driverController.a().and(driverController.back()).onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.BARGE_REAL));
+        driverController.y().and(driverController.back().negate())
+                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
+        driverController.b().and(driverController.back().negate())
+                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+        driverController.x().and(driverController.back().negate())
+                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
+        driverController.a().and(driverController.back().negate())
+                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        driverController.y().and(driverController.back())
+                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.LOLLIPOP_ACQUIRE));
+        driverController.b().and(driverController.back())
+                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L2));
+        driverController.x().and(driverController.back())
+                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L3));
+        driverController.a().and(driverController.back())
+                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.BARGE_REAL));
         driverController.povUp().onTrue(armistice.nudgeCommand(0.5, 0.0));
         driverController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0.0));
         driverController.povRight().onTrue(armistice.nudgeCommand(0, 0.1));
         driverController.povLeft().onTrue(armistice.nudgeCommand(0, -0.1));
-        driverController.back().and(driverController.leftTrigger()).onTrue(algae.runMotorCommand(0.5)).onFalse(algae.runMotorCommand(0));
-        driverController.back().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.9)).onFalse(algae.runMotorCommand(0));
-        driverController.leftTrigger().and(driverController.back().negate()).onTrue(coral.runMotorCommand(0.45)).onFalse(coral.runMotorCommand(0));
-        driverController.leftBumper().and(driverController.back().negate()).onTrue(coral.runMotorCommand(-0.55)).onFalse(coral.runMotorCommand(0));
+        driverController.back().and(driverController.leftTrigger()).onTrue(algae.runMotorCommand(0.5))
+                .onFalse(algae.runMotorCommand(0));
+        driverController.back().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.9))
+                .onFalse(algae.runMotorCommand(0));
+        driverController.leftTrigger().and(driverController.back().negate()).onTrue(coral.runMotorCommand(0.45))
+                .onFalse(coral.runMotorCommand(0));
+        driverController.leftBumper().and(driverController.back().negate()).onTrue(coral.runMotorCommand(-0.55))
+                .onFalse(coral.runMotorCommand(0));
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drive,
-                        () -> scaleDriverController(() -> driverController.getLeftY(), xLimiter),
-                        () -> scaleDriverController(() -> driverController.getLeftX(), yLimiter),
+                        () -> scaleDriverController(() -> driverController.getLeftY(), LimiterState.X),
+                        () -> scaleDriverController(() -> driverController.getLeftX(), LimiterState.Y),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
-                                thetaLimiter)));
+                                LimiterState.THETA)));
 
         // Reset gyro to 0° when start button is pressed
         driverController.start().onTrue(
@@ -161,17 +186,66 @@ public class RobotContainer {
     }
 
     // public void resetArmPid() {
-    //     armistice.resetArmPid();
+    // armistice.resetArmPid();
     // }
 
     public Command getAutonomousCommand() {
         return autonChooser.get();
     }
 
-    private double scaleDriverController(DoubleSupplier controllerInput, SlewRateLimiter limiter) {
-        return limiter.calculate(
-                controllerInput.getAsDouble() * (DEFAULT_BASE_SPEED
-                        + (driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED))));
+    public double chooseXLimiter(double input) {
+        var a = armistice.getElevatorPosition();
+        if (a > 40) {
+            return xLimiterL4.calculate(input);
+        } else if (a >= 30 && a < 40) {
+            return xLimiterL3.calculate(input);
+        } else if (a >= 8 && a <= 30) {
+            return xLimiterL2.calculate(input);
+        } else {
+            return xLimiterL1.calculate(input);
+        }
+    }
+
+    public double chooseYLimiter(double input) {
+        var a = armistice.getElevatorPosition();
+        if (a > 40) {
+            return yLimiterL4.calculate(input);
+        } else if (a >= 30 && a < 40) {
+            return yLimiterL3.calculate(input);
+        } else if (a >= 8 && a <= 30) {
+            return yLimiterL2.calculate(input);
+        } else {
+            return yLimiterL1.calculate(input);
+        }
+    }
+    
+    public double chooseThetaLimiter(double input) {
+        var a = armistice.getElevatorPosition();
+        if (a > 40) {
+            return thetaLimiterL4.calculate(input);
+        } else if (a >= 30 && a < 40) {
+            return thetaLimiterL3.calculate(input);
+        } else if (a >= 8 && a <= 30) {
+            return thetaLimiterL2.calculate(input);
+        } else {
+            return thetaLimiterL1.calculate(input);
+        }
+    }
+
+    private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {
+        double input = controllerInput.getAsDouble() * (DEFAULT_BASE_SPEED)
+                + (driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED));
+        switch (type) {
+            case X:
+                return chooseXLimiter(input);
+            case Y:
+                return chooseYLimiter(input);
+            case THETA:
+                return chooseXLimiter(input);
+            default:
+                return 0.0;
+        }
+       
     }
 
 }
