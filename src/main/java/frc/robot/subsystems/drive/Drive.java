@@ -243,7 +243,7 @@ public class Drive extends SubsystemBase {
     }
 
     public Command pathfindToPose(Pose2d pose) {
-        return AutoBuilder.pathfindToPose(pose, new PathConstraints(4, 4, 2 * Math.PI, 4 * Math.PI));
+        return AutoBuilder.pathfindToPose(pose, new PathConstraints(2, 2, 1 * Math.PI, 2 * Math.PI));
     }
     
     @SuppressWarnings("removal") // PIDCommand is deprecated
@@ -261,8 +261,8 @@ public class Drive extends SubsystemBase {
                                     PID_TRANSLATION_SPEED_MPS),
                             MathUtil.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
                                     PID_TRANSLATION_SPEED_MPS),
-                            MathUtil.clamp(angleController.calculate(getRotation().getRadians(), pose.getRotation().getRadians()),
-                                    -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
+                            0),// MathUtil.clamp(angleController.calculate(getRotation().getRadians(), pose.getRotation().getRadians()),
+                            //         -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
                             getRotation()));
                 }, this);
     }
