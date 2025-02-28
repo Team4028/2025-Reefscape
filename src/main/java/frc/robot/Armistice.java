@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -35,6 +36,7 @@ public class Armistice extends SudoSubsystem {
 
     @AutoLogOutput
     private double armCharVoltage = 0;
+    public ArmisticePositions futureArmisticePositions = ArmisticePositions.L4;
 
     public static enum ArmisticePositions {
         STOW(0.43, 7.1),
@@ -69,9 +71,9 @@ public class Armistice extends SudoSubsystem {
     private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX()); 
     private final Arm disarm = RobotSim.armSimSwitch(new ArmIOCanEncoderTalonFX());
 
-
     public void getCanMagPosition() {
-        disarm.getCanMagPosition();;
+        disarm.getCanMagPosition();
+        ;
     }
 
     public ArmSafetyData getArmSafetyData() {
@@ -85,6 +87,7 @@ public class Armistice extends SudoSubsystem {
     public void runElevatorVbus(double vbus) {
         summit.runMotors(vbus);
     }
+
     /** Kills the arm(y) */
     public void orbitalStrike() {
         disarm.runMotor(0);
@@ -102,7 +105,7 @@ public class Armistice extends SudoSubsystem {
     }
 
     // public void resetArmPid() {
-    //     disarm.pidReset();
+    // disarm.pidReset();
     // }
 
     public Command runArmVoltageForChar() {
@@ -138,6 +141,22 @@ public class Armistice extends SudoSubsystem {
         }, summit, disarm);
     }
 
+    public Command runToFutureArmisticePositionCommand() {
+        return Commands.defer(() -> runToPositionCommand(() -> futureArmisticePositions), Set.of(disarm, summit));
+    }
+
+    public Command changeFutureArmisticePosition(int delta) {
+        return Commands.runOnce(() ->
+            futureArmisticePositions = switch (futureArmisticePositions) {
+                case LOLLIPOP_ACQUIRE -> ArmisticePositions.L2;
+                case L2 -> ArmisticePositions.L3;
+                case L3 -> ArmisticePositions.L4;
+                case L4 -> ArmisticePositions.BARGE_REAL;
+                case BARGE_REAL -> ArmisticePositions.LOLLIPOP_ACQUIRE;
+                default -> ArmisticePositions.STOW;
+            });
+    }
+
     public BooleanSupplier armAndElevatorAtTarget() {
         return () -> disarm.atTargetPosition().getAsBoolean() && summit.atTargetPosition().getAsBoolean();
     }
@@ -157,17 +176,18 @@ public class Armistice extends SudoSubsystem {
     public void setInDanger(boolean isInDanger) {
         this.isInDanger = isInDanger;
     }
+
     public double getElevatorPosition() {
         return summit.getCurrentPosition();
     }
 
     public SubsystemBase[] getSubsystems() {
-        return new SubsystemBase[]{disarm, summit};
+        return new SubsystemBase[] { disarm, summit };
     }
 
     @Override
     public void periodic() {
-        disarm.runToPosition(safeClampRange(armTargetRad)); 
+        disarm.runToPosition(safeClampRange(armTargetRad));
         summit.runToPosition(elevatorTargetInches);
     }
 }
