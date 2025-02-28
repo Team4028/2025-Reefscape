@@ -111,7 +111,7 @@ public class Limelight extends SubsystemBase {
             return LoggablePoseEstimate.empty();
         }
 
-        if (vRes.rawFiducials()[0].distToCamera() > 3)  //was 2 meters, made it 3 instead.
+        if (vRes.rawFiducials()[0].distToCamera() > 2)
         {
             return LoggablePoseEstimate.empty();
         }

@@ -54,7 +54,7 @@ public class RobotContainer {
     private final AlgaeManipulator algae = RobotSim.algaeSimSwitch(new AlgaeManipulatorIOTalonSRX());
     private final Armistice armistice = new Armistice();
     private final Limelight ll4;
-    private final Limelight ll4station;
+    // private final Limelight ll4station;
 
     private final SlewRateLimiter xLimiter, yLimiter, thetaLimiter;
     private static final double DEFAULT_BASE_SPEED = 0.2;
@@ -68,7 +68,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         ll4 = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty()));
-        ll4station = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
+        // ll4station = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
         xLimiter = new SlewRateLimiter(4);
         yLimiter = new SlewRateLimiter(4);
         thetaLimiter = new SlewRateLimiter(4);
@@ -120,7 +120,7 @@ public class RobotContainer {
 
     public void subsystemWarmup() {
         ll4.warmup(); // just you for now
-        ll4station.warmup();
+        // ll4station.warmup();
         logLLPoses();
     }
 
@@ -132,7 +132,7 @@ public class RobotContainer {
 
     public void periodicLL4IMU(boolean on) {
         ll4.setIMUInternal(on);
-        ll4station.setIMUInternal(on);
+        // ll4station.setIMUInternal(on);
     }
 
     public void logLLPoses() {
@@ -141,7 +141,7 @@ public class RobotContainer {
 
     public void seedll4IMU() {
         ll4.seedLLSolverYaw(drive.getPose().getRotation().getDegrees());
-        ll4station.seedLLSolverYaw(drive.getPose().getRotation().getDegrees());
+        // ll4station.seedLLSolverYaw(drive.getPose().getRotation().getDegrees());
     }
 
     public void disableArmistice() {
