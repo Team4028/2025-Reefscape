@@ -38,11 +38,11 @@ public class Armistice extends SudoSubsystem {
 
     public static enum ArmisticePositions {
         STOW(0.43, 7.1),
-        ACQUIRE(0.74, 8.1),
+        ACQUIRE(0.855, 8.1),
         ACQUIRE_BLOCKED(0.94, 6.1),
-        L2(3.9, 12.5),
-        L3(4.096, 26.04),
-        L4(3.923, 55.51),
+        L2(4.097, 10.509),
+        L3(4.097, 26.04),
+        L4(3.81, 55.99),
         ALGAE_AQUIRE_L2(5.624, 9.14),
         ALGAE_AQUIRE_L3(5.624, 25.14),
         LOLLIPOP_ACQUIRE(2.68, 0.61),
@@ -66,11 +66,7 @@ public class Armistice extends SudoSubsystem {
         NamedCommands.registerCommand("L3 Score", runToPositionCommand(() -> ArmisticePositions.L3));
     }
 
-    private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX());
-
-
-    //Mag Arm is exactly the same as disarm, but uses a can encoder instead of spark. 
-  
+    private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX()); 
     private final Arm disarm = RobotSim.armSimSwitch(new ArmIOCanEncoderTalonFX());
 
 
