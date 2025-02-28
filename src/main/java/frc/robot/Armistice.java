@@ -33,7 +33,11 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private double armTargetRad = ArmisticePositions.STOW.armPositionRad;
 
-    private static final double[] ARM_SAFE_RANGE = new double[] { 5, 30 };
+    @AutoLogOutput
+    private boolean elevatorWaiting = true;
+
+    private static final double[] ARM_SAFE_RANGE = new double[] { 5, 35 };
+    private static final boolean USE_SAFETY = true;
 
     @AutoLogOutput
     private double armCharVoltage = 0;
@@ -43,9 +47,9 @@ public class Armistice extends SudoSubsystem {
         STOW(0.43, 7.1),
         ACQUIRE(0.855, 8.1),
         ACQUIRE_BLOCKED(0.94, 6.1),
-        L2(4.097, 10.509),
-        L3(4.097, 26.04),
-        L4(3.81, 55.99),
+        L2(4.097, 9),
+        L3(4.097, 24.54),
+        L4(3.907, 55.0),
         ALGAE_AQUIRE_L2(5.624, 9.14),
         ALGAE_AQUIRE_L3(5.624, 25.14),
         LOLLIPOP_ACQUIRE(2.68, 0.61),
@@ -69,7 +73,7 @@ public class Armistice extends SudoSubsystem {
         NamedCommands.registerCommand("L3 Score", runToPositionCommand(() -> ArmisticePositions.L3));
     }
 
-    private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX()); 
+    private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX());
     private final Arm disarm = RobotSim.armSimSwitch(new ArmIOCanEncoderTalonFX());
 
     public void getCanMagPosition() {
@@ -158,7 +162,8 @@ public class Armistice extends SudoSubsystem {
     }
 
     public boolean elevatorIsSafe() {
-        return MathUtil.inRange(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]);
+        return MathUtil.inRange(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
+                && MathUtil.inRange(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]);
     }
 
     public Command stageArm(ArmisticePositions position) {
@@ -179,13 +184,23 @@ public class Armistice extends SudoSubsystem {
 
     @Override
     public void periodic() {
-        if (elevatorIsSafe())
+        if (USE_SAFETY) {
+            elevatorWaiting = !disarmAtRealTarget() && !elevatorIsSafe();
+            if (elevatorIsSafe() || (elevatorWaiting && summit.atTargetPosition().getAsBoolean())
+                    || disarmAtRealTarget()) {
+                disarm.runToPosition(armTargetRad);
+                summit.runToPosition(
+                        elevatorWaiting ? MathUtil.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
+                                : elevatorTargetInches);
+            } else {
+                disarm.runToPosition(MathUtil.inRange(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
+                        ? armTargetRad
+                        : disarm.getCurrentPosition());
+                summit.runToPosition(MathUtil.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]));
+            }
+        } else {
             disarm.runToPosition(armTargetRad);
-        else {
-            if (!disarmAtRealTarget())
-                elevatorTargetInches = MathUtil.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]);
-            disarm.runToPosition(disarm.getCurrentPosition());
+            summit.runToPosition(elevatorTargetInches);
         }
-        summit.runToPosition(elevatorTargetInches);
     }
 }

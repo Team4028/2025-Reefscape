@@ -20,7 +20,7 @@ public class ArmConstants {
     public static final double ARM_MASS_Kg = 3.63;
     public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
     public static final double GEAR_RATIO = 79.347;
-    public static final double PID_TOLERANCE = 1;
+    public static final double PID_TOLERANCE = 0.1;
 
     public static final boolean USE_FOC = true;
 

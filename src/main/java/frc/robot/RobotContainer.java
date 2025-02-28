@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import javax.sql.rowset.spi.XmlWriter;
@@ -49,7 +50,7 @@ public class RobotContainer {
     private final AlgaeManipulator algae = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
     private final Climber climber = new Climber(new ClimberIOTalonFX());
     // private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, null));
-    private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, null));
+    // private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
 
     private static final double SLOW_SPEED = 0.07;
     private static final double DEFAULT_BASE_SPEED = 0.3;
