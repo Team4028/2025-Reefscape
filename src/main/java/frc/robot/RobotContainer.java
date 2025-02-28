@@ -45,6 +45,7 @@ public class RobotContainer {
     private static final double SLOW_SPEED = 0.07;
     private static final double DEFAULT_BASE_SPEED = 0.3;
     private double currentSpeed = DEFAULT_BASE_SPEED;
+    private boolean[] futuresOn = new boolean[6];
 
     private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
@@ -154,7 +155,7 @@ public class RobotContainer {
         operatorController.leftTrigger().onTrue(algae.runMotorCommand(.7)).onFalse(algae.runMotorCommand(0));
         operatorController.rightTrigger().onTrue(algae.runMotorCommand(-.7)).onFalse(algae.runMotorCommand(0));
         // Elevator
-        operatorController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
+        operatorController.povRight().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
         operatorController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
         operatorController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
         operatorController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
@@ -165,7 +166,10 @@ public class RobotContainer {
 
 
         operatorController.povLeft().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.BARGE_REAL));
-
+        // cool reefstate thingy
+        operatorController.rightBumper().onTrue(armistice.changeFutureArmisticePosition(1));
+        operatorController.rightBumper().onTrue(armistice.changeFutureArmisticePosition(-1));
+        operatorController.back().onTrue(armistice.runToFutureArmisticePositionCommand());
     }
 
     // public void resetArmPid() {
