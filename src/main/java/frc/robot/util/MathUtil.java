@@ -15,6 +15,10 @@ public class MathUtil {
             return value;
     }
 
+    public static final <T extends Number> boolean inRange(T value, T minInc, T maxInc) {
+        return value.doubleValue() >= minInc.doubleValue() && value.doubleValue() <= maxInc.doubleValue();
+    }
+
     public static final int boolToInt(boolean b) {
         return b ? 1 : 0;
     }

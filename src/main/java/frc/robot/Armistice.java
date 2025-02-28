@@ -14,9 +14,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.arm.*;
-import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
-import frc.robot.subsystems.elevator.*;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmConstants;
+import frc.robot.subsystems.arm.ArmIOCanEncoderTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.MathUtil;
 import frc.robot.util.RobotSim;
 import frc.robot.util.SudoSubsystem;
@@ -27,12 +29,11 @@ public class Armistice extends SudoSubsystem {
     }
 
     @AutoLogOutput
-    private boolean isInDanger = true;
-
-    @AutoLogOutput
     private double elevatorTargetInches = ArmisticePositions.STOW.elevatorPositionInches;
     @AutoLogOutput
     private double armTargetRad = ArmisticePositions.STOW.armPositionRad;
+
+    private static final double[] ARM_SAFE_RANGE = new double[] { 5, 30 };
 
     @AutoLogOutput
     private double armCharVoltage = 0;
@@ -73,11 +74,6 @@ public class Armistice extends SudoSubsystem {
 
     public void getCanMagPosition() {
         disarm.getCanMagPosition();
-        ;
-    }
-
-    public ArmSafetyData getArmSafetyData() {
-        return isInDanger ? ArmConstants.SAFETY_RANGE : ArmConstants.UNSAFE_RANGE;
     }
 
     public void runArmVbus(double vbus) {
@@ -96,17 +92,6 @@ public class Armistice extends SudoSubsystem {
     public Command sysIDCommandElevator(BooleanSupplier dynamic, Supplier<Direction> direction) {
         return summit.sysIDTest(dynamic.getAsBoolean(), direction.get());
     }
-
-    public double safeClampRange(double inputRad) {
-        isInDanger = (summit.getCurrentPosition() < ElevatorConstants.SAFETY_THRESHOLD
-                || summit.getTargetPosition() < ElevatorConstants.SAFETY_THRESHOLD);
-        double[] range = getArmSafetyData().range();
-        return MathUtil.clamp(inputRad, range[0], range[1]);
-    }
-
-    // public void resetArmPid() {
-    // disarm.pidReset();
-    // }
 
     public Command runArmVoltageForChar() {
         return Commands.runOnce(() -> disarm.runMotor(Volts.of(armCharVoltage)), disarm);
@@ -146,15 +131,14 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Command changeFutureArmisticePosition(int delta) {
-        return Commands.runOnce(() ->
-            futureArmisticePositions = switch (futureArmisticePositions) {
-                case LOLLIPOP_ACQUIRE -> ArmisticePositions.L2;
-                case L2 -> ArmisticePositions.L3;
-                case L3 -> ArmisticePositions.L4;
-                case L4 -> ArmisticePositions.BARGE_REAL;
-                case BARGE_REAL -> ArmisticePositions.LOLLIPOP_ACQUIRE;
-                default -> ArmisticePositions.STOW;
-            });
+        return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
+            case LOLLIPOP_ACQUIRE -> ArmisticePositions.L2;
+            case L2 -> ArmisticePositions.L3;
+            case L3 -> ArmisticePositions.L4;
+            case L4 -> ArmisticePositions.BARGE_REAL;
+            case BARGE_REAL -> ArmisticePositions.LOLLIPOP_ACQUIRE;
+            default -> ArmisticePositions.STOW;
+        });
     }
 
     public BooleanSupplier armAndElevatorAtTarget() {
@@ -165,18 +149,6 @@ public class Armistice extends SudoSubsystem {
         return new SimData(summit.getSimPos(), disarm.getSimAngle());
     }
 
-    public boolean isInDanger() {
-        return isInDanger;
-    }
-
-    public BooleanSupplier isInDangerSupplier() {
-        return this::isInDanger;
-    }
-
-    public void setInDanger(boolean isInDanger) {
-        this.isInDanger = isInDanger;
-    }
-
     public double getElevatorPosition() {
         return summit.getCurrentPosition();
     }
@@ -185,9 +157,35 @@ public class Armistice extends SudoSubsystem {
         return new SubsystemBase[] { disarm, summit };
     }
 
+    public boolean elevatorIsSafe() {
+        return MathUtil.inRange(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]);
+    }
+
+    public Command stageArm(ArmisticePositions position) {
+        return Commands.runOnce(() -> armTargetRad = position.armPositionRad)
+                .andThen(Commands.waitUntil(this::disarmAtRealTarget));
+    }
+
+    // holding arm while compensatively moving elevator updates arm internal target
+    // pos; therefore this
+    public boolean disarmAtRealTarget() {
+        return Math.abs(armTargetRad - disarm.getCurrentPosition()) <= ArmConstants.PID_TOLERANCE;
+    }
+
+    public Command runElevator(ArmisticePositions position) {
+        return Commands.runOnce(() -> elevatorTargetInches = position.elevatorPositionInches)
+                .andThen(Commands.waitUntil(summit.atTargetPosition()));
+    }
+
     @Override
     public void periodic() {
-        disarm.runToPosition(safeClampRange(armTargetRad));
+        if (elevatorIsSafe())
+            disarm.runToPosition(armTargetRad);
+        else {
+            if (!disarmAtRealTarget())
+                elevatorTargetInches = MathUtil.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]);
+            disarm.runToPosition(disarm.getCurrentPosition());
+        }
         summit.runToPosition(elevatorTargetInches);
     }
 }

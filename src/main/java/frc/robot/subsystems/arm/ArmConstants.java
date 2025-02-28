@@ -22,9 +22,6 @@ public class ArmConstants {
     public static final double GEAR_RATIO = 79.347;
     public static final double PID_TOLERANCE = 1;
 
-    public static final record ArmSafetyData(double[] range, boolean enableContinuousInput) {
-    }
-
     public static final boolean USE_FOC = true;
 
     public static final class Sim {
@@ -57,9 +54,6 @@ public class ArmConstants {
     public static final double PI_1_2 = 0.5 * Math.PI;
     public static final double PI_3_2 = 1.5 * Math.PI;
     public static final double PI_2 = 2 * Math.PI;
-
-    public static final ArmSafetyData UNSAFE_RANGE = new ArmSafetyData(new double[] { 0, PI_2 }, false);
-    public static final ArmSafetyData SAFETY_RANGE = new ArmSafetyData(new double[] { 0, PI_2 }, false);
 
     public static final PIDStruct pidConfig = new PIDStruct(2, 0, 0, 80, 160, 320, 0, 0, 0.05, 0.15, 0, 0);
     public static final PIDStruct simPidConfig = new PIDStruct(16, 0, 0, PI_2, 2 * PI_2, 0, 0, 0, 0.2, 0.5, 0, 0);

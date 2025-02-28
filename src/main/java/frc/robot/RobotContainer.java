@@ -30,7 +30,12 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.limelight.Limelight;
+import frc.robot.subsystems.limelight.LimelightConstants;
+import frc.robot.subsystems.limelight.LimelightIO;
+import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.util.RobotSim;
+import frc.robot.util.VisionUtil;
 
 public class RobotContainer {
     public enum LimiterState {
@@ -43,6 +48,8 @@ public class RobotContainer {
     private final CoralManipulator coral = new CoralManipulator(new CoralManipulatorIOTalonFX());
     private final AlgaeManipulator algae = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
     private final Climber climber = new Climber(new ClimberIOTalonFX());
+    // private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, null));
+    private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, null));
 
     private static final double SLOW_SPEED = 0.07;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -78,6 +85,19 @@ public class RobotContainer {
         autonChooser.addDefaultOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
         // Set up SysId routines
         configureBindings();
+    }
+
+        private void addVisionMeasurement(LoggablePoseEstimate poseEstimate) {
+        drive.addVisionMeasurement(poseEstimate.pose(), poseEstimate.timestampSeconds(),
+                LimelightConstants.GOOD_STD_DEVS);
+    }
+
+    public void addMeasurements() {
+        VisionUtil.addMeasurements(this::addVisionMeasurement, drive);
+    }
+
+    public Command addMeasurementsCommand() {
+        return VisionUtil.addMeasurementsCommand(this::addVisionMeasurement, drive);
     }
 
     public final void simCallback() {
