@@ -10,13 +10,17 @@ import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.subsystems.coral.CoralManipulator;
 import frc.robot.subsystems.drive.Drive;
 
- // Driving away without cancel causes next time to start command run in Pid loop and causes issues
 public class AutoSequencing {
     public static final Command autoScoreReef(Drive drive, Armistice armistice, CoralManipulator coral,
             Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> scorePosition) {
-                return drive.pathfindToPose(reefPosition.get()).andThen(armistice.runToPositionCommand(scorePosition.get())
-                .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget())).andThen(Commands.waitSeconds(.3)).andThen(coral.runMotorCommand(-0.8))
-                .andThen(Commands.waitSeconds(0.3)).andThen(coral.runMotorCommand(0))
-                .alongWith(drive.translateToPositionWithPID(reefPosition.get())));
+        return drive.pathfindToPose(reefPosition.get())
+                .alongWith(Commands.waitUntil(drive.readyForArm())
+                        .andThen(armistice.runToPositionNoWait(scorePosition.get())))
+                .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(.3))
+                        .andThen(coral.runMotorCommand(-0.8))
+                        .andThen(Commands.waitSeconds(0.3))
+                        .andThen(coral.runMotorCommand(0)
+                                .alongWith(armistice.runToPositionCommand(() -> ArmisticePositions.STOW)))
+                        .raceWith(drive.translateToPositionWithPID(reefPosition.get())));
     }
-    }
+}

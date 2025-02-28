@@ -3,10 +3,12 @@ package frc.robot.subsystems.drive;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Comparator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.stream.IntStream;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -31,6 +33,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -97,6 +100,9 @@ public class Drive extends SubsystemBase {
     private final SysIdRoutine sysId;
     private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.",
             AlertType.kError);
+
+    @AutoLogOutput(key = "Odometry/ClosestReef")
+    private Pose2d closestReef = new Pose2d();
 
     private final PIDController pidLineup = new PIDController(2, 0, 0), angleController = new PIDController(4, 0, 0);
 
@@ -177,6 +183,7 @@ public class Drive extends SubsystemBase {
         rotPid = new ProfiledPIDController(.06, 0, 0, new TrapezoidProfile.Constraints(90, 180));
         pidLineup.setTolerance(0.012);
         angleController.setTolerance(Units.degreesToRadians(1));
+        angleController.enableContinuousInput(0, 2 * Math.PI);
     }
 
     @Override
@@ -204,6 +211,7 @@ public class Drive extends SubsystemBase {
 
         // Update odometry
         double[] sampleTimestamps = modules[0].getOdometryTimestamps(); // All signals are sampled together
+        closestReef = closestReefPose(true);
         int sampleCount = sampleTimestamps.length;
         for (int i = 0; i < sampleCount; i++) {
             // Read wheel positions and deltas from each module
@@ -242,9 +250,27 @@ public class Drive extends SubsystemBase {
         }
     }
 
+    public Pose2d closestReefPose(boolean right) {
+        var pose = IntStream.concat(IntStream.range(17, 23), IntStream.range(6, 12))
+                .mapToObj(i -> Limelight.field.getTagPose(i).get().toPose2d())
+                .sorted(Comparator
+                        .comparingDouble(p -> p.getTranslation().getDistance(getPose().getTranslation())))
+                .findFirst().get()
+                .transformBy(new Transform2d(Units.inchesToMeters(18),
+                        (right ? Constants.TAG_TO_BRANCH_OFFSET_M : -Constants.TAG_TO_BRANCH_OFFSET_M)
+                                - Units.inchesToMeters(9.25),
+                        Rotation2d.kZero));
+
+        return new Pose2d(pose.getTranslation(), pose.getRotation().plus(Rotation2d.kCW_Pi_2));
+    }
+
     public Command pathfindToPose(Pose2d pose) {
-        return AutoBuilder.pathfindToPose(pose, new PathConstraints(4, 3
-        , 1 * Math.PI, 2 * Math.PI));
+        return AutoBuilder.pathfindToPose(pose, new PathConstraints(2, 2, 1 * Math.PI, 2 * Math.PI));
+    }
+
+    public BooleanSupplier readyForArm() {
+        return () -> getPose().getTranslation()
+                .getDistance(closestReef.getTranslation()) < Constants.ARM_READY_AUTO_SCORE_RADIUS;
     }
 
     @SuppressWarnings("removal") // PIDCommand is deprecated
@@ -268,10 +294,17 @@ public class Drive extends SubsystemBase {
                             MathUtil.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
                                     PID_TRANSLATION_SPEED_MPS),
                             MathUtil.clamp(
-                                    angleController.calculate(MathUtil.printAndReturn(driveYaw.getAsDouble(), "Measure: ", ""), MathUtil.printAndReturn(pose.getRotation().getRadians(), "Setpoint: ", "")),
+                                    angleController.calculate(
+                                            MathUtil.printAndReturn(driveYaw.getAsDouble(), "Measure: ", ""),
+                                            MathUtil.printAndReturn(pose.getRotation().getRadians(), "Setpoint: ",
+                                                    "")),
                                     -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
                             getRotation()));
-                }, this);
+                }, this).finallyDo(i -> {
+                    pidLineup.reset();
+                    angleController.reset();
+                    stop();
+                });
     }
 
     public DoubleSupplier get2dFilteredX() {

@@ -11,10 +11,15 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.arm.*;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmConstants.ArmSafetyData;
-import frc.robot.subsystems.elevator.*;
+import frc.robot.subsystems.arm.ArmIOSparkEncoderTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.MathUtil;
 import frc.robot.util.RobotSim;
 import frc.robot.util.SudoSubsystem;
@@ -107,6 +112,10 @@ public class Armistice extends SudoSubsystem {
         }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
     }
 
+    public Command runToPositionCommand(Supplier<ArmisticePositions> position) {
+        return runToPositionCommand(position.get());
+    }
+
     public Command runToPositionNoWait(ArmisticePositions position) {
         return Commands.runOnce(() -> {
             elevatorTargetInches = position.elevatorPositionInches;
@@ -123,6 +132,18 @@ public class Armistice extends SudoSubsystem {
 
     public BooleanSupplier armAndElevatorAtTarget() {
         return () -> disarm.atTargetPosition().getAsBoolean() && summit.atTargetPosition().getAsBoolean();
+    }
+
+    public Arm getArm() {
+        return disarm;
+    }
+
+    public Elevator getElevator() {
+        return summit;
+    }
+
+    public Subsystem[] getSubsystems() {
+        return new Subsystem[] { disarm, summit };
     }
 
     public SimData getSimData() {

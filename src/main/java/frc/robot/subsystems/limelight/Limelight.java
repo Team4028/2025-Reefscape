@@ -21,7 +21,7 @@ public class Limelight extends SubsystemBase {
     private final LimelightIO io;
     private final LimelightIOInputsAutoLogged inputs = new LimelightIOInputsAutoLogged();
     private final String name;
-    private static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape); // 6-11;
+    public static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape); // 6-11;
                                                                                                                    // 17-22
 
     public Limelight(LimelightIO io) {
@@ -111,7 +111,7 @@ public class Limelight extends SubsystemBase {
             return LoggablePoseEstimate.empty();
         }
 
-        if (vRes.rawFiducials()[0].distToCamera() > 2)  //was 2 meters, made it 3 instead.
+        if (vRes.rawFiducials()[0].distToCamera() > 3)  //was 2 meters, made it 3 instead.
         {
             return LoggablePoseEstimate.empty();
         }
