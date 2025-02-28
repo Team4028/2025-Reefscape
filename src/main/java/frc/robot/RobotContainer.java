@@ -41,7 +41,11 @@ public class RobotContainer {
     private final CoralManipulator coral = new CoralManipulator(new CoralManipulatorIOTalonFX());
     private final AlgaeManipulator algae = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
     private final Climber climber = new Climber(new ClimberIOTalonFX());
+
+    private static final double SLOW_SPEED = 0.07;
     private static final double DEFAULT_BASE_SPEED = 0.3;
+    private double currentSpeed = DEFAULT_BASE_SPEED;
+
     private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
             new ModuleIOTalonFX(TunerConstants.FrontLeft),
@@ -51,27 +55,23 @@ public class RobotContainer {
     });
 
     // add actual limits
-    private final SlewRateLimiter xLimiterL4, xLimiterL3, xLimiterL2, xLimiterL1, yLimiterL4, yLimiterL3, yLimiterL2,
-            yLimiterL1, thetaLimiterL4, thetaLimiterL3, thetaLimiterL2, thetaLimiterL1;
+    private final SlewRateLimiter xLimiterL4, yLimiterL4,thetaLimiterL4, xLimiter, yLimiter,thetaLimiter;
 
     private final CommandXboxController driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
+    private final CommandXboxController operatorController = new CommandXboxController(
+            OperatorConstants.kOperatorControllerPort);
 
     public RobotContainer() {
-        xLimiterL4 = new SlewRateLimiter(0.3);
-        xLimiterL3 = new SlewRateLimiter(1.0);
-        xLimiterL2 = new SlewRateLimiter(2.0);
-        xLimiterL1 = new SlewRateLimiter(4);
+        xLimiterL4 = new SlewRateLimiter(1.0);
+        yLimiterL4 = new SlewRateLimiter(1.0);
+        thetaLimiterL4 = new SlewRateLimiter(1.0);
 
-        yLimiterL4 = new SlewRateLimiter(0.3);
-        yLimiterL3 = new SlewRateLimiter(1.0);
-        yLimiterL2 = new SlewRateLimiter(2.0);
-        yLimiterL1 = new SlewRateLimiter(4);
 
-        thetaLimiterL4 = new SlewRateLimiter(0.5);
-        thetaLimiterL3 = new SlewRateLimiter(3.0);
-        thetaLimiterL2 = new SlewRateLimiter(3.0);
-        thetaLimiterL1 = new SlewRateLimiter(3.0);
+        xLimiter = new SlewRateLimiter(4.0);
+        yLimiter = new SlewRateLimiter(4.0);
+        thetaLimiter = new SlewRateLimiter(4.0);
+     
 
         autonChooser.addDefaultOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
         // Set up SysId routines
@@ -91,65 +91,33 @@ public class RobotContainer {
     private void configureBindings() {
 
         // driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
-
-        // // A - Elevator
-        // driverController.a().and(driverController.rightBumper())
-        // .onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(.2),
-        // armistice.getSubsystems()))
-        // .onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0),
-        // armistice.getSubsystems()));
-        // driverController.a().and(driverController.leftBumper())
-        // .onTrue(Commands.runOnce(() -> armistice.runElevatorVbus(-.2),
-        // armistice.getSubsystems()))
-        // .onFalse(Commands.runOnce(() -> armistice.runElevatorVbus(0),
-        // armistice.getSubsystems()));
-        // // B - Arm
-        // driverController.b().and(driverController.rightBumper()).onTrue(Commands.runOnce(()
-        // -> armistice.runArmVbus(.2),
-        // armistice.getSubsystems()))
-        // .onFalse(Commands.runOnce(() -> armistice.runArmVbus(0),
-        // armistice.getSubsystems()));
-        // driverController.b().and(driverController.leftBumper()).onTrue(Commands.runOnce(()
-        // -> armistice.runArmVbus(-.2),
-        // armistice.getSubsystems()))
-        // .onFalse(Commands.runOnce(() -> armistice.runArmVbus(0),
-        // armistice.getSubsystems()));
-        driverController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
-        driverController.y().and(driverController.back().negate())
-                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        driverController.b().and(driverController.back().negate())
-                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
-        driverController.x().and(driverController.back().negate())
-                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
-        driverController.a().and(driverController.back().negate())
-                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
-        driverController.y().and(driverController.back())
-                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.LOLLIPOP_ACQUIRE));
-        driverController.b().and(driverController.back())
-                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L2));
-        driverController.x().and(driverController.back())
-                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L3));
-        driverController.a().and(driverController.back())
-                .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.BARGE_REAL));
+        // driverController.y().and(driverController.back())
+        // .onTrue(armistice.runToPositionCommand(() ->
+        // ArmisticePositions.LOLLIPOP_ACQUIRE));
+        // driverController.a().and(driverController.back())
+        // .onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.BARGE_REAL));
         driverController.povUp().onTrue(armistice.nudgeCommand(0.5, 0.0));
         driverController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0.0));
         driverController.povRight().onTrue(armistice.nudgeCommand(0, 0.1));
         driverController.povLeft().onTrue(armistice.nudgeCommand(0, -0.1));
-        driverController.back().and(driverController.leftTrigger()).onTrue(algae.runMotorCommand(0.5))
-                .onFalse(algae.runMotorCommand(0));
-        driverController.back().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.9))
-                .onFalse(algae.runMotorCommand(0));
-        driverController.leftTrigger().and(driverController.back().negate()).onTrue(coral.runMotorCommand(0.45))
+
+        // changed
+        driverController.leftTrigger().onTrue(coral.runMotorCommand(0.45))
                 .onFalse(coral.runMotorCommand(0));
-        driverController.leftBumper().and(driverController.back().negate()).onTrue(coral.runMotorCommand(-0.55))
+        driverController.leftBumper().onTrue(coral.runMotorCommand(-0.55))
                 .onFalse(coral.runMotorCommand(0));
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         drive,
-                        () -> scaleDriverController(() -> driverController.getLeftY(), LimiterState.X),
-                        () -> scaleDriverController(() -> driverController.getLeftX(), LimiterState.Y),
+                        () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
+                        () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 LimiterState.THETA)));
+
+        // This acts as a speedy go SLOW. If you want it to be a speedy go fast, make it
+        driverController.rightBumper().onTrue(Commands.runOnce(()
+        -> currentSpeed = SLOW_SPEED)).onFalse(Commands.runOnce(() -> currentSpeed =
+        DEFAULT_BASE_SPEED));
 
         // Reset gyro to 0° when start button is pressed
         driverController.start().onTrue(
@@ -175,14 +143,29 @@ public class RobotContainer {
         // driverController.x().and(driverController.rightBumper()).onTrue(coral.runMotorCommand(0.2)).onFalse(coral.runMotorCommand(0));
         // driverController.x().and(driverController.leftBumper()).onTrue(coral.runMotorCommand(-0.2)).onFalse(coral.runMotorCommand(0));
         // // Y - Algae
-        // driverController.y().and(driverController.rightBumper()).onTrue(algae.runMotorCommand(0.2)).onFalse(algae.runMotorCommand(0));
-        // driverController.y().and(driverController.leftBumper()).onTrue(algae.runMotorCommand(-0.2)).onFalse(algae.runMotorCommand(0));
 
         // Back - Climber
         // driverController.back().and(driverController.rightBumper()).onTrue(climber.runVbusCommand(0.2))
         // .onFalse(climber.runVbusCommand(0));
         // driverController.back().and(driverController.leftBumper()).onTrue(climber.runVbusCommand(-0.2))
         // .onFalse(climber.runVbusCommand(0));
+
+        // Operator Controller
+        operatorController.leftTrigger().onTrue(algae.runMotorCommand(.7)).onFalse(algae.runMotorCommand(0));
+        operatorController.rightTrigger().onTrue(algae.runMotorCommand(-.7)).onFalse(algae.runMotorCommand(0));
+        // Elevator
+        operatorController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
+        operatorController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
+        operatorController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
+        operatorController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
+        operatorController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+
+        operatorController.povUp().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L2));
+        operatorController.povDown().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L3));
+
+
+        operatorController.povLeft().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.BARGE_REAL));
+
     }
 
     // public void resetArmPid() {
@@ -197,55 +180,43 @@ public class RobotContainer {
         var a = armistice.getElevatorPosition();
         if (a > 40) {
             return xLimiterL4.calculate(input);
-        } else if (a >= 30 && a < 40) {
-            return xLimiterL3.calculate(input);
-        } else if (a >= 8 && a <= 30) {
-            return xLimiterL2.calculate(input);
         } else {
-            return xLimiterL1.calculate(input);
+            return xLimiter.calculate(input);
         }
+      
     }
 
     public double chooseYLimiter(double input) {
         var a = armistice.getElevatorPosition();
         if (a > 40) {
             return yLimiterL4.calculate(input);
-        } else if (a >= 30 && a < 40) {
-            return yLimiterL3.calculate(input);
-        } else if (a >= 8 && a <= 30) {
-            return yLimiterL2.calculate(input);
         } else {
-            return yLimiterL1.calculate(input);
+            return yLimiter.calculate(input);
         }
     }
-    
+
     public double chooseThetaLimiter(double input) {
         var a = armistice.getElevatorPosition();
         if (a > 40) {
             return thetaLimiterL4.calculate(input);
-        } else if (a >= 30 && a < 40) {
-            return thetaLimiterL3.calculate(input);
-        } else if (a >= 8 && a <= 30) {
-            return thetaLimiterL2.calculate(input);
         } else {
-            return thetaLimiterL1.calculate(input);
+            return thetaLimiter.calculate(input);
         }
     }
 
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {
-        double input = controllerInput.getAsDouble() * (DEFAULT_BASE_SPEED)
-                + (driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED));
+        double input = controllerInput.getAsDouble() * ((DEFAULT_BASE_SPEED)
+                + (driverController.getRightTriggerAxis() * (1 - DEFAULT_BASE_SPEED)));
         switch (type) {
             case X:
                 return chooseXLimiter(input);
             case Y:
                 return chooseYLimiter(input);
             case THETA:
-                return chooseXLimiter(input);
+                return chooseThetaLimiter(input);
             default:
                 return 0.0;
         }
-       
     }
 
 }
