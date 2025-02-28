@@ -205,7 +205,7 @@ public class RobotContainer {
                 // drive)
                 // .ignoringDisable(true));
 
-                driverController.y().onTrue(Commands.runOnce(() -> algae.toggleHasAlgae()));
+                driverController.y().onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.PURPLE, StripState.BREATH)));
                 driverController.x().onTrue(Commands.runOnce(() -> coralManipulator.toggleHasCoral()));
                 driverController.a().onTrue(Commands.runOnce(() -> aprilTagCount = candle.toggleAprilTags()));
                 driverController.b().onTrue(Commands.runOnce(() -> coralManipulatorStateTracker.toggleFeed()));

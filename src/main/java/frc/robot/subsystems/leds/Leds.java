@@ -30,6 +30,11 @@ public class Leds extends SubsystemBase {
     private int canInd = 0;
     private int stripLength = 60;
     private int stripInd = 8;
+    private boolean inhale = true;
+    private int breathPoint = 0;
+    private int breathRed = 0;
+    private int breathBlue = 0;
+    private int breathGreen = 0;
 
     public enum Color {
         RED(254, 0, 0),
@@ -65,6 +70,7 @@ public class Leds extends SubsystemBase {
 
     public enum StripState {
         FLASH,
+        BREATH,
         OFF;
     }
 
@@ -360,7 +366,8 @@ public class Leds extends SubsystemBase {
             case PINK -> stripColor = Color.WHITE;
             case WHITE -> stripColor = Color.OFF;
             case OFF -> stripColor = Color.RED;
-            default -> {}
+            default -> {
+            }
         }
     }
 
@@ -426,6 +433,26 @@ public class Leds extends SubsystemBase {
                     setLedsColor(stripInd, stripLength, this.stripColor.r, this.stripColor.g, this.stripColor.b);
                 } else {
                     setLedsColor(stripInd, stripLength, 0, 0, 0);
+                }
+                break;
+            case BREATH:
+                breathRed = Math.round((this.stripColor.r * breathPoint) / 45);
+                breathGreen = Math.round((this.stripColor.g * breathPoint) / 45);
+                breathBlue = Math.round((this.stripColor.b * breathPoint) / 45);
+                if (inhale) {
+                    if (breathPoint <= 45) {
+                        setLedsColor(stripInd, stripLength, breathRed, breathGreen, breathBlue);
+                        breathPoint += 1;
+                    } else {
+                        inhale = false;
+                    }
+                } else {
+                    if (breathPoint >= 0) {
+                        setLedsColor(stripInd, stripLength, breathRed, breathGreen, breathBlue);
+                        breathPoint -= 1;
+                    } else {
+                        inhale = true;
+                    }
                 }
                 break;
             case OFF:
