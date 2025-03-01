@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,26 +21,23 @@ public final class Constants {
     public static final double ARM_READY_AUTO_SCORE_RADIUS = 1.5;
     public static final double SCORING_SIDE_RADIUS_ROBOT_IN = 18;
     public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = 8.25;
+    public static final double CORAL_STATION_LEFT_ROTATION_DEG = 135;
+    public static final double CORAL_STATION_RIGHT_ROTATION_DEG = 225;
 
-    public static final Map<Integer, String> reefTagNames = Map.of(
-        6, "8oC",
-        7, "6oC",
-        8, "4oC",
-        9, "2oC",
-        10, "12oC",
-        11, "10oC"
-    );
-
-    static {
-        reefTagNames.putAll(Map.of(
-            17, "4oC",
-        18, "6oC",
-        19, "8oC",
-        20, "10oC",
-        21, "12oC",
-        22, "2oC"
-        ));
-    }
+    public static final Map<Integer, String> reefTagNames = new HashMap<>(){{
+            put(6, "8oC");
+            put(7, "6oC");
+            put(8, "4oC");
+            put(9, "2oC");
+            put(10, "12oC");
+            put(11, "10oC");
+            put(17, "4oC");
+            put(18, "6oC");
+            put(19, "8oC");
+            put(20, "10oC");
+            put(21, "12oC");
+            put(22, "2oC");
+        }};
 
     public static class OperatorConstants {
         public static final int kDriverControllerPort = 0;

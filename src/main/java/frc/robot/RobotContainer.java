@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 
@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -33,7 +34,9 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.subsystems.limelight.LimelightConstants;
+import frc.robot.subsystems.limelight.LimelightIO;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
@@ -51,15 +54,11 @@ public class RobotContainer {
     private final Climber climber = new Climber(new ClimberIOTalonFX());
     // private final Limelight ll4ii = new Limelight(new
     // LimelightIO("limelight-fourii", true, null));
-    // private final Limelight ll4iii = new Limelight(new
-    // LimelightIO("limelight-fouriii", true, Optional.empty()));
+    private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
 
     private static final double SLOW_SPEED = 0.07;
     private static final double DEFAULT_BASE_SPEED = 0.3;
     private double currSpeed = DEFAULT_BASE_SPEED;
-
-    @AutoLogOutput
-    private boolean[] futuresOn = new boolean[5];
 
     @AutoLogOutput
     private boolean coralMode = true;
@@ -108,18 +107,17 @@ public class RobotContainer {
     public Command addMeasurementsCommand() {
         return VisionUtil.addMeasurementsCommand(this::addVisionMeasurement, drive);
     }
-    
-    public final void updateDashboardFutureStates() {
-        int index = switch(armistice.getFutureArmisticePositions()) {
-            case L2 -> 1;
-            case L3 -> 2;
-            case L4 -> 3;
-            case BARGE_REAL -> 4;
-            default -> 0;
-        };
 
-        Arrays.fill(futuresOn, false);
-        futuresOn[index] = true;
+    public void periodicLL4IMU(boolean on) {
+        ll4iii.setIMUInternal(on);
+    }
+
+    public void logLLPoses() {
+        VisionUtil.logPoses(drive);
+    }
+
+    public void seedll4IMU() {
+        ll4iii.seedLLSolverYaw(drive.getPose().getRotation().getDegrees());
     }
 
     public final void simCallback() {
@@ -133,20 +131,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
-
-        driverController.povUp().onTrue(armistice.nudgeCommand(0.5, 0.0));
-        driverController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0.0));
-        driverController.povRight().onTrue(armistice.nudgeCommand(0, 0.1));
-        driverController.povLeft().onTrue(armistice.nudgeCommand(0, -0.1));
-
-        driverController.rightStick().onTrue(drive.runOnce(drive::stop));
-
-        driverController.leftTrigger().onTrue(coral.runMotorCommand(0.45))
-                .onFalse(coral.runMotorCommand(0));
-        driverController.leftBumper().onTrue(coral.runMotorCommand(-0.40))
-                .onFalse(coral.runMotorCommand(0));
-
         driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
 
@@ -158,49 +142,45 @@ public class RobotContainer {
                         drive)
                         .ignoringDisable(true));
 
-        // driverController.a().onTrue(armistice.runArmVoltageForChar());
-        // driverController.rightBumper().onTrue(armistice.deltaArmCharVolts(0.1));
-        // driverController.leftBumper().onTrue(armistice.deltaArmCharVolts(-0.1));
-        // driverController.x().and(driverController.rightBumper()).whileTrue(armistice.sysIDCommandElevator(()
-        // -> true, () -> Direction.kForward));
-        // driverController.x().and(driverController.leftBumper()).whileTrue(armistice.sysIDCommandElevator(()
-        // -> true, () -> Direction.kReverse));
-        // driverController.y().and(driverController.rightBumper()).whileTrue(armistice.sysIDCommandElevator(()
-        // -> false, () -> Direction.kForward));
-        // driverController.y().and(driverController.leftBumper()).whileTrue(armistice.sysIDCommandElevator(()
-        // -> false, () -> Direction.kReverse));
+        driverController.rightStick().onTrue(drive.runOnce(drive::stop));
 
-        // =================== //
-        /* OPERATOR CONTROLLER */
-        // =================== //
-
-        // Algae
-        operatorController.leftTrigger().onTrue(algae.runMotorCommand(.7)).onFalse(algae.runMotorCommand(0));
-        operatorController.rightTrigger().onTrue(algae.runMotorCommand(-.7)).onFalse(algae.runMotorCommand(0));
-
-        // Elevator
-        operatorController.rightBumper().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW));
-        operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.ACQUIRE));
-        operatorController.y().onTrue(armistice.runToPositionCommand(ArmisticePositions.L4));
-        operatorController.b().onTrue(armistice.runToPositionCommand(ArmisticePositions.L3));
-        operatorController.a().onTrue(armistice.runToPositionCommand(ArmisticePositions.L2));
-
-        // Reef Algae, Barge, Lollipop Misc.
-        operatorController.povUp().onTrue(armistice.runToPositionCommand(ArmisticePositions.BARGE_REAL));
-        operatorController.povDown().onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLLIPOP_ACQUIRE));
-        operatorController.povLeft().onTrue(armistice.runToPositionCommand(ArmisticePositions.ALGAE_AQUIRE_L2));
-        operatorController.povRight().onTrue(armistice.runToPositionCommand(ArmisticePositions.ALGAE_AQUIRE_L3));
-        // cool reefstate thingy
-        operatorController.rightBumper().onTrue(armistice.changeFutureArmisticePosition(1));
-        operatorController.leftBumper().onTrue(armistice.changeFutureArmisticePosition(-1));
-        operatorController.back().onTrue(armistice.runToFutureArmisticePositionCommand());
+        driverController.leftTrigger().onTrue(coral.runMotorCommand(-.45)).onFalse(coral.runMotorCommand(0));
+        driverController.leftBumper().onTrue(coral.runMotorCommand(-.40)).onFalse(coral.runMotorCommand(0));
+        // operator
+        operatorController.start().onTrue(Commands.runOnce(() -> coralMode = !coralMode));
+        operatorController.rightBumper().onTrue(
+                Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands.defer(this::runToClosestReef,
+                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+        operatorController.leftBumper().onTrue(
+                Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(this::runToClosestReef,
+                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+        operatorController.leftTrigger().onTrue(algae.runMotorCommand(0.7)).onFalse(algae.runMotorCommand(0));
+        operatorController.leftBumper().onTrue(algae.runMotorCommand(-0.7)).onFalse(algae.runMotorCommand(0));
+        operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5).onTrue(climber.runVbusCommand(0.2));
+        operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, -0.5)
+                .and(operatorController.axisLessThan(XboxController.Axis.kLeftY.value, 0.5))
+                .onTrue(climber.runVbusCommand(0));
+        operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5).onTrue(climber.runVbusCommand(0.2));
+        operatorController.povUp().onTrue(armistice.incFutureArmisticePosition());
+        operatorController.povDown().onTrue(armistice.decFutureArmisticePosition());
+        operatorController.y().onTrue(armistice.runToPositionCommand(ArmisticePositions.ACQUIRE));
+        operatorController.a().onTrue(armistice.runToFutureArmisticePositionCommand());
+        operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW));
+        operatorController.axisGreaterThan(XboxController.Axis.kRightX.value, 0.5)
+                .onTrue(DriveCommands.joystickDriveAtAngle(drive,
+                        () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
+                        () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
+                        () -> Rotation2d.fromDegrees(Constants.CORAL_STATION_RIGHT_ROTATION_DEG)));
+        operatorController.axisLessThan(XboxController.Axis.kRightX.value, -0.5)
+                .onTrue(DriveCommands.joystickDriveAtAngle(drive,
+                        () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
+                        () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
+                        () -> Rotation2d.fromDegrees(Constants.CORAL_STATION_LEFT_ROTATION_DEG)));
         // ==================== //
         /* EMERGENCY CONTROLLER */
         // ==================== //
         emergencyController.rightBumper().onTrue(climber.runVbusCommand(0.2)).onFalse(climber.runVbusCommand(0));
         emergencyController.leftBumper().onTrue(climber.runVbusCommand(-0.2)).onFalse(climber.runVbusCommand(0));
-        emergencyController.a().onTrue(Commands.defer(this::runToClosestReef,
-                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)));
 
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(

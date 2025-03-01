@@ -41,6 +41,8 @@ public class Armistice extends SudoSubsystem {
 
     @AutoLogOutput
     private double armCharVoltage = 0;
+
+    @AutoLogOutput
     private ArmisticePositions futureArmisticePositions = ArmisticePositions.L4;
 
     public static enum ArmisticePositions {
@@ -134,13 +136,24 @@ public class Armistice extends SudoSubsystem {
         return Commands.defer(() -> runToPositionCommand(futureArmisticePositions), Set.of(disarm, summit));
     }
 
-    public Command changeFutureArmisticePosition(int delta) {
+    public Command incFutureArmisticePosition() {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
             case LOLLIPOP_ACQUIRE -> ArmisticePositions.L2;
             case L2 -> ArmisticePositions.L3;
             case L3 -> ArmisticePositions.L4;
             case L4 -> ArmisticePositions.BARGE_REAL;
             case BARGE_REAL -> ArmisticePositions.LOLLIPOP_ACQUIRE;
+            default -> ArmisticePositions.STOW;
+        });
+    }
+
+    public Command decFutureArmisticePosition() {
+        return Commands.runOnce(() -> futureArmisticePositions = switch(futureArmisticePositions) {
+            case LOLLIPOP_ACQUIRE -> ArmisticePositions.BARGE_REAL;
+            case L2 -> ArmisticePositions.LOLLIPOP_ACQUIRE;
+            case L3 -> ArmisticePositions.L2;
+            case L4 -> ArmisticePositions.L3;
+            case BARGE_REAL -> ArmisticePositions.L4;
             default -> ArmisticePositions.STOW;
         });
     }

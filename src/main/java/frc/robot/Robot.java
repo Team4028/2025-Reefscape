@@ -15,6 +15,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -53,11 +54,18 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
+    public void robotInit() {
+        FollowPathCommand.warmupCommand().schedule();
+    }
+
+    @Override
     public void robotPeriodic() {
         if (DriverStation.isEnabled()) {
             SudoSubsystem.periodicAll();
         }
         CommandScheduler.getInstance().run();
+        robotContainer.logLLPoses();
+        robotContainer.seedll4IMU();
     }
 
     @Override
@@ -68,7 +76,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-     
+        robotContainer.periodicLL4IMU(false);
     }
 
     @Override
@@ -78,13 +86,12 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
-
-        // robotContainer.resetArmPid();
     }
 
     @Override
     public void autonomousPeriodic() {
-
+        robotContainer.periodicLL4IMU(true);
+        robotContainer.addMeasurements();
     }
 
     @Override
@@ -92,16 +99,15 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        // robotContainer.resetArmPid();
 
         // uncomment for use w/ sysid
-        SignalLogger.start();
+        // SignalLogger.start();
     }
 
     @Override
     public void teleopPeriodic() {
-
-        
+        robotContainer.periodicLL4IMU(true);
+        robotContainer.addMeasurements();        
     }
 
     @Override

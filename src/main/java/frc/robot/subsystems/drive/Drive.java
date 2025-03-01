@@ -115,7 +115,6 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput
     private String closestReefName = "";
 
-    @AutoLogOutput
     private boolean reefTargetIsRight = true;
 
     private final PIDController pidLineup = new PIDController(2, 0, 0), angleController = new PIDController(4, 0, 0);
@@ -198,6 +197,7 @@ public class Drive extends SubsystemBase {
         odometryLock.lock(); // Prevents odometry updates while reading data
         gyroIO.updateInputs(gyroInputs);
         Logger.processInputs("Drive/Gyro", gyroInputs);
+        Logger.recordOutput("Drive/ReefSide", reefTargetIsRight ? "R" : "L");
         for (var module : modules) {
             module.periodic();
         }
@@ -290,6 +290,7 @@ public class Drive extends SubsystemBase {
 
     public Pose2d closestReefPose() {
         AprilTag closestTag = Limelight.field.getTags().stream()
+                .filter(t -> Constants.reefTagNames.containsKey(t.ID))
                 .sorted(Comparator.comparingDouble(
                         t -> t.pose.toPose2d().getTranslation().getDistance(getPose().getTranslation())))
                 .findFirst().orElse(Limelight.field.getTags().get(0));
