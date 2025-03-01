@@ -4,11 +4,11 @@
 
 package frc.robot;
 
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 
-import javax.sql.rowset.spi.XmlWriter;
-
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -16,9 +16,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoSequencing;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
@@ -31,9 +33,7 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.subsystems.limelight.LimelightConstants;
-import frc.robot.subsystems.limelight.LimelightIO;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
@@ -49,13 +49,17 @@ public class RobotContainer {
     private final CoralManipulator coral = new CoralManipulator(new CoralManipulatorIOTalonFX());
     private final AlgaeManipulator algae = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
     private final Climber climber = new Climber(new ClimberIOTalonFX());
-    // private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, null));
-    // private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
+    // private final Limelight ll4ii = new Limelight(new
+    // LimelightIO("limelight-fourii", true, null));
+    // private final Limelight ll4iii = new Limelight(new
+    // LimelightIO("limelight-fouriii", true, Optional.empty()));
 
     private static final double SLOW_SPEED = 0.07;
     private static final double DEFAULT_BASE_SPEED = 0.3;
-    private double speedySpeed = DEFAULT_BASE_SPEED;
-    private boolean[] futuresOn = new boolean[6];
+    private double currSpeed = DEFAULT_BASE_SPEED;
+
+    @AutoLogOutput
+    private boolean[] futuresOn = new boolean[5];
 
     private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
@@ -72,7 +76,8 @@ public class RobotContainer {
             OperatorConstants.kDriverControllerPort);
     private final CommandXboxController operatorController = new CommandXboxController(
             OperatorConstants.kOperatorControllerPort);
-    private final CommandXboxController emergencyController = new CommandXboxController(OperatorConstants.kEmergencyControllerPort);
+    private final CommandXboxController emergencyController = new CommandXboxController(
+            OperatorConstants.kEmergencyControllerPort);
 
     public RobotContainer() {
         xLimiterL4 = new SlewRateLimiter(1.0);
@@ -88,7 +93,7 @@ public class RobotContainer {
         configureBindings();
     }
 
-        private void addVisionMeasurement(LoggablePoseEstimate poseEstimate) {
+    private void addVisionMeasurement(LoggablePoseEstimate poseEstimate) {
         drive.addVisionMeasurement(poseEstimate.pose(), poseEstimate.timestampSeconds(),
                 LimelightConstants.GOOD_STD_DEVS);
     }
@@ -99,6 +104,19 @@ public class RobotContainer {
 
     public Command addMeasurementsCommand() {
         return VisionUtil.addMeasurementsCommand(this::addVisionMeasurement, drive);
+    }
+    
+    public final void updateDashboardFutureStates() {
+        int index = switch(armistice.getFutureArmisticePositions()) {
+            case L2 -> 1;
+            case L3 -> 2;
+            case L4 -> 3;
+            case BARGE_REAL -> 4;
+            default -> 0;
+        };
+
+        Arrays.fill(futuresOn, false);
+        futuresOn[index] = true;
     }
 
     public final void simCallback() {
@@ -113,7 +131,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         // driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
-    
+
         driverController.povUp().onTrue(armistice.nudgeCommand(0.5, 0.0));
         driverController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0.0));
         driverController.povRight().onTrue(armistice.nudgeCommand(0, 0.1));
@@ -124,9 +142,9 @@ public class RobotContainer {
         driverController.leftBumper().onTrue(coral.runMotorCommand(-0.40))
                 .onFalse(coral.runMotorCommand(0));
 
-        driverController.rightBumper().onTrue(Commands.runOnce(() -> speedySpeed = SLOW_SPEED))
-                .onFalse(Commands.runOnce(() -> speedySpeed = DEFAULT_BASE_SPEED));
-            
+        driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
+                .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
+
         // Reset gyro to 0° when start button is pressed
         driverController.start().onTrue(
                 Commands.runOnce(
@@ -156,17 +174,17 @@ public class RobotContainer {
         operatorController.rightTrigger().onTrue(algae.runMotorCommand(-.7)).onFalse(algae.runMotorCommand(0));
 
         // Elevator
-        operatorController.rightBumper().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.STOW));
-        operatorController.x().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        operatorController.y().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L4));
-        operatorController.b().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L3));
-        operatorController.a().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.L2));
+        operatorController.rightBumper().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW));
+        operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.ACQUIRE));
+        operatorController.y().onTrue(armistice.runToPositionCommand(ArmisticePositions.L4));
+        operatorController.b().onTrue(armistice.runToPositionCommand(ArmisticePositions.L3));
+        operatorController.a().onTrue(armistice.runToPositionCommand(ArmisticePositions.L2));
 
         // Reef Algae, Barge, Lollipop Misc.
-        operatorController.povUp().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.BARGE_REAL));
-        operatorController.povDown().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.LOLLIPOP_ACQUIRE));
-        operatorController.povLeft().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L2));
-        operatorController.povRight().onTrue(armistice.runToPositionCommand(() -> ArmisticePositions.ALGAE_AQUIRE_L3));
+        operatorController.povUp().onTrue(armistice.runToPositionCommand(ArmisticePositions.BARGE_REAL));
+        operatorController.povDown().onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLLIPOP_ACQUIRE));
+        operatorController.povLeft().onTrue(armistice.runToPositionCommand(ArmisticePositions.ALGAE_AQUIRE_L2));
+        operatorController.povRight().onTrue(armistice.runToPositionCommand(ArmisticePositions.ALGAE_AQUIRE_L3));
         // cool reefstate thingy
         operatorController.rightBumper().onTrue(armistice.changeFutureArmisticePosition(1));
         operatorController.rightBumper().onTrue(armistice.changeFutureArmisticePosition(-1));
@@ -176,6 +194,8 @@ public class RobotContainer {
         // ==================== //
         emergencyController.rightBumper().onTrue(climber.runVbusCommand(0.2)).onFalse(climber.runVbusCommand(0));
         emergencyController.leftBumper().onTrue(climber.runVbusCommand(-0.2)).onFalse(climber.runVbusCommand(0));
+        emergencyController.a().onTrue(Commands.defer(this::runToClosestReef,
+                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)));
 
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
@@ -222,9 +242,14 @@ public class RobotContainer {
         }
     }
 
+    private Command runToClosestReef() {
+        return AutoSequencing.autoScoreReef(drive, armistice, coral, drive::closestReefPose,
+                () -> ArmisticePositions.L4);
+    }
+
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {
-        double input = controllerInput.getAsDouble() * ((speedySpeed)
-                + (driverController.getRightTriggerAxis() * (1 - speedySpeed)));
+        double input = controllerInput.getAsDouble() * ((currSpeed)
+                + (driverController.getRightTriggerAxis() * (1 - currSpeed)));
         switch (type) {
             case X:
                 return chooseXLimiter(input);

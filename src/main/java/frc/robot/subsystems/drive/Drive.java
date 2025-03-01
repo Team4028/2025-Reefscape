@@ -8,15 +8,20 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -26,20 +31,31 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.MathUtil;
+import frc.robot.util.VisionUtil;
 
+import java.util.Comparator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+import java.util.stream.IntStream;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -80,6 +96,24 @@ public class Drive extends SubsystemBase {
     private final SysIdRoutine sysId;
     private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.",
             AlertType.kError);
+
+    private boolean isFinished2dAlign = true;
+    private double filteredX, filteredY, filteredRot;
+    private final LinearFilter xFilter, yFilter, rotFilter;
+    private Limelight limelightLineupSource2d = null;
+    private final ProfiledPIDController xPid, yPid, rotPid;
+    private int ll2dLineupTagID = 0;
+
+    private static final double PID_TRANSLATION_SPEED_MPS = 0.75;
+    private static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
+
+    @AutoLogOutput(key = "Odometry/ClosestReef")
+    private Pose2d closestReef = new Pose2d();
+    
+    @AutoLogOutput
+    private boolean reefTargetIsRight = true;
+
+    private final PIDController pidLineup = new PIDController(2, 0, 0), angleController = new PIDController(4, 0, 0);
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();
@@ -142,6 +176,16 @@ public class Drive extends SubsystemBase {
                         (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
                 new SysIdRoutine.Mechanism(
                         (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+        xFilter = LinearFilter.movingAverage(5);
+        yFilter = LinearFilter.movingAverage(5);
+        rotFilter = LinearFilter.movingAverage(5);
+        xPid = new ProfiledPIDController(.28, 0, 0, new TrapezoidProfile.Constraints(3, 6));
+        yPid = new ProfiledPIDController(.8, 0, 0, new TrapezoidProfile.Constraints(3, 6));
+        rotPid = new ProfiledPIDController(.06, 0, 0, new TrapezoidProfile.Constraints(90, 180));
+        pidLineup.setTolerance(0.012);
+        angleController.setTolerance(Units.degreesToRadians(1));
+        angleController.enableContinuousInput(0, 2 * Math.PI);
     }
 
     @Override
@@ -169,6 +213,7 @@ public class Drive extends SubsystemBase {
 
         // Update odometry
         double[] sampleTimestamps = modules[0].getOdometryTimestamps(); // All signals are sampled together
+        closestReef = closestReefPose();
         int sampleCount = sampleTimestamps.length;
         for (int i = 0; i < sampleCount; i++) {
             // Read wheel positions and deltas from each module
@@ -199,6 +244,12 @@ public class Drive extends SubsystemBase {
 
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode == Mode.REAL);
+
+        if (limelightLineupSource2d != null && !isFinished2dAlign) {
+            filteredX = xFilter.calculate(limelightLineupSource2d.getTXNC(ll2dLineupTagID));
+            filteredY = yFilter.calculate(limelightLineupSource2d.getTA(ll2dLineupTagID));
+            filteredRot = rotFilter.calculate(limelightLineupSource2d.getTargetPoseCameraSpace()[4]);
+        }
     }
 
     /**
@@ -230,6 +281,121 @@ public class Drive extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             modules[i].runCharacterization(output);
         }
+    }
+
+    public Pose2d closestReefPose() {
+        var pose = IntStream.concat(IntStream.range(17, 23), IntStream.range(6, 12))
+                .mapToObj(i -> Limelight.field.getTagPose(i).get().toPose2d())
+                .sorted(Comparator.comparingDouble(p -> p.getTranslation().getDistance(getPose().getTranslation())))
+                .findFirst().get()
+                .transformBy(new Transform2d(Units.inchesToMeters(18),
+                        (reefTargetIsRight ? Constants.TAG_TO_BRANCH_OFFSET_M : -Constants.TAG_TO_BRANCH_OFFSET_M)
+                                - Units.inchesToMeters(8.25),
+                        Rotation2d.kZero));
+
+        return new Pose2d(pose.getTranslation(), pose.getRotation().plus(Rotation2d.kCW_Pi_2));
+    }
+
+    public Command pathfindToPose(Pose2d pose) {
+        return AutoBuilder.pathfindToPose(pose, new PathConstraints(2, 2, Math.PI, 2 * Math.PI));
+    }
+
+    public BooleanSupplier readyForArm() {
+        return () -> getPose().getTranslation().getDistance(closestReef.getTranslation()) < Constants.ARM_READY_AUTO_SCORE_RADIUS;
+    }
+
+    @SuppressWarnings("removal") // PIDCommand is deprecated
+    public Command translateToPositionWithPID(Pose2d pose) {
+        DoubleSupplier theta = () -> new Pose2d(pose.getTranslation(), new Rotation2d())
+                .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d()))
+                .getTranslation().getAngle().getRadians();
+        DoubleSupplier driveYaw = () -> (getRotation().getRadians() + 2 * Math.PI) % (2 * Math.PI);
+        return new PIDCommand(pidLineup,
+                () -> -new Pose2d(pose.getTranslation(), new Rotation2d())
+                        .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d())).getTranslation()
+                        .getNorm(),
+                0, (d) -> {
+                    if (pidLineup.atSetpoint()) {
+                        stop();
+                        return;
+                    }
+                    runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
+                            MathUtil.clamp(d * Math.cos(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
+                                    PID_TRANSLATION_SPEED_MPS),
+                            MathUtil.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
+                                    PID_TRANSLATION_SPEED_MPS),
+                            MathUtil.clamp(
+                                    angleController.calculate(
+                                            MathUtil.printAndReturn(driveYaw.getAsDouble(), "Measure: ", ""),
+                                            MathUtil.printAndReturn(pose.getRotation().getRadians(), "Setpoint: ",
+                                                    "")),
+                                    -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
+                            getRotation()));
+                }, this).finallyDo(i -> {
+                    pidLineup.reset();
+                    angleController.reset();
+                    stop();
+                });
+    }
+
+    public DoubleSupplier get2dFilteredX() {
+        return () -> filteredX;
+    }
+
+    public DoubleSupplier get2dFilteredY() {
+        return () -> filteredY;
+    }
+
+    public DoubleSupplier get2dFilteredRot() {
+        return () -> filteredRot;
+    }
+
+    public Command llLineup2d(Limelight sourceLimelight, int tagID, DoubleSupplier targetTx, DoubleSupplier targetTy, DoubleSupplier targetRotDegrees) {
+        return runOnce(() -> {
+            isFinished2dAlign = false;
+            limelightLineupSource2d = sourceLimelight;
+            ll2dLineupTagID = tagID;
+        }).andThen(run(() -> {
+            boolean tv = limelightLineupSource2d.getTV();
+            if (!tv) {
+                for (var ll : VisionUtil.registeredLimelights()) {
+                    if (ll.getTV() && ll.getTagID() == tagID)
+                    limelightLineupSource2d = ll;
+                }
+            }
+            double tx = get2dFilteredX().getAsDouble();
+            double ty = Math.sqrt(get2dFilteredY().getAsDouble());
+            double tagRot = get2dFilteredRot().getAsDouble();
+            double xOutput, yOutput, rotOutput;
+            double xErr = targetTx.getAsDouble() - tx;
+            double yErr = targetTy.getAsDouble() - ty;
+            double rotErr = targetRotDegrees.getAsDouble() - tagRot;
+
+            isFinished2dAlign = Math.abs(xErr) <= .5 && Math.abs(yErr) <= .5 && Math.abs(rotErr) < 1;
+
+            if (tv) {
+                xOutput = Math.abs(xErr) > 0.5 ? -xPid.calculate(tx, targetTx.getAsDouble()) : 0;
+                yOutput = Math.abs(yErr) > 0.5 ? yPid.calculate(ty, targetTy.getAsDouble()) : 0;
+                rotOutput = Math.abs(rotErr) > 1 ? rotPid.calculate(tagRot, targetRotDegrees.getAsDouble()) : 0;
+                var xTmp = xOutput;
+                xOutput = xOutput * Math.cos(Units.degreesToRadians(tagRot))
+                        + yOutput * Math.sin(Units.degreesToRadians(tagRot));
+                yOutput = xTmp * -Math.sin(Units.degreesToRadians(tagRot))
+                        + yOutput * Math.cos(Units.degreesToRadians(tagRot));
+            } else {
+                xOutput = yOutput = rotOutput = 0;
+            }
+
+            runVelocity(new ChassisSpeeds(yOutput, xOutput, rotOutput));
+        }));
+    }
+
+    public BooleanSupplier isFinishedAligning2d() {
+        return () -> isFinished2dAlign;
+    }
+
+    public void setReefTargetIsRight(boolean reefTargetIsRight) {
+        this.reefTargetIsRight = reefTargetIsRight;
     }
 
     /** Stops the drive. */

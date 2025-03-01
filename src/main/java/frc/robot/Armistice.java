@@ -41,7 +41,7 @@ public class Armistice extends SudoSubsystem {
 
     @AutoLogOutput
     private double armCharVoltage = 0;
-    public ArmisticePositions futureArmisticePositions = ArmisticePositions.L4;
+    private ArmisticePositions futureArmisticePositions = ArmisticePositions.L4;
 
     public static enum ArmisticePositions {
         STOW(0.43, 7.1),
@@ -66,11 +66,11 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Armistice() {
-        NamedCommands.registerCommand("L4 Score", runToPositionCommand(() -> ArmisticePositions.L4));
-        NamedCommands.registerCommand("Stow", runToPositionCommand(() -> ArmisticePositions.STOW));
-        NamedCommands.registerCommand("Stow No Wait", runToPositionNoWait(() -> ArmisticePositions.STOW));
-        NamedCommands.registerCommand("Acquire Pos", runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
-        NamedCommands.registerCommand("L3 Score", runToPositionCommand(() -> ArmisticePositions.L3));
+        NamedCommands.registerCommand("L4 Score", runToPositionCommand(ArmisticePositions.L4));
+        NamedCommands.registerCommand("Stow", runToPositionCommand(ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Stow No Wait", runToPositionNoWait(ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Acquire Pos", runToPositionCommand(ArmisticePositions.ACQUIRE));
+        NamedCommands.registerCommand("L3 Score", runToPositionCommand(ArmisticePositions.L3));
     }
 
     private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX());
@@ -109,17 +109,17 @@ public class Armistice extends SudoSubsystem {
         return Commands.runOnce(() -> armCharVoltage += dVolts);
     }
 
-    public Command runToPositionCommand(Supplier<ArmisticePositions> position) {
+    public Command runToPositionCommand(ArmisticePositions position) {
         return Commands.runOnce(() -> {
-            elevatorTargetInches = position.get().elevatorPositionInches;
-            armTargetRad = position.get().armPositionRad;
+            elevatorTargetInches = position.elevatorPositionInches;
+            armTargetRad = position.armPositionRad;
         }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
     }
 
-    public Command runToPositionNoWait(Supplier<ArmisticePositions> position) {
+    public Command runToPositionNoWait(ArmisticePositions position) {
         return Commands.runOnce(() -> {
-            elevatorTargetInches = position.get().elevatorPositionInches;
-            armTargetRad = position.get().armPositionRad;
+            elevatorTargetInches = position.elevatorPositionInches;
+            armTargetRad = position.armPositionRad;
         }, summit, disarm);
     }
 
@@ -131,7 +131,7 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Command runToFutureArmisticePositionCommand() {
-        return Commands.defer(() -> runToPositionCommand(() -> futureArmisticePositions), Set.of(disarm, summit));
+        return Commands.defer(() -> runToPositionCommand(futureArmisticePositions), Set.of(disarm, summit));
     }
 
     public Command changeFutureArmisticePosition(int delta) {
@@ -159,6 +159,18 @@ public class Armistice extends SudoSubsystem {
 
     public SubsystemBase[] getSubsystems() {
         return new SubsystemBase[] { disarm, summit };
+    }
+
+    public ArmisticePositions getFutureArmisticePositions() {
+        return futureArmisticePositions;
+    }
+
+    public Arm getArm() {
+        return disarm;
+    }
+
+    public Elevator getElevator() {
+        return summit;
     }
 
     public boolean elevatorIsSafe() {
