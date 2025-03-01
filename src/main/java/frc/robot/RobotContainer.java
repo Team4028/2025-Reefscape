@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -59,9 +58,6 @@ public class RobotContainer {
     private static final double SLOW_SPEED = 0.07;
     private static final double DEFAULT_BASE_SPEED = 0.3;
     private double currSpeed = DEFAULT_BASE_SPEED;
-
-    @AutoLogOutput
-    private boolean coralMode = true;
 
     private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
@@ -147,7 +143,7 @@ public class RobotContainer {
         driverController.leftTrigger().onTrue(coral.runMotorCommand(-.45)).onFalse(coral.runMotorCommand(0));
         driverController.leftBumper().onTrue(coral.runMotorCommand(-.40)).onFalse(coral.runMotorCommand(0));
         // operator
-        operatorController.start().onTrue(Commands.runOnce(() -> coralMode = !coralMode));
+        operatorController.start().onTrue(Commands.runOnce(() -> armistice.setCoralMode(!armistice.getCoralMode())));
         operatorController.rightBumper().onTrue(
                 Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands.defer(this::runToClosestReef,
                         Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));

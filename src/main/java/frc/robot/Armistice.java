@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -34,6 +35,9 @@ public class Armistice extends SudoSubsystem {
     private double armTargetRad = ArmisticePositions.STOW.armPositionRad;
 
     @AutoLogOutput
+    private boolean coralMode = true;
+
+    @AutoLogOutput
     private boolean elevatorWaiting = true;
 
     private static final double[] ARM_SAFE_RANGE = new double[] { 5, 35 };
@@ -45,6 +49,12 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private ArmisticePositions futureArmisticePositions = ArmisticePositions.L4;
 
+    private Map<ArmisticePositions, ArmisticePositions> positionsMap = Map.of(
+            ArmisticePositions.ACQUIRE, ArmisticePositions.LOLLIPOP,
+            ArmisticePositions.L2, ArmisticePositions.ALGAE_L2,
+            ArmisticePositions.L3, ArmisticePositions.ALGAE_L3,
+            ArmisticePositions.L4, ArmisticePositions.BARGE);
+
     public static enum ArmisticePositions {
         STOW(4.097, 9),
         ACQUIRE(0.855, 8.1),
@@ -52,10 +62,10 @@ public class Armistice extends SudoSubsystem {
         L2(4.097, 9),
         L3(4.097, 24.54),
         L4(3.907, 55.0),
-        ALGAE_AQUIRE_L2(5.624, 9.14),
-        ALGAE_AQUIRE_L3(5.624, 25.14),
-        LOLLIPOP_ACQUIRE(2.68, 0.61),
-        BARGE_REAL(6.14, 55),
+        ALGAE_L2(5.624, 9.14),
+        ALGAE_L3(5.624, 25.14),
+        LOLLIPOP(2.68, 0.61),
+        BARGE(6.14, 55),
         BARGE_ALT(1.515, 55);
 
         public double armPositionRad;
@@ -138,22 +148,28 @@ public class Armistice extends SudoSubsystem {
 
     public Command incFutureArmisticePosition() {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
-            case LOLLIPOP_ACQUIRE -> ArmisticePositions.L2;
+            case ACQUIRE -> ArmisticePositions.L2;
             case L2 -> ArmisticePositions.L3;
             case L3 -> ArmisticePositions.L4;
-            case L4 -> ArmisticePositions.BARGE_REAL;
-            case BARGE_REAL -> ArmisticePositions.LOLLIPOP_ACQUIRE;
+            case L4 -> ArmisticePositions.ACQUIRE;
+            case LOLLIPOP -> ArmisticePositions.ALGAE_L2;
+            case ALGAE_L2 -> ArmisticePositions.ALGAE_L3;
+            case ALGAE_L3 -> ArmisticePositions.BARGE;
+            case BARGE -> ArmisticePositions.LOLLIPOP;
             default -> ArmisticePositions.STOW;
         });
     }
 
     public Command decFutureArmisticePosition() {
-        return Commands.runOnce(() -> futureArmisticePositions = switch(futureArmisticePositions) {
-            case LOLLIPOP_ACQUIRE -> ArmisticePositions.BARGE_REAL;
-            case L2 -> ArmisticePositions.LOLLIPOP_ACQUIRE;
+        return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
+            case ACQUIRE -> ArmisticePositions.L4;
+            case L2 -> ArmisticePositions.ACQUIRE;
             case L3 -> ArmisticePositions.L2;
             case L4 -> ArmisticePositions.L3;
-            case BARGE_REAL -> ArmisticePositions.L4;
+            case LOLLIPOP -> ArmisticePositions.BARGE;
+            case ALGAE_L2 -> ArmisticePositions.LOLLIPOP;
+            case ALGAE_L3 -> ArmisticePositions.ALGAE_L2;
+            case BARGE -> ArmisticePositions.ALGAE_L3;
             default -> ArmisticePositions.STOW;
         });
     }
@@ -207,6 +223,14 @@ public class Armistice extends SudoSubsystem {
                 .andThen(Commands.waitUntil(summit.atTargetPosition()));
     }
 
+    public boolean getCoralMode() {
+        return coralMode;
+    }
+
+    public void setCoralMode(boolean coralMode) {
+        this.coralMode = coralMode;
+    }
+
     @Override
     public void periodic() {
         if (USE_SAFETY) {
@@ -226,6 +250,20 @@ public class Armistice extends SudoSubsystem {
         } else {
             disarm.runToPosition(armTargetRad);
             summit.runToPosition(elevatorTargetInches);
+        }
+
+        if ((coralMode && !positionsMap.containsKey(futureArmisticePositions))
+                || (!coralMode && !positionsMap.containsValue(futureArmisticePositions))) {
+            for (var e : positionsMap.entrySet()) {
+                if (futureArmisticePositions == e.getValue()) {
+                    futureArmisticePositions = e.getKey();
+                    break;
+                }
+                else if (futureArmisticePositions == e.getKey()) {
+                    futureArmisticePositions = e.getValue();
+                    break;
+                }
+            }
         }
     }
 }
