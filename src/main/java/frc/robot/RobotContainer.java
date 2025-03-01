@@ -11,6 +11,8 @@ import javax.sql.rowset.spi.XmlWriter;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -49,8 +51,10 @@ public class RobotContainer {
     private final CoralManipulator coral = new CoralManipulator(new CoralManipulatorIOTalonFX());
     private final AlgaeManipulator algae = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
     private final Climber climber = new Climber(new ClimberIOTalonFX());
-    // private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, null));
-    // private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
+    // private final Limelight ll4ii = new Limelight(new
+    // LimelightIO("limelight-fourii", true, null));
+    // private final Limelight ll4iii = new Limelight(new
+    // LimelightIO("limelight-fouriii", true, Optional.empty()));
 
     private static final double SLOW_SPEED = 0.07;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -72,7 +76,8 @@ public class RobotContainer {
             OperatorConstants.kDriverControllerPort);
     private final CommandXboxController operatorController = new CommandXboxController(
             OperatorConstants.kOperatorControllerPort);
-    private final CommandXboxController emergencyController = new CommandXboxController(OperatorConstants.kEmergencyControllerPort);
+    private final CommandXboxController emergencyController = new CommandXboxController(
+            OperatorConstants.kEmergencyControllerPort);
 
     public RobotContainer() {
         xLimiterL4 = new SlewRateLimiter(1.0);
@@ -82,13 +87,22 @@ public class RobotContainer {
         xLimiter = new SlewRateLimiter(4.0);
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
+        NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
+        NamedCommands.registerCommand("Acquire", coral.runMotorCommand(.7)
+                .alongWith(Commands.waitUntil(
+                        coral.hasGamePieceSupplier()))
+                .andThen(coral.runMotorCommand(0)));
+        NamedCommands.registerCommand("Score Outfeed",
+                Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(0.5))
+                        .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
+                                .andThen(coral.runMotorCommand(0))));
 
         autonChooser.addDefaultOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
         // Set up SysId routines
         configureBindings();
     }
 
-        private void addVisionMeasurement(LoggablePoseEstimate poseEstimate) {
+    private void addVisionMeasurement(LoggablePoseEstimate poseEstimate) {
         drive.addVisionMeasurement(poseEstimate.pose(), poseEstimate.timestampSeconds(),
                 LimelightConstants.GOOD_STD_DEVS);
     }
@@ -113,7 +127,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         // driverController.a().and(driverController.b()).onTrue(Commands.runOnce(this::disableArmistice));
-    
+
         driverController.povUp().onTrue(armistice.nudgeCommand(0.5, 0.0));
         driverController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0.0));
         driverController.povRight().onTrue(armistice.nudgeCommand(0, 0.1));
@@ -126,7 +140,7 @@ public class RobotContainer {
 
         driverController.rightBumper().onTrue(Commands.runOnce(() -> speedySpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> speedySpeed = DEFAULT_BASE_SPEED));
-            
+
         // Reset gyro to 0° when start button is pressed
         driverController.start().onTrue(
                 Commands.runOnce(
@@ -235,6 +249,12 @@ public class RobotContainer {
             default:
                 return 0.0;
         }
+
+    }
+
+    public Command realDrivetrainStop() {
+        return drive
+                .runOnce(drive::stop);
     }
 
 }

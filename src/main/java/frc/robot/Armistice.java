@@ -37,7 +37,7 @@ public class Armistice extends SudoSubsystem {
     private boolean elevatorWaiting = true;
 
     private static final double[] ARM_SAFE_RANGE = new double[] { 5, 35 };
-    private static final boolean USE_SAFETY = true;
+    private static final boolean USE_SAFETY = false;
 
     @AutoLogOutput
     private double armCharVoltage = 0;
@@ -54,7 +54,8 @@ public class Armistice extends SudoSubsystem {
         ALGAE_AQUIRE_L3(5.624, 25.14),
         LOLLIPOP_ACQUIRE(2.68, 0.61),
         BARGE_REAL(6.14, 55),
-        BARGE_ALT(1.515, 55);
+        BARGE_ALT(1.515, 55),
+        STAGE_ARMISTICE(3.907, 7.6);
 
         public double armPositionRad;
         public double elevatorPositionInches;
@@ -71,6 +72,7 @@ public class Armistice extends SudoSubsystem {
         NamedCommands.registerCommand("Stow No Wait", runToPositionNoWait(() -> ArmisticePositions.STOW));
         NamedCommands.registerCommand("Acquire Pos", runToPositionCommand(() -> ArmisticePositions.ACQUIRE));
         NamedCommands.registerCommand("L3 Score", runToPositionCommand(() -> ArmisticePositions.L3));
+        NamedCommands.registerCommand("Stage", runToPositionCommand(() -> ArmisticePositions.STAGE_ARMISTICE));
     }
 
     private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX());

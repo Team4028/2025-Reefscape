@@ -4,11 +4,11 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
-   "ScoreDelay":{
+   "InitialAcquireDelay":{
     "dimension":"Time",
     "var":{
-     "exp":"1.5 s",
-     "val":1.5
+     "exp":"0.25 s",
+     "val":0.25
     }
    },
    "AcquireDelay":{
@@ -18,27 +18,41 @@
      "val":0.8
     }
    },
-   "InitialAcquireDelay":{
+   "ScoreDelay":{
     "dimension":"Time",
     "var":{
-     "exp":"0.25 s",
-     "val":0.25
+     "exp":"1.5 s",
+     "val":1.5
     }
    }
   },
   "poses":{
-   "StartVision":{
+   "PC":{
     "x":{
-     "exp":"17.85 m",
-     "val":17.85
+     "exp":"1 m",
+     "val":1.0
     },
     "y":{
-     "exp":"4 m",
-     "val":4.0
+     "exp":"0.88 m",
+     "val":0.88
     },
     "heading":{
-     "exp":"270 degrees",
-     "val":4.71238898038469
+     "exp":"90 deg",
+     "val":1.5707963267948966
+    }
+   },
+   "SM":{
+    "x":{
+     "exp":"8 m",
+     "val":8.0
+    },
+    "y":{
+     "exp":"3.95 m",
+     "val":3.95
+    },
+    "heading":{
+     "exp":"90 deg",
+     "val":1.5707963267948966
     }
    },
    "Start":{
@@ -55,6 +69,34 @@
      "val":4.71238898038469
     }
    },
+   "P12ocL":{
+    "x":{
+     "exp":"5.72 m",
+     "val":5.72
+    },
+    "y":{
+     "exp":"3.94 m",
+     "val":3.94
+    },
+    "heading":{
+     "exp":"90 deg",
+     "val":1.5707963267948966
+    }
+   },
+   "StartVision":{
+    "x":{
+     "exp":"17.85 m",
+     "val":17.85
+    },
+    "y":{
+     "exp":"4 m",
+     "val":4.0
+    },
+    "heading":{
+     "exp":"270 degrees",
+     "val":4.71238898038469
+    }
+   },
    "Score":{
     "x":{
      "exp":"4.5 m",
@@ -67,6 +109,20 @@
     "heading":{
      "exp":"270 deg",
      "val":4.71238898038469
+    }
+   },
+   "P6ocR":{
+    "x":{
+     "exp":"3.3 m",
+     "val":3.3
+    },
+    "y":{
+     "exp":"3.86 m",
+     "val":3.86
+    },
+    "heading":{
+     "exp":"90 deg",
+     "val":1.5707963267948966
     }
    },
    "Acquire":{
