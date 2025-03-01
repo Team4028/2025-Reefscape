@@ -1,6 +1,16 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
+import java.util.Comparator;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -11,6 +21,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -48,16 +60,6 @@ import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.MathUtil;
 import frc.robot.util.VisionUtil;
-
-import java.util.Comparator;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-import java.util.stream.IntStream;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
     // TunerConstants doesn't include these constants, so they are declared locally
@@ -109,7 +111,10 @@ public class Drive extends SubsystemBase {
 
     @AutoLogOutput(key = "Odometry/ClosestReef")
     private Pose2d closestReef = new Pose2d();
-    
+
+    @AutoLogOutput
+    private String closestReefName = "";
+
     @AutoLogOutput
     private boolean reefTargetIsRight = true;
 
@@ -284,16 +289,17 @@ public class Drive extends SubsystemBase {
     }
 
     public Pose2d closestReefPose() {
-        var pose = IntStream.concat(IntStream.range(17, 23), IntStream.range(6, 12))
-                .mapToObj(i -> Limelight.field.getTagPose(i).get().toPose2d())
-                .sorted(Comparator.comparingDouble(p -> p.getTranslation().getDistance(getPose().getTranslation())))
-                .findFirst().get()
-                .transformBy(new Transform2d(Units.inchesToMeters(18),
+        AprilTag closestTag = Limelight.field.getTags().stream()
+                .sorted(Comparator.comparingDouble(
+                        t -> t.pose.toPose2d().getTranslation().getDistance(getPose().getTranslation())))
+                .findFirst().orElse(Limelight.field.getTags().get(0));
+        Pose2d closestPose = closestTag.pose.toPose2d()
+                .transformBy(new Transform2d(Units.inchesToMeters(Constants.SCORING_SIDE_RADIUS_ROBOT_IN),
                         (reefTargetIsRight ? Constants.TAG_TO_BRANCH_OFFSET_M : -Constants.TAG_TO_BRANCH_OFFSET_M)
-                                - Units.inchesToMeters(8.25),
+                                - Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN),
                         Rotation2d.kZero));
-
-        return new Pose2d(pose.getTranslation(), pose.getRotation().plus(Rotation2d.kCW_Pi_2));
+        closestReefName = Constants.reefTagNames.get(closestTag.ID);
+        return new Pose2d(closestPose.getTranslation(), closestPose.getRotation().plus(Rotation2d.kCW_Pi_2));
     }
 
     public Command pathfindToPose(Pose2d pose) {
@@ -301,7 +307,8 @@ public class Drive extends SubsystemBase {
     }
 
     public BooleanSupplier readyForArm() {
-        return () -> getPose().getTranslation().getDistance(closestReef.getTranslation()) < Constants.ARM_READY_AUTO_SCORE_RADIUS;
+        return () -> getPose().getTranslation()
+                .getDistance(closestReef.getTranslation()) < Constants.ARM_READY_AUTO_SCORE_RADIUS;
     }
 
     @SuppressWarnings("removal") // PIDCommand is deprecated
@@ -350,7 +357,8 @@ public class Drive extends SubsystemBase {
         return () -> filteredRot;
     }
 
-    public Command llLineup2d(Limelight sourceLimelight, int tagID, DoubleSupplier targetTx, DoubleSupplier targetTy, DoubleSupplier targetRotDegrees) {
+    public Command llLineup2d(Limelight sourceLimelight, int tagID, DoubleSupplier targetTx, DoubleSupplier targetTy,
+            DoubleSupplier targetRotDegrees) {
         return runOnce(() -> {
             isFinished2dAlign = false;
             limelightLineupSource2d = sourceLimelight;
@@ -360,7 +368,7 @@ public class Drive extends SubsystemBase {
             if (!tv) {
                 for (var ll : VisionUtil.registeredLimelights()) {
                     if (ll.getTV() && ll.getTagID() == tagID)
-                    limelightLineupSource2d = ll;
+                        limelightLineupSource2d = ll;
                 }
             }
             double tx = get2dFilteredX().getAsDouble();

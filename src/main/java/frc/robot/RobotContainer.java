@@ -61,6 +61,9 @@ public class RobotContainer {
     @AutoLogOutput
     private boolean[] futuresOn = new boolean[5];
 
+    @AutoLogOutput
+    private boolean coralMode = true;
+
     private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
             new ModuleIOTalonFX(TunerConstants.FrontLeft),
@@ -137,6 +140,8 @@ public class RobotContainer {
         driverController.povRight().onTrue(armistice.nudgeCommand(0, 0.1));
         driverController.povLeft().onTrue(armistice.nudgeCommand(0, -0.1));
 
+        driverController.rightStick().onTrue(drive.runOnce(drive::stop));
+
         driverController.leftTrigger().onTrue(coral.runMotorCommand(0.45))
                 .onFalse(coral.runMotorCommand(0));
         driverController.leftBumper().onTrue(coral.runMotorCommand(-0.40))
@@ -187,7 +192,7 @@ public class RobotContainer {
         operatorController.povRight().onTrue(armistice.runToPositionCommand(ArmisticePositions.ALGAE_AQUIRE_L3));
         // cool reefstate thingy
         operatorController.rightBumper().onTrue(armistice.changeFutureArmisticePosition(1));
-        operatorController.rightBumper().onTrue(armistice.changeFutureArmisticePosition(-1));
+        operatorController.leftBumper().onTrue(armistice.changeFutureArmisticePosition(-1));
         operatorController.back().onTrue(armistice.runToFutureArmisticePositionCommand());
         // ==================== //
         /* EMERGENCY CONTROLLER */

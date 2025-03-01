@@ -11,6 +11,7 @@ import frc.robot.util.SysIDUtil;
 public class AlgaeManipulatorConstants {
     public static final double SUPPLY_LIMIT = 50;
     public static final double GEARING = 10;
+    public static final double CURRENT_LIMIT_DELAY_SEC = 0.5;
 
     public static final class TalonSRX {
         public static final int CAN_ID = 18;

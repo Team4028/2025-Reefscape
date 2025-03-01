@@ -16,6 +16,7 @@ public class CoralManipulatorConstants {
 
     public static final double SUPPLY_LIMIT = 30;
     public static final double GEARING = 1;
+    public static final double CURRENT_LIMIT_DELAY_SEC = 0.5;
 
     public static final class Sim {
         public static final DCMotor simGearbox = DCMotor.getVex775Pro(1);

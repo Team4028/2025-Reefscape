@@ -44,7 +44,7 @@ public class Armistice extends SudoSubsystem {
     private ArmisticePositions futureArmisticePositions = ArmisticePositions.L4;
 
     public static enum ArmisticePositions {
-        STOW(0.43, 7.1),
+        STOW(4.097, 9),
         ACQUIRE(0.855, 8.1),
         ACQUIRE_BLOCKED(0.94, 6.1),
         L2(4.097, 9),

@@ -13,9 +13,4 @@ public class CoralManipulatorStateTracker {
         state = vbus > 0 ? CoralManipulatorStates.VBUS_FORWARD
                 : (vbus < 0 ? CoralManipulatorStates.VBUS_REVERSE : CoralManipulatorStates.OFF);
     }
-
-    public void setStateVoltage(double volts) {
-        state = volts > 0 ? CoralManipulatorStates.VOLTAGE_FORWARD
-                : (volts < 0 ? CoralManipulatorStates.VOLTAGE_REVERSE : CoralManipulatorStates.OFF);
-    }
 }
