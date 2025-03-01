@@ -68,7 +68,8 @@ public class RobotContainer {
 
     public RobotContainer() {
         ll4 = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty()));
-        // ll4station = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
+        // ll4station = new Limelight(new LimelightIO("limelight-fouriii", true,
+        // Optional.empty()));
         xLimiter = new SlewRateLimiter(4);
         yLimiter = new SlewRateLimiter(4);
         thetaLimiter = new SlewRateLimiter(4);
@@ -82,6 +83,8 @@ public class RobotContainer {
                         .andThen(Commands.waitSeconds(0.5))
                         .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
                                 .andThen(coral.runMotorCommand(0))));
+        NamedCommands.registerCommand("Magic Score", Commands.defer(this::runToClosestReef,
+                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)));
 
         autoChooser = new LoggedDashboardChooser<>("Auto Chooser", AutoBuilder.buildAutoChooser());
         // Set up SysId routines
