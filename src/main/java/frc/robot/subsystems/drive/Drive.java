@@ -256,7 +256,7 @@ public class Drive extends SubsystemBase {
                 .sorted(Comparator
                         .comparingDouble(p -> p.getTranslation().getDistance(getPose().getTranslation())))
                 .findFirst().get()
-                .transformBy(new Transform2d(Units.inchesToMeters(18),
+                .transformBy(new Transform2d(Units.inchesToMeters(17),
                         (right ? Constants.TAG_TO_BRANCH_OFFSET_M : -Constants.TAG_TO_BRANCH_OFFSET_M)
                                 - Units.inchesToMeters(9.25),
                         Rotation2d.kZero));
