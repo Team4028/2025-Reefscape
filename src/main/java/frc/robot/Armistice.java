@@ -66,6 +66,7 @@ public class Armistice extends SudoSubsystem {
         ALGAE_L3(5.624, 25.14),
         LOLLIPOP(2.68, 0.61),
         BARGE(6.14, 55),
+        CLIMB(2.911, 0.5),
         BARGE_ALT(1.515, 55);
 
         public double armPositionRad;

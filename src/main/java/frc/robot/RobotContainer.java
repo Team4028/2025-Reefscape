@@ -13,7 +13,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -134,13 +136,16 @@ public class RobotContainer {
         driverController.start().onTrue(
                 Commands.runOnce(
                         () -> drive.setPose(
-                                new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                                new Pose2d(drive.getPose().getTranslation(),
+                                        DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                                ? Rotation2d.kZero
+                                                : Rotation2d.kPi)),
                         drive)
                         .ignoringDisable(true));
 
         driverController.rightStick().onTrue(drive.runOnce(drive::stop));
 
-        driverController.leftTrigger().onTrue(coral.runMotorCommand(-.45)).onFalse(coral.runMotorCommand(0));
+        driverController.leftTrigger().onTrue(coral.runMotorCommand(.45)).onFalse(coral.runMotorCommand(0));
         driverController.leftBumper().onTrue(coral.runMotorCommand(-.40)).onFalse(coral.runMotorCommand(0));
         // operator
         operatorController.start().onTrue(Commands.runOnce(() -> armistice.setCoralMode(!armistice.getCoralMode())));
@@ -152,7 +157,7 @@ public class RobotContainer {
                         Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         operatorController.leftTrigger().onTrue(algae.runMotorCommand(0.7)).onFalse(algae.runMotorCommand(0));
         operatorController.leftBumper().onTrue(algae.runMotorCommand(-0.7)).onFalse(algae.runMotorCommand(0));
-        operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5).onTrue(climber.runVbusCommand(0.2));
+        operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5).onTrue(climber.runVbusCommand(-0.2));
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, -0.5)
                 .and(operatorController.axisLessThan(XboxController.Axis.kLeftY.value, 0.5))
                 .onTrue(climber.runVbusCommand(0));
@@ -177,6 +182,12 @@ public class RobotContainer {
         // ==================== //
         emergencyController.rightBumper().onTrue(climber.runVbusCommand(0.2)).onFalse(climber.runVbusCommand(0));
         emergencyController.leftBumper().onTrue(climber.runVbusCommand(-0.2)).onFalse(climber.runVbusCommand(0));
+
+        emergencyController.povUp().onTrue(armistice.nudgeCommand(0.5, 0));
+        emergencyController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0));
+        emergencyController.povRight().onTrue(armistice.nudgeCommand(0.0, 0.1));
+        emergencyController.povLeft().onTrue(armistice.nudgeCommand(0, -0.1));
+        emergencyController.a().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB));
 
         drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
@@ -225,7 +236,7 @@ public class RobotContainer {
 
     private Command runToClosestReef() {
         return AutoSequencing.autoScoreReef(drive, armistice, coral, drive::closestReefPose,
-                () -> ArmisticePositions.L4);
+                armistice::getFutureArmisticePositions);
     }
 
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {

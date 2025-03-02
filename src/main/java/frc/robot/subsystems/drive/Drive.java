@@ -297,7 +297,7 @@ public class Drive extends SubsystemBase {
         Pose2d closestPose = closestTag.pose.toPose2d()
                 .transformBy(new Transform2d(Units.inchesToMeters(Constants.SCORING_SIDE_RADIUS_ROBOT_IN),
                         (reefTargetIsRight ? Constants.TAG_TO_BRANCH_OFFSET_M : -Constants.TAG_TO_BRANCH_OFFSET_M)
-                                - Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN),
+                                + Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN),
                         Rotation2d.kZero));
         closestReefName = Constants.reefTagNames.get(closestTag.ID);
         return new Pose2d(closestPose.getTranslation(), closestPose.getRotation().plus(Rotation2d.kCW_Pi_2));
