@@ -12,6 +12,8 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -96,6 +98,15 @@ public class RobotContainer {
         xLimiter = new SlewRateLimiter(4.0);
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
+        NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
+        NamedCommands.registerCommand("Acquire", coral.runMotorCommand(.7)
+                .alongWith(Commands.waitUntil(
+                        coral.hasGamePieceSupplier()))
+                .andThen(coral.runMotorCommand(0)));
+        NamedCommands.registerCommand("Score Outfeed",
+                Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(0.5))
+                        .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
+                                .andThen(coral.runMotorCommand(0))));
 
         autonChooser.addDefaultOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
         // Set up SysId routines
@@ -389,6 +400,12 @@ public class RobotContainer {
             default:
                 return 0.0;
         }
+
+    }
+
+    public Command realDrivetrainStop() {
+        return drive
+                .runOnce(drive::stop);
     }
 
 }
