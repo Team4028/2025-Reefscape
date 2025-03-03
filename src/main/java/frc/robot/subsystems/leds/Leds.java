@@ -71,6 +71,7 @@ public class Leds extends SubsystemBase {
     public enum StripState {
         FLASH,
         BREATH,
+        SOLID,
         OFF;
     }
 
@@ -399,7 +400,7 @@ public class Leds extends SubsystemBase {
                 }
                 break;
             case LIME:
-                if (canflasher.get() >= .1) {
+                if (canflasher.get() >= .15) {
                     isCanOn = !isCanOn;
                     canflasher.reset();
                 }
@@ -454,6 +455,9 @@ public class Leds extends SubsystemBase {
                         inhale = true;
                     }
                 }
+                break;
+            case SOLID:
+                setLedsColor(stripInd, stripLength, this.stripColor.r, this.stripColor.g, this.stripColor.b);
                 break;
             case OFF:
                 setLedsColor(stripInd, stripLength, 0, 0, 0);

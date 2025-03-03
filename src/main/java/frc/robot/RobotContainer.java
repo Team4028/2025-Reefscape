@@ -210,15 +210,15 @@ public class RobotContainer {
                 driverController.a().onTrue(Commands.runOnce(() -> aprilTagCount = candle.toggleAprilTags()));
                 driverController.b().onTrue(Commands.runOnce(() -> coralManipulatorStateTracker.toggleFeed()));
                 coralManipulator.hasCoral()
-                                .onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.BLUE, StripState.FLASH)))
+                                .onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.BLUE, StripState.SOLID)))
                                 .onFalse(Commands.runOnce(() -> candle.stripMode(StripState.OFF)));
                 coralManipulatorStateTracker.outfeeding().onTrue(
-                                Commands.runOnce(() -> candle.candleColorAndMode(Color.PURPLE, CandleState.FLASH)));
+                                Commands.runOnce(() -> candle.stripColorAndMode(Color.PURPLE, StripState.SOLID)));
                 coralManipulatorStateTracker.infeeding()
                                 .onTrue(Commands.runOnce(
-                                                () -> candle.candleColorAndMode(Color.GREEN, CandleState.FLASH)))
-                                .onFalse(Commands.runOnce(() -> candle.candleMode(CandleState.OFF)));
-                algae.hasAlgaeTrigger().onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.GREEN, StripState.FLASH)));
+                                                () -> candle.stripColorAndMode(Color.WHITE, StripState.SOLID)))
+                                .onFalse(Commands.runOnce(() -> candle.stripMode(StripState.OFF)));
+                algae.hasAlgaeTrigger().onTrue(Commands.runOnce(() -> candle.stripColorAndMode(Color.GREEN, StripState.SOLID)));
                 candle.sendLimeColors().onTrue(Commands.runOnce(() -> candle.limelightToLeds(aprilTagCount)).andThen(Commands.runOnce(() -> candle.offTag())));
 
         }
