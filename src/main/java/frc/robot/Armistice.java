@@ -8,6 +8,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -20,7 +21,7 @@ import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIOCanEncoderTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import frc.robot.util.MathUtil;
+import frc.robot.util.MathUtils;
 import frc.robot.util.RobotSim;
 import frc.robot.util.SudoSubsystem;
 
@@ -47,27 +48,29 @@ public class Armistice extends SudoSubsystem {
     private double armCharVoltage = 0;
 
     @AutoLogOutput
-    private ArmisticePositions futureArmisticePositions = ArmisticePositions.L4;
+    private ArmisticePositions futureArmisticePositions = ArmisticePositions.L2;
+
+    private ArmisticePositions futureAutoAlgaePosition = ArmisticePositions.ALGAE_2;
 
     private Map<ArmisticePositions, ArmisticePositions> positionsMap = Map.of(
             ArmisticePositions.ACQUIRE, ArmisticePositions.LOLLIPOP,
-            ArmisticePositions.L2, ArmisticePositions.ALGAE_L2,
-            ArmisticePositions.L3, ArmisticePositions.ALGAE_L3,
+            ArmisticePositions.L2, ArmisticePositions.ALGAE_2,
+            ArmisticePositions.L3, ArmisticePositions.ALGAE_3,
             ArmisticePositions.L4, ArmisticePositions.BARGE);
 
     public static enum ArmisticePositions {
-        STOW(4.097, 9),
-        ACQUIRE(0.855, 8.1),
-        ACQUIRE_BLOCKED(0.94, 6.1),
-        L2(4.097, 9),
-        L3(4.097, 24.54),
-        L4(3.907, 55.0),
-        ALGAE_L2(5.624, 9.14),
-        ALGAE_L3(5.624, 25.14),
-        LOLLIPOP(2.68, 0.61),
-        BARGE(6.14, 55),
-        CLIMB(2.911, 0.5),
-        BARGE_ALT(1.515, 55);
+        STOW(4.097 - 0.52359878, 9),
+        ACQUIRE(0.855 - 0.52359878, 8.1),
+        ACQUIRE_BLOCKED(0.94 - 0.52359878, 6.1),
+        L2(4.097 - 0.52359878, 9),
+        L3(4.097 - 0.52359878, 24.54),
+        L4(3.907 - 0.52359878, 55.0),
+        ALGAE_2(5.624 - 0.52359878, 9.14),
+        ALGAE_3(5.624 - 0.52359878, 25.14),
+        LOLLIPOP(2.68 - 0.52359878, 0.61),
+        BARGE(6.14 - 0.52359878, 55),
+        CLIMB(2.911 - 0.52359878, 0.5),
+        BARGE_ALT(1.515 - 0.52359878, 55);
 
         public double armPositionRad;
         public double elevatorPositionInches;
@@ -149,30 +152,32 @@ public class Armistice extends SudoSubsystem {
 
     public Command incFutureArmisticePosition() {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
-            case ACQUIRE -> ArmisticePositions.L2;
             case L2 -> ArmisticePositions.L3;
             case L3 -> ArmisticePositions.L4;
-            case L4 -> ArmisticePositions.ACQUIRE;
-            case LOLLIPOP -> ArmisticePositions.ALGAE_L2;
-            case ALGAE_L2 -> ArmisticePositions.ALGAE_L3;
-            case ALGAE_L3 -> ArmisticePositions.BARGE;
-            case BARGE -> ArmisticePositions.LOLLIPOP;
+            case L4 -> ArmisticePositions.L2;
+            case ALGAE_2 -> ArmisticePositions.ALGAE_3;
+            case ALGAE_3 -> ArmisticePositions.BARGE;
+            case BARGE -> ArmisticePositions.ALGAE_2;
             default -> ArmisticePositions.STOW;
         });
     }
 
     public Command decFutureArmisticePosition() {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
-            case ACQUIRE -> ArmisticePositions.L4;
-            case L2 -> ArmisticePositions.ACQUIRE;
+            case L2 -> ArmisticePositions.L4;
             case L3 -> ArmisticePositions.L2;
             case L4 -> ArmisticePositions.L3;
-            case LOLLIPOP -> ArmisticePositions.BARGE;
-            case ALGAE_L2 -> ArmisticePositions.LOLLIPOP;
-            case ALGAE_L3 -> ArmisticePositions.ALGAE_L2;
-            case BARGE -> ArmisticePositions.ALGAE_L3;
+            case ALGAE_2 -> ArmisticePositions.BARGE;
+            case ALGAE_3 -> ArmisticePositions.ALGAE_2;
+            case BARGE -> ArmisticePositions.ALGAE_3;
             default -> ArmisticePositions.STOW;
         });
+    }
+
+    public Command toggleAutoAlagePos() {
+        return Commands.runOnce(
+                () -> futureAutoAlgaePosition = futureAutoAlgaePosition == ArmisticePositions.ALGAE_2 ? ArmisticePositions.ALGAE_3
+                        : ArmisticePositions.ALGAE_2);
     }
 
     public BooleanSupplier armAndElevatorAtTarget() {
@@ -195,6 +200,10 @@ public class Armistice extends SudoSubsystem {
         return futureArmisticePositions;
     }
 
+    public ArmisticePositions getAutoAlgaePosition() {
+        return futureAutoAlgaePosition;
+    }
+
     public Arm getArm() {
         return disarm;
     }
@@ -204,8 +213,8 @@ public class Armistice extends SudoSubsystem {
     }
 
     public boolean elevatorIsSafe() {
-        return MathUtil.inRange(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
-                && MathUtil.inRange(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]);
+        return MathUtils.inRange(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
+                && MathUtils.inRange(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]);
     }
 
     public Command stageArm(ArmisticePositions position) {
@@ -240,13 +249,13 @@ public class Armistice extends SudoSubsystem {
                     || disarmAtRealTarget()) {
                 disarm.runToPosition(armTargetRad);
                 summit.runToPosition(
-                        elevatorWaiting ? MathUtil.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
+                        elevatorWaiting ? MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
                                 : elevatorTargetInches);
             } else {
-                disarm.runToPosition(MathUtil.inRange(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
+                disarm.runToPosition(MathUtils.inRange(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
                         ? armTargetRad
                         : disarm.getCurrentPosition());
-                summit.runToPosition(MathUtil.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]));
+                summit.runToPosition(MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]));
             }
         } else {
             disarm.runToPosition(armTargetRad);
@@ -259,12 +268,13 @@ public class Armistice extends SudoSubsystem {
                 if (futureArmisticePositions == e.getValue()) {
                     futureArmisticePositions = e.getKey();
                     break;
-                }
-                else if (futureArmisticePositions == e.getKey()) {
+                } else if (futureArmisticePositions == e.getKey()) {
                     futureArmisticePositions = e.getValue();
                     break;
                 }
             }
         }
+
+        Logger.recordOutput("Armistice/AutoAlgaeCounter", "B: " + futureAutoAlgaePosition.name());
     }
 }

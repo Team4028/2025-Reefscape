@@ -51,7 +51,7 @@ public class AlgaeManipulator extends SubsystemBase {
     @CreateState("vbus_forward")
     public void infeedVBus() {
         if (inputs.currentAmps < AlgaeManipulatorConstants.SUPPLY_LIMIT
-                && currentLimitTimer.get() > AlgaeManipulatorConstants.CURRENT_LIMIT_DELAY_SEC) {
+        || currentLimitTimer.get() <= AlgaeManipulatorConstants.CURRENT_LIMIT_DELAY_SEC) {
             currentLimitTimer.start();
             io.setVbus(targetVBus);
         } else {
@@ -83,6 +83,6 @@ public class AlgaeManipulator extends SubsystemBase {
     public void hold() {
         currentLimitTimer.stop();
         currentLimitTimer.reset();
-        io.setVoltage(1);
+        io.setVoltage(0);
     }
 }

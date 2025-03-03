@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
@@ -17,12 +18,14 @@ public final class Constants {
 
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
-    public static final double TAG_TO_BRANCH_OFFSET_M = 0.185;
+    public static final double TAG_TO_BRANCH_OFFSET_M = 0.18;
     public static final double ARM_READY_AUTO_SCORE_RADIUS = 1.5;
-    public static final double SCORING_SIDE_RADIUS_ROBOT_IN = 18.25;
-    public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = 0.75;
+    public static final double SCORING_SIDE_RADIUS_ROBOT_IN = 17.375;
+    public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = -1.2;
+    public static final double ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN = 1.25;
     public static final double CORAL_STATION_LEFT_ROTATION_DEG = 135;
     public static final double CORAL_STATION_RIGHT_ROTATION_DEG = 225;
+    public static final Rotation2d SCORING_SIDE_FROM_FRONT_ROT = Rotation2d.kCCW_Pi_2;
 
     public static final Map<Integer, String> reefTagNames = new HashMap<>(){{
             put(6, "8oC");

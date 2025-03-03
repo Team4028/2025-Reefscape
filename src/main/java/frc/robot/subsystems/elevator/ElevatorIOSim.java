@@ -6,7 +6,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import frc.robot.util.MathUtil;
+import frc.robot.util.MathUtils;
 import frc.robot.util.RobotSim;
 
 public class ElevatorIOSim implements ElevatorIO {
@@ -53,7 +53,7 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setVoltage(double volts) {
         var rbv = RobotController.getBatteryVoltage();
-        targetVolts = MathUtil.clamp(volts, -rbv, rbv);
+        targetVolts = MathUtils.clamp(volts, -rbv, rbv);
     }
 
     @Override

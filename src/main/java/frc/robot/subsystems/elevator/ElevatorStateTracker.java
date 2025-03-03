@@ -2,7 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
-import frc.robot.util.MathUtil;
+import frc.robot.util.MathUtils;
 
 public class ElevatorStateTracker {
 
@@ -35,7 +35,7 @@ public class ElevatorStateTracker {
     }
 
     public void shiftReefCount(int shift) {
-        reefCount = MathUtil.clamp(reefCount + shift, 0, ElevatorPositions.Reef.values().length);
+        reefCount = MathUtils.clamp(reefCount + shift, 0, ElevatorPositions.Reef.values().length);
     }
 
     public void applyReefCount() {

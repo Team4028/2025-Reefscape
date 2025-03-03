@@ -28,7 +28,7 @@ public class SysIDUtil {
     }
 
     /**
-     * Boolean value of map is dynamic (true) or quasi (false)
+     * Boolean value: dynamic (true) or quasistatic (false)
      */
     public static Map<Boolean, Map<Direction, Command>> generateTests(SysIdRoutine.Config config, DoubleConsumer drive,
             Subsystem subsystem) {

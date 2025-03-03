@@ -58,7 +58,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.util.LocalADStarAK;
-import frc.robot.util.MathUtil;
+import frc.robot.util.MathUtils;
 import frc.robot.util.VisionUtil;
 
 public class Drive extends SubsystemBase {
@@ -288,6 +288,19 @@ public class Drive extends SubsystemBase {
         }
     }
 
+    public Pose2d closestReefPoseAlgae() {
+        var nativePose = closestReefPose();
+        var nativePoseNativeRot = new Pose2d(nativePose.getTranslation(),
+                nativePose.getRotation().minus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
+        var invTrPose = nativePoseNativeRot
+                .transformBy(new Transform2d(0,
+                        ((reefTargetIsRight ? -Constants.TAG_TO_BRANCH_OFFSET_M : Constants.TAG_TO_BRANCH_OFFSET_M)
+                                + Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN))
+                                - Units.inchesToMeters(Constants.ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN),
+                        Rotation2d.kZero));
+        return new Pose2d(invTrPose.getTranslation(), nativePose.getRotation());
+    }
+
     public Pose2d closestReefPose() {
         AprilTag closestTag = Limelight.field.getTags().stream()
                 .filter(t -> Constants.reefTagNames.containsKey(t.ID))
@@ -296,11 +309,12 @@ public class Drive extends SubsystemBase {
                 .findFirst().orElse(Limelight.field.getTags().get(0));
         Pose2d closestPose = closestTag.pose.toPose2d()
                 .transformBy(new Transform2d(Units.inchesToMeters(Constants.SCORING_SIDE_RADIUS_ROBOT_IN),
-                        (reefTargetIsRight ? Constants.TAG_TO_BRANCH_OFFSET_M : -Constants.TAG_TO_BRANCH_OFFSET_M)
-                                + Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN),
+                        ((reefTargetIsRight ? Constants.TAG_TO_BRANCH_OFFSET_M : -Constants.TAG_TO_BRANCH_OFFSET_M)
+                                - Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN)),
                         Rotation2d.kZero));
         closestReefName = Constants.reefTagNames.get(closestTag.ID);
-        return new Pose2d(closestPose.getTranslation(), closestPose.getRotation().plus(Rotation2d.kCW_Pi_2));
+        return new Pose2d(closestPose.getTranslation(),
+                closestPose.getRotation().plus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
     }
 
     public Command pathfindToPose(Pose2d pose) {
@@ -328,14 +342,14 @@ public class Drive extends SubsystemBase {
                         return;
                     }
                     runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
-                            MathUtil.clamp(d * Math.cos(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
+                            MathUtils.clamp(d * Math.cos(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
                                     PID_TRANSLATION_SPEED_MPS),
-                            MathUtil.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
+                            MathUtils.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
                                     PID_TRANSLATION_SPEED_MPS),
-                            MathUtil.clamp(
+                            MathUtils.clamp(
                                     angleController.calculate(
-                                            MathUtil.printAndReturn(driveYaw.getAsDouble(), "Measure: ", ""),
-                                            MathUtil.printAndReturn(pose.getRotation().getRadians(), "Setpoint: ",
+                                            MathUtils.printAndReturn(driveYaw.getAsDouble(), "Measure: ", ""),
+                                            MathUtils.printAndReturn(pose.getRotation().getRadians(), "Setpoint: ",
                                                     "")),
                                     -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
                             getRotation()));
@@ -344,6 +358,10 @@ public class Drive extends SubsystemBase {
                     angleController.reset();
                     stop();
                 });
+    }
+
+    public BooleanSupplier translatePidInPosition() {
+        return pidLineup::atSetpoint;
     }
 
     public DoubleSupplier get2dFilteredX() {

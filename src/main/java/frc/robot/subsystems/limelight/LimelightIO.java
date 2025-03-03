@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.util.LimelightHelpers;
-import frc.robot.util.MathUtil;
+import frc.robot.util.MathUtils;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.LimelightHelpers.RawFiducial;
 
@@ -99,12 +99,12 @@ public class LimelightIO {
             inputs.rawFiducials = Arrays.stream(LimelightHelpers.getRawFiducials(limelightName))
                     .map(LoggableRawFiducial::fromRawFiducial).toArray(LoggableRawFiducial[]::new);
             inputs.tv = true;
-            var txty = MathUtil.rotateVector(
+            var txty = MathUtils.rotateVector(
                     new double[] { LimelightHelpers.getTX(limelightName), LimelightHelpers.getTY(limelightName) },
                     robotToCamera.getRotation().getX());
             inputs.tx = txty[0];
             inputs.ty = txty[1];
-            txty = MathUtil.rotateVector(
+            txty = MathUtils.rotateVector(
                     new double[] { LimelightHelpers.getTXNC(limelightName), LimelightHelpers.getTYNC(limelightName) },
                     robotToCamera.getRotation().getX());
             inputs.txnc = txty[0];
