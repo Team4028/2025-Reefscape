@@ -1,5 +1,7 @@
 package frc.robot.subsystems.limelight;
 
+import java.util.Arrays;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -22,7 +24,6 @@ public class Limelight extends SubsystemBase {
     private final LimelightIOInputsAutoLogged inputs = new LimelightIOInputsAutoLogged();
     private final String name;
     public static final AprilTagFieldLayout field = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-    
 
     public Limelight(LimelightIO io) {
         this.io = io;
@@ -92,6 +93,11 @@ public class Limelight extends SubsystemBase {
 
     public boolean getTV() {
         return inputs.tv;
+    }
+
+    public Pose3d[] getVisionTargets() {
+        return Arrays.stream(inputs.rawFiducials).map(l -> field.getTagPose(l.id()).orElse(new Pose3d()))
+                .toArray(Pose3d[]::new);
     }
 
     @Override
@@ -174,5 +180,6 @@ public class Limelight extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Vision/" + name, inputs);
+        Logger.recordOutput("Vision/" + name + "/VisionTargets", getVisionTargets());
     }
 }

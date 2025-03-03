@@ -9,11 +9,13 @@ import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController;
@@ -42,6 +44,7 @@ import frc.robot.subsystems.limelight.LimelightIO;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
+import frc.robot.util.VisionUtil.LimelightSim;
 
 public class RobotContainer {
     public enum LimiterState {
@@ -57,6 +60,7 @@ public class RobotContainer {
     // private final Limelight ll4ii = new Limelight(new
     // LimelightIO("limelight-fourii", true, null));
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
+    private final LimelightSim ll4iiiSim = new LimelightSim(ll4iii, new Transform3d());
 
     private static final double SLOW_SPEED = 0.1;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -125,7 +129,8 @@ public class RobotContainer {
 
     public final void simCallback() {
         RobotSim.update(armistice.getSimData());
-
+        ll4iiiSim.updateRobotPose(drive.getPose());
+        Logger.recordOutput("Vision/" + ll4iiiSim.getName() + "/TagPoses", ll4iiiSim.getTagsSeen());
         RobotSim.logMechanism();
     }
 
