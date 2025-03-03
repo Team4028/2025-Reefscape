@@ -39,7 +39,7 @@ public class ElevatorConstants {
 
     public static final double ROT_TO_IN = 0.79174;
 
-    public static final double MAX_HEIGHT_INCHES = 65.5 * ROT_TO_IN;
+    public static final double MAX_HEIGHT_INCHES = 72 * ROT_TO_IN;
 
     public static final double PID_TOLERANCE = 1;//9.1629;
 

@@ -33,6 +33,21 @@ public class Robot extends LoggedRobot {
         SignalLogger.setPath("/media/sda1/ctre");
         Logger.recordMetadata("ProjectName", "BeakSquad4028");
         Logger.recordMetadata("TimeStamp", ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
+        Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
+        Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
+
+        switch (BuildConstants.DIRTY) {
+            case 0:
+                Logger.recordMetadata("GitDirty", "All Changes Committed");
+                break;
+            case 1:
+                Logger.recordMetadata("GitDirty", "Uncommited Changes");
+            default:
+                Logger.recordMetadata("GitDirty", "Unknown");
+                break;
+        }
 
         switch (Constants.currentMode) {
             case REAL:

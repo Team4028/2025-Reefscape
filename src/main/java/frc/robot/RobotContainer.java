@@ -7,6 +7,7 @@ package frc.robot;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -236,9 +237,10 @@ public class RobotContainer {
         operatorController.povDown().onTrue(armistice.decFutureArmisticePosition());
 
         // ==============================================
-        // OC -- DPAD LEFT/RIGHT: Toggle Magic Score Algae Height
+        // OC -- DPAD LEFT/RIGHT: Inc/Dev Magic Score Algae Height
         // ==============================================
-        operatorController.povLeft().or(operatorController.povRight()).onTrue(armistice.toggleAutoAlagePos());
+        operatorController.povLeft().onTrue(armistice.decAutoAlgaePos());
+        operatorController.povRight().onTrue(armistice.incAutoAlgaePos());
 
         // ==============================================
         // OC -- Y: Run To Aquire/Lollipop
@@ -263,7 +265,7 @@ public class RobotContainer {
         // OC -- B: Magic Score Algae
         // ==============================================
         operatorController.b().onTrue(Commands.defer(this::runToClosestAlgae,
-                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), algae)));
+                algaeCommandRequs().get()));
 
         // ==============================================
         // OC -- RX: Snap To Coral Stations
@@ -357,8 +359,16 @@ public class RobotContainer {
     }
 
     private Command runToClosestAlgae() {
-        return AutoSequencing.autoAquireReefAlgae(drive, armistice, algae, drive::closestReefPoseAlgae,
-                armistice::getAutoAlgaePosition);
+        return armistice.getAutoAlgaePosition() == ArmisticePositions.BARGE
+                ? armistice.runToPositionCommand(ArmisticePositions.BARGE)
+                : AutoSequencing.autoAquireReefAlgae(drive, armistice, algae, drive::closestReefPoseAlgae,
+                        armistice::getAutoAlgaePosition);
+    }
+
+    private Supplier<Set<Subsystem>> algaeCommandRequs() {
+        return () -> armistice.getAutoAlgaePosition() == ArmisticePositions.BARGE
+                ? Set.<Subsystem>of(armistice.getArm(), armistice.getElevator())
+                : Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), algae);
     }
 
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {

@@ -47,7 +47,6 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private double armCharVoltage = 0;
 
-    @AutoLogOutput
     private ArmisticePositions futureArmisticePositions = ArmisticePositions.L2;
 
     private ArmisticePositions futureAutoAlgaePosition = ArmisticePositions.ALGAE_2;
@@ -174,10 +173,22 @@ public class Armistice extends SudoSubsystem {
         });
     }
 
-    public Command toggleAutoAlagePos() {
-        return Commands.runOnce(
-                () -> futureAutoAlgaePosition = futureAutoAlgaePosition == ArmisticePositions.ALGAE_2 ? ArmisticePositions.ALGAE_3
-                        : ArmisticePositions.ALGAE_2);
+    public Command incAutoAlgaePos() {
+        return Commands.runOnce(() -> futureAutoAlgaePosition = switch(futureAutoAlgaePosition) {
+            case ALGAE_2 -> ArmisticePositions.ALGAE_3;
+            case ALGAE_3 -> ArmisticePositions.BARGE;
+            case BARGE -> ArmisticePositions.ALGAE_2;
+            default -> ArmisticePositions.STOW;
+        });
+    }
+
+    public Command decAutoAlgaePos() {
+        return Commands.runOnce(() -> futureAutoAlgaePosition = switch(futureAutoAlgaePosition) {
+            case ALGAE_2 -> ArmisticePositions.BARGE;
+            case ALGAE_3 -> ArmisticePositions.ALGAE_2;
+            case BARGE -> ArmisticePositions.ALGAE_3;
+            default -> ArmisticePositions.STOW;
+        });
     }
 
     public BooleanSupplier armAndElevatorAtTarget() {
@@ -275,6 +286,7 @@ public class Armistice extends SudoSubsystem {
             }
         }
 
+        Logger.recordOutput("Armistice/FutureArmisticePosition", "A: " + futureArmisticePositions.name());
         Logger.recordOutput("Armistice/AutoAlgaeCounter", "B: " + futureAutoAlgaePosition.name());
     }
 }
