@@ -24,6 +24,7 @@ import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 
 public class VisionUtil {
     public static Map<Limelight, DoubleFunction<LoggablePoseEstimate>> poseSources = new HashMap<>();
+    public static boolean requestingSeed = false;
 
     private VisionUtil() {
     }
@@ -34,6 +35,14 @@ public class VisionUtil {
 
     public static Map<Limelight, DoubleFunction<LoggablePoseEstimate>> poseSources() {
         return poseSources;
+    }
+
+    public static void seedIMUs(double driveDeg) {
+        poseSources.keySet().forEach(l -> l.seedLLSolverYaw(driveDeg));
+    }
+
+    public static void setLLIMUModes(boolean on) {
+        poseSources.keySet().forEach(l -> l.setIMUInternal(on));
     }
 
     public static Limelight[] registeredLimelights() {

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.Elastic;
 import frc.robot.util.SudoSubsystem;
 
 public class Robot extends LoggedRobot {
@@ -101,12 +102,14 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.schedule();
         }
+        robotContainer.periodicLL4IMU(true);
+        Elastic.selectTab("Autonomous");
     }
 
     @Override
     public void autonomousPeriodic() {
-        robotContainer.periodicLL4IMU(true);
         robotContainer.addMeasurements();
+        robotContainer.turnOnIfGood();
     }
 
     @Override
@@ -117,12 +120,14 @@ public class Robot extends LoggedRobot {
 
         // uncomment for use w/ sysid
         // SignalLogger.start();
+        robotContainer.periodicLL4IMU(true);
+        Elastic.selectTab("Teleoperated");
     }
 
     @Override
     public void teleopPeriodic() {
-        robotContainer.periodicLL4IMU(true);
-        robotContainer.addMeasurements();        
+        robotContainer.addMeasurements();
+        robotContainer.turnOnIfGood();
     }
 
     @Override

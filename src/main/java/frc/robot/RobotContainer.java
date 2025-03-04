@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -68,7 +69,7 @@ public class RobotContainer {
     private static final double DEFAULT_BASE_SPEED = 0.3;
     private double currSpeed = DEFAULT_BASE_SPEED;
 
-    private final LoggedDashboardChooser<Command> autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
+    private final LoggedDashboardChooser<Command> autonChooser;
     private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
             new ModuleIOTalonFX(TunerConstants.FrontLeft),
             new ModuleIOTalonFX(TunerConstants.FrontRight),
@@ -101,14 +102,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire", coral.runMotorCommand(.7)
                 .alongWith(Commands.waitUntil(
-                        coral.hasGamePieceSupplier()))
+                        coral.hasGamePieceSupplier()).withTimeout(1))
                 .andThen(coral.runMotorCommand(0)));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(0.5))
                         .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
                                 .andThen(coral.runMotorCommand(0))));
-
-        autonChooser.addDefaultOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
+        NamedCommands.registerCommand("Run To Closest Right Reef", rightPidToClosestReef().until(drive.translatePidInPosition()));
+        NamedCommands.registerCommand("Run To Closest Left Reef", leftPidToClosestReef().until(drive.translatePidInPosition()));
+        autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
+        autonChooser.addOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
         // Set up SysId routines
         configureBindings();
     }
@@ -127,7 +130,20 @@ public class RobotContainer {
     }
 
     public void periodicLL4IMU(boolean on) {
-        ll4iii.setIMUInternal(on);
+        VisionUtil.setLLIMUModes(on);
+    }
+
+    public void turnOnIfGood() {
+        for (var ll : VisionUtil.registeredLimelights()) {
+            if (!VisionUtil.requestingSeed
+                    || Math.abs(drive.getRotation().minus(ll.getSolverAngle()).getDegrees()) < 0.02) {
+                ll.setIMUInternal(true);
+                VisionUtil.requestingSeed = false;
+            } else {
+                ll.setIMUInternal(false);
+                VisionUtil.requestingSeed = true;
+            }
+        }
     }
 
     public void logLLPoses() {
@@ -135,7 +151,7 @@ public class RobotContainer {
     }
 
     public void seedll4IMU() {
-        ll4iii.seedLLSolverYaw(drive.getPose().getRotation().getDegrees());
+        VisionUtil.seedIMUs(drive.getPose().getRotation().getDegrees());
     }
 
     public final void simCallback() {
@@ -264,7 +280,7 @@ public class RobotContainer {
         operatorController.y()
                 .onTrue(Commands.defer(
                         () -> armistice.runToPositionCommand(
-                                armistice.getCoralMode() ? ArmisticePositions.ACQUIRE : ArmisticePositions.LOLLIPOP),
+                                armistice.getCoralMode() ? ArmisticePositions.ACQUIRE : ArmisticePositions.LOLI),
                         Set.<Subsystem>of(armistice.getElevator(), armistice.getArm())));
 
         // ==============================================
@@ -372,6 +388,16 @@ public class RobotContainer {
     private Command runToClosestReef() {
         return AutoSequencing.autoScoreReefNoShoot(drive, armistice, coral, drive::closestReefPose,
                 armistice::getFutureArmisticePositions);
+    }
+
+    private Command rightPidToClosestReef() {
+        return Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands
+                .defer(() -> drive.translateToPositionWithPID(drive.closestReefPose()), Set.<Subsystem>of(drive)));
+    }
+
+    private Command leftPidToClosestReef() {
+        return Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands
+                .defer(() -> drive.translateToPositionWithPID(drive.closestReefPose()), Set.<Subsystem>of(drive)));
     }
 
     private Command runToClosestAlgae() {

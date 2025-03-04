@@ -4,13 +4,14 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.AutoLog;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.util.LimelightHelpers;
-import frc.robot.util.MathUtils;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.LimelightHelpers.RawFiducial;
+import frc.robot.util.MathUtils;
 
 public class LimelightIO {
 
@@ -124,11 +125,18 @@ public class LimelightIO {
 
     public boolean setIMUInternal(boolean on) {
         if (is4) {
-            LimelightHelpers.SetIMUMode(limelightName, on ? 2 : 1);
+            LimelightHelpers.SetIMUMode(limelightName, on ? 4 : 1);
             return true;
         }
 
         return false;
+    }
+
+    public double getSeedAngle() {
+        var e = LimelightHelpers.getLimelightDoubleArrayEntry(limelightName, "robot_orientation_set");
+        if (e.exists())
+            return e.get()[0];
+        else return 0;
     }
 
     public String getName() {

@@ -47,26 +47,26 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private double armCharVoltage = 0;
 
-    private ArmisticePositions futureArmisticePositions = ArmisticePositions.L2;
+    private ArmisticePositions futureArmisticePositions = ArmisticePositions.Cora_L2;
 
-    private ArmisticePositions futureAutoAlgaePosition = ArmisticePositions.ALGAE_2;
+    private ArmisticePositions futureAutoAlgaePosition = ArmisticePositions.A2_lgae;
 
     private Map<ArmisticePositions, ArmisticePositions> positionsMap = Map.of(
-            ArmisticePositions.ACQUIRE, ArmisticePositions.LOLLIPOP,
-            ArmisticePositions.L2, ArmisticePositions.ALGAE_2,
-            ArmisticePositions.L3, ArmisticePositions.ALGAE_3,
-            ArmisticePositions.L4, ArmisticePositions.BARGE);
+            ArmisticePositions.ACQUIRE, ArmisticePositions.LOLI,
+            ArmisticePositions.Cora_L2, ArmisticePositions.A2_lgae,
+            ArmisticePositions.Cora_L3, ArmisticePositions.A3_lgae,
+            ArmisticePositions.Cora_L4, ArmisticePositions.BARGE);
 
     public static enum ArmisticePositions {
         STOW(4.097 - 0.52359878, 9),
         ACQUIRE(0.855 - 0.52359878, 8.1),
         ACQUIRE_BLOCKED(0.94 - 0.52359878, 6.1),
-        L2(4.097 - 0.52359878, 9),
-        L3(4.097 - 0.52359878, 24.54),
-        L4(3.907 - 0.52359878, 55.0),
-        ALGAE_2(5.624 - 0.52359878, 9.14),
-        ALGAE_3(5.624 - 0.52359878, 25.14),
-        LOLLIPOP(2.68 - 0.52359878, 0.61),
+        Cora_L2(4.097 - 0.52359878, 9),
+        Cora_L3(4.097 - 0.52359878, 24.54),
+        Cora_L4(3.907 - 0.52359878, 55.0),
+        A2_lgae(5.624 - 0.52359878, 9.14),
+        A3_lgae(5.624 - 0.52359878, 25.14),
+        LOLI(2.68 - 0.52359878, 0.61),
         BARGE(6.14 - 0.52359878, 55),
         CLIMB(2.911 - 0.52359878, 0.5),
         BARGE_ALT(1.515 - 0.52359878, 55);
@@ -81,11 +81,11 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Armistice() {
-        NamedCommands.registerCommand("L4 Score", runToPositionCommand(ArmisticePositions.L4));
+        NamedCommands.registerCommand("L4 Score", runToPositionCommand(ArmisticePositions.Cora_L4));
         NamedCommands.registerCommand("Stow", runToPositionCommand(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Stow No Wait", runToPositionNoWait(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Acquire Pos", runToPositionCommand(ArmisticePositions.ACQUIRE));
-        NamedCommands.registerCommand("L3 Score", runToPositionCommand(ArmisticePositions.L3));
+        NamedCommands.registerCommand("L3 Score", runToPositionCommand(ArmisticePositions.Cora_L3));
     }
 
     private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX());
@@ -151,42 +151,42 @@ public class Armistice extends SudoSubsystem {
 
     public Command incFutureArmisticePosition() {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
-            case L2 -> ArmisticePositions.L3;
-            case L3 -> ArmisticePositions.L4;
-            case L4 -> ArmisticePositions.L2;
-            case ALGAE_2 -> ArmisticePositions.ALGAE_3;
-            case ALGAE_3 -> ArmisticePositions.BARGE;
-            case BARGE -> ArmisticePositions.ALGAE_2;
+            case Cora_L2 -> ArmisticePositions.Cora_L3;
+            case Cora_L3 -> ArmisticePositions.Cora_L4;
+            case Cora_L4 -> ArmisticePositions.Cora_L2;
+            case A2_lgae -> ArmisticePositions.A3_lgae;
+            case A3_lgae -> ArmisticePositions.BARGE;
+            case BARGE -> ArmisticePositions.A2_lgae;
             default -> ArmisticePositions.STOW;
         });
     }
 
     public Command decFutureArmisticePosition() {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
-            case L2 -> ArmisticePositions.L4;
-            case L3 -> ArmisticePositions.L2;
-            case L4 -> ArmisticePositions.L3;
-            case ALGAE_2 -> ArmisticePositions.BARGE;
-            case ALGAE_3 -> ArmisticePositions.ALGAE_2;
-            case BARGE -> ArmisticePositions.ALGAE_3;
+            case Cora_L2 -> ArmisticePositions.Cora_L4;
+            case Cora_L3 -> ArmisticePositions.Cora_L2;
+            case Cora_L4 -> ArmisticePositions.Cora_L3;
+            case A2_lgae -> ArmisticePositions.BARGE;
+            case A3_lgae -> ArmisticePositions.A2_lgae;
+            case BARGE -> ArmisticePositions.A3_lgae;
             default -> ArmisticePositions.STOW;
         });
     }
 
     public Command incAutoAlgaePos() {
         return Commands.runOnce(() -> futureAutoAlgaePosition = switch(futureAutoAlgaePosition) {
-            case ALGAE_2 -> ArmisticePositions.ALGAE_3;
-            case ALGAE_3 -> ArmisticePositions.BARGE;
-            case BARGE -> ArmisticePositions.ALGAE_2;
+            case A2_lgae -> ArmisticePositions.A3_lgae;
+            case A3_lgae -> ArmisticePositions.BARGE;
+            case BARGE -> ArmisticePositions.A2_lgae;
             default -> ArmisticePositions.STOW;
         });
     }
 
     public Command decAutoAlgaePos() {
         return Commands.runOnce(() -> futureAutoAlgaePosition = switch(futureAutoAlgaePosition) {
-            case ALGAE_2 -> ArmisticePositions.BARGE;
-            case ALGAE_3 -> ArmisticePositions.ALGAE_2;
-            case BARGE -> ArmisticePositions.ALGAE_3;
+            case A2_lgae -> ArmisticePositions.BARGE;
+            case A3_lgae -> ArmisticePositions.A2_lgae;
+            case BARGE -> ArmisticePositions.A3_lgae;
             default -> ArmisticePositions.STOW;
         });
     }

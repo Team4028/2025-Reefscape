@@ -176,6 +176,14 @@ public class Limelight extends SubsystemBase {
         io.seedSolverYaw(chassisYaw);
     }
 
+    public Rotation2d getSolverAngle() {
+        return inputs.solverPoseBlue.pose().getRotation();
+    }
+
+    public Rotation2d getSeedAngle() {
+        return Rotation2d.fromDegrees(io.getSeedAngle());
+    }
+
     @Override
     public void periodic() {
         io.updateInputs(inputs);

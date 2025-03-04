@@ -17,7 +17,7 @@ public class AutoSequencing {
         return drive.pathfindToPose(reefPosition.get())
                 .alongWith(Commands.waitUntil(drive.readyForArm())
                         .andThen(armistice.runToPositionNoWait(
-                                (scorePosition.get() == ArmisticePositions.BARGE ? ArmisticePositions.L4
+                                (scorePosition.get() == ArmisticePositions.BARGE ? ArmisticePositions.Cora_L4
                                         : scorePosition.get()))))
                 .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(.3))
                         .andThen(coral.runMotorCommand(-0.8))
@@ -44,7 +44,7 @@ public class AutoSequencing {
         return drive.pathfindToPose(reefPosition.get())
                 .alongWith(Commands.waitUntil(drive.readyForArm())
                         .andThen(armistice.runToPositionNoWait(
-                                (scorePosition.get() == ArmisticePositions.BARGE ? ArmisticePositions.L4
+                                (scorePosition.get() == ArmisticePositions.BARGE ? ArmisticePositions.Cora_L4
                                         : scorePosition.get()))))
                 .andThen(drive.translateToPositionWithPID(reefPosition.get()).until(drive.translatePidInPosition()));
     }
