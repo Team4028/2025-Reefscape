@@ -16,8 +16,9 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.util.function.FloatSupplier;
+import lombok.experimental.UtilityClass;
 
-/** Add your docs here. */
+@UtilityClass
 public final class DashboardStore {
     private static Map<NetworkTableEntry, Supplier<NetworkTableValue>> values = new HashMap<NetworkTableEntry, Supplier<NetworkTableValue>>();
 

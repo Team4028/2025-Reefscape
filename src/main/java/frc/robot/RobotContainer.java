@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -29,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoSequencing;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
 import frc.robot.subsystems.algae.AlgaeManipulatorIOTalonFX;
@@ -47,8 +45,9 @@ import frc.robot.subsystems.limelight.LimelightIO;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
-import frc.robot.util.VisionUtil.LimelightSim;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({frc.robot.util.RobotSim.class, frc.robot.commands.DriveCommands.class})
 public class RobotContainer {
     public enum LimiterState {
         X,
@@ -57,20 +56,17 @@ public class RobotContainer {
     }
 
     private final Armistice armistice = new Armistice();
-    private final CoralManipulator coral = new CoralManipulator(new CoralManipulatorIOTalonFX());
-    private final AlgaeManipulator algae = new AlgaeManipulator(new AlgaeManipulatorIOTalonFX());
-    private final Climber climber = new Climber(new ClimberIOTalonFX());
-    // private final Limelight ll4ii = new Limelight(new
-    // LimelightIO("limelight-fourii", true, null));
+    private final CoralManipulator coral = new CoralManipulatorIOTalonFX().simSwitch();
+    private final AlgaeManipulator algae = new AlgaeManipulatorIOTalonFX().simSwitch();
+    private final Climber climber = new ClimberIOTalonFX().simSwitch();
+    
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
-    private final LimelightSim ll4iiiSim = new LimelightSim(ll4iii, new Transform3d());
 
-    private static final double SLOW_SPEED = 0.1;
     private static final double DEFAULT_BASE_SPEED = 0.3;
     private double currSpeed = DEFAULT_BASE_SPEED;
 
     private final LoggedDashboardChooser<Command> autonChooser;
-    private final Drive drive = RobotSim.driveSimSwitch(new GyroIOPigeon2(), new ModuleIO[] {
+    private final Drive drive = RobotSim.simSwitch(new GyroIOPigeon2(), new ModuleIO[] {
             new ModuleIOTalonFX(TunerConstants.FrontLeft),
             new ModuleIOTalonFX(TunerConstants.FrontRight),
             new ModuleIOTalonFX(TunerConstants.BackLeft),
@@ -108,11 +104,12 @@ public class RobotContainer {
                 Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(0.5))
                         .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
                                 .andThen(coral.runMotorCommand(0))));
-        NamedCommands.registerCommand("Run To Closest Right Reef", rightPidToClosestReef().until(drive.translatePidInPosition()));
-        NamedCommands.registerCommand("Run To Closest Left Reef", leftPidToClosestReef().until(drive.translatePidInPosition()));
+        NamedCommands.registerCommand("Run To Closest Right Reef", rightPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
+        NamedCommands.registerCommand("Run To Closest Left Reef", leftPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
-        autonChooser.addOption("Char drivetrain", DriveCommands.feedforwardCharacterization(drive));
+        autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         // Set up SysId routines
+        VisionUtil.bindSimCameras(new Transform3d[]{ new Transform3d() });
         configureBindings();
     }
 
@@ -156,8 +153,8 @@ public class RobotContainer {
 
     public final void simCallback() {
         RobotSim.update(armistice.getSimData());
-        ll4iiiSim.updateRobotPose(drive.getPose());
-        Logger.recordOutput("Vision/" + ll4iiiSim.getName() + "/TagPoses", ll4iiiSim.getTagsSeen());
+        VisionUtil.updateSimDrivePose(drive.getPose());
+        VisionUtil.logSeenTags();
         RobotSim.logMechanism();
     }
 
@@ -175,18 +172,11 @@ public class RobotContainer {
         // DC -- LY/LX/RX: Drive
         // ==============================================
         drive.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        drive,
+                drive.joystickDrive(
                         () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
                         () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
                                 LimiterState.THETA)));
-
-        // ==============================================
-        // DC -- RB: Slow
-        // ==============================================
-        driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
-                .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
 
         // ==============================================
         // DC -- START: Zero Drive
@@ -200,6 +190,12 @@ public class RobotContainer {
                                                 : Rotation2d.kPi)),
                         drive)
                         .ignoringDisable(true));
+
+        
+        // ==============================================
+        // DC -- RS: Cancel Command
+        // ==============================================
+        driverController.x().onTrue(drive.runOnce(drive::stopWithX));
 
         // ==============================================
         // DC -- RS: Cancel Command
@@ -303,12 +299,12 @@ public class RobotContainer {
         // OC -- RX: Snap To Coral Stations
         // ==============================================
         operatorController.axisGreaterThan(XboxController.Axis.kRightX.value, 0.5)
-                .onTrue(DriveCommands.joystickDriveAtAngle(drive,
+                .onTrue(drive.joystickDriveAtAngle(
                         () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
                         () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
                         () -> Rotation2d.fromDegrees(Constants.CORAL_STATION_RIGHT_ROTATION_DEG)));
         operatorController.axisLessThan(XboxController.Axis.kRightX.value, -0.5)
-                .onTrue(DriveCommands.joystickDriveAtAngle(drive,
+                .onTrue(drive.joystickDriveAtAngle(
                         () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
                         () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
                         () -> Rotation2d.fromDegrees(Constants.CORAL_STATION_LEFT_ROTATION_DEG)));
@@ -430,8 +426,7 @@ public class RobotContainer {
     }
 
     public Command realDrivetrainStop() {
-        return drive
-                .runOnce(drive::stop);
+        return drive.runOnce(drive::stop);
     }
 
 }

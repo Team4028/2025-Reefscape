@@ -2,7 +2,9 @@ package frc.robot.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.DoubleFunction;
 
@@ -21,13 +23,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class VisionUtil {
     public static Map<Limelight, DoubleFunction<LoggablePoseEstimate>> poseSources = new HashMap<>();
+    public static List<LimelightSim> sims = new ArrayList<>();
     public static boolean requestingSeed = false;
-
-    private VisionUtil() {
-    }
 
     public static void registerPoseSource(Limelight ll, DoubleFunction<LoggablePoseEstimate> source) {
         poseSources.put(ll, source);
@@ -75,6 +77,24 @@ public class VisionUtil {
 
     public static Command addMeasurementsCommand(Consumer<LoggablePoseEstimate> poseAddr, Drive drivetrain) {
         return Commands.runOnce(() -> addMeasurements(poseAddr, drivetrain));
+    }
+
+    public static void bindSimCameras(Transform3d[] robotToCameraTransforms) {
+        AtomicInteger idx = new AtomicInteger(0);
+        sims.addAll(
+                poseSources.keySet().stream()
+                        .<LimelightSim>map(l -> new LimelightSim(l,
+                                MathUtils.arrayGetSafe(robotToCameraTransforms, idx.getAndIncrement())
+                                        .orElse(new Transform3d())))
+                        .toList());
+    }
+
+    public static void updateSimDrivePose(Pose2d drivePose) {
+        sims.get(0).updateRobotPose(drivePose);
+    }
+
+    public static void logSeenTags() {
+        sims.forEach(s -> Logger.recordOutput("Vision/" + s.getName() + "/TagPoses", s.getTagsSeen()));
     }
 
     public static final class LimelightSim {

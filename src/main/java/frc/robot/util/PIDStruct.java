@@ -11,7 +11,9 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import lombok.With;
 
+@With
 public record PIDStruct(double kP, double kI, double kD, double maxVel, double maxAccel, double maxJerk,
         double maxTourqueReverse, double maxTourqueForward, double kS, double kG, double kV, double kA) {
     public PIDController makeController() {

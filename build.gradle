@@ -2,6 +2,7 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2025.3.1"
     id "com.peterabeles.gversion" version "1.10.3"
+    id "io.freefair.lombok" version "8.12.2.1"
 }
 
 java {
@@ -59,6 +60,7 @@ task(replayWatch, type: JavaExec) {
 // Also defines JUnit 5.
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 

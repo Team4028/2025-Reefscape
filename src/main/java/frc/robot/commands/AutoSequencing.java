@@ -10,7 +10,9 @@ import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.subsystems.algae.AlgaeManipulator;
 import frc.robot.subsystems.coral.CoralManipulator;
 import frc.robot.subsystems.drive.Drive;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class AutoSequencing {
     public static final Command autoScoreReef(Drive drive, Armistice armistice, CoralManipulator coral,
             Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> scorePosition) {

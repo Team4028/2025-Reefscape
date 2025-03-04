@@ -23,8 +23,8 @@ public final class Constants {
     public static final double SCORING_SIDE_RADIUS_ROBOT_IN = 17.375;
     public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = -1.2;
     public static final double ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN = 1.25;
-    public static final double CORAL_STATION_LEFT_ROTATION_DEG = 135;
-    public static final double CORAL_STATION_RIGHT_ROTATION_DEG = 225;
+    public static final double CORAL_STATION_LEFT_ROTATION_DEG = 216.869897645844 - 180;
+    public static final double CORAL_STATION_RIGHT_ROTATION_DEG = 326 - 180;
     public static final Rotation2d SCORING_SIDE_FROM_FRONT_ROT = Rotation2d.kCCW_Pi_2;
 
     public static final Map<Integer, String> reefTagNames = new HashMap<>(){{

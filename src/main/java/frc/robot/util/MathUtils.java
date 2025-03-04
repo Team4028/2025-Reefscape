@@ -4,7 +4,11 @@
 
 package frc.robot.util;
 
-/** Add your docs here. */
+import java.util.Optional;
+
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class MathUtils {
     public static final <T extends Number> T clamp(T value, T min, T max) {
         if (value.doubleValue() < min.doubleValue())
@@ -17,6 +21,10 @@ public class MathUtils {
 
     public static final <T extends Number> boolean inRange(T value, T minInc, T maxInc) {
         return value.doubleValue() >= minInc.doubleValue() && value.doubleValue() <= maxInc.doubleValue();
+    }
+
+    public static final <T> Optional<T> arrayGetSafe(T[] arr, int idx) {
+        return idx >= arr.length ? Optional.empty() : Optional.of(arr[idx]);        
     }
     
     public static final <T> T printAndReturn(T value, String prefix, String suffix) {

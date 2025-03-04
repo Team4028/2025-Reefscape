@@ -5,7 +5,9 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 
 import frc.robot.subsystems.arm.ArmConstants;
+import lombok.With;
 
+@With
 public final record MotorData(double positionRad, double velocityRadPerSec, double tempCelcius) {
 
     public static final MotorData empty() {

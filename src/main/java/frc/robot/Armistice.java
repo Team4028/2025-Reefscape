@@ -22,9 +22,10 @@ import frc.robot.subsystems.arm.ArmIOCanEncoderTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.MathUtils;
-import frc.robot.util.RobotSim;
 import frc.robot.util.SudoSubsystem;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod(frc.robot.util.RobotSim.class)
 public class Armistice extends SudoSubsystem {
 
     public static final record SimData(double elevatorPositionMeters, double armPositionRadians) {
@@ -88,8 +89,8 @@ public class Armistice extends SudoSubsystem {
         NamedCommands.registerCommand("L3 Score", runToPositionCommand(ArmisticePositions.Cora_L3));
     }
 
-    private final Elevator summit = RobotSim.elevatorSimSwitch(new ElevatorIOTalonFX());
-    private final Arm disarm = RobotSim.armSimSwitch(new ArmIOCanEncoderTalonFX());
+    private final Elevator summit = new ElevatorIOTalonFX().simSwitch();
+    private final Arm disarm = new ArmIOCanEncoderTalonFX().simSwitch();
 
     public void getCanMagPosition() {
         disarm.getCanMagPosition();

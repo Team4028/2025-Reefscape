@@ -12,10 +12,19 @@ import frc.robot.Constants;
 import frc.robot.Armistice.SimData;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.algae.AlgaeManipulator;
+import frc.robot.subsystems.algae.AlgaeManipulatorIO;
+import frc.robot.subsystems.algae.AlgaeManipulatorIOSim;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOSim;
+import frc.robot.subsystems.coral.CoralManipulator;
+import frc.robot.subsystems.coral.CoralManipulatorIO;
+import frc.robot.subsystems.coral.CoralManipulatorIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -24,9 +33,10 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class RobotSim {
-
     public static final Map<String, DoubleSupplier> currentInputs = new HashMap<>();
 
     public static final void registerCurrentInput(String key, DoubleSupplier currentSupplier) {
@@ -34,7 +44,7 @@ public class RobotSim {
             currentInputs.replace(key, currentSupplier);
     }
 
-    public static final Drive driveSimSwitch(GyroIO io, ModuleIO[] moduleIOs) {
+    public static final Drive simSwitch(GyroIO io, ModuleIO[] moduleIOs) {
         return Constants.currentMode == Mode.REAL
                 ? new Drive(io, moduleIOs[0], moduleIOs[1], moduleIOs[2], moduleIOs[3])
                 : new Drive(new GyroIO() {
@@ -42,12 +52,24 @@ public class RobotSim {
                         new ModuleIOSim(TunerConstants.BackLeft), new ModuleIOSim(TunerConstants.BackRight));
     }
 
-    public static final Arm armSimSwitch(ArmIO realArm) {
+    public static final Arm simSwitch(ArmIO realArm) {
         return new Arm(Constants.currentMode == Mode.REAL ? realArm : new ArmIOSim());
     }
 
-    public static final Elevator elevatorSimSwitch(ElevatorIO realElevator) {
+    public static final Elevator simSwitch(ElevatorIO realElevator) {
         return new Elevator(Constants.currentMode == Mode.REAL ? realElevator : new ElevatorIOSim());
+    }
+
+    public static final Climber simSwitch(ClimberIO realClimber) {
+        return new Climber(Constants.currentMode == Mode.REAL ? realClimber : new ClimberIOSim());
+    }
+
+    public static final CoralManipulator simSwitch(CoralManipulatorIO realCoral) {
+        return new CoralManipulator(Constants.currentMode == Mode.REAL ? realCoral : new CoralManipulatorIOSim());
+    }
+
+    public static final AlgaeManipulator simSwitch(AlgaeManipulatorIO realAlgae) {
+        return new AlgaeManipulator(Constants.currentMode == Mode.REAL ? realAlgae : new AlgaeManipulatorIOSim());
     }
 
     private static LoggedMechanism2d baseMech = new LoggedMechanism2d(5, 5);
