@@ -340,10 +340,10 @@ public class Armistice extends SudoSubsystem {
         Logger.recordOutput("Armistice/ElevatorOffsets/AutoAlgaeCounterOffset", futureAutoAlgaePosition.elevatorOffsetInches);
         Logger.recordOutput("Armistice/ElevatorOffsets/FutureAquirePositionOffset", futureAquirePosition.elevatorOffsetInches);
         Logger.recordOutput("Armistice/ElevatorOffsets/StowPositionOffset", ArmisticePositions.STOW.elevatorOffsetInches);
-        Logger.recordOutput("Armistice/ArmOffsets/FutureArmisticePositionOffset", Units.radiansToDegrees(futureArmisticePositions.armOffsetRad));
-        Logger.recordOutput("Armistice/ArmOffsets/AutoAlgaeCounterOffset", Units.radiansToDegrees(futureAutoAlgaePosition.armOffsetRad));
-        Logger.recordOutput("Armistice/ArmOffsets/FutureAquirePositionOffset", Units.radiansToDegrees(futureAquirePosition.armOffsetRad));
-        Logger.recordOutput("Armistice/ArmOffsets/StowPositionOffset", Units.radiansToDegrees(ArmisticePositions.STOW.armOffsetRad));
+        Logger.recordOutput("Armistice/ArmOffsets/FutureArmisticePositionOffset", MathUtils.roundToPlace(Units.radiansToDegrees(futureArmisticePositions.armOffsetRad), 3));
+        Logger.recordOutput("Armistice/ArmOffsets/AutoAlgaeCounterOffset", MathUtils.roundToPlace(Units.radiansToDegrees(futureAutoAlgaePosition.armOffsetRad), 3));
+        Logger.recordOutput("Armistice/ArmOffsets/FutureAquirePositionOffset", MathUtils.roundToPlace(Units.radiansToDegrees(futureAquirePosition.armOffsetRad), 3));
+        Logger.recordOutput("Armistice/ArmOffsets/StowPositionOffset", MathUtils.roundToPlace(Units.radiansToDegrees(ArmisticePositions.STOW.armOffsetRad), 3));
         Logger.recordOutput("Armistice/ElevatorTargetInchesFriendly", MathUtils.roundToPlace(elevatorTargetInches, 3));
         Logger.recordOutput("Armistice/ArmTargetRadFriendly", MathUtils.roundToPlace(armTargetRad, 3));
         
