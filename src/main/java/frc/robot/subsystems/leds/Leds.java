@@ -1,9 +1,6 @@
 package frc.robot.subsystems.leds;
 
-import java.security.AllPermission;
 import java.util.Arrays;
-import java.util.function.BooleanSupplier;
-
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 
@@ -17,38 +14,52 @@ import frc.robot.subsystems.limelight.Limelight;
 public class Leds extends SubsystemBase {
     public final CANdle candle;
     private Color color;
-    private CandleState candleState = CandleState.OFF;
-    private StripState stripState = StripState.OFF;
-    private StripStateTwo stripStateTwo = StripStateTwo.OFF;
-    private boolean seeAnyTag = false;
+
+    // Starting States
     private Color canColor = Color.WHITE;
     private Color stripColor = Color.WHITE;
     private Color stripColorTwo = Color.WHITE;
-    private Timer canFlasher;
-    private Timer stripFlasher;
-    private Timer stripFlasherTwo;
+    private CandleState candleState = CandleState.OFF;
+    private StripState stripState = StripState.OFF;
+    private StripStateTwo stripStateTwo = StripStateTwo.OFF;
+
+    // Booleans
     private boolean isCanOn = true;
     private boolean isStripOn = true;
     private boolean isStripTwoOn = true;
-    private int aprilTagCount;
-    private int canLength = 8;
-    private int canInd = 0;
-    private int stripLength = 30;
-    private int fullStripLength = 60;
-    private int stripInd = 8;
-    private int stripLengthTwo = 30;
-    private int stripIndTwo = 38;
     private boolean inhale = true;
     private boolean inhaleTwo = true;
-    private int breathPoint = 0;
+    private boolean seeAnyTag = false;
+    private boolean rainbow = false;
+
+    // Timers
+    private Timer canFlasher;
+    private Timer stripFlasher;
+    private Timer stripFlasherTwo;
+
+    // Tag Count
+    private int aprilTagCount;
+
+    // Index and Count
+    private int canInd = 0;
+    private int stripInd = 8;
+    private int stripIndTwo = 38;
+    private int canLength = 8;
+    private int stripLength = 30;
+    private int stripLengthTwo = 30;
+    private int fullStripLength = 60;
+
+    // Breathing and FOLLOW
     private int stripRed = 0;
-    private int stripBlue = 0;
     private int stripGreen = 0;
+    private int stripBlue = 0;
+
+    // Breathing
+    private int breathPoint = 0;
     private int breathPointTwo = 0;
     private int breathRedTwo = 0;
-    private int breathBlueTwo = 0;
     private int breathGreenTwo = 0;
-    private boolean rainbow = false;
+    private int breathBlueTwo = 0;
 
     public enum Color {
         RED(254, 0, 0),
@@ -80,6 +91,7 @@ public class Leds extends SubsystemBase {
         FLASH,
         LIME,
         SOLID,
+        FOLLOW,
         OFF;
     }
 
@@ -94,6 +106,7 @@ public class Leds extends SubsystemBase {
         FLASH,
         BREATH,
         SOLID,
+        FOLLOW,
         OFF;
     }
 
@@ -336,7 +349,7 @@ public class Leds extends SubsystemBase {
     }
 
     public Command stripColorAndModeCommand(Color color, StripState state) {
-        return Commands.runOnce(() -> stripColorAndMode(color, stripState));
+        return Commands.runOnce(() -> stripColorAndMode(color, state));
     }
 
     public void stripTwoColorAndMode(Color color, StripStateTwo state) {
@@ -504,6 +517,9 @@ public class Leds extends SubsystemBase {
             case SOLID:
                 setLedsColor(canInd, canLength, this.canColor.r, this.canColor.g, this.canColor.b);
                 break;
+            case FOLLOW:
+            setLedsColor(canInd, canLength, stripRed, stripGreen, stripBlue);
+            break;
             case OFF:
                 setLedsColor(canInd, canLength, 0, 0, 0);
                 break;
@@ -514,6 +530,9 @@ public class Leds extends SubsystemBase {
 
         switch (stripState) {
             case FLASH:
+            stripRed = this.stripColor.r;
+            stripGreen = this.stripColor.g;
+            stripBlue = this.stripColor.b;
                 if (stripFlasher.get() >= .1) {
                     isStripOn = !isStripOn;
                     stripFlasher.reset();
@@ -522,7 +541,7 @@ public class Leds extends SubsystemBase {
                     stripFlasher.start();
                 }
                 if (isStripOn) {
-                    setLedsColor(stripInd, stripLength, this.stripColor.r, this.stripColor.g, this.stripColor.b);
+                    setLedsColor(stripInd, stripLength, stripRed, stripGreen, stripBlue);
                 } else {
                     setLedsColor(stripInd, stripLength, 0, 0, 0);
                 }
@@ -552,7 +571,10 @@ public class Leds extends SubsystemBase {
                 }
                 break;
             case SOLID:
-                setLedsColor(stripInd, stripLength, this.stripColor.r, this.stripColor.g, this.stripColor.b);
+            stripRed = this.stripColor.r;
+            stripGreen = this.stripColor.g;
+            stripBlue = this.stripColor.b;
+                setLedsColor(stripInd, stripLength, stripRed, stripGreen, stripBlue);
                 break;
             case OFF:
                 setLedsColor(stripInd, stripLength, 0, 0, 0);
@@ -598,6 +620,9 @@ public class Leds extends SubsystemBase {
                     }
                 }
                 break;
+            case FOLLOW:
+                setLedsColor(stripIndTwo, stripLengthTwo, stripRed, stripGreen, stripBlue);
+            break;
             case SOLID:
                 setLedsColor(stripIndTwo, stripLengthTwo, this.stripColorTwo.r, this.stripColorTwo.g,
                         this.stripColorTwo.b);
