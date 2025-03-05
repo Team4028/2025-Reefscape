@@ -47,7 +47,7 @@ import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
 import lombok.experimental.ExtensionMethod;
 
-@ExtensionMethod({frc.robot.util.RobotSim.class, frc.robot.commands.DriveCommands.class})
+@ExtensionMethod({ frc.robot.util.RobotSim.class, frc.robot.commands.DriveCommands.class })
 public class RobotContainer {
     public enum LimiterState {
         X,
@@ -59,7 +59,7 @@ public class RobotContainer {
     private final CoralManipulator coral = new CoralManipulatorIOTalonFX().simSwitch();
     private final AlgaeManipulator algae = new AlgaeManipulatorIOTalonFX().simSwitch();
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
-    
+
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
 
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -104,12 +104,14 @@ public class RobotContainer {
                 Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(0.5))
                         .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
                                 .andThen(coral.runMotorCommand(0))));
-        NamedCommands.registerCommand("Run To Closest Right Reef", rightPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
-        NamedCommands.registerCommand("Run To Closest Left Reef", leftPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
+        NamedCommands.registerCommand("Run To Closest Right Reef",
+                rightPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
+        NamedCommands.registerCommand("Run To Closest Left Reef",
+                leftPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         // Set up SysId routines
-        VisionUtil.bindSimCameras(new Transform3d[]{ new Transform3d() });
+        VisionUtil.bindSimCameras(new Transform3d[] { new Transform3d() });
         configureBindings();
     }
 
@@ -191,7 +193,6 @@ public class RobotContainer {
                         drive)
                         .ignoringDisable(true));
 
-        
         // ==============================================
         // DC -- RS: Cancel Command
         // ==============================================
@@ -215,7 +216,7 @@ public class RobotContainer {
         // ==============================================
         // OC -- START: Toggle Game Piece Mode
         // ==============================================
-        operatorController.start().onTrue(Commands.runOnce(() -> armistice.setCoralMode(!armistice.getCoralMode())));
+        operatorController.start().onTrue(armistice.toggleCoralMode());
 
         // =================== //
         /* OPERATOR CONTROLLER */
@@ -234,6 +235,8 @@ public class RobotContainer {
         operatorController.leftBumper().onTrue(
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(this::runToClosestReef,
                         Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+
+        operatorController.back().onTrue(armistice.incFutureAquirePos());
 
         // ==============================================
         // OC -- LT: Infeed Algae
@@ -273,11 +276,7 @@ public class RobotContainer {
         // ==============================================
         // OC -- Y: Run To Aquire/Lollipop
         // ==============================================
-        operatorController.y()
-                .onTrue(Commands.defer(
-                        () -> armistice.runToPositionCommand(
-                                armistice.getCoralMode() ? ArmisticePositions.ACQUIRE : ArmisticePositions.LOLI),
-                        Set.<Subsystem>of(armistice.getElevator(), armistice.getArm())));
+        operatorController.y().onTrue(armistice.runToFutureAquirePositionCommand());
 
         // ==============================================
         // OC -- A: Run To Manual Index Position
@@ -326,22 +325,22 @@ public class RobotContainer {
         // ==============================================
         // EC -- DPAD UP: Nudge Elevator Up
         // ==============================================
-        emergencyController.povUp().onTrue(armistice.nudgeCommand(0.5, 0));
+        emergencyController.povUp().onTrue(armistice.nudgeCommandPermanant(0.5, 0));
 
         // ==============================================
         // EC -- DPAD DOWN: Nudge Elevator Down
         // ==============================================
-        emergencyController.povDown().onTrue(armistice.nudgeCommand(-0.5, 0));
+        emergencyController.povDown().onTrue(armistice.nudgeCommandPermanant(-0.5, 0));
 
         // ==============================================
         // EC -- DPAD RIGHT: Nudge Arm CCW
         // ==============================================
-        emergencyController.povRight().onTrue(armistice.nudgeCommand(0.0, 0.1));
+        emergencyController.povRight().onTrue(armistice.nudgeCommandPermanant(0.0, 0.1));
 
         // ==============================================
         // EC -- DPAD LEFT: Nudge Arm CW
         // ==============================================
-        emergencyController.povLeft().onTrue(armistice.nudgeCommand(0, -0.1));
+        emergencyController.povLeft().onTrue(armistice.nudgeCommandPermanant(0, -0.1));
 
         // ==============================================
         // EC -- A: Run To Climb Pos

@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
+import frc.robot.util.MathUtils;
 import frc.robot.util.SysIDUtil;
 
 public class Arm extends SubsystemBase {
@@ -21,7 +22,7 @@ public class Arm extends SubsystemBase {
     private final ArmStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput
-    private double targetPositionRad = ArmisticePositions.STOW.armPositionRad;
+    private double targetPositionRad = ArmisticePositions.STOW.getArmPositionRad();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private boolean hasAlgae;
 
@@ -95,6 +96,8 @@ public class Arm extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Arm", inputs);
+        Logger.recordOutput("Arm/ArmEncoderRadFriendly", MathUtils.roundToPlace(inputs.armEncoderRad, 3));
+        Logger.recordOutput("Arm/ArmEncoderRawFriendly", MathUtils.roundToPlace(inputs.armEncoderRaw, 3));
         stateTracker.state.execute(this);
     }
 

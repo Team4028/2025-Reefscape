@@ -12,7 +12,7 @@ public class ClimberConstants {
 
     //actually figure these out!!
     public static final double CLIMBER_LENGTH = 0.0;
-    public static final double GEAR_RATIO = 0.0;
+    public static final double GEAR_RATIO = 100.0;
     public static final double CLIMBER_OFFSET = 0.0;
 
     //Would we need this?
@@ -23,7 +23,7 @@ public class ClimberConstants {
     public static final class Sim {
         public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
         //get actual value for this:
-        public static final double CLIMBER_KgMSquared = 0;
+        public static final double CLIMBER_KgMSquared = 0.2;
     }
 
 

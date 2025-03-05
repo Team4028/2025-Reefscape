@@ -16,5 +16,11 @@ public abstract class SudoSubsystem {
         subsystems.forEach(SudoSubsystem::periodic);
     }
 
+    public static void robotPeriodicAll() {
+        subsystems.forEach(SudoSubsystem::robotPeriodic);
+    }
+
     public abstract void periodic();
+
+    public abstract void robotPeriodic();
 }

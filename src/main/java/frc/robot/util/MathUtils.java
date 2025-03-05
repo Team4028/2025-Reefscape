@@ -23,6 +23,11 @@ public class MathUtils {
         return value.doubleValue() >= minInc.doubleValue() && value.doubleValue() <= maxInc.doubleValue();
     }
 
+    public static final double roundToPlace(double x, int place) {
+        var pow10 = Math.pow(10, place);
+        return Math.round(x * pow10) / pow10;
+    }
+
     public static final <T> Optional<T> arrayGetSafe(T[] arr, int idx) {
         return idx >= arr.length ? Optional.empty() : Optional.of(arr[idx]);        
     }

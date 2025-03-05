@@ -45,10 +45,13 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -190,6 +193,27 @@ public class Drive extends SubsystemBase {
         pidLineup.setTolerance(0.012);
         angleController.setTolerance(Units.degreesToRadians(1));
         angleController.enableContinuousInput(0, 2 * Math.PI);
+
+        SmartDashboard.putData("Swerve Drive", new Sendable() {
+            @Override
+            public void initSendable(SendableBuilder builder) {
+                builder.setSmartDashboardType("SwerveDrive");
+
+                builder.addDoubleProperty("Front Left Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+                builder.addDoubleProperty("Front Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Front Right Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+                builder.addDoubleProperty("Front Right Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Back Left Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+                builder.addDoubleProperty("Back Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Back Right Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+                builder.addDoubleProperty("Back Right Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
+            }
+        });
     }
 
     @Override

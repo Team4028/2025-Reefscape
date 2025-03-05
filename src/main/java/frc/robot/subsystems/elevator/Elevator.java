@@ -1,18 +1,19 @@
 package frc.robot.subsystems.elevator;
 
+import java.util.Map;
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
-
-import java.util.Map;
-import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
+import frc.robot.util.MathUtils;
 import frc.robot.util.SysIDUtil;
 
 public class Elevator extends SubsystemBase {
@@ -20,7 +21,7 @@ public class Elevator extends SubsystemBase {
     private ElevatorStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput
-    private double targetPostitionInches = ArmisticePositions.STOW.elevatorPositionInches;
+    private double targetPostitionInches = ArmisticePositions.STOW.getElevatorPositionInches();
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
 
@@ -93,6 +94,7 @@ public class Elevator extends SubsystemBase {
         stateTracker.state.execute(this);
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
+        Logger.recordOutput("Elevator/ElevatorPositionInchesFrieldly", MathUtils.roundToPlace(inputs.elevatorPositionInches, 3));
     }
 
     @CreateState("off")
