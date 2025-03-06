@@ -16,7 +16,6 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.leds.Leds;
-import frc.robot.subsystems.leds.Leds.CandleState;
 import frc.robot.subsystems.leds.Leds.Color;
 import frc.robot.subsystems.leds.Leds.StripState;
 import frc.robot.subsystems.leds.Leds.StripStateTwo;
@@ -208,7 +207,7 @@ public class RobotContainer {
 
                 driverController.y().onTrue(candle.stripColorAndModeCommand(Color.RED, StripState.BREATH));
                 driverController.x().onTrue(Commands.runOnce(() -> candle.toggleRainbow()));
-                driverController.a().onTrue(candle.stripTwoModeCommand(StripStateTwo.FOLLOW));
+                driverController.a().onTrue(candle.stripTwoModeCommand(StripStateTwo.FOLLOWSTRIP));
                 driverController.b().onTrue(candle.stripTwoColorAndModeCommand(Color.LBLUE, StripStateTwo.BREATH));
                 coralManipulator.hasCoral().onTrue(candle.stripColorAndModeCommand(Color.BLUE, StripState.SOLID))
                                 .onFalse(candle.stripModeCommand(StripState.OFF));
@@ -218,7 +217,7 @@ public class RobotContainer {
                                 .onTrue(candle.stripColorAndModeCommand(Color.WHITE, StripState.SOLID))
                                 .onFalse(candle.stripModeCommand(StripState.OFF));
                 algae.hasAlgaeTrigger().onTrue(candle.stripTwoColorAndModeCommand(Color.GREEN, StripStateTwo.SOLID))
-                                .onFalse(candle.stripTwoModeCommand(StripStateTwo.FOLLOW));
+                                .onFalse(candle.stripTwoModeCommand(StripStateTwo.FOLLOWSTRIP));
                 candle.sendLimeColors()
                                 .onTrue(candle.limelightToLedsCommand(aprilTagCount).andThen(candle.offTagCommand()));
 

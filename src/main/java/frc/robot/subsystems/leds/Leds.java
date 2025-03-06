@@ -1,6 +1,7 @@
 package frc.robot.subsystems.leds;
 
 import java.util.Arrays;
+
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 
@@ -49,17 +50,18 @@ public class Leds extends SubsystemBase {
     private int stripLengthTwo = 30;
     private int fullStripLength = 60;
 
-    // Breathing and FOLLOW
+    // Breathing and FOLLOWSTRIP
+    private int canColorR = 0;
+    private int canColorG = 0;
+    private int canColorB = 0;
     private int stripRed = 0;
     private int stripGreen = 0;
     private int stripBlue = 0;
-
-    // Breathing
+    private int stripTwoR = 0;
+    private int stripTwoG = 0;
+    private int stripTwoB = 0;
     private int breathPoint = 0;
     private int breathPointTwo = 0;
-    private int breathRedTwo = 0;
-    private int breathGreenTwo = 0;
-    private int breathBlueTwo = 0;
 
     public enum Color {
         RED(254, 0, 0),
@@ -91,7 +93,7 @@ public class Leds extends SubsystemBase {
         FLASH,
         LIME,
         SOLID,
-        FOLLOW,
+        FOLLOWSTRIP,
         OFF;
     }
 
@@ -106,7 +108,7 @@ public class Leds extends SubsystemBase {
         FLASH,
         BREATH,
         SOLID,
-        FOLLOW,
+        FOLLOWSTRIP,
         OFF;
     }
 
@@ -160,142 +162,6 @@ public class Leds extends SubsystemBase {
         candle.animate(null);
         candle.setLEDs(this.color.r, this.color.g, this.color.b, 0, stripInd, fullStripLength);
     }
-
-    // public void setallColors(Color color) {
-    // this.color = color;
-    // candle.animate(null);
-    // candle.setLEDs(this.color.r, this.color.g, this.color.b, 0, 0, 512);
-    // }
-
-    // public void setColorParts(int r, int g, int b) {
-    // candle.setLEDs(r, g, b);
-    // }
-
-    // public Command setNoColorCandle() {
-    // return runOnce(() -> setCandleColor(Color.OFF));
-    // }
-
-    // public Command setCandle(Color color) {
-    // return runOnce(() -> setCandleColor(color));
-    // }
-
-    // public Command setStrip(Color color) {
-    // return runOnce(() -> setCandleColor(color));
-    // }
-
-    // public Command flashCandle(Color color) {
-    // return Commands.repeatingSequence(setCandle(color), setCandle(Color.OFF));
-    // }
-
-    // public Command flashStrip(Color color) {
-    // return Commands.repeatingSequence(setCandle(color), setCandle(Color.OFF),
-    // setCandle(Color.OFF),
-    // setCandle(color));
-    // }
-
-    // public Command setNoColorStrip() {
-    // return runOnce(() -> setStripColor(Color.OFF));
-    // }
-
-    // public Command setNoColor() {
-    // return runOnce(() -> setallColors(Color.OFF));
-    // }
-
-    // public Command setCandleRedCommand() {
-    // return runOnce(() -> setCandleColor(Color.RED));
-    // }
-
-    // public Command setStripRedCommand() {
-    // return runOnce(() -> setStripColor(Color.RED));
-    // }
-
-    // public Command setCandleOrangeCommand() {
-    // return runOnce(() -> setCandleColor(Color.ORANGE));
-    // }
-
-    // public Command setStripOrangeCommand() {
-    // return runOnce(() -> setStripColor(Color.ORANGE));
-    // }
-
-    // public Command setCandleYellowCommand() {
-    // return runOnce(() -> setCandleColor(Color.YELLOW));
-    // }
-
-    // public Command setStripYellowCommand() {
-    // return runOnce(() -> setStripColor(Color.YELLOW));
-    // }
-
-    // public Command setCandleGreenCommand() {
-    // return runOnce(() -> setCandleColor(Color.GREEN));
-    // }
-
-    // public Command setStripGreenCommand() {
-    // return runOnce(() -> setStripColor(Color.GREEN));
-    // }
-
-    // public Command setCandleLBlueCommand() {
-    // return runOnce(() -> setCandleColor(Color.LBLUE));
-    // }
-
-    // public Command setStripLBlueCommand() {
-    // return runOnce(() -> setStripColor(Color.LBLUE));
-    // }
-
-    // public Command setCandleBlueCommand() {
-    // return runOnce(() -> setCandleColor(Color.BLUE));
-    // }
-
-    // public Command setStripBlueCommand() {
-    // return runOnce(() -> setStripColor(Color.BLUE));
-    // }
-
-    // public Command setCandlePinkCommand() {
-    // return runOnce(() -> setCandleColor(Color.PINK));
-    // }
-
-    // public Command setStripPinkCommand() {
-    // return runOnce(() -> setStripColor(Color.PINK));
-    // }
-
-    // public Command setCandlePurpleCommand() {
-    // return runOnce(() -> setCandleColor(Color.PURPLE));
-    // }
-
-    // public Command setStripPurpleCommand() {
-    // return runOnce(() -> setStripColor(Color.PURPLE));
-    // }
-
-    // public Command setCandleWhiteCommand() {
-    // return runOnce(() -> setCandleColor(Color.WHITE));
-    // }
-
-    // public Command setStripWhiteCommand() {
-    // return runOnce(() -> setStripColor(Color.WHITE));
-    // }
-
-    // public Command hasCoralAnimationCandle() {
-    // return Commands.sequence(setCandleBlueCommand(), setNoColorCandle(),
-    // setNoColorCandle(),
-    // setCandleBlueCommand());
-    // }
-
-    // public Command hasCoralAnimationStrip() {
-    // return Commands.sequence(setStripBlueCommand(), setNoColorStrip(),
-    // setNoColorStrip(),
-    // setStripBlueCommand());
-    // }
-
-    // public Command flashRedCandle() {
-    // return Commands.sequence(setCandleRedCommand(), setNoColorCandle(),
-    // setNoColorCandle(),
-    // setCandleRedCommand());
-    // }
-
-    // public Command flashRedStrip() {
-    // return Commands.sequence(setStripRedCommand(), setNoColorStrip(),
-    // setNoColorStrip(),
-    // setStripRedCommand());
-    // }
 
     // public Command sevenAnimationCandle() {
     // return Commands.repeatingSequence(setCandleRedCommand()
@@ -410,44 +276,44 @@ public class Leds extends SubsystemBase {
     }
 
     public void toggleCandle() {
-        if (candleState == candleState.FLASH) {
-            candleState = candleState.OFF;
-        } else if (candleState == candleState.OFF) {
-            candleState = candleState.FLASH;
+        if (candleState == CandleState.FLASH) {
+            candleState = CandleState.OFF;
+        } else if (candleState == CandleState.OFF) {
+            candleState = CandleState.FLASH;
         }
     }
 
     public void toggleStrip() {
-        if (stripState == stripState.FLASH) {
-            stripState = stripState.OFF;
-        } else if (stripState == stripState.OFF) {
-            stripState = stripState.FLASH;
+        if (stripState == StripState.FLASH) {
+            stripState = StripState.OFF;
+        } else if (stripState == StripState.OFF) {
+            stripState = StripState.FLASH;
         }
     }
 
-    public void toggleCanColor() {
-        if (canColor == Color.RED) {
-            canColor = Color.ORANGE;
-        } else if (canColor == Color.ORANGE) {
-            canColor = Color.YELLOW;
-        } else if (canColor == Color.YELLOW) {
-            canColor = Color.GREEN;
-        } else if (canColor == Color.GREEN) {
-            canColor = Color.LBLUE;
-        } else if (canColor == Color.LBLUE) {
-            canColor = Color.BLUE;
-        } else if (canColor == Color.BLUE) {
-            canColor = Color.PURPLE;
-        } else if (canColor == Color.PURPLE) {
-            canColor = Color.PINK;
-        } else if (canColor == Color.PINK) {
-            canColor = Color.WHITE;
-        } else if (canColor == Color.WHITE) {
-            canColor = Color.OFF;
-        } else if (canColor == Color.OFF) {
-            canColor = Color.RED;
-        }
-    }
+    // public void toggleCanColor() {
+    //     if (canColor == Color.RED) {
+    //         canColor = Color.ORANGE;
+    //     } else if (canColor == Color.ORANGE) {
+    //         canColor = Color.YELLOW;
+    //     } else if (canColor == Color.YELLOW) {
+    //         canColor = Color.GREEN;
+    //     } else if (canColor == Color.GREEN) {
+    //         canColor = Color.LBLUE;
+    //     } else if (canColor == Color.LBLUE) {
+    //         canColor = Color.BLUE;
+    //     } else if (canColor == Color.BLUE) {
+    //         canColor = Color.PURPLE;
+    //     } else if (canColor == Color.PURPLE) {
+    //         canColor = Color.PINK;
+    //     } else if (canColor == Color.PINK) {
+    //         canColor = Color.WHITE;
+    //     } else if (canColor == Color.WHITE) {
+    //         canColor = Color.OFF;
+    //     } else if (canColor == Color.OFF) {
+    //         canColor = Color.RED;
+    //     }
+    // }
 
     public void toggleStripColor() {
         switch (stripColor) {
@@ -487,6 +353,9 @@ public class Leds extends SubsystemBase {
     public void periodic() {
         switch (candleState) {
             case FLASH:
+                canColorR = this.canColor.r;
+                canColorG = this.canColor.g;
+                canColorB = this.canColor.b;
                 if (canFlasher.get() >= .1) {
                     isCanOn = !isCanOn;
                     canFlasher.reset();
@@ -495,12 +364,15 @@ public class Leds extends SubsystemBase {
                     canFlasher.start();
                 }
                 if (isCanOn) {
-                    setLedsColor(canInd, canLength, this.canColor.r, this.canColor.g, this.canColor.b);
+                    setLedsColor(canInd, canLength, canColorR, canColorG, canColorB);
                 } else {
                     setLedsColor(canInd, canLength, 0, 0, 0);
                 }
                 break;
             case LIME:
+                canColorR = this.canColor.r;
+                canColorG = this.canColor.g;
+                canColorB = this.canColor.b;
                 if (canFlasher.get() >= .15) {
                     isCanOn = !isCanOn;
                     canFlasher.reset();
@@ -509,17 +381,20 @@ public class Leds extends SubsystemBase {
                     canFlasher.start();
                 }
                 if (isCanOn) {
-                    setLedsColor(canInd, canLength, this.canColor.r, this.canColor.g, this.canColor.b);
+                    setLedsColor(canInd, canLength, canColorR, canColorG, canColorB);
                 } else {
                     setLedsColor(canInd, canLength, 0, 110, 0);
                 }
                 break;
             case SOLID:
-                setLedsColor(canInd, canLength, this.canColor.r, this.canColor.g, this.canColor.b);
+                canColorR = this.canColor.r;
+                canColorG = this.canColor.g;
+                canColorB = this.canColor.b;
+                setLedsColor(canInd, canLength, canColorR, canColorG, canColorB);
                 break;
-            case FOLLOW:
-            setLedsColor(canInd, canLength, stripRed, stripGreen, stripBlue);
-            break;
+            case FOLLOWSTRIP:
+                setLedsColor(canInd, canLength, stripRed, stripGreen, stripBlue);
+                break;
             case OFF:
                 setLedsColor(canInd, canLength, 0, 0, 0);
                 break;
@@ -530,9 +405,9 @@ public class Leds extends SubsystemBase {
 
         switch (stripState) {
             case FLASH:
-            stripRed = this.stripColor.r;
-            stripGreen = this.stripColor.g;
-            stripBlue = this.stripColor.b;
+                stripRed = this.stripColor.r;
+                stripGreen = this.stripColor.g;
+                stripBlue = this.stripColor.b;
                 if (stripFlasher.get() >= .1) {
                     isStripOn = !isStripOn;
                     stripFlasher.reset();
@@ -571,9 +446,9 @@ public class Leds extends SubsystemBase {
                 }
                 break;
             case SOLID:
-            stripRed = this.stripColor.r;
-            stripGreen = this.stripColor.g;
-            stripBlue = this.stripColor.b;
+                stripRed = this.stripColor.r;
+                stripGreen = this.stripColor.g;
+                stripBlue = this.stripColor.b;
                 setLedsColor(stripInd, stripLength, stripRed, stripGreen, stripBlue);
                 break;
             case OFF:
@@ -586,6 +461,9 @@ public class Leds extends SubsystemBase {
 
         switch (stripStateTwo) {
             case FLASH:
+                stripTwoR = this.stripColorTwo.r;
+                stripTwoG = this.stripColorTwo.g;
+                stripTwoB = this.stripColorTwo.b;
                 if (stripFlasherTwo.get() >= .1) {
                     isStripTwoOn = !isStripTwoOn;
                     stripFlasherTwo.reset();
@@ -601,31 +479,34 @@ public class Leds extends SubsystemBase {
                 }
                 break;
             case BREATH:
-                breathRedTwo = Math.round((this.stripColorTwo.r * breathPointTwo) / 45);
-                breathGreenTwo = Math.round((this.stripColorTwo.g * breathPointTwo) / 45);
-                breathBlueTwo = Math.round((this.stripColorTwo.b * breathPointTwo) / 45);
+                stripTwoR = Math.round((this.stripColorTwo.r * breathPointTwo) / 45);
+                stripTwoG = Math.round((this.stripColorTwo.g * breathPointTwo) / 45);
+                stripTwoB = Math.round((this.stripColorTwo.b * breathPointTwo) / 45);
                 if (inhaleTwo) {
                     if (breathPointTwo <= 45) {
-                        setLedsColor(stripIndTwo, stripLengthTwo, breathRedTwo, breathGreenTwo, breathBlueTwo);
+                        setLedsColor(stripIndTwo, stripLengthTwo, stripTwoR, stripTwoG, stripTwoB);
                         breathPointTwo += 1;
                     } else {
                         inhaleTwo = false;
                     }
                 } else {
                     if (breathPointTwo >= 0) {
-                        setLedsColor(stripIndTwo, stripLengthTwo, breathRedTwo, breathGreenTwo, breathBlueTwo);
+                        setLedsColor(stripIndTwo, stripLengthTwo, stripTwoR, stripTwoG, stripTwoB);
                         breathPointTwo -= 1;
                     } else {
                         inhaleTwo = true;
                     }
                 }
                 break;
-            case FOLLOW:
+            case FOLLOWSTRIP:
                 setLedsColor(stripIndTwo, stripLengthTwo, stripRed, stripGreen, stripBlue);
-            break;
+                break;
             case SOLID:
-                setLedsColor(stripIndTwo, stripLengthTwo, this.stripColorTwo.r, this.stripColorTwo.g,
-                        this.stripColorTwo.b);
+                stripTwoR = this.stripColorTwo.r;
+                stripTwoG = this.stripColorTwo.g;
+                stripTwoB = this.stripColorTwo.b;
+                setLedsColor(stripIndTwo, stripLengthTwo, stripTwoR, stripTwoG,
+                        stripTwoB);
                 break;
             case OFF:
                 setLedsColor(stripIndTwo, stripLengthTwo, 0, 0, 0);
