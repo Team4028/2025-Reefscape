@@ -22,7 +22,7 @@ public class Arm extends SubsystemBase {
     private final ArmStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput
-    private double targetPositionRad = ArmisticePositions.STOW.getArmPositionRad();
+    private double targetPositionRad = ArmisticePositions.STOW.getArmPositionRad(0);
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private boolean hasAlgae;
 

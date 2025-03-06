@@ -19,7 +19,6 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.Elastic;
@@ -84,6 +83,7 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
         robotContainer.logLLPoses();
         robotContainer.seedll4IMU();
+        robotContainer.updateArmisticeAutoAlgae();
     }
 
     @Override

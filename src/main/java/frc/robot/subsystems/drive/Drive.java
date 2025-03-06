@@ -109,7 +109,7 @@ public class Drive extends SubsystemBase {
     private final ProfiledPIDController xPid, yPid, rotPid;
     private int ll2dLineupTagID = 0;
 
-    private static final double PID_TRANSLATION_SPEED_MPS = 0.75;
+    private static final double PID_TRANSLATION_SPEED_MPS = 1.5;
     private static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
 
     @AutoLogOutput(key = "Odometry/ClosestReef")
@@ -118,9 +118,12 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput
     private String closestReefName = "";
 
+    @AutoLogOutput
+    private int closestReefTagID = 0;
+
     private boolean reefTargetIsRight = true;
 
-    private final PIDController pidLineup = new PIDController(2, 0, 0), angleController = new PIDController(4, 0, 0);
+    private final PIDController pidLineup = new PIDController(4, 0, 0), angleController = new PIDController(4, 0, 0);
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();
@@ -190,7 +193,7 @@ public class Drive extends SubsystemBase {
         xPid = new ProfiledPIDController(.28, 0, 0, new TrapezoidProfile.Constraints(3, 6));
         yPid = new ProfiledPIDController(.8, 0, 0, new TrapezoidProfile.Constraints(3, 6));
         rotPid = new ProfiledPIDController(.06, 0, 0, new TrapezoidProfile.Constraints(90, 180));
-        pidLineup.setTolerance(0.012);
+        pidLineup.setTolerance(0.00635);
         angleController.setTolerance(Units.degreesToRadians(1));
         angleController.enableContinuousInput(0, 2 * Math.PI);
 
@@ -337,8 +340,13 @@ public class Drive extends SubsystemBase {
                                 - Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN)),
                         Rotation2d.kZero));
         closestReefName = Constants.reefTagNames.get(closestTag.ID);
+        closestReefTagID = closestTag.ID;
         return new Pose2d(closestPose.getTranslation(),
                 closestPose.getRotation().plus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
+    }
+
+    public int closestReefTag() {
+        return closestReefTagID;
     }
 
     public Command pathfindToPose(Pose2d pose) {

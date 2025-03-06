@@ -13,11 +13,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.XboxController;
@@ -61,7 +63,9 @@ public class RobotContainer {
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
+    private final Limelight ll4i = new Limelight(new LimelightIO("limelight-fouri", true, Optional.empty()));
 
+    private static final double SLOW_SPEED = 0.2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
     private double currSpeed = DEFAULT_BASE_SPEED;
 
@@ -98,11 +102,15 @@ public class RobotContainer {
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire", coral.runMotorCommand(.7)
                 .alongWith(Commands.waitUntil(
-                        coral.hasGamePieceSupplier()).withTimeout(1))
-                .andThen(coral.runMotorCommand(0)));
+                        coral.hasGamePieceSupplier()))
+                .andThen(coral.runMotorCommand(0))
+                .raceWith(Commands.defer(() -> drive.translateToPositionWithPID(
+                        AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_POS)
+                                : Constants.AQUIRE_POS),
+                        Set.of(drive))));
         NamedCommands.registerCommand("Score Outfeed",
-                Commands.waitUntil(armistice.armAndElevatorAtTarget()).andThen(Commands.waitSeconds(0.5))
-                        .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(1))
+                Commands.waitUntil(armistice.armAndElevatorAtTarget())
+                        .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(0.25))
                                 .andThen(coral.runMotorCommand(0))));
         NamedCommands.registerCommand("Run To Closest Right Reef",
                 rightPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
@@ -113,6 +121,10 @@ public class RobotContainer {
         // Set up SysId routines
         VisionUtil.bindSimCameras(new Transform3d[] { new Transform3d() });
         configureBindings();
+    }
+
+    public void updateArmisticeAutoAlgae() {
+        armistice.updateAutoAlgaePos(drive.closestReefTag());
     }
 
     private void addVisionMeasurement(LoggablePoseEstimate poseEstimate) {
@@ -213,6 +225,9 @@ public class RobotContainer {
         // ==============================================
         driverController.leftBumper().onTrue(coral.runMotorCommand(-.40)).onFalse(coral.runMotorCommand(0));
 
+        driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
+                .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
+
         // ==============================================
         // OC -- START: Toggle Game Piece Mode
         // ==============================================
@@ -236,7 +251,7 @@ public class RobotContainer {
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(this::runToClosestReef,
                         Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
 
-        operatorController.back().onTrue(armistice.incFutureAquirePos());
+        operatorController.back().onTrue(armistice.toggleAutoAlgae());
 
         // ==============================================
         // OC -- LT: Infeed Algae
@@ -270,8 +285,8 @@ public class RobotContainer {
         // ==============================================
         // OC -- DPAD LEFT/RIGHT: Inc/Dev Magic Score Algae Height
         // ==============================================
-        operatorController.povLeft().onTrue(armistice.decAutoAlgaePos());
-        operatorController.povRight().onTrue(armistice.incAutoAlgaePos());
+        operatorController.povLeft().onTrue(armistice.decFutureAquirePos());
+        operatorController.povRight().onTrue(armistice.incFutureAquirePos());
 
         // ==============================================
         // OC -- Y: Run To Aquire/Lollipop
@@ -292,7 +307,7 @@ public class RobotContainer {
         // OC -- B: Magic Score Algae
         // ==============================================
         operatorController.b().onTrue(Commands.defer(this::runToClosestAlgae,
-                algaeCommandRequs().get()));
+                algaeCommandRequs().get()).alongWith(armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3)));
 
         // ==============================================
         // OC -- RX: Snap To Coral Stations
@@ -323,29 +338,28 @@ public class RobotContainer {
         emergencyController.leftBumper().onTrue(climber.runVbusCommand(-0.2)).onFalse(climber.runVbusCommand(0));
 
         // ==============================================
-        // EC -- DPAD UP: Nudge Elevator Up
+        // EC -- DPAD: Global Nudges
         // ==============================================
-        emergencyController.povUp().onTrue(armistice.nudgeCommandPermanant(0.5, 0));
+        emergencyController.povUp().onTrue(armistice.nudgeCommandGlobalPermanant(1, 0));
+        emergencyController.povDown().onTrue(armistice.nudgeCommandGlobalPermanant(-1, 0));
+        emergencyController.povRight().onTrue(armistice.nudgeCommandPermanant(0, Units.degreesToRadians(1)));
+        emergencyController.povLeft().onTrue(armistice.nudgeCommandPermanant(0, Units.degreesToRadians(-1)));
 
         // ==============================================
-        // EC -- DPAD DOWN: Nudge Elevator Down
+        // EC -- DPAD: Positional Nudges
         // ==============================================
-        emergencyController.povDown().onTrue(armistice.nudgeCommandPermanant(-0.5, 0));
+        emergencyController.y().onTrue(armistice.nudgeCommandPermanant(1, 0));
+        emergencyController.a().onTrue(armistice.nudgeCommandPermanant(-1, 0));
+        emergencyController.b().onTrue(armistice.nudgeCommandPermanant(0, Units.degreesToRadians(1)));
+        emergencyController.x().onTrue(armistice.nudgeCommandPermanant(0, Units.degreesToRadians(-1)));
 
         // ==============================================
-        // EC -- DPAD RIGHT: Nudge Arm CCW
+        // EC -- START: Run To Climb Position
         // ==============================================
-        emergencyController.povRight().onTrue(armistice.nudgeCommandPermanant(0.0, 0.1));
+        emergencyController.start().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB));
 
-        // ==============================================
-        // EC -- DPAD LEFT: Nudge Arm CW
-        // ==============================================
-        emergencyController.povLeft().onTrue(armistice.nudgeCommandPermanant(0, -0.1));
-
-        // ==============================================
-        // EC -- A: Run To Climb Pos
-        // ==============================================
-        emergencyController.a().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB));
+        emergencyController.back()
+                .onTrue(Commands.defer(() -> drive.translateToPositionWithPID(drive.closestReefPose()), Set.of(drive)));
     }
 
     public Command getAutonomousCommand() {

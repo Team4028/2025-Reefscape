@@ -64,6 +64,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
         inputs.appliedVoltage = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorCurrent.getValueAsDouble();
         inputs.armMotorVelocityRotPerSec = motorVel.getValueAsDouble();
+        inputs.armVelocityRotPerSec = motorVel.getValueAsDouble() / ArmConstants.GEAR_RATIO;
         inputs.armAngleRad = getArmAngleRad();
         inputs.armEncoderRad = getEncoderPositionRad();
         inputs.armEncoderRaw = getRawEncoderPositon();

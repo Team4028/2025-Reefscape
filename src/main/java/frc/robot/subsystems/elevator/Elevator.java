@@ -21,7 +21,7 @@ public class Elevator extends SubsystemBase {
     private ElevatorStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput
-    private double targetPostitionInches = ArmisticePositions.STOW.getElevatorPositionInches();
+    private double targetPostitionInches = ArmisticePositions.STOW.getElevatorPositionInches(0);
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
 

@@ -31,6 +31,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Acquire"
           }
         },
@@ -56,6 +62,12 @@
           "type": "path",
           "data": {
             "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
           }
         },
         {
