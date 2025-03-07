@@ -20,6 +20,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.FlippingUtil;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.apriltag.AprilTag;
@@ -111,6 +112,7 @@ public class Drive extends SubsystemBase {
 
     private static final double PID_TRANSLATION_SPEED_MPS = 1.5;
     private static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
+    private static final double AUTON_PATH_CANCEL_RADIUS_M = 0.8;
 
     @AutoLogOutput(key = "Odometry/ClosestReef")
     private Pose2d closestReef = new Pose2d();
@@ -118,8 +120,7 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput
     private String closestReefName = "";
 
-    @AutoLogOutput
-    private int closestReefTagID = 0;
+    private AprilTag closestReefTag = Limelight.field.getTags().get(0);
 
     private boolean reefTargetIsRight = true;
 
@@ -206,7 +207,8 @@ public class Drive extends SubsystemBase {
                 builder.addDoubleProperty("Front Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
 
                 builder.addDoubleProperty("Front Right Angle", () -> getModuleStates()[0].angle.getRadians(), null);
-                builder.addDoubleProperty("Front Right Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+                builder.addDoubleProperty("Front Right Velocity", () -> getModuleStates()[0].speedMetersPerSecond,
+                        null);
 
                 builder.addDoubleProperty("Back Left Angle", () -> getModuleStates()[0].angle.getRadians(), null);
                 builder.addDoubleProperty("Back Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
@@ -221,10 +223,11 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
+        Logger.recordOutput("Drive/ReefSide", reefTargetIsRight ? "R" : "L");
+        Logger.recordOutput("Drive/ClosestTagID", closestReefTag.ID);
         odometryLock.lock(); // Prevents odometry updates while reading data
         gyroIO.updateInputs(gyroInputs);
         Logger.processInputs("Drive/Gyro", gyroInputs);
-        Logger.recordOutput("Drive/ReefSide", reefTargetIsRight ? "R" : "L");
         for (var module : modules) {
             module.periodic();
         }
@@ -284,6 +287,17 @@ public class Drive extends SubsystemBase {
         }
     }
 
+    public BooleanSupplier driveCloseEnoughReefAuton() {
+        return () -> getPose().getTranslation()
+                .getDistance(closestReefTag.pose.toPose2d().getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
+    }
+
+    public BooleanSupplier driveCloseEnoughAcquireAuton() {
+        return () -> getPose().getTranslation().getDistance(
+                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_POS.getTranslation())
+                        : Constants.AQUIRE_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
+    }
+
     /**
      * Runs the drive at the desired velocity.
      *
@@ -340,13 +354,13 @@ public class Drive extends SubsystemBase {
                                 - Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN)),
                         Rotation2d.kZero));
         closestReefName = Constants.reefTagNames.get(closestTag.ID);
-        closestReefTagID = closestTag.ID;
+        closestReefTag = closestTag;
         return new Pose2d(closestPose.getTranslation(),
                 closestPose.getRotation().plus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
     }
 
     public int closestReefTag() {
-        return closestReefTagID;
+        return closestReefTag.ID;
     }
 
     public Command pathfindToPose(Pose2d pose) {
@@ -379,10 +393,7 @@ public class Drive extends SubsystemBase {
                             MathUtils.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
                                     PID_TRANSLATION_SPEED_MPS),
                             MathUtils.clamp(
-                                    angleController.calculate(
-                                            MathUtils.printAndReturn(driveYaw.getAsDouble(), "Measure: ", ""),
-                                            MathUtils.printAndReturn(pose.getRotation().getRadians(), "Setpoint: ",
-                                                    "")),
+                                    angleController.calculate(driveYaw.getAsDouble(), pose.getRotation().getRadians()),
                                     -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
                             getRotation()));
                 }, this).finallyDo(i -> {

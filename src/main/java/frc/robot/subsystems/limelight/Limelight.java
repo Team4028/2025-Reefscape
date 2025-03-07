@@ -107,16 +107,16 @@ public class Limelight extends SubsystemBase {
 
     public LoggablePoseEstimate getBotposeEstimateMT2(double driveYawRad) {
         var vRes = inputs.solverPoseBlue;
+        if (vRes == null || vRes.rawFiducials() == null || vRes.rawFiducials().length < 1) return LoggablePoseEstimate.empty();
+        if (vRes.rawFiducials()[0].distToCamera() > 2) // was 2 meters, made it 3 instead.
+        {
+            return LoggablePoseEstimate.empty();
+        }
         if (vRes.tagCount() > 1) {
             return vRes;
         }
 
         if (vRes.tagCount() < 1 || !getTV()) {
-            return LoggablePoseEstimate.empty();
-        }
-
-        if (vRes.rawFiducials()[0].distToCamera() > 2) // was 2 meters, made it 3 instead.
-        {
             return LoggablePoseEstimate.empty();
         }
 
@@ -176,12 +176,8 @@ public class Limelight extends SubsystemBase {
         io.seedSolverYaw(chassisYaw);
     }
 
-    public Rotation2d getSolverAngle() {
-        return inputs.solverPoseBlue.pose().getRotation();
-    }
-
-    public Rotation2d getSeedAngle() {
-        return Rotation2d.fromDegrees(io.getSeedAngle());
+    public double getGoodActualAngleToFixProbelmsOrbitalStrikeV2() {
+        return inputs.robotYawInternalIMU;
     }
 
     @Override

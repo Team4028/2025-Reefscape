@@ -108,10 +108,14 @@ public class RobotContainer {
                         AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_POS)
                                 : Constants.AQUIRE_POS),
                         Set.of(drive))));
+        NamedCommands.registerCommand("Acquire Run",
+                coral.runMotorCommand(.7).alongWith(Commands.waitUntil(coral.hasGamePieceSupplier())));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
-                        .andThen(coral.runMotorCommand(-.8).alongWith(Commands.waitSeconds(0.25))
+                        .andThen(coral.runMotorCommand(-.4).alongWith(Commands.waitSeconds(0.25))
                                 .andThen(coral.runMotorCommand(0))));
+        NamedCommands.registerCommand("WaitUntilClose", Commands.waitUntil(drive.driveCloseEnoughReefAuton()));
+        NamedCommands.registerCommand("WaitUntilCloseAcq", Commands.waitUntil(drive.driveCloseEnoughAcquireAuton()));
         NamedCommands.registerCommand("Run To Closest Right Reef",
                 rightPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
         NamedCommands.registerCommand("Run To Closest Left Reef",
@@ -145,15 +149,16 @@ public class RobotContainer {
     }
 
     public void turnOnIfGood() {
-        for (var ll : VisionUtil.registeredLimelights()) {
-            if (!VisionUtil.requestingSeed
-                    || Math.abs(drive.getRotation().minus(ll.getSolverAngle()).getDegrees()) < 0.02) {
-                ll.setIMUInternal(true);
-                VisionUtil.requestingSeed = false;
-            } else {
-                ll.setIMUInternal(false);
-                VisionUtil.requestingSeed = true;
-            }
+        if (!VisionUtil.requestingSeed
+                || VisionUtil.poseSources.keySet().stream()
+                        .allMatch(ll -> Math.abs(drive.getRotation()
+                                .minus(Rotation2d.fromDegrees(ll.getGoodActualAngleToFixProbelmsOrbitalStrikeV2()))
+                                .getDegrees()) < 0.02)) {
+            VisionUtil.setLLIMUModes(true);
+            VisionUtil.requestingSeed = false;
+        } else {
+            VisionUtil.setLLIMUModes(false);
+            VisionUtil.requestingSeed = true;
         }
     }
 
@@ -360,6 +365,8 @@ public class RobotContainer {
 
         emergencyController.back()
                 .onTrue(Commands.defer(() -> drive.translateToPositionWithPID(drive.closestReefPose()), Set.of(drive)));
+
+        emergencyController.rightStick().onTrue(armistice.resetNudges());
     }
 
     public Command getAutonomousCommand() {

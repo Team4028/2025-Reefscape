@@ -56,6 +56,8 @@ public class LimelightIO {
         public LoggablePoseEstimate solverPoseBlue = LoggablePoseEstimate.empty();
         public double[] targetPoseCameraSpace = new double[0];
         public LoggableRawFiducial[] rawFiducials = new LoggableRawFiducial[0];
+        public double robotYawInternalIMU = 0;
+        public int imuMode = 0;
     }
 
     public static final record LoggableRawFiducial(int id, double txnc, double tync, double ta, double distToCamera,
@@ -113,6 +115,8 @@ public class LimelightIO {
         } else {
             inputs.tv = false;
         }
+        inputs.robotYawInternalIMU = LimelightHelpers.getIMUData(limelightName).robotYaw;
+        inputs.imuMode = (int) LimelightHelpers.getLimelightNTDouble(limelightName, "imumode_set");
     }
 
     public void seedSolverYaw(double yaw) {
@@ -125,7 +129,7 @@ public class LimelightIO {
 
     public boolean setIMUInternal(boolean on) {
         if (is4) {
-            LimelightHelpers.SetIMUMode(limelightName, on ? 4 : 1);
+            LimelightHelpers.SetIMUMode(limelightName, on ? 2 : 1);
             return true;
         }
 

@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -258,8 +259,15 @@ public class Armistice extends SudoSubsystem {
     public Command decFutureAquirePos() {
         return Commands.runOnce(() -> {
             coralAquireOffset = (coralAquireOffset - 1) % aquireOffsetMap.size();
-            while (coralAquireOffset < 0) coralAquireOffset += aquireOffsetMap.size();
+            while (coralAquireOffset < 0)
+                coralAquireOffset += aquireOffsetMap.size();
         })
+                .ignoringDisable(true);
+    }
+
+    public Command resetNudges() {
+        return Commands.runOnce(() -> Arrays.asList(ArmisticePositions.values()).forEach(
+                p -> globalElevatorOffsetInches = globalArmOffsetRad = p.armOffsetRad = p.elevatorOffsetInches = 0))
                 .ignoringDisable(true);
     }
 
@@ -316,7 +324,8 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Command runElevator(ArmisticePositions position) {
-        return Commands.runOnce(() -> elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches))
+        return Commands
+                .runOnce(() -> elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches))
                 .andThen(Commands.waitUntil(summit.atTargetPosition()));
     }
 

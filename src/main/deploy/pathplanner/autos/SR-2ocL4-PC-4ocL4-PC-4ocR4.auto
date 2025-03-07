@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.0"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.0"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
           }
         },
         {
@@ -23,15 +36,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.1"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilCloseAcq"
+                }
+              }
+            ]
           }
         },
         {
@@ -41,9 +61,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.2"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
           }
         },
         {
@@ -59,15 +92,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilCloseAcq"
+                }
+              }
+            ]
           }
         },
         {
@@ -77,9 +117,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.4"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
           }
         },
         {
