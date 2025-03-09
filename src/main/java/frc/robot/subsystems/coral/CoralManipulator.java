@@ -1,6 +1,7 @@
 package frc.robot.subsystems.coral;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.Logger;
 

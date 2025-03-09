@@ -1,0 +1,494 @@
+{
+    "blue": {
+        "2oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "4oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "6oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "8oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "10oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "12oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "BARGE": {
+            "arm": 0,
+            "elevator": 0
+        },
+        "CLEAN": {
+            "arm": 0,
+            "elevator": 0
+        },
+        "PIPE1": {
+            "arm": 0,
+            "elevator": 0
+        },
+        "PIPE2": {
+            "arm": 0,
+            "elevator": 0
+        }
+    },
+    "red": {
+        "2oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "4oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "6oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "8oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "10oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "12oC": {
+            "A2_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "A3_lgae": {
+                "arm": 0,
+                "elevator": 0
+            },
+            "left": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            },
+            "right": {
+                "Cora_L2": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L3": {
+                    "arm": 0,
+                    "elevator": 0
+                },
+                "Cora_L4": {
+                    "arm": 0,
+                    "elevator": 0
+                }
+            }
+        },
+        "BARGE": {
+            "arm": 0,
+            "elevator": 0
+        },
+        "CLEAN": {
+            "arm": 0,
+            "elevator": 0
+        },
+        "PIPE1": {
+            "arm": 0,
+            "elevator": 0
+        },
+        "PIPE2": {
+            "arm": 0,
+            "elevator": 0
+        }
+    }
+}

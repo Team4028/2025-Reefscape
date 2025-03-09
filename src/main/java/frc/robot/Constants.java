@@ -28,7 +28,7 @@ public final class Constants {
     public static final double CORAL_STATION_RIGHT_ROTATION_DEG = 326 - 180;
     public static final Rotation2d SCORING_SIDE_FROM_FRONT_ROT = Rotation2d.kCCW_Pi_2;
 
-    public static final Pose2d AQUIRE_POS = new Pose2d(1.0420056581497192, 0.9947071075439453, Rotation2d.fromRadians(-0.628796305972));
+    public static final Pose2d AQUIRE_POS = new Pose2d(1.2825183868408203, 0.8288688659667969, Rotation2d.fromRadians(-0.6287963059722557));
 
     public static final Map<Integer, String> reefTagNames = new HashMap<>(){{
             put(6, "8oC");

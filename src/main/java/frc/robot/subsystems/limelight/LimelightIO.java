@@ -11,8 +11,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.LimelightHelpers.RawFiducial;
+import lombok.experimental.ExtensionMethod;
 import frc.robot.util.MathUtils;
 
+@ExtensionMethod(frc.robot.util.MathUtils.class)
 public class LimelightIO {
 
     private final boolean is4;
@@ -92,7 +94,7 @@ public class LimelightIO {
             inputs.ta = LimelightHelpers.getTA(limelightName);
             inputs.targetCount = LimelightHelpers.getTargetCount(limelightName);
             inputs.solverPoseBlue = LoggablePoseEstimate
-                    .fromPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName));
+                    .fromPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName).orElse(new PoseEstimate()));
             inputs.targetPoseCameraSpace = LimelightHelpers.getTargetPose_CameraSpace(limelightName);
             try {
                 inputs.tid = LimelightHelpers.getRawFiducials(limelightName)[0].id;
@@ -129,7 +131,7 @@ public class LimelightIO {
 
     public boolean setIMUInternal(boolean on) {
         if (is4) {
-            LimelightHelpers.SetIMUMode(limelightName, on ? 2 : 1);
+            LimelightHelpers.SetIMUMode(limelightName, on ? 4 : 1);
             return true;
         }
 

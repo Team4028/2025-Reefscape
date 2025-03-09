@@ -363,6 +363,10 @@ public class Drive extends SubsystemBase {
         return closestReefTag.ID;
     }
 
+    public String closestReefName() {
+        return closestReefName;
+    }
+
     public Command pathfindToPose(Pose2d pose) {
         return AutoBuilder.pathfindToPose(pose, new PathConstraints(2, 2, Math.PI, 2 * Math.PI));
     }
@@ -404,7 +408,7 @@ public class Drive extends SubsystemBase {
     }
 
     public BooleanSupplier translatePidInPosition() {
-        return pidLineup::atSetpoint;
+        return () -> pidLineup.atSetpoint() && angleController.atSetpoint();
     }
 
     public DoubleSupplier get2dFilteredX() {
@@ -466,6 +470,10 @@ public class Drive extends SubsystemBase {
 
     public void setReefTargetIsRight(boolean reefTargetIsRight) {
         this.reefTargetIsRight = reefTargetIsRight;
+    }
+
+    public boolean getReefTargetIsRight() {
+        return reefTargetIsRight;
     }
 
     /** Stops the drive. */

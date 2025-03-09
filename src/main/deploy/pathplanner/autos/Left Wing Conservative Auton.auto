@@ -5,13 +5,56 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "SL-10ocL2-BC-8ocR4-BC-8ocR4.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Left Reef"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score Outfeed"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.0"
+                  "pathName": "SL-10ocL2-BC-8ocR4-BC-8ocR4.1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilCloseAcq"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Acquire"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SL-10ocL2-BC-8ocR4-BC-8ocR4.2"
                 }
               },
               {
@@ -42,7 +85,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.1"
+                  "pathName": "SL-10ocL2-BC-8ocR4-BC-8ocR4.3"
                 }
               },
               {
@@ -67,7 +110,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.2"
+                  "pathName": "SL-10ocL2-BC-8ocR4-BC-8ocR4.4"
                 }
               },
               {
@@ -92,65 +135,9 @@
           }
         },
         {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcq"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Acquire"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Right Reef"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score Outfeed"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.5"
+            "pathName": "SL-10ocL2-BC-8ocR4-BC-8ocR4.5"
           }
         }
       ]

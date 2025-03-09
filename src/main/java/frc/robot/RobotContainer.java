@@ -63,7 +63,7 @@ public class RobotContainer {
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
-    private final Limelight ll4i = new Limelight(new LimelightIO("limelight-fouri", true, Optional.empty()));
+    private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty()));
 
     private static final double SLOW_SPEED = 0.2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -112,7 +112,8 @@ public class RobotContainer {
                 coral.runMotorCommand(.7).alongWith(Commands.waitUntil(coral.hasGamePieceSupplier())));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
-                        .andThen(coral.runMotorCommand(-.4).alongWith(Commands.waitSeconds(0.25))
+                        .andThen(Commands.defer(() -> coral.runMotorCommand(getOutfeedVBus()), Set.of(coral))
+                                .alongWith(Commands.waitSeconds(0.25))
                                 .andThen(coral.runMotorCommand(0))));
         NamedCommands.registerCommand("WaitUntilClose", Commands.waitUntil(drive.driveCloseEnoughReefAuton()));
         NamedCommands.registerCommand("WaitUntilCloseAcq", Commands.waitUntil(drive.driveCloseEnoughAcquireAuton()));
@@ -120,6 +121,19 @@ public class RobotContainer {
                 rightPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
         NamedCommands.registerCommand("Run To Closest Left Reef",
                 leftPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
+
+        NamedCommands.registerCommand("L4 Score",
+                runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L4));
+        NamedCommands.registerCommand("Stow", armistice.runToPositionCommand(ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Stow No Wait", armistice.runToPositionNoWait(ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Acquire Pos",
+                runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.CLEAN));
+        NamedCommands.registerCommand("L3 Score",
+                runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L3));
+        NamedCommands.registerCommand("L2 Score",
+                runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L2));
+        NamedCommands.registerCommand("Blip",
+                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.125)).andThen(coral.runMotorCommand(0)));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         // Set up SysId routines
@@ -228,7 +242,9 @@ public class RobotContainer {
         // ==============================================
         // DC -- LB: Outfeed Coral
         // ==============================================
-        driverController.leftBumper().onTrue(coral.runMotorCommand(-.40)).onFalse(coral.runMotorCommand(0));
+        driverController.leftBumper()
+                .onTrue(Commands.defer(() -> coral.runMotorCommand(getOutfeedVBus()), Set.of(coral)))
+                .onFalse(coral.runMotorCommand(0));
 
         driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
@@ -271,11 +287,12 @@ public class RobotContainer {
         // ==============================================
         // OC -- LY: Climber (up = climb, down = bad)
         // ==============================================
-        operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5).onTrue(climber.runVbusCommand(-0.2));
+        // operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value,
+        // 0.5).onTrue(climber.runVbusCommand(-0.4));
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, -0.5)
                 .and(operatorController.axisLessThan(XboxController.Axis.kLeftY.value, 0.5))
                 .onTrue(climber.runVbusCommand(0));
-        operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5).onTrue(climber.runVbusCommand(0.2));
+        operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5).onTrue(climber.runVbusCommand(0.4));
 
         // ==============================================
         // OC -- DPAD UP: Increment Armistice Manual Index
@@ -296,12 +313,15 @@ public class RobotContainer {
         // ==============================================
         // OC -- Y: Run To Aquire/Lollipop
         // ==============================================
-        operatorController.y().onTrue(armistice.runToFutureAquirePositionCommand());
+        operatorController.y()
+                .onTrue(armistice.runToFutureAquirePositionCommand(drive::closestReefName,
+                        drive::getReefTargetIsRight));
 
         // ==============================================
         // OC -- A: Run To Manual Index Position
         // ==============================================
-        operatorController.a().onTrue(armistice.runToFutureArmisticePositionCommand());
+        operatorController.a().onTrue(
+                armistice.runToFutureArmisticePositionCommand(drive::closestReefName, drive::getReefTargetIsRight));
 
         // ==============================================
         // OC -- X: Run To Stow
@@ -312,7 +332,9 @@ public class RobotContainer {
         // OC -- B: Magic Score Algae
         // ==============================================
         operatorController.b().onTrue(Commands.defer(this::runToClosestAlgae,
-                algaeCommandRequs().get()).alongWith(armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3)));
+                algaeCommandRequs().get())
+                .alongWith(armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3)
+                        .onlyIf(() -> armistice.getAutoAlgaePosition() != ArmisticePositions.BARGE)));
 
         // ==============================================
         // OC -- RX: Snap To Coral Stations
@@ -363,8 +385,7 @@ public class RobotContainer {
         // ==============================================
         emergencyController.start().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB));
 
-        emergencyController.back()
-                .onTrue(Commands.defer(() -> drive.translateToPositionWithPID(drive.closestReefPose()), Set.of(drive)));
+        emergencyController.back().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB_2));
 
         emergencyController.rightStick().onTrue(armistice.resetNudges());
     }
@@ -399,6 +420,13 @@ public class RobotContainer {
         } else {
             return thetaLimiter.calculate(input);
         }
+    }
+
+    private Command runToPositionDeferredClosestReefJSONOffset(Supplier<ArmisticePositions> position) {
+        return Commands.defer(
+                () -> armistice.runToPositionCommand(position.get(),
+                        drive.closestReefName(), drive.getReefTargetIsRight()),
+                Set.of(armistice.getArm(), armistice.getElevator()));
     }
 
     private Command runToClosestReef() {
@@ -443,6 +471,10 @@ public class RobotContainer {
                 return 0.0;
         }
 
+    }
+
+    private double getOutfeedVBus() {
+        return armistice.getElevatorPosition() > 45 ? -.7 : -.3;
     }
 
     public Command realDrivetrainStop() {

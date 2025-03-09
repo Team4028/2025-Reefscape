@@ -2,18 +2,24 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import org.json.JSONObject;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,8 +29,10 @@ import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIOCanEncoderTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.util.DashboardStore.StringSupplier;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SudoSubsystem;
+import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod(frc.robot.util.RobotSim.class)
@@ -72,6 +80,10 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private int coralAquireOffset = 0;
 
+    // private Map<String, Map<String, Map<String, Map<String, Double>>>>
+    // heatmapOffsets = new HashMap<>();
+    private JSONObject heatmapOffset = null;
+
     private Map<Integer, ArmisticePositions> aquireOffsetMap = Map.of(
             0, ArmisticePositions.CLEAN,
             1, ArmisticePositions.PIPE1,
@@ -102,7 +114,8 @@ public class Armistice extends SudoSubsystem {
         A3_lgae(5.624 - 0.52359878, 25.14),
         LOLI(2.68 - 0.52359878, 0.61),
         BARGE(6.14 - 0.52359878, 55),
-        CLIMB(2.911 - 0.52359878, 0.5),
+        CLIMB(0.6, 8.113),
+        CLIMB_2(0, 8.113),
         BARGE_ALT(1.515 - 0.52359878, 55);
 
         public final double armPositionRad;
@@ -127,11 +140,14 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Armistice() {
-        NamedCommands.registerCommand("L4 Score", runToPositionCommand(ArmisticePositions.Cora_L4));
-        NamedCommands.registerCommand("Stow", runToPositionCommand(ArmisticePositions.STOW));
-        NamedCommands.registerCommand("Stow No Wait", runToPositionNoWait(ArmisticePositions.STOW));
-        NamedCommands.registerCommand("Acquire Pos", runToPositionCommand(ArmisticePositions.CLEAN));
-        NamedCommands.registerCommand("L3 Score", runToPositionCommand(ArmisticePositions.Cora_L3));
+        File offsetInput = new File(Filesystem.getDeployDirectory(), "HeatmapReefOffsets.json");
+        if (offsetInput.isFile()) {
+            try {
+                String content = new String(Files.readAllBytes(Paths.get(offsetInput.getAbsolutePath())));
+                heatmapOffset = new JSONObject(content);
+            } catch (IOException ignored) {
+            }
+        }
     }
 
     private final Elevator summit = new ElevatorIOTalonFX().simSwitch();
@@ -178,11 +194,29 @@ public class Armistice extends SudoSubsystem {
         }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
     }
 
+    public Command runToPositionCommand(ArmisticePositions position, String closestReefName, boolean isRight) {
+        return Commands.runOnce(() -> {
+            targetArmisticePosition = position;
+            double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
+            elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches) + jsonOffsets[0];
+            armTargetRad = position.getArmPositionRad(globalArmOffsetRad) + jsonOffsets[1];
+        }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
+    }
+
     public Command runToPositionNoWait(ArmisticePositions position) {
         return Commands.runOnce(() -> {
             targetArmisticePosition = position;
             elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
             armTargetRad = position.getArmPositionRad(globalArmOffsetRad);
+        }, summit, disarm);
+    }
+
+    public Command runToPositionNoWait(ArmisticePositions position, String closestReefName, boolean isRight) {
+        return Commands.runOnce(() -> {
+            targetArmisticePosition = position;
+            double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
+            elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches) + jsonOffsets[0];
+            armTargetRad = position.getArmPositionRad(globalArmOffsetRad) + jsonOffsets[1];
         }, summit, disarm);
     }
 
@@ -217,6 +251,18 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToFutureAquirePositionCommand() {
         return Commands.defer(() -> runToPositionCommand(futureAquirePosition), Set.of(disarm, summit));
+    }
+
+    public Command runToFutureArmisticePositionCommand(StringSupplier closestReefName, BooleanSupplier isRight) {
+        return Commands.defer(
+                () -> runToPositionCommand(futureArmisticePositions, closestReefName.get(), isRight.getAsBoolean()),
+                Set.of(disarm, summit));
+    }
+
+    public Command runToFutureAquirePositionCommand(StringSupplier closestReefName, BooleanSupplier isRight) {
+        return Commands.defer(
+                () -> runToPositionCommand(futureAquirePosition, closestReefName.get(), isRight.getAsBoolean()),
+                Set.of(disarm, summit));
     }
 
     public Command incFutureArmisticePosition() {
@@ -340,6 +386,44 @@ public class Armistice extends SudoSubsystem {
     public void updateAutoAlgaePos(int reefTag) {
         futureAutoAlgaePosition = magicAlgaeOn ? reefAlgaeMap.get(Constants.reefTagNames.get(reefTag))
                 : ArmisticePositions.BARGE;
+    }
+
+    /** Elevator Offset first (in), then Arm Offset (rad) */
+    public double[] getJSONOffsets(@NonNull String closestReefName, @NonNull ArmisticePositions targetPosition,
+            boolean isRight) {
+        boolean isBlue = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue;
+        if (heatmapOffset == null)
+            return new double[] { 0, 0 };
+        else if (targetPosition == ArmisticePositions.BARGE) {
+            var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject("BARGE");
+            return new double[] {
+                    armEJson.getDouble("elevator"),
+                    armEJson.getDouble("arm")
+            };
+        } else if (targetPosition.name().contains("PIP") || targetPosition == ArmisticePositions.CLEAN) {
+            var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(targetPosition.name());
+            return new double[] {
+                    armEJson.getDouble("elevator"),
+                    armEJson.getDouble("arm"),
+            };
+        } else if (targetPosition.name().contains("Cora")) {
+            var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(closestReefName)
+                    .getJSONObject(isRight ? "right" : "left")
+                    .getJSONObject(targetPosition.name());
+            return new double[] {
+                    armEJson.getDouble("elevator"),
+                    armEJson.getDouble("arm")
+            };
+        } else if (targetPosition.name().contains("_lgae")) {
+            var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(closestReefName)
+                    .getJSONObject(targetPosition.name());
+            return new double[] {
+                    armEJson.getDouble("elevator"),
+                    armEJson.getDouble("arm")
+            };
+        } else {
+            return new double[] { 0, 0 };
+        }
     }
 
     @Override
