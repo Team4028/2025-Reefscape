@@ -35,6 +35,8 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     private final MotionMagicVoltage pidControl = new MotionMagicVoltage(0).withSlot(0);
 
     public ArmIOCanEncoderTalonFX() {
+        BaseStatusSignal.setUpdateFrequencyForAll(10, motorVolts, motorCurrent, motorVel);
+        motor.optimizeBusUtilization();
         settings.setVelocityFilterWidth(25);
         settings.setInvertDirection(false);
         settings.setDisableZeroButton(false);

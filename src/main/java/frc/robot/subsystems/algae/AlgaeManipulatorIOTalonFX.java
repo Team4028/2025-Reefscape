@@ -3,35 +3,24 @@ package frc.robot.subsystems.algae;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.subsystems.climber.ClimberConstants;
 
 public class AlgaeManipulatorIOTalonFX implements AlgaeManipulatorIO {
-    private TalonFX motor;
-    private final StatusSignal<Voltage> motorVolts;
-    private final StatusSignal<Current> motorAmps;
-    private final StatusSignal<AngularVelocity> velocity;
-    private final StatusSignal<Angle> position;
-    private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(ClimberConstants.USE_FOC);
+    private final TalonFX motor = new TalonFX(AlgaeManipulatorConstants.TalonFX.CAN_ID);;
+    private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
+    private final StatusSignal<Current> motorAmps = motor.getStatorCurrent();
     private final DutyCycleOut vbusControl = new DutyCycleOut(0).withEnableFOC(ClimberConstants.USE_FOC);
-    private final PositionVoltage pidControl = new PositionVoltage(0).withEnableFOC(ClimberConstants.USE_FOC);
 
     public AlgaeManipulatorIOTalonFX() {
-        motor = new TalonFX(AlgaeManipulatorConstants.TalonFX.CAN_ID);
+        BaseStatusSignal.setUpdateFrequencyForAll(20, motorVolts, motorAmps);
+        motor.optimizeBusUtilization();
         motor.getConfigurator().apply(AlgaeManipulatorConstants.TalonFX.motorConfigs);
-        
-        motorVolts = motor.getMotorVoltage();
-        motorAmps = motor.getStatorCurrent();
-        velocity = motor.getVelocity();
-        position = motor.getPosition();
+        motor.getConfigurator().apply(AlgaeManipulatorConstants.TalonFX.currentConfigs);
     }
     @Override
     public void updateInputs(AlgaeManipulatorIOInputs inputs) {

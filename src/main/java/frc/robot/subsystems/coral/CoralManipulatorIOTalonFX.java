@@ -21,13 +21,14 @@ public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
             .withEnableFOC(CoralManipulatorConstants.TalonFX.USE_FOC);
 
     public CoralManipulatorIOTalonFX() {
+        BaseStatusSignal.setUpdateFrequencyForAll(20, motorAmps, motorVolts);
+        motor.optimizeBusUtilization();
         motor.getConfigurator().apply(CoralManipulatorConstants.TalonFX.CONFIG);
     }
 
     @Override
     public void updateInputs(CoralManipulatorIOInputs inputs) {
         BaseStatusSignal.refreshAll(motorVolts, motorAmps);
-
         inputs.appliedVolts = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorAmps.getValueAsDouble();
         inputs.motorData = MotorData.getMotorData(motor);

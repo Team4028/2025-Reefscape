@@ -122,7 +122,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
                         .andThen(Commands.defer(() -> coral.runMotorCommand(getOutfeedVBus()), Set.of(coral))
-                                .alongWith(Commands.waitSeconds(0.25))
+                                .alongWith(Commands.waitSeconds(0.15))
                                 .andThen(coral.runMotorCommand(0))));
         NamedCommands.registerCommand("WaitUntilClose", Commands.waitUntil(drive.driveCloseEnoughReefAuton()));
         NamedCommands.registerCommand("WaitUntilCloseAcq", Commands.waitUntil(drive.driveCloseEnoughAcquireAuton()));

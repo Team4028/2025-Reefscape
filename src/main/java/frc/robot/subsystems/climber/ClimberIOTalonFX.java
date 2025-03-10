@@ -1,5 +1,6 @@
 package frc.robot.subsystems.climber;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -13,22 +14,20 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.MotorData;
 
 public class ClimberIOTalonFX implements ClimberIO {
-    private final TalonFX motor;
-    private final StatusSignal<Voltage> motorVolts;
-    private final StatusSignal<Current> motorAmps;
-    private final StatusSignal<AngularVelocity> velocity;
-    private final StatusSignal<Angle> position;
+    private final TalonFX motor = new TalonFX(ClimberConstants.TalonFX.MOTOR_ID);
+    private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
+    private final StatusSignal<Current> motorAmps = motor.getStatorCurrent();
+    private final StatusSignal<AngularVelocity> velocity = motor.getVelocity();
+    private final StatusSignal<Angle> position = motor.getPosition();
     private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(ClimberConstants.USE_FOC);
     private final DutyCycleOut vbusControl = new DutyCycleOut(0).withEnableFOC(ClimberConstants.USE_FOC);
     private final PositionVoltage pidControl = new PositionVoltage(0).withEnableFOC(ClimberConstants.USE_FOC)
             .withSlot(0);
 
     public ClimberIOTalonFX() {
-        motor = new TalonFX(ClimberConstants.TalonFX.MOTOR_ID);
-        motorVolts = motor.getMotorVoltage();
-        motorAmps = motor.getSupplyCurrent();
-        velocity = motor.getVelocity();
-        position = motor.getPosition();
+        BaseStatusSignal.setUpdateFrequencyForAll(20, motorVolts, motorAmps, velocity, position);
+        motor.optimizeBusUtilization();
+        motor.getConfigurator().apply(ClimberConstants.TalonFX.currentLimitConfigs);
     }
 
    @Override

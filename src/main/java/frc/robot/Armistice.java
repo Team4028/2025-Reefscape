@@ -370,6 +370,10 @@ public class Armistice extends SudoSubsystem {
         return Math.abs(armTargetRad - disarm.getCurrentPosition()) <= ArmConstants.PID_TOLERANCE;
     }
 
+    public boolean disarmAtSafeDistance() {
+        return Math.abs(armTargetRad - disarm.getCurrentPosition()) <= ArmConstants.SAFE_DISTANCE;
+    }
+
     public Command runElevator(ArmisticePositions position) {
         return Commands
                 .runOnce(() -> elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches))
@@ -430,9 +434,9 @@ public class Armistice extends SudoSubsystem {
     @Override
     public void periodic() {
         if (USE_SAFETY) {
-            elevatorWaiting = !disarmAtRealTarget() && !elevatorIsSafe();
+            elevatorWaiting = !disarmAtSafeDistance() && !elevatorIsSafe();
             if (elevatorIsSafe() || (elevatorWaiting && summit.atTargetPosition().getAsBoolean())
-                    || disarmAtRealTarget()) {
+                    || disarmAtSafeDistance()) {
                 disarm.runToPosition(armTargetRad);
                 summit.runToPosition(
                         elevatorWaiting ? MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])

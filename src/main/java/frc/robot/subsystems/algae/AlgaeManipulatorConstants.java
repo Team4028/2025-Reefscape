@@ -1,5 +1,6 @@
 package frc.robot.subsystems.algae;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -23,6 +24,9 @@ public class AlgaeManipulatorConstants {
         public static final int CAN_ID = 18;
         public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
+        public static final CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(120).withStatorCurrentLimitEnable(true);
     }
 
     public static final class Sim {

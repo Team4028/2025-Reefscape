@@ -83,6 +83,6 @@ public class AlgaeManipulator extends SubsystemBase {
     public void hold() {
         currentLimitTimer.stop();
         currentLimitTimer.reset();
-        io.setVoltage(0);
+        io.setVoltage(0.5);
     }
 }

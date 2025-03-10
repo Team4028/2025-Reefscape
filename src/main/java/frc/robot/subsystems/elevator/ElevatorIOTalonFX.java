@@ -35,6 +35,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final StrictFollower indenturedServitude = new StrictFollower(ElevatorConstants.TalonFX.LEADER_ID);
 
     public ElevatorIOTalonFX() {
+        BaseStatusSignal.setUpdateFrequencyForAll(20, positionRotFollower, velocityRotPerSecFollower,
+                accelerationRotPerSecPerSecFollower, appliedVoltageFollower, currentAmpsFollower);
+        BaseStatusSignal.setUpdateFrequencyForAll(10, positionRotLeader, velocityRotPerSecLeader,
+                accelerationRotPerSecPerSecLeader, appliedVoltageLeader, currentAmpsLeader);
+        leader.optimizeBusUtilization();
+        follower.optimizeBusUtilization();
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs);
         follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs);
