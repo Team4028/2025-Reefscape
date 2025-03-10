@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.PIDStruct;
 import frc.robot.util.SysIDUtil;
@@ -20,7 +21,7 @@ public class ArmConstants {
     public static final double ARM_MASS_Kg = 3.63;
     public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
     public static final double GEAR_RATIO = 79.347;
-    public static final double PID_TOLERANCE = 0.1;
+    public static final double PID_TOLERANCE = Units.degreesToRadians(1);
 
     public static final boolean USE_FOC = true;
 

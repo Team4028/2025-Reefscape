@@ -108,6 +108,15 @@ public class RobotContainer {
                         AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_POS)
                                 : Constants.AQUIRE_POS),
                         Set.of(drive))));
+
+        NamedCommands.registerCommand("Acquire Left", coral.runMotorCommand(.7)
+                .alongWith(Commands.waitUntil(
+                        coral.hasGamePieceSupplier()))
+                .andThen(coral.runMotorCommand(0))
+                .raceWith(Commands.defer(() -> drive.translateToPositionWithPID(
+                        AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_LEFT_POS)
+                                : Constants.AQUIRE_LEFT_POS),
+                        Set.of(drive))));
         NamedCommands.registerCommand("Acquire Run",
                 coral.runMotorCommand(.7).alongWith(Commands.waitUntil(coral.hasGamePieceSupplier())));
         NamedCommands.registerCommand("Score Outfeed",
@@ -133,7 +142,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("L2 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L2));
         NamedCommands.registerCommand("Blip",
-                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.125)).andThen(coral.runMotorCommand(0)));
+                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).andThen(coral.runMotorCommand(0)));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         // Set up SysId routines
@@ -474,7 +483,7 @@ public class RobotContainer {
     }
 
     private double getOutfeedVBus() {
-        return armistice.getElevatorPosition() > 45 ? -.7 : -.3;
+        return armistice.getElevatorPosition() > 45 ? -.6 : -.3;
     }
 
     public Command realDrivetrainStop() {

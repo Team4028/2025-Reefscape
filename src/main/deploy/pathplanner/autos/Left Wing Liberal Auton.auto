@@ -32,6 +32,18 @@
         {
           "type": "named",
           "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Score Outfeed"
           }
         },
@@ -57,7 +69,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Acquire"
+            "name": "Acquire Left"
           }
         },
         {
@@ -88,6 +100,18 @@
         {
           "type": "named",
           "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Score Outfeed"
           }
         },
@@ -113,7 +137,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Acquire"
+            "name": "Acquire Left"
           }
         },
         {
@@ -139,6 +163,18 @@
           "type": "named",
           "data": {
             "name": "Run To Closest Left Reef"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
           }
         },
         {

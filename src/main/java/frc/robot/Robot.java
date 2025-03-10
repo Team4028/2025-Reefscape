@@ -31,7 +31,7 @@ public class Robot extends LoggedRobot {
 
     public Robot() {
         robotContainer = new RobotContainer();
-        SignalLogger.setPath("/media/sda1/ctre");
+        // SignalLogger.setPath("/media/sda1/ctre");
         Logger.recordMetadata("ProjectName", "BeakSquad4028");
         Logger.recordMetadata("TimeStamp", ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
