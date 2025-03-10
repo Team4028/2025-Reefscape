@@ -59,8 +59,8 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private boolean elevatorWaiting = true;
 
-    private static final double[] ARM_SAFE_RANGE = new double[] { 5, 35 };
-    private static final boolean USE_SAFETY = false;
+    private static final double[] ARM_SAFE_RANGE = new double[] { 5, 45 };
+    private static final boolean USE_SAFETY = true;
 
     @AutoLogOutput
     private double armCharVoltage = 0;
@@ -103,17 +103,18 @@ public class Armistice extends SudoSubsystem {
             "10oC", ArmisticePositions.A3_lgae);
 
     public static enum ArmisticePositions {
-        STOW(4.097 - 0.52359878, 9),
-        CLEAN(0.855 - 0.52359878, 8.1),
-        PIPE1(0.94 - 0.52359878, 6.1),
+        STOW(3.382, 9),
+        CLEAN(0.191, 8.1),
+        PIPE1(0.327, 3.11),
         PIPE2(1, 5),
-        Cora_L2(4.097 - 0.52359878, 9),
-        Cora_L3(4.097 - 0.52359878, 24.54),
-        Cora_L4(3.907 - 0.52359878 - 0.05236 + 0.017453, 55.0),
-        A2_lgae(5.624 - 0.52359878, 9.14),
-        A3_lgae(5.624 - 0.52359878, 25.14),
-        LOLI(2.68 - 0.52359878, 0.61),
-        BARGE(6.14 - 0.52359878, 55),
+        Cora_L1(0.748, 6.109),
+        Cora_L2(3.382, 9),
+        Cora_L3(3.382, 24.54),
+        Cora_L4(3.18, 55.5),
+        A2_lgae(5.103, 7.149),
+        A3_lgae(5.103, 23.144),
+        LOLI(4.342, 1),
+        BARGE(5.857, 50),
         CLIMB(0.6, 8.113),
         CLIMB_2(0, 8.113),
         BARGE_ALT(1.515 - 0.52359878, 55);

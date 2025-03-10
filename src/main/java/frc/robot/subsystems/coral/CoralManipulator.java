@@ -60,7 +60,7 @@ public class CoralManipulator extends SubsystemBase {
 
     @CreateState("vbus_forward")
     public void infeedVBus() {
-        if (inputs.currentAmps < CoralManipulatorConstants.SUPPLY_LIMIT
+        if (inputs.currentAmps < CoralManipulatorConstants.STATOR_LIMIT
                 || currentLimitTimer.get() <= CoralManipulatorConstants.CURRENT_LIMIT_DELAY_SEC) {
             currentLimitTimer.start();
             io.setVbus(targetVBus);

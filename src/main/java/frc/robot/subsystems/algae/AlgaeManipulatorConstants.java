@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.SysIDUtil;
 
 public class AlgaeManipulatorConstants {
-    public static final double SUPPLY_LIMIT = 50;
+    public static final double SUPPLY_LIMIT = 60;
     public static final double GEARING = 10;
     public static final double CURRENT_LIMIT_DELAY_SEC = 0.5;
 

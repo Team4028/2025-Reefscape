@@ -27,8 +27,8 @@ public class ElevatorConstants {
 
     public static final DCMotor gearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
 
-    public static final PIDStruct pidConstants = new PIDStruct(8, 0, 0, 118, 254, 400, -60, 60, 0.0022739, 0.37983,
-            0.13257, 0.0041512);
+    public static final PIDStruct pidConstants = new PIDStruct(8, 0, 0, 118, 254, 400, -60, 60, 0.043915, 0.39241,
+            0.13165, 0.0033318);
     public static final PIDStruct simPidConstants = new PIDStruct(0.4, 0, 0, 118, 254, Constants.THE_BEST_NUMBER, 0, 0,
             0.05, 0.6, 0.11512, 0.0029619);
 
@@ -41,10 +41,10 @@ public class ElevatorConstants {
 
     public static final double MAX_HEIGHT_INCHES = 72 * ROT_TO_IN;
 
-    public static final double PID_TOLERANCE = 0.1;//9.1629;
+    public static final double PID_TOLERANCE = 0.1;// 9.1629;
 
-    public static final double FORWARD_SOFT_LIMIT_INCHES = 64;
-    public static final double FORWARD_SOFT_LIMIT_ROTATIONS = 71;
+    // public static final double FORWARD_SOFT_LIMIT_INCHES = 64;
+    public static final double FORWARD_SOFT_LIMIT_ROTATIONS = 56 / ROT_TO_IN;
     // the hard stops are at 66 "inches" using bad math which is 72 rotations of the
     // kraken.
 

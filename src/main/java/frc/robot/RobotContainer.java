@@ -145,6 +145,7 @@ public class RobotContainer {
                 coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).andThen(coral.runMotorCommand(0)));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
+        autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization());
         // Set up SysId routines
         VisionUtil.bindSimCameras(new Transform3d[] { new Transform3d() });
         configureBindings();
@@ -376,18 +377,24 @@ public class RobotContainer {
         // ==============================================
         // EC -- DPAD: Global Nudges
         // ==============================================
-        emergencyController.povUp().onTrue(armistice.nudgeCommandGlobalPermanant(1, 0));
-        emergencyController.povDown().onTrue(armistice.nudgeCommandGlobalPermanant(-1, 0));
-        emergencyController.povRight().onTrue(armistice.nudgeCommandPermanant(0, Units.degreesToRadians(1)));
-        emergencyController.povLeft().onTrue(armistice.nudgeCommandPermanant(0, Units.degreesToRadians(-1)));
+        emergencyController.povUp().onTrue(armistice.nudgeCommandGlobalPermanant(1,
+                0));
+        emergencyController.povDown().onTrue(armistice.nudgeCommandGlobalPermanant(-1,
+                0));
+        emergencyController.povRight().onTrue(armistice.nudgeCommandPermanant(0,
+                Units.degreesToRadians(1)));
+        emergencyController.povLeft().onTrue(armistice.nudgeCommandPermanant(0,
+                Units.degreesToRadians(-1)));
 
         // ==============================================
         // EC -- DPAD: Positional Nudges
         // ==============================================
         emergencyController.y().onTrue(armistice.nudgeCommandPermanant(1, 0));
         emergencyController.a().onTrue(armistice.nudgeCommandPermanant(-1, 0));
-        emergencyController.b().onTrue(armistice.nudgeCommandPermanant(0, Units.degreesToRadians(1)));
-        emergencyController.x().onTrue(armistice.nudgeCommandPermanant(0, Units.degreesToRadians(-1)));
+        emergencyController.b().onTrue(armistice.nudgeCommandPermanant(0,
+                Units.degreesToRadians(1)));
+        emergencyController.x().onTrue(armistice.nudgeCommandPermanant(0,
+                Units.degreesToRadians(-1)));
 
         // ==============================================
         // EC -- START: Run To Climb Position
@@ -397,6 +404,10 @@ public class RobotContainer {
         emergencyController.back().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB_2));
 
         emergencyController.rightStick().onTrue(armistice.resetNudges());
+
+        emergencyController.rightBumper().onTrue(armistice.deltaArmCharVolts(0.1));
+        emergencyController.leftBumper().onTrue(armistice.deltaArmCharVolts(-0.1));
+        emergencyController.a().onTrue(armistice.runArmVoltageForChar());
     }
 
     public Command getAutonomousCommand() {
@@ -483,7 +494,7 @@ public class RobotContainer {
     }
 
     private double getOutfeedVBus() {
-        return armistice.getElevatorPosition() > 45 ? -.6 : -.3;
+        return armistice.getElevatorPosition() > 45 ? -.8 : -.4;
     }
 
     public Command realDrivetrainStop() {

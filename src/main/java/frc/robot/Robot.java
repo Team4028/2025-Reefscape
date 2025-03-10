@@ -122,7 +122,7 @@ public class Robot extends LoggedRobot {
         }
 
         // uncomment for use w/ sysid
-        // SignalLogger.start();
+        SignalLogger.start();
         robotContainer.periodicLL4IMU(true);
         Elastic.selectTab("Teleoperated");
     }
