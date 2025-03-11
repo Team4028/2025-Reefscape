@@ -5,22 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SR-2ocR2-PC-4ocL4-PC-4ocR4.0"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
+            "pathName": "SR-2ocR2-PC-4ocL4-PC-4ocR4.0"
           }
         },
         {
@@ -33,6 +20,12 @@
           "type": "named",
           "data": {
             "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
           }
         },
         {
@@ -100,7 +93,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.2
+            "waitTime": 0.05
           }
         },
         {
@@ -168,7 +161,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
+            "waitTime": 0.05
           }
         },
         {

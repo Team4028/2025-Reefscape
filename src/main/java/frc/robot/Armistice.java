@@ -104,7 +104,7 @@ public class Armistice extends SudoSubsystem {
 
     public static enum ArmisticePositions {
         STOW(3.382, 9),
-        CLEAN(0.191, 8.1),
+        CLEAN(0.189, 7.101),
         PIPE1(0.327, 3.11),
         PIPE2(1, 5),
         Cora_L1(0.748, 6.109),
@@ -115,8 +115,8 @@ public class Armistice extends SudoSubsystem {
         A3_lgae(5.103, 23.144),
         LOLI(4.342, 1),
         BARGE(5.857, 50),
-        CLIMB(0.6, 8.113),
-        CLIMB_2(0, 8.113),
+        CLIMB(0.439, 8.134),
+        CLIMB_2(0, 8.125),
         BARGE_ALT(1.515 - 0.52359878, 55);
 
         public final double armPositionRad;

@@ -5,22 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "race",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SL-10ocL2-BC-8ocR4-BC-8ocR4.0"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
+            "pathName": "SL-10ocL2-BC-8ocR4-BC-8ocR4.0"
           }
         },
         {
@@ -33,6 +20,12 @@
           "type": "named",
           "data": {
             "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
           }
         },
         {

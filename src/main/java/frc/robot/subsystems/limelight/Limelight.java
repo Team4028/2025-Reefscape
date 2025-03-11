@@ -108,13 +108,13 @@ public class Limelight extends SubsystemBase {
     public LoggablePoseEstimate getBotposeEstimateMT2(double driveYawRad) {
         var vRes = inputs.solverPoseBlue;
         if (vRes == null || vRes.rawFiducials() == null || vRes.rawFiducials().length < 1) return LoggablePoseEstimate.empty();
-        if (vRes.rawFiducials()[0].distToCamera() > 2) // was 2 meters, made it 3 instead.
+        if (vRes.rawFiducials()[0].distToCamera() > 3) // was 2 meters, made it 3 instead.
         {
             return LoggablePoseEstimate.empty();
         }
-        if (vRes.tagCount() > 1) {
-            return vRes;
-        }
+        // if (vRes.tagCount() > 1) {
+        //     return vRes;
+        // }
 
         if (vRes.tagCount() < 1 || !getTV()) {
             return LoggablePoseEstimate.empty();

@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Angle;
@@ -35,19 +36,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final StrictFollower indenturedServitude = new StrictFollower(ElevatorConstants.TalonFX.LEADER_ID);
 
     public ElevatorIOTalonFX() {
-        BaseStatusSignal.setUpdateFrequencyForAll(20, positionRotFollower, velocityRotPerSecFollower,
-                accelerationRotPerSecPerSecFollower, appliedVoltageFollower, currentAmpsFollower);
-        BaseStatusSignal.setUpdateFrequencyForAll(10, positionRotLeader, velocityRotPerSecLeader,
-                accelerationRotPerSecPerSecLeader, appliedVoltageLeader, currentAmpsLeader);
-        leader.optimizeBusUtilization();
-        follower.optimizeBusUtilization();
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs);
         follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.mmConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.tcConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
-
     }
 
     @Override

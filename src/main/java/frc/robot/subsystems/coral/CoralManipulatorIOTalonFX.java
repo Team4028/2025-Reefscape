@@ -21,8 +21,6 @@ public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
             .withEnableFOC(CoralManipulatorConstants.TalonFX.USE_FOC);
 
     public CoralManipulatorIOTalonFX() {
-        BaseStatusSignal.setUpdateFrequencyForAll(20, motorAmps, motorVolts);
-        motor.optimizeBusUtilization();
         motor.getConfigurator().apply(CoralManipulatorConstants.TalonFX.CONFIG);
     }
 

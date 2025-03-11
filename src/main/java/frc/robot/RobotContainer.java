@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -76,6 +77,11 @@ public class RobotContainer {
             new ModuleIOTalonFX(TunerConstants.BackLeft),
             new ModuleIOTalonFX(TunerConstants.BackRight)
     });
+
+    private final HumanCamera humanCam = new HumanCamera();
+
+    @AutoLogOutput
+    private boolean climbDeadmanUnsafe = false;
 
     // add actual limits
     private final SlewRateLimiter xLimiterL4, yLimiterL4, thetaLimiterL4, xLimiter, yLimiter, thetaLimiter;
@@ -300,9 +306,9 @@ public class RobotContainer {
         // operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value,
         // 0.5).onTrue(climber.runVbusCommand(-0.4));
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, -0.5)
-                .and(operatorController.axisLessThan(XboxController.Axis.kLeftY.value, 0.5))
                 .onTrue(climber.runVbusCommand(0));
-        operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5).onTrue(climber.runVbusCommand(0.4));
+        operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5)
+                .onTrue(climber.runVbusCommand(0.4).onlyIf(() -> climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- DPAD UP: Increment Armistice Manual Index
@@ -365,16 +371,6 @@ public class RobotContainer {
         // ==================== //
 
         // ==============================================
-        // EC -- RB: Climb Climber
-        // ==============================================
-        emergencyController.rightBumper().onTrue(climber.runVbusCommand(0.2)).onFalse(climber.runVbusCommand(0));
-
-        // ==============================================
-        // EC -- LB: Badify Climber
-        // ==============================================
-        emergencyController.leftBumper().onTrue(climber.runVbusCommand(-0.2)).onFalse(climber.runVbusCommand(0));
-
-        // ==============================================
         // EC -- DPAD: Global Nudges
         // ==============================================
         emergencyController.povUp().onTrue(armistice.nudgeCommandGlobalPermanant(1,
@@ -405,9 +401,11 @@ public class RobotContainer {
 
         emergencyController.rightStick().onTrue(armistice.resetNudges());
 
-        emergencyController.rightBumper().onTrue(armistice.deltaArmCharVolts(0.1));
-        emergencyController.leftBumper().onTrue(armistice.deltaArmCharVolts(-0.1));
-        emergencyController.a().onTrue(armistice.runArmVoltageForChar());
+        emergencyController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.4)
+                .onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLI));
+
+        emergencyController.rightBumper()
+                .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe)));
     }
 
     public Command getAutonomousCommand() {

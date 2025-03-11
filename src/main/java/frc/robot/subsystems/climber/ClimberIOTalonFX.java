@@ -25,8 +25,6 @@ public class ClimberIOTalonFX implements ClimberIO {
             .withSlot(0);
 
     public ClimberIOTalonFX() {
-        BaseStatusSignal.setUpdateFrequencyForAll(20, motorVolts, motorAmps, velocity, position);
-        motor.optimizeBusUtilization();
         motor.getConfigurator().apply(ClimberConstants.TalonFX.currentLimitConfigs);
     }
 
