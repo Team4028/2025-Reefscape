@@ -386,7 +386,7 @@
  },
  "events":[
    {"name":"Stow", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Score L2", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0.45 s", "val":0.45}}, "event":{"type":"named", "data":{"name":"L2 Score"}}},
+   {"name":"Score L4", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0.45 s", "val":0.45}}, "event":{"type":"named", "data":{"name":"L2 Score"}}},
    {"name":"Acquire Post 10oc", "from":{"target":1, "targetTimestamp":1.55693, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
    {"name":"Acquire 1", "from":{"target":2, "targetTimestamp":2.47752, "offset":{"exp":"0.4 s", "val":0.4}}, "event":{"type":"named", "data":{"name":"Acquire Run"}}},
    {"name":"Stow Post Acquire 1", "from":{"target":4, "targetTimestamp":4.41875, "offset":{"exp":"0.1 s", "val":0.1}}, "event":{"type":"named", "data":{"name":"Stow"}}},

@@ -109,7 +109,9 @@ public class Armistice extends SudoSubsystem {
         PIPE2(1, 5),
         Cora_L1(0.748, 6.109),
         Cora_L2(3.382, 9),
+        Cora_L2_PIPE(3.382, 15),
         Cora_L3(3.382, 24.54),
+        Cora_L3_PIPE(3.382, 31.55),
         Cora_L4(3.18, 55.5),
         A2_lgae(5.103, 7.149),
         A3_lgae(5.103, 23.144),
@@ -269,8 +271,9 @@ public class Armistice extends SudoSubsystem {
     public Command incFutureArmisticePosition() {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
             case Cora_L2 -> ArmisticePositions.Cora_L3;
-            case Cora_L3 -> ArmisticePositions.Cora_L4;
-            case Cora_L4 -> ArmisticePositions.Cora_L2;
+            case Cora_L2_PIPE -> ArmisticePositions.Cora_L3_PIPE;
+            case Cora_L3, Cora_L3_PIPE -> ArmisticePositions.Cora_L4;
+            case Cora_L4 -> coralAquireOffset > 0 ? ArmisticePositions.Cora_L2_PIPE : ArmisticePositions.Cora_L2;
             case A2_lgae -> ArmisticePositions.A3_lgae;
             case A3_lgae -> ArmisticePositions.BARGE;
             case BARGE -> ArmisticePositions.A2_lgae;
@@ -280,9 +283,10 @@ public class Armistice extends SudoSubsystem {
 
     public Command decFutureArmisticePosition() {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
-            case Cora_L2 -> ArmisticePositions.Cora_L4;
+            case Cora_L2, Cora_L2_PIPE -> ArmisticePositions.Cora_L4;
             case Cora_L3 -> ArmisticePositions.Cora_L2;
-            case Cora_L4 -> ArmisticePositions.Cora_L3;
+            case Cora_L3_PIPE -> ArmisticePositions.Cora_L2_PIPE;
+            case Cora_L4 -> coralAquireOffset > 0 ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
             case A2_lgae -> ArmisticePositions.BARGE;
             case A3_lgae -> ArmisticePositions.A2_lgae;
             case BARGE -> ArmisticePositions.A3_lgae;
@@ -405,12 +409,6 @@ public class Armistice extends SudoSubsystem {
                     armEJson.getDouble("elevator"),
                     armEJson.getDouble("arm")
             };
-        } else if (targetPosition.name().contains("PIP") || targetPosition == ArmisticePositions.CLEAN) {
-            var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(targetPosition.name());
-            return new double[] {
-                    armEJson.getDouble("elevator"),
-                    armEJson.getDouble("arm"),
-            };
         } else if (targetPosition.name().contains("Cora")) {
             var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(closestReefName)
                     .getJSONObject(isRight ? "right" : "left")
@@ -425,6 +423,12 @@ public class Armistice extends SudoSubsystem {
             return new double[] {
                     armEJson.getDouble("elevator"),
                     armEJson.getDouble("arm")
+            };
+        } else if ((targetPosition.name().contains("PIP")) || targetPosition == ArmisticePositions.CLEAN) {
+            var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(targetPosition.name());
+            return new double[] {
+                    armEJson.getDouble("elevator"),
+                    armEJson.getDouble("arm"),
             };
         } else {
             return new double[] { 0, 0 };
@@ -489,6 +493,18 @@ public class Armistice extends SudoSubsystem {
                     break;
                 }
             }
+        }
+
+        if (coralAquireOffset > 0 && (futureArmisticePositions == ArmisticePositions.Cora_L2
+                || futureArmisticePositions == ArmisticePositions.Cora_L3)) {
+            futureArmisticePositions = futureArmisticePositions == ArmisticePositions.Cora_L2
+                    ? ArmisticePositions.Cora_L2_PIPE
+                    : ArmisticePositions.Cora_L3_PIPE;
+        } else if (coralAquireOffset == 0 && (futureArmisticePositions == ArmisticePositions.Cora_L2_PIPE
+                || futureArmisticePositions == ArmisticePositions.Cora_L3_PIPE)) {
+            futureArmisticePositions = futureArmisticePositions == ArmisticePositions.Cora_L2_PIPE
+                    ? ArmisticePositions.Cora_L2
+                    : ArmisticePositions.Cora_L3;
         }
 
         futureAquirePosition = coralMode ? aquireOffsetMap.get(coralAquireOffset) : ArmisticePositions.LOLI;

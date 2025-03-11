@@ -399,13 +399,14 @@ public class RobotContainer {
 
         emergencyController.back().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB_2));
 
-        emergencyController.rightStick().onTrue(armistice.resetNudges());
+        emergencyController.rightStick().onTrue(armistice.resetNudges().ignoringDisable(true));
 
         emergencyController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.4)
                 .onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLI));
 
         emergencyController.rightBumper()
-                .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe)));
+                .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
+                        .ignoringDisable(true));
     }
 
     public Command getAutonomousCommand() {
