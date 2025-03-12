@@ -347,10 +347,10 @@ public class RobotContainer {
         // ==============================================
         // OC -- B: Magic Score Algae
         // ==============================================
-        operatorController.b().onTrue(Commands.defer(this::runToClosestAlgae,
-                algaeCommandRequs().get())
-                .alongWith(armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3)
-                        .onlyIf(() -> armistice.getAutoAlgaePosition() != ArmisticePositions.BARGE)));
+        operatorController.b()
+                .onTrue(runToClosestAlgae().andThen(
+                        Commands.runOnce(() -> armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3))
+                                .onlyIf(() -> armistice.getAutoAlgaePosition() != ArmisticePositions.BARGE)));
 
         // ==============================================
         // OC -- RX: Snap To Coral Stations
@@ -474,16 +474,12 @@ public class RobotContainer {
     }
 
     private Command runToClosestAlgae() {
-        return armistice.getAutoAlgaePosition() == ArmisticePositions.BARGE
-                ? armistice.runToPositionCommand(ArmisticePositions.BARGE)
-                : MagicSequencing.magicGetAlgaeOnlyPID(drive, armistice, algae, drive::closestReefPoseAlgae,
-                        armistice::getAutoAlgaePosition);
-    }
-
-    private Supplier<Set<Subsystem>> algaeCommandRequs() {
-        return () -> armistice.getAutoAlgaePosition() == ArmisticePositions.BARGE
-                ? Set.<Subsystem>of(armistice.getArm(), armistice.getElevator())
-                : Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), algae);
+        return Commands.either(armistice.runToPositionCommand(ArmisticePositions.BARGE),
+                Commands.defer(
+                        () -> MagicSequencing.magicGetAlgaeOnlyPID(drive, armistice, algae, drive::closestReefPoseAlgae,
+                                armistice::getAutoAlgaePosition),
+                        Set.of(drive, armistice.getArm(), armistice.getElevator(), algae)),
+                () -> armistice.getAutoAlgaePosition() == ArmisticePositions.BARGE);
     }
 
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {
@@ -502,7 +498,8 @@ public class RobotContainer {
     }
 
     private double getOutfeedVBus() {
-        return armistice.getElevatorPosition() > 45 ? -.8 : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.8 : -.4;
+        return armistice.getElevatorPosition() > 45 ? -.8
+                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.8 : -.4;
     }
 
     public Command realDrivetrainStop() {

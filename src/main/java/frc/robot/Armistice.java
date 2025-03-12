@@ -117,7 +117,7 @@ public class Armistice extends SudoSubsystem {
         A2_lgae(5.103, 7.149),
         A3_lgae(5.103, 23.144),
         LOLI(4.342, 1),
-        BARGE(5.857, 50),
+        BARGE(5.8, 53),
         CLIMB(0.439, 8.134),
         CLIMB_2(0, 8.125),
         BARGE_ALT(1.515 - 0.52359878, 55);
