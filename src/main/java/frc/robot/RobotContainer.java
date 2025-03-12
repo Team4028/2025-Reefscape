@@ -415,6 +415,13 @@ public class RobotContainer {
         emergencyController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.4)
                 .onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLI));
 
+        emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value, 0.5)
+                .onTrue(armistice.toggleCoralReefOffset());
+
+        emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kLeftX.value, 0.5)
+                .onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(
+                        Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0)).ignoringDisable(true));
+
         emergencyController.rightBumper()
                 .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                         .ignoringDisable(true));

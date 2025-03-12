@@ -33,8 +33,8 @@ public final class Constants {
     public static final Pose2d AQUIRE_LEFT_POS = new Pose2d(1.2929733991622925, 7.2203779220581055, Rotation2d.fromRadians(3.7805067024924734));
 
     public static final class Streams {
-        public static final String SCORE_CAMERA = "http://photonvision.local:1182/stream.mjpg";
-        public static final String CLIMB_CAMERA = "http://photonvision.local:1186/stream.mjpg";
+        public static final String SCORE_CAMERA = "http://photonvision.local:1186/stream.mjpg";
+        public static final String CLIMB_CAMERA = "http://photonvision.local:1184/stream.mjpg";
     }
 
     public static final Map<Integer, String> reefTagNames = new HashMap<>(){{
