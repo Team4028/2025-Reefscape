@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AutoSequencing;
+import frc.robot.commands.MagicSequencing;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.algae.AlgaeManipulator;
 import frc.robot.subsystems.algae.AlgaeManipulatorIOTalonFX;
@@ -133,9 +133,9 @@ public class RobotContainer {
         NamedCommands.registerCommand("WaitUntilClose", Commands.waitUntil(drive.driveCloseEnoughReefAuton()));
         NamedCommands.registerCommand("WaitUntilCloseAcq", Commands.waitUntil(drive.driveCloseEnoughAcquireAuton()));
         NamedCommands.registerCommand("Run To Closest Right Reef",
-                rightPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
+                rightPidToClosestReefAuton().until(drive.translatePidInPosition()).withTimeout(1));
         NamedCommands.registerCommand("Run To Closest Left Reef",
-                leftPidToClosestReef().until(drive.translatePidInPosition()).withTimeout(1));
+                leftPidToClosestReefAuton().until(drive.translatePidInPosition()).withTimeout(1));
 
         NamedCommands.registerCommand("L4 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L4));
@@ -298,7 +298,7 @@ public class RobotContainer {
         // ==============================================
         // OC -- RT: Outfeed Algae
         // ==============================================
-        operatorController.rightTrigger().onTrue(algae.runMotorCommand(-0.7)).onFalse(algae.runMotorCommand(0));
+        operatorController.rightTrigger().onTrue(algae.runMotorCommand(-0.9)).onFalse(algae.runMotorCommand(0));
 
         // ==============================================
         // OC -- LY: Climber (up = climb, down = bad)
@@ -449,16 +449,26 @@ public class RobotContainer {
     }
 
     private Command runToClosestReef() {
-        return AutoSequencing.autoScoreReefNoShoot(drive, armistice, coral, drive::closestReefPose,
-                armistice::getFutureArmisticePositions);
+        return armistice.magicIsSnap() ? magicSnapL1()
+                : MagicSequencing.magicScoreNoScoreReefOnlyPID(drive, armistice, coral,
+                        () -> armistice.getFutureArmisticePositions().isPipe() ? drive.pipe1ClosestReefPose()
+                                : drive.closestReefPose(),
+                        armistice::getFutureArmisticePositions);
     }
 
-    private Command rightPidToClosestReef() {
+    private Command magicSnapL1() {
+        return armistice.runToPositionNoWait(ArmisticePositions.Cora_L1).alongWith(drive.joystickDriveAtAngle(
+                () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
+                () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
+                drive::closestReefL1Rotation));
+    }
+
+    private Command rightPidToClosestReefAuton() {
         return Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands
                 .defer(() -> drive.translateToPositionWithPID(drive.closestReefPose()), Set.<Subsystem>of(drive)));
     }
 
-    private Command leftPidToClosestReef() {
+    private Command leftPidToClosestReefAuton() {
         return Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands
                 .defer(() -> drive.translateToPositionWithPID(drive.closestReefPose()), Set.<Subsystem>of(drive)));
     }
@@ -466,7 +476,7 @@ public class RobotContainer {
     private Command runToClosestAlgae() {
         return armistice.getAutoAlgaePosition() == ArmisticePositions.BARGE
                 ? armistice.runToPositionCommand(ArmisticePositions.BARGE)
-                : AutoSequencing.autoAquireReefAlgae(drive, armistice, algae, drive::closestReefPoseAlgae,
+                : MagicSequencing.magicGetAlgaeOnlyPID(drive, armistice, algae, drive::closestReefPoseAlgae,
                         armistice::getAutoAlgaePosition);
     }
 
@@ -489,11 +499,10 @@ public class RobotContainer {
             default:
                 return 0.0;
         }
-
     }
 
     private double getOutfeedVBus() {
-        return armistice.getElevatorPosition() > 45 ? -.8 : -.4;
+        return armistice.getElevatorPosition() > 45 ? -.8 : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.8 : -.4;
     }
 
     public Command realDrivetrainStop() {

@@ -13,8 +13,8 @@ import frc.robot.subsystems.drive.Drive;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class AutoSequencing {
-    public static final Command autoScoreReef(Drive drive, Armistice armistice, CoralManipulator coral,
+public class MagicSequencing {
+    public static final Command magicScoreReef(Drive drive, Armistice armistice, CoralManipulator coral,
             Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> scorePosition) {
         return drive.pathfindToPose(reefPosition.get())
                 .alongWith(Commands.waitUntil(drive.readyForArm())
@@ -29,11 +29,12 @@ public class AutoSequencing {
                         .raceWith(drive.translateToPositionWithPID(reefPosition.get())));
     }
 
-    public static final Command autoAquireReefAlgae(Drive drive, Armistice armistice, AlgaeManipulator algae,
+    public static final Command magicAquireReefAlgae(Drive drive, Armistice armistice, AlgaeManipulator algae,
             Supplier<Pose2d> reefPostiion, Supplier<ArmisticePositions> aquirePosition) {
         return drive.pathfindToPose(reefPostiion.get())
                 .alongWith(Commands.waitUntil(drive.readyForArm())
-                        .andThen(armistice.runToPositionNoWait(aquirePosition.get())).alongWith(algae.runMotorCommand(0.7)))
+                        .andThen(armistice.runToPositionNoWait(aquirePosition.get()))
+                        .alongWith(algae.runMotorCommand(0.7)))
                 .andThen(algae.runMotorCommand(0.7).repeatedly()
                         .until(algae.hasGamePieceSupplier())
                         .withTimeout(1)
@@ -41,7 +42,7 @@ public class AutoSequencing {
                         .raceWith(drive.translateToPositionWithPID(reefPostiion.get())));
     }
 
-    public static final Command autoScoreReefNoShoot(Drive drive, Armistice armistice, CoralManipulator coral,
+    public static final Command magicScoreNoScoreReef(Drive drive, Armistice armistice, CoralManipulator coral,
             Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> scorePosition) {
         return drive.pathfindToPose(reefPosition.get())
                 .alongWith(Commands.waitUntil(drive.readyForArm())
@@ -49,5 +50,25 @@ public class AutoSequencing {
                                 (scorePosition.get() == ArmisticePositions.BARGE ? ArmisticePositions.Cora_L4
                                         : scorePosition.get()))))
                 .andThen(drive.translateToPositionWithPID(reefPosition.get()).until(drive.translatePidInPosition()));
+    }
+
+    public static final Command magicScoreNoScoreReefOnlyPID(Drive drive, Armistice armistice, CoralManipulator coral,
+            Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> scorePosition) {
+        return drive.translateToPositionWithPID(reefPosition.get())
+                .alongWith(Commands.waitUntil(drive.readyForArm())
+                        .andThen(armistice.runToPositionNoWait(
+                                (scorePosition.get() == ArmisticePositions.BARGE ? ArmisticePositions.Cora_L4
+                                        : scorePosition.get()))));
+    }
+
+    public static final Command magicGetAlgaeOnlyPID(Drive drive, Armistice armistice, AlgaeManipulator algae,
+            Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition) {
+        return drive.translateToPositionWithPID(reefPosition.get())
+                .alongWith(Commands.waitUntil(drive.readyForArm())
+                        .andThen(armistice.runToPositionNoWait(acquirePosition.get()))
+                        .alongWith(algae.runMotorCommand(0.7)))
+                .andThen(algae.runMotorCommand(0.7).repeatedly()
+                        .until(algae.hasGamePieceSupplier())
+                        .withTimeout(1));
     }
 }

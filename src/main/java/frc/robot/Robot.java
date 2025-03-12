@@ -14,7 +14,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -32,7 +31,7 @@ public class Robot extends LoggedRobot {
     public Robot() {
         robotContainer = new RobotContainer();
         // SignalLogger.setPath("/media/sda1/ctre");
-        Logger.recordMetadata("ProjectName", "BeakSquad4028");
+        Logger.recordMetadata("ProjectName", "2025-Reefscape");
         Logger.recordMetadata("TimeStamp", ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
         Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
@@ -106,7 +105,6 @@ public class Robot extends LoggedRobot {
             autonomousCommand.schedule();
         }
         robotContainer.periodicLL4IMU(true);
-        Elastic.selectTab("Autonomous");
     }
 
     @Override

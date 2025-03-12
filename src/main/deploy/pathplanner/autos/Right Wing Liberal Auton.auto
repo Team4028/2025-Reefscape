@@ -184,9 +184,28 @@
           }
         },
         {
-          "type": "path",
+          "type": "race",
           "data": {
-            "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.5"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4.5"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilCloseAcq"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Acquire Left"
           }
         }
       ]
