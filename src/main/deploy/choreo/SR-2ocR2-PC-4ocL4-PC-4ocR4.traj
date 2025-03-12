@@ -1,5 +1,5 @@
 {
- "name":"SR-2ocR4-PC-4ocL4-PC-4ocR4",
+ "name":"SR-2ocR2-PC-4ocL4-PC-4ocR4",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -427,7 +427,7 @@
  },
  "events":[
    {"name":"Stow", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Score 2oC", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0.4 s", "val":0.4}}, "event":{"type":"named", "data":{"name":"L4 Score"}}},
+   {"name":"Score 2oC", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0.4 s", "val":0.4}}, "event":{"type":"named", "data":{"name":"L2 Score"}}},
    {"name":"Aquire Post 2oC", "from":{"target":1, "targetTimestamp":1.48239, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
    {"name":"Stow Post Acquire 1 ", "from":{"target":4, "targetTimestamp":4.33342, "offset":{"exp":"0.1 s", "val":0.1}}, "event":{"type":"named", "data":{"name":"Stow"}}},
    {"name":"Score 4oCL", "from":{"target":4, "targetTimestamp":4.33342, "offset":{"exp":"1.1 s", "val":1.1}}, "event":{"type":"named", "data":{"name":"L4 Score"}}},
