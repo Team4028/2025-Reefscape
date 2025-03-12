@@ -64,9 +64,8 @@ public class MagicSequencing {
     public static final Command magicGetAlgaeOnlyPID(Drive drive, Armistice armistice, AlgaeManipulator algae,
             Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition) {
         return drive.translateToPositionWithPID(reefPosition.get())
-                .alongWith(Commands.waitUntil(drive.readyForArm())
-                        .andThen(armistice.runToPositionNoWait(acquirePosition.get()))
-                        .alongWith(algae.runMotorCommand(0.7)))
+                .alongWith(armistice.runToPositionNoWait(acquirePosition.get()))
+                        .alongWith(algae.runMotorCommand(0.7))
                 .andThen(algae.runMotorCommand(0.7).repeatedly()
                         .until(algae.hasGamePieceSupplier())
                         .withTimeout(1));

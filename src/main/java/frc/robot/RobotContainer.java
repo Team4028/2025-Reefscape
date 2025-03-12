@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MagicSequencing;
@@ -82,6 +83,8 @@ public class RobotContainer {
 
     @AutoLogOutput
     private boolean climbDeadmanUnsafe = false;
+
+    private final Trigger magicAlgaeOn = new Trigger(armistice::getMagicAlgaeOn);
 
     // add actual limits
     private final SlewRateLimiter xLimiterL4, yLimiterL4, thetaLimiterL4, xLimiter, yLimiter, thetaLimiter;
@@ -347,10 +350,18 @@ public class RobotContainer {
         // ==============================================
         // OC -- B: Magic Score Algae
         // ==============================================
-        operatorController.b()
-                .onTrue(runToClosestAlgae().andThen(
-                        Commands.runOnce(() -> armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3))
-                                .onlyIf(() -> armistice.getAutoAlgaePosition() != ArmisticePositions.BARGE)));
+        // operatorController.b()
+        // .onTrue(runToClosestAlgae().andThen(
+        // Commands.runOnce(() ->
+        // armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3))
+        // .onlyIf(() -> armistice.getAutoAlgaePosition() !=
+        // ArmisticePositions.BARGE)));
+
+        operatorController.b().and(magicAlgaeOn).onTrue(runToClosestAlgae())
+                .onTrue(armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3));
+
+        operatorController.b().and(magicAlgaeOn.negate())
+                .onTrue(armistice.runToPositionCommand(ArmisticePositions.BARGE));
 
         // ==============================================
         // OC -- RX: Snap To Coral Stations
@@ -474,12 +485,10 @@ public class RobotContainer {
     }
 
     private Command runToClosestAlgae() {
-        return Commands.either(armistice.runToPositionCommand(ArmisticePositions.BARGE),
-                Commands.defer(
-                        () -> MagicSequencing.magicGetAlgaeOnlyPID(drive, armistice, algae, drive::closestReefPoseAlgae,
-                                armistice::getAutoAlgaePosition),
-                        Set.of(drive, armistice.getArm(), armistice.getElevator(), algae)),
-                () -> armistice.getAutoAlgaePosition() == ArmisticePositions.BARGE);
+        return Commands.defer(
+                () -> MagicSequencing.magicGetAlgaeOnlyPID(drive, armistice, algae, drive::closestReefPoseAlgae,
+                        armistice::getAutoAlgaePosition),
+                Set.of(drive, armistice.getArm(), armistice.getElevator(), algae));
     }
 
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {

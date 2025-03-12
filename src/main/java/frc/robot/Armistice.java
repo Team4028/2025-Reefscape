@@ -109,9 +109,9 @@ public class Armistice extends SudoSubsystem {
         PIPE1(0.327, 3.11),
         PIPE2(1, 5),
         Cora_L1(0.748, 6.109),
-        Cora_L2(3.382, 9),
+        Cora_L2(3.382, 10),
         Cora_L2_PIPE(3.382, 15),
-        Cora_L3(3.382, 24.54),
+        Cora_L3(3.382, 25.54),
         Cora_L3_PIPE(3.382, 31.55),
         Cora_L4(3.18, 55.5),
         A2_lgae(5.103, 7.149),
@@ -336,6 +336,10 @@ public class Armistice extends SudoSubsystem {
 
     public Command toggleAutoAlgae() {
         return Commands.runOnce(() -> magicAlgaeOn = !magicAlgaeOn).ignoringDisable(true);
+    }
+
+    public boolean getMagicAlgaeOn() {
+        return magicAlgaeOn;
     }
 
     public Command incFutureAquirePos() {
