@@ -301,7 +301,9 @@ public class RobotContainer {
         // ==============================================
         // OC -- RT: Outfeed Algae
         // ==============================================
-        operatorController.rightTrigger().onTrue(algae.runMotorCommand(-0.9)).onFalse(algae.runMotorCommand(0));
+        operatorController.rightTrigger()
+                .onTrue(Commands.defer(() -> algae.runMotorCommand(getAlgaeOutfeedVBus()), Set.of(algae)))
+                .onFalse(algae.runMotorCommand(0));
 
         // ==============================================
         // OC -- LY: Climber (up = climb, down = bad)
@@ -479,6 +481,10 @@ public class RobotContainer {
                         () -> armistice.getFutureArmisticePositions().isPipe() ? drive.pipe1ClosestReefPose()
                                 : drive.closestReefPose(),
                         armistice::getFutureArmisticePositions);
+    }
+
+    private double getAlgaeOutfeedVBus() {
+        return armistice.getTargetPosition() == ArmisticePositions.LOLI ? -.5 : -.9;
     }
 
     private Command magicSnapL1() {

@@ -108,7 +108,7 @@ public class Armistice extends SudoSubsystem {
 
     public static enum ArmisticePositions {
         STOW(3.382, 9),
-        CLEAN(0.189, 8.101),
+        CLEAN(0.189, 9.101),
         PIPE1(0.327, 3.11),
         PIPE2(1, 5),
         Cora_L1(0.748, 6.109),
