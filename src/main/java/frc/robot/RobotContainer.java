@@ -334,7 +334,7 @@ public class RobotContainer {
         // ==============================================
         operatorController.y()
                 .onTrue(armistice.runToFutureAquirePositionCommand(drive::closestReefName,
-                        drive::getReefTargetIsRight));
+                        drive::getReefTargetIsRight).onlyIf(() -> !algae.hasGamePieceSupplier().getAsBoolean()));
 
         // ==============================================
         // OC -- A: Run To Manual Index Position
@@ -370,12 +370,18 @@ public class RobotContainer {
                 .onTrue(drive.joystickDriveAtAngle(
                         () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
                         () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
-                        () -> Rotation2d.fromDegrees(Constants.CORAL_STATION_RIGHT_ROTATION_DEG)));
+                        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                                ? Rotation2d.fromDegrees(Constants.CORAL_STATION_RIGHT_ROTATION_DEG)
+                                : FlippingUtil.flipFieldRotation(
+                                        Rotation2d.fromDegrees(Constants.CORAL_STATION_RIGHT_ROTATION_DEG))));
         operatorController.axisLessThan(XboxController.Axis.kRightX.value, -0.5)
                 .onTrue(drive.joystickDriveAtAngle(
                         () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
                         () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
-                        () -> Rotation2d.fromDegrees(Constants.CORAL_STATION_LEFT_ROTATION_DEG)));
+                        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+                                ? Rotation2d.fromDegrees(Constants.CORAL_STATION_LEFT_ROTATION_DEG)
+                                : FlippingUtil.flipFieldRotation(
+                                        Rotation2d.fromDegrees(Constants.CORAL_STATION_LEFT_ROTATION_DEG))));
 
         // ==================== //
         /* EMERGENCY CONTROLLER */
@@ -420,7 +426,8 @@ public class RobotContainer {
 
         emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kLeftX.value, 0.5)
                 .onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(
-                        Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0)).ignoringDisable(true));
+                        Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0))
+                        .ignoringDisable(true));
 
         emergencyController.rightBumper()
                 .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
