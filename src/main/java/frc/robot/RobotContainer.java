@@ -313,7 +313,7 @@ public class RobotContainer {
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, -0.5)
                 .onTrue(climber.runVbusCommand(0));
         operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5)
-                .onTrue(climber.runVbusCommand(0.4).onlyIf(() -> climbDeadmanUnsafe));
+                .onTrue(climber.runVbusCommand(0.6).onlyIf(() -> climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- DPAD UP: Increment Armistice Manual Index
