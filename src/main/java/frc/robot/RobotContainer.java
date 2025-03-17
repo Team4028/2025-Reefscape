@@ -313,7 +313,7 @@ public class RobotContainer {
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, -0.5)
                 .onTrue(climber.runVbusCommand(0));
         operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5)
-                .onTrue(climber.runVbusCommand(0.6).onlyIf(() -> climbDeadmanUnsafe));
+                .onTrue(climber.runVbusCommand(0.7).onlyIf(() -> climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- DPAD UP: Increment Armistice Manual Index
@@ -484,7 +484,7 @@ public class RobotContainer {
     }
 
     private double getAlgaeOutfeedVBus() {
-        return armistice.getTargetPosition() == ArmisticePositions.LOLI ? -.5 : -.9;
+        return armistice.getTargetPosition() == ArmisticePositions.LOLI ? -.5 : -.8;
     }
 
     private Command magicSnapL1() {
