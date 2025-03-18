@@ -152,6 +152,13 @@ public class RobotContainer {
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L2));
         NamedCommands.registerCommand("Blip",
                 coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).andThen(coral.runMotorCommand(0)));
+        NamedCommands.registerCommand("SuperCycle L4", Commands.defer(
+                () -> MagicSequencing.magicScoreSuperCycleL4(drive, armistice, coral, algae,
+                        drive::closestReefPose,
+                        drive::closestReefPoseAlgae,
+                        () -> ArmisticePositions.Cora_L4,
+                        armistice::getAutoAlgaePosition),
+                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral, algae)));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization());
@@ -359,8 +366,9 @@ public class RobotContainer {
         // .onlyIf(() -> armistice.getAutoAlgaePosition() !=
         // ArmisticePositions.BARGE)));
 
-        operatorController.b().and(magicAlgaeOn).onTrue(runToClosestAlgae())
-                .onTrue(armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3));
+        // operatorController.b().and(magicAlgaeOn).onTrue(runToClosestAlgae())
+        // .onTrue(armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3));
+        operatorController.b().and(magicAlgaeOn).onTrue(runToClosestSuperCycle());
 
         operatorController.b().and(magicAlgaeOn.negate())
                 .onTrue(armistice.runToPositionCommand(ArmisticePositions.BARGE));
@@ -481,6 +489,22 @@ public class RobotContainer {
                         () -> armistice.getFutureArmisticePositions().isPipe() ? drive.pipe1ClosestReefPose()
                                 : drive.closestReefPose(),
                         armistice::getFutureArmisticePositions);
+    }
+
+    private Command runToClosestSuperCycle() {
+        return Commands.defer(() -> {
+            if (!armistice.getFutureArmisticePositions().isCoralScore()
+                    || armistice.getFutureArmisticePositions() == ArmisticePositions.Cora_L1)
+                return Commands.none();
+            else if (armistice.getFutureArmisticePositions() == ArmisticePositions.Cora_L4)
+                return MagicSequencing.magicScoreSuperCycleL4(drive, armistice, coral, algae, drive::closestReefPose,
+                        drive::closestReefPoseAlgae, armistice::getFutureArmisticePositions,
+                        armistice::getAutoAlgaePosition);
+            else
+                return MagicSequencing.magicScoreSuperCycleLOther(drive, armistice, coral, algae,
+                        drive::closestReefPose, drive::closestReefPoseAlgae, armistice::getFutureArmisticePositions,
+                        armistice::getAutoAlgaePosition);
+        }, Set.of(drive, armistice.getArm(), armistice.getElevator(), coral, algae));
     }
 
     private double getAlgaeOutfeedVBus() {

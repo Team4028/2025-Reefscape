@@ -3,9 +3,13 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Armistice;
+import frc.robot.Constants;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.subsystems.algae.AlgaeManipulator;
 import frc.robot.subsystems.coral.CoralManipulator;
@@ -65,9 +69,37 @@ public class MagicSequencing {
             Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition) {
         return drive.translateToPositionWithPID(reefPosition.get())
                 .alongWith(armistice.runToPositionNoWait(acquirePosition.get()))
-                        .alongWith(algae.runMotorCommand(0.7))
-                .andThen(algae.runMotorCommand(0.7).repeatedly()
-                        .until(algae.hasGamePieceSupplier())
-                        .withTimeout(1));
+                .raceWith(algae.runMotorCommand(0.7).repeatedly()
+                        .until(algae.hasGamePieceSupplier()).withTimeout(2).andThen(algae.runMotorCommand(0)));
+    }
+
+    public static final Command magicScoreSuperCycleLOther(Drive drive, Armistice armistice, CoralManipulator coral,
+            AlgaeManipulator algae, Supplier<Pose2d> reefPosition, Supplier<Pose2d> algaePosition,
+            Supplier<ArmisticePositions> scorePosition, Supplier<ArmisticePositions> acquirePosition) {
+        return magicGetAlgaeOnlyPID(drive, armistice, algae, algaePosition, acquirePosition).andThen(
+                drive.translateToPositionWithPID(algaePosition.get().transformBy(new Transform2d(
+                        new Translation2d(-.5, 0).rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
+                        .until(drive.translatePidInPosition()))
+                .andThen(magicScoreNoScoreReefOnlyPID(drive, armistice, coral, reefPosition, scorePosition)
+                        .until(drive.translatePidInPosition())
+                        .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
+                        .andThen(Commands.waitSeconds(0.2)
+                                .andThen(coral.runMotorCommand(-.4).repeatedly().withTimeout(.3))
+                                .andThen(coral.runMotorCommand(0))));
+    }
+
+    public static final Command magicScoreSuperCycleL4(Drive drive, Armistice armistice, CoralManipulator coral,
+            AlgaeManipulator algae, Supplier<Pose2d> reefPosition, Supplier<Pose2d> algaePosition,
+            Supplier<ArmisticePositions> scorePosition, Supplier<ArmisticePositions> acquirePosition) {
+        return magicScoreNoScoreReefOnlyPID(drive, armistice, coral, reefPosition, scorePosition)
+                .until(drive.translatePidInPosition())
+                .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
+                .andThen(Commands.waitSeconds(0.2).andThen(coral.runMotorCommand(-.8).repeatedly().withTimeout(0.3))
+                        .andThen(coral.runMotorCommand(0)))
+                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
+                .andThen(drive.translateToPositionWithPID(reefPosition.get().transformBy(new Transform2d(
+                        new Translation2d(-.5, 0).rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero))))
+                .until(drive.translatePidInPosition())
+                .andThen(magicGetAlgaeOnlyPID(drive, armistice, algae, algaePosition, acquirePosition));
     }
 }
