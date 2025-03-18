@@ -37,6 +37,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public ElevatorIOTalonFX() {
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs);
         follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.currentLimitConfigs);
+        follower.getConfigurator().apply(ElevatorConstants.TalonFX.currentLimitConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.mmConfigs);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.tcConfigs);
