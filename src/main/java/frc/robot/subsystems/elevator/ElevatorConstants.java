@@ -27,7 +27,9 @@ public class ElevatorConstants {
 
     public static final DCMotor gearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
 
-    public static final PIDStruct pidConstants = new PIDStruct(8, 0, 0, 90, 180, 720, -60, 60, 0.043915, 0.39241,
+    // public static final PIDStruct pidConstants = new PIDStruct(8, 0, 0, 86, 210, 400, -60, 60, 0.043915, 0.39241,
+    //         0.13165, 0.0033318);
+    public static final PIDStruct pidConstants = new PIDStruct(8, 0, 0, 100, 200, 800, -60, 60, 0.043915, 0.39241,
             0.13165, 0.0033318);
     public static final PIDStruct simPidConstants = new PIDStruct(0.4, 0, 0, 118, 254, Constants.THE_BEST_NUMBER, 0, 0,
             0.05, 0.6, 0.11512, 0.0029619);

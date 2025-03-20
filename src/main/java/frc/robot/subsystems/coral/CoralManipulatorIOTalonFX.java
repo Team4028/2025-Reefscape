@@ -8,10 +8,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.generated.TunerConstants;
 import frc.robot.util.MotorData;
 
 public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
-    private final TalonFX motor = new TalonFX(CoralManipulatorConstants.TalonFX.CAN_ID);
+    private final TalonFX motor = new TalonFX(CoralManipulatorConstants.TalonFX.CAN_ID,
+            TunerConstants.DrivetrainConstants.CANBusName);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
     private final StatusSignal<Current> motorAmps = motor.getStatorCurrent();
 
@@ -21,7 +23,10 @@ public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
             .withEnableFOC(CoralManipulatorConstants.TalonFX.USE_FOC);
 
     public CoralManipulatorIOTalonFX() {
-        motor.getConfigurator().apply(CoralManipulatorConstants.TalonFX.CONFIG);
+        motor.getConfigurator().apply(CoralManipulatorConstants.TalonFX.CONFIG, 0.25);
+
+        BaseStatusSignal.setUpdateFrequencyForAll(100, motorVolts, motorAmps);
+        motor.optimizeBusUtilization();
     }
 
     @Override
@@ -29,7 +34,7 @@ public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
         BaseStatusSignal.refreshAll(motorVolts, motorAmps);
         inputs.appliedVolts = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorAmps.getValueAsDouble();
-        inputs.motorData = MotorData.getMotorData(motor);
+        inputs.motorData = MotorData.empty();
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.reduxrobotics.sensors.canandmag.Canandmag;
 import com.reduxrobotics.sensors.canandmag.CanandmagFaults;
 import com.reduxrobotics.sensors.canandmag.CanandmagSettings;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
@@ -28,6 +29,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     private final TalonFX motor = new TalonFX(ArmConstants.TalonFX.MOTOR_ID);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
     private final StatusSignal<Current> motorCurrent = motor.getSupplyCurrent();
+    private final StatusSignal<Angle> motorPosition = motor.getPosition();
     private final StatusSignal<AngularVelocity> motorVel = motor.getVelocity();
 
     private final VoltageOut voltRequest = new VoltageOut(0).withEnableFOC(ArmConstants.USE_FOC);
@@ -42,9 +44,9 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
         settings.setPositionFramePeriod(0.020);
         canMag.setSettings(settings);
         canMag.setPartyMode(10);
-        motor.getConfigurator().apply(ArmConstants.TalonFX.motorConfigs);
-        motor.getConfigurator().apply(ArmConstants.TalonFX.pidConfigs);
-        motor.getConfigurator().apply(ArmConstants.TalonFX.mmConfigs);
+        motor.getConfigurator().apply(ArmConstants.TalonFX.motorConfigs, 0.25);
+        motor.getConfigurator().apply(ArmConstants.TalonFX.pidConfigs, 0.25);
+        motor.getConfigurator().apply(ArmConstants.TalonFX.mmConfigs, 0.25);
         CanandEventLoop.getInstance();
         new Thread(() -> {
             try {
@@ -55,11 +57,14 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
             initEncoder();
             System.out.println(String.format("Successfully initialized TalonFX %d Position", motor.getDeviceID()));
         }).start();
+
+        BaseStatusSignal.setUpdateFrequencyForAll(100, motorVolts, motorCurrent, motorPosition, motorVel);
+        motor.optimizeBusUtilization();
     }
 
     @Override
     public void updateInputs(ArmIOInputs inputs) {
-        BaseStatusSignal.refreshAll(motorVel, motorVolts, motorCurrent);
+        BaseStatusSignal.refreshAll(motorVel, motorPosition, motorVolts, motorCurrent);
         inputs.appliedVoltage = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorCurrent.getValueAsDouble();
         inputs.armMotorVelocityRotPerSec = motorVel.getValueAsDouble();
@@ -79,11 +84,13 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     }
 
     public double getRawEncoderPositon() {
-        return motor.getPosition(true).getValueAsDouble() / ArmConstants.GEAR_RATIO;
+        motorPosition.refresh();
+        return motorPosition.getValueAsDouble() / ArmConstants.GEAR_RATIO;
     }
 
     public double getEncoderPositionRad() {
-        var rot = motor.getPosition(true).getValueAsDouble() / ArmConstants.GEAR_RATIO;
+        motorPosition.refresh();
+        var rot = motorPosition.getValueAsDouble() / ArmConstants.GEAR_RATIO;
         rot = rot > 0 ? rot : 1 + rot;
         return rot * ArmConstants.PI_2;
     }

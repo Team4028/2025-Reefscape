@@ -17,8 +17,11 @@ public class AlgaeManipulatorIOTalonFX implements AlgaeManipulatorIO {
     private final DutyCycleOut vbusControl = new DutyCycleOut(0).withEnableFOC(ClimberConstants.USE_FOC);
 
     public AlgaeManipulatorIOTalonFX() {
-        motor.getConfigurator().apply(AlgaeManipulatorConstants.TalonFX.motorConfigs);
-        motor.getConfigurator().apply(AlgaeManipulatorConstants.TalonFX.currentConfigs);
+        motor.getConfigurator().apply(AlgaeManipulatorConstants.TalonFX.motorConfigs, 0.25);
+        motor.getConfigurator().apply(AlgaeManipulatorConstants.TalonFX.currentConfigs, 0.25);
+
+        BaseStatusSignal.setUpdateFrequencyForAll(100, motorAmps, motorVolts);
+        motor.optimizeBusUtilization();
     }
     @Override
     public void updateInputs(AlgaeManipulatorIOInputs inputs) {

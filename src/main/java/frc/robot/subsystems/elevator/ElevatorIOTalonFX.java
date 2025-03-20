@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Angle;
@@ -13,11 +14,12 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.generated.TunerConstants;
 import frc.robot.util.MotorData;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
-    private final TalonFX leader = new TalonFX(ElevatorConstants.TalonFX.LEADER_ID);
-    private final TalonFX follower = new TalonFX(ElevatorConstants.TalonFX.FOLLOWER_ID);
+    private final TalonFX leader = new TalonFX(ElevatorConstants.TalonFX.LEADER_ID, TunerConstants.DrivetrainConstants.CANBusName);
+    private final TalonFX follower = new TalonFX(ElevatorConstants.TalonFX.FOLLOWER_ID, TunerConstants.DrivetrainConstants.CANBusName);
     private final StatusSignal<Angle> positionRotLeader = leader.getPosition();
     private final StatusSignal<Angle> positionRotFollower = follower.getPosition();
     private final StatusSignal<AngularVelocity> velocityRotPerSecLeader = leader.getVelocity();
@@ -35,14 +37,19 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private final StrictFollower indenturedServitude = new StrictFollower(ElevatorConstants.TalonFX.LEADER_ID);
 
     public ElevatorIOTalonFX() {
-        leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs);
-        follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs);
-        leader.getConfigurator().apply(ElevatorConstants.TalonFX.currentLimitConfigs);
-        follower.getConfigurator().apply(ElevatorConstants.TalonFX.currentLimitConfigs);
-        leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs);
-        leader.getConfigurator().apply(ElevatorConstants.TalonFX.mmConfigs);
-        leader.getConfigurator().apply(ElevatorConstants.TalonFX.tcConfigs);
-        leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs, 0.25);
+        follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs, 0.25);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.currentLimitConfigs, 0.25);
+        follower.getConfigurator().apply(ElevatorConstants.TalonFX.currentLimitConfigs, 0.25);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.pidConfigs, 0.25);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.mmConfigs, 0.25);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.tcConfigs, 0.25);
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits, 0.25);
+        BaseStatusSignal.setUpdateFrequencyForAll(250, positionRotLeader, positionRotFollower, velocityRotPerSecLeader,
+                velocityRotPerSecFollower, appliedVoltageFollower, appliedVoltageLeader);
+        BaseStatusSignal.setUpdateFrequencyForAll(100, accelerationRotPerSecPerSecLeader,
+                accelerationRotPerSecPerSecFollower, currentAmpsFollower, currentAmpsLeader);
+        ParentDevice.optimizeBusUtilizationForAll(leader, follower);
     }
 
     @Override
