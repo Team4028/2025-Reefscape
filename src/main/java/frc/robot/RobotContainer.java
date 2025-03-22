@@ -86,6 +86,16 @@ public class RobotContainer {
 
     private final Trigger magicAlgaeOn = new Trigger(armistice::getMagicAlgaeOn);
 
+    @AutoLogOutput
+    private final Trigger supercycleIsL4 = new Trigger(
+            () -> armistice.getFutureArmisticePositions() == ArmisticePositions.Cora_L4);
+
+    @AutoLogOutput
+    private final Trigger scIsGood = new Trigger(() -> (armistice.getFutureArmisticePositions().isCoralScore()
+            && armistice.getFutureArmisticePositions() != ArmisticePositions.Cora_L1)
+            && (armistice.getTargetPosition() != ArmisticePositions.Cora_L4
+                    || drive.driveCloseEnoughReefAuton().getAsBoolean()));
+
     // add actual limits
     private final SlewRateLimiter xLimiterL4, yLimiterL4, thetaLimiterL4, xLimiter, yLimiter, thetaLimiter;
 
@@ -368,7 +378,13 @@ public class RobotContainer {
 
         // operatorController.b().and(magicAlgaeOn).onTrue(runToClosestAlgae())
         // .onTrue(armistice.setFutureArmisticePosition(ArmisticePositions.Cora_L3));
-        operatorController.b().and(magicAlgaeOn).onTrue(runToClosestSuperCycle());
+        // operatorController.b().and(magicAlgaeOn).onTrue(Commands.defer(this::runToClosestSuperCycle,
+        // Set.of(drive, armistice.getArm(), armistice.getElevator(), coral, algae)));
+        operatorController.b().and(magicAlgaeOn).and(supercycleIsL4).and(scIsGood).onTrue(Commands
+                .defer(this::runMagicBackupAlgaeL4, Set.of(drive, armistice.getArm(), armistice.getElevator(), algae)));
+
+        operatorController.b().and(magicAlgaeOn).and(scIsGood).and(supercycleIsL4.negate()).onTrue(Commands.defer(
+                this::runMagicAlgaeLOther, Set.of(drive, armistice.getArm(), armistice.getElevator(), algae, coral)));
 
         operatorController.b().and(magicAlgaeOn.negate())
                 .onTrue(armistice.runToPositionCommand(ArmisticePositions.BARGE));
@@ -491,20 +507,33 @@ public class RobotContainer {
                         armistice::getFutureArmisticePositions);
     }
 
-    private Command runToClosestSuperCycle() {
-        return Commands.defer(() -> {
-            if (!armistice.getFutureArmisticePositions().isCoralScore()
-                    || armistice.getFutureArmisticePositions() == ArmisticePositions.Cora_L1)
-                return Commands.none();
-            else if (armistice.getFutureArmisticePositions() == ArmisticePositions.Cora_L4)
-                return MagicSequencing.magicScoreSuperCycleL4(drive, armistice, coral, algae, drive::closestReefPose,
-                        drive::closestReefPoseAlgae, armistice::getFutureArmisticePositions,
-                        armistice::getAutoAlgaePosition);
-            else
-                return MagicSequencing.magicScoreSuperCycleLOther(drive, armistice, coral, algae,
-                        drive::closestReefPose, drive::closestReefPoseAlgae, armistice::getFutureArmisticePositions,
-                        armistice::getAutoAlgaePosition);
-        }, Set.of(drive, armistice.getArm(), armistice.getElevator(), coral, algae));
+    // private Command runToClosestSuperCycle() {
+    // if (!armistice.getFutureArmisticePositions().isCoralScore()
+    // || armistice.getFutureArmisticePositions() == ArmisticePositions.Cora_L1)
+    // return Commands.none();
+    // else if (armistice.getTargetPosition() == ArmisticePositions.Cora_L4)
+    // return drive.driveCloseEnoughReefAuton().getAsBoolean()
+    // ? MagicSequencing.magicBackUpAndMagicAlgaeL4(drive, armistice, algae,
+    // drive::closestReefPose,
+    // drive::closestReefPoseAlgae,
+    // armistice::getAutoAlgaePosition).withName("MAGICALGAEL4")
+    // : Commands.none();
+    // else
+    // return MagicSequencing
+    // .magicScoreSuperCycleLOther(drive, armistice, coral, algae,
+    // drive::closestReefPose,
+    // drive::closestReefPoseAlgae,
+    // armistice::getFutureArmisticePositions, armistice::getAutoAlgaePosition)
+    // .withName("MAGICALGAELOTHER");
+    // }
+    private Command runMagicBackupAlgaeL4() {
+        return MagicSequencing.magicBackUpAndMagicAlgaeL4(drive, armistice, algae, drive::closestReefPose,
+                drive::closestReefPoseAlgae, armistice::getAutoAlgaePosition);
+    }
+
+    private Command runMagicAlgaeLOther() {
+        return MagicSequencing.magicScoreSuperCycleLOther(drive, armistice, coral, algae, drive::closestReefPose,
+                drive::closestReefPoseAlgae, armistice::getFutureArmisticePositions, armistice::getAutoAlgaePosition);
     }
 
     private double getAlgaeOutfeedVBus() {
@@ -537,7 +566,7 @@ public class RobotContainer {
 
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {
         double input = controllerInput.getAsDouble() * ((currSpeed)
-                + (driverController.getRightTriggerAxis() * (1 - currSpeed)));
+                + (currSpeed == SLOW_SPEED ? 0 : driverController.getRightTriggerAxis() * (1 - currSpeed)));
         switch (type) {
             case X:
                 return chooseXLimiter(input);

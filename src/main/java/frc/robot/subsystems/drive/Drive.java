@@ -225,6 +225,7 @@ public class Drive extends SubsystemBase {
     public void periodic() {
         Logger.recordOutput("Drive/ReefSide", reefTargetIsRight ? "R" : "L");
         Logger.recordOutput("Drive/ClosestTagID", closestReefTag.ID);
+        Logger.recordOutput("Current Command", getCurrentCommand() == null ? "" : getCurrentCommand().getName());
         odometryLock.lock(); // Prevents odometry updates while reading data
         gyroIO.updateInputs(gyroInputs);
         Logger.processInputs("Drive/Gyro", gyroInputs);
