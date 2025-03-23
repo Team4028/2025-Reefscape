@@ -79,8 +79,8 @@ public class MagicSequencing {
         if (scorePosition.get() == ArmisticePositions.Cora_L4) return Commands.none();
         return magicGetAlgaeOnlyPID(drive, armistice, algae, algaePosition, acquirePosition).andThen(
                 drive.translateToPositionWithPID(algaePosition.get().transformBy(new Transform2d(
-                        new Translation2d(-.5, 0).rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
-                        .until(drive.translatePidInPosition()))
+                        new Translation2d(-.4, 0).rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
+                        .until(drive.translatePidInPositionJankier()))
                 .andThen(magicScoreNoScoreReefOnlyPID(drive, armistice, coral, reefPosition, scorePosition)
                         .until(drive.translatePidInPosition()));
     //                     .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
@@ -99,7 +99,7 @@ public class MagicSequencing {
                         .andThen(coral.runMotorCommand(0)))
                 .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
                 .andThen(drive.translateToPositionWithPID(reefPosition.get().transformBy(new Transform2d(
-                        new Translation2d(-.5, 0).rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero))))
+                        new Translation2d(-.3, 0).rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero))))
                 .until(drive.translatePidInPosition())
                 .andThen(magicGetAlgaeOnlyPID(drive, armistice, algae, algaePosition, acquirePosition));
     }
@@ -107,10 +107,10 @@ public class MagicSequencing {
     public static final Command magicBackUpAndMagicAlgaeL4(Drive drive, Armistice armistice, AlgaeManipulator algae,
             Supplier<Pose2d> reefPosition, Supplier<Pose2d> algaePosition,
             Supplier<ArmisticePositions> acquirePosition) {
-        return armistice.runToPositionNoWait(ArmisticePositions.STOW)
+        return armistice.runToPositionNoWait(acquirePosition.get())
                 .andThen(drive.translateToPositionWithPID(reefPosition.get().transformBy(new Transform2d(
-                        new Translation2d(-.5, 0).rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
-                .until(drive.translatePidInPosition()))
+                        new Translation2d(-.3, 0).rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
+                .until(drive.translatePidInPositionJankier()))
                 .andThen(magicGetAlgaeOnlyPID(drive, armistice, algae, algaePosition, acquirePosition));
     }
 }

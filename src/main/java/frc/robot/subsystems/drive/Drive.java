@@ -378,8 +378,7 @@ public class Drive extends SubsystemBase {
     }
 
     public Rotation2d closestReefL1Rotation() {
-        return closestReefTag.pose.toPose2d().getRotation().plus(Constants.SCORING_SIDE_FROM_FRONT_ROT.unaryMinus()
-                .plus(Rotation2d.fromDegrees(reefTargetIsRight ? -30 : 30)));
+        return closestReefTag.pose.toPose2d().getRotation().plus(Constants.SCORING_SIDE_FROM_FRONT_ROT.unaryMinus());
     }
 
     public Command pathfindToPose(Pose2d pose) {
@@ -424,6 +423,10 @@ public class Drive extends SubsystemBase {
 
     public BooleanSupplier translatePidInPosition() {
         return () -> pidLineup.atSetpoint() && angleController.atSetpoint();
+    }
+
+    public BooleanSupplier translatePidInPositionJankier() {
+        return () -> pidLineup.getError() <= 0.05 && angleController.atSetpoint();
     }
 
     public DoubleSupplier get2dFilteredX() {

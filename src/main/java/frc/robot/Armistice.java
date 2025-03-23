@@ -111,7 +111,7 @@ public class Armistice extends SudoSubsystem {
         CLEAN(0.189, 8.601),
         PIPE1(0.327, 3.11),
         PIPE2(1, 5),
-        Cora_L1(0.748, 6.109),
+        Cora_L1(0.378, 0),
         Cora_L2(3.382, 10),
         Cora_L2_PIPE(3.382, 15),
         Cora_L3(3.382, 25.54),

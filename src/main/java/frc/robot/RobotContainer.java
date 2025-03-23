@@ -273,7 +273,7 @@ public class RobotContainer {
         // ==============================================
         // DC -- LT: Infeed Coral
         // ==============================================
-        driverController.leftTrigger().onTrue(coral.runMotorCommand(.45)).onFalse(coral.runMotorCommand(0));
+        driverController.leftTrigger().onTrue(coral.runMotorCommand(.6)).onFalse(coral.runMotorCommand(0));
 
         // ==============================================
         // DC -- LB: Outfeed Coral
@@ -580,8 +580,8 @@ public class RobotContainer {
     }
 
     private double getOutfeedVBus() {
-        return armistice.getElevatorPosition() > 45 ? -.8
-                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.8 : -.4;
+        return armistice.getElevatorPosition() > 45 ? -.95
+                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.4 : -.55;
     }
 
     public Command realDrivetrainStop() {
