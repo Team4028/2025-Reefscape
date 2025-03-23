@@ -364,7 +364,8 @@ public class RobotContainer {
         // ==============================================
         // OC -- X: Run To Stow
         // ==============================================
-        operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW));
+        operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW)).onTrue(
+                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).andThen(coral.runMotorCommand(0)));
 
         // ==============================================
         // OC -- B: Magic Score Algae
