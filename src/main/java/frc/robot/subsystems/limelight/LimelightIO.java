@@ -94,7 +94,7 @@ public class LimelightIO {
             inputs.ta = LimelightHelpers.getTA(limelightName);
             inputs.targetCount = LimelightHelpers.getTargetCount(limelightName);
             inputs.solverPoseBlue = LoggablePoseEstimate
-                    .fromPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName).orElse(new PoseEstimate()));
+                    .fromPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName).orIfNull(new PoseEstimate()));
             inputs.targetPoseCameraSpace = LimelightHelpers.getTargetPose_CameraSpace(limelightName);
             try {
                 inputs.tid = LimelightHelpers.getRawFiducials(limelightName)[0].id;

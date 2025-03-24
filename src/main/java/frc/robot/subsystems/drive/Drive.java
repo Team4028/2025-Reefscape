@@ -57,6 +57,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Armistice;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
@@ -64,7 +65,9 @@ import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.MathUtils;
 import frc.robot.util.VisionUtil;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod(MathUtils.class)
 public class Drive extends SubsystemBase {
     // TunerConstants doesn't include these constants, so they are declared locally
     static final double ODOMETRY_FREQUENCY = new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD()
@@ -295,8 +298,8 @@ public class Drive extends SubsystemBase {
 
     public BooleanSupplier driveCloseEnoughAcquireAuton() {
         return () -> getPose().getTranslation().getDistance(
-                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_POS.getTranslation())
-                        : Constants.AQUIRE_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
+                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_RIGHT_POS.getTranslation())
+                        : Constants.AQUIRE_RIGHT_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
     }
 
     /**
@@ -423,6 +426,11 @@ public class Drive extends SubsystemBase {
 
     public BooleanSupplier translatePidInPosition() {
         return () -> pidLineup.atSetpoint() && angleController.atSetpoint();
+    }
+
+    public BooleanSupplier hasPipeAtReef(Armistice armistice) {
+        return () -> (!pidLineup.atSetpoint() || armistice.getCoralReefOffset()) && getChassisSpeeds().get2dVelocity() < 0.25
+                && getPose().getTranslation().getDistance(pipe1ClosestReefPose().getTranslation()) < 0.1;
     }
 
     public BooleanSupplier translatePidInPositionJankier() {

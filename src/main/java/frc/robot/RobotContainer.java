@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -96,6 +97,9 @@ public class RobotContainer {
             && (armistice.getTargetPosition() != ArmisticePositions.Cora_L4
                     || drive.driveCloseEnoughReefAuton().getAsBoolean()));
 
+    @AutoLogOutput
+    private final Trigger sensesPipeMagicScore = new Trigger(drive.hasPipeAtReef(armistice));
+
     // add actual limits
     private final SlewRateLimiter xLimiterL4, yLimiterL4, thetaLimiterL4, xLimiter, yLimiter, thetaLimiter;
 
@@ -124,8 +128,8 @@ public class RobotContainer {
                         coral.hasGamePieceSupplier()))
                 .andThen(coral.runMotorCommand(0))
                 .raceWith(Commands.defer(() -> drive.translateToPositionWithPID(
-                        AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_POS)
-                                : Constants.AQUIRE_POS),
+                        AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_RIGHT_POS)
+                                : Constants.AQUIRE_RIGHT_POS),
                         Set.of(drive))));
 
         NamedCommands.registerCommand("Acquire Left", coral.runMotorCommand(.7)
@@ -273,7 +277,7 @@ public class RobotContainer {
         // ==============================================
         // DC -- LT: Infeed Coral
         // ==============================================
-        driverController.leftTrigger().onTrue(coral.runMotorCommand(.6)).onFalse(coral.runMotorCommand(0));
+        driverController.leftTrigger().onTrue(coral.runMotorCommand(.8)).onFalse(coral.runMotorCommand(0));
 
         // ==============================================
         // DC -- LB: Outfeed Coral
@@ -384,8 +388,10 @@ public class RobotContainer {
         operatorController.b().and(magicAlgaeOn).and(supercycleIsL4).and(scIsGood).onTrue(Commands
                 .defer(this::runMagicBackupAlgaeL4, Set.of(drive, armistice.getArm(), armistice.getElevator(), algae)));
 
-        operatorController.b().and(magicAlgaeOn).and(scIsGood).and(supercycleIsL4.negate()).onTrue(Commands.defer(
-                this::runMagicAlgaeLOther, Set.of(drive, armistice.getArm(), armistice.getElevator(), algae, coral)));
+        operatorController.b().and(magicAlgaeOn).and(scIsGood).and(supercycleIsL4.negate())
+                .onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(
+                        this::runMagicAlgaeLOther,
+                        Set.of(drive, armistice.getArm(), armistice.getElevator(), algae, coral))));
 
         operatorController.b().and(magicAlgaeOn.negate())
                 .onTrue(armistice.runToPositionCommand(ArmisticePositions.BARGE));
@@ -449,7 +455,9 @@ public class RobotContainer {
                 .onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLI));
 
         emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value, 0.5)
-                .onTrue(armistice.toggleCoralReefOffset());
+                .onTrue(armistice.toggleCoralReefOffset()
+                        .alongWith(setRumble(driverController, 1, RumbleType.kBothRumble, 0.2))
+                        .ignoringDisable(true));
 
         emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kLeftX.value, 0.5)
                 .onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(
@@ -459,6 +467,10 @@ public class RobotContainer {
         emergencyController.rightBumper()
                 .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                         .ignoringDisable(true));
+
+        sensesPipeMagicScore
+                .onTrue(setRumble(operatorController, 1, RumbleType.kBothRumble, 0.2).asProxy())
+                .onFalse(setRumble(operatorController, 0, RumbleType.kBothRumble, 0));
     }
 
     public Command getAutonomousCommand() {
@@ -580,9 +592,14 @@ public class RobotContainer {
         }
     }
 
+    private Command setRumble(CommandXboxController controller, double amnt, RumbleType type, double time) {
+        return Commands.runOnce(() -> controller.setRumble(type, amnt)).andThen(Commands.waitSeconds(time))
+                .andThen(Commands.runOnce(() -> controller.setRumble(type, 0)));
+    }
+
     private double getOutfeedVBus() {
-        return armistice.getElevatorPosition() > 45 ? -.95
-                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.4 : -.55;
+        return armistice.getElevatorPosition() > 45 ? -.85
+                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.3 : -.45;
     }
 
     public Command realDrivetrainStop() {

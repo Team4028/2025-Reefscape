@@ -6,6 +6,7 @@ package frc.robot.util;
 
 import java.util.Optional;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -19,6 +20,11 @@ public class MathUtils {
             return value;
     }
 
+    public static final double get2dVelocity(ChassisSpeeds chassisSpeeds) {
+        return Math.sqrt(chassisSpeeds.vxMetersPerSecond * chassisSpeeds.vxMetersPerSecond
+                + chassisSpeeds.vyMetersPerSecond * chassisSpeeds.vyMetersPerSecond);
+    }
+
     public static final <T extends Number> boolean inRange(T value, T minInc, T maxInc) {
         return value.doubleValue() >= minInc.doubleValue() && value.doubleValue() <= maxInc.doubleValue();
     }
@@ -29,14 +35,14 @@ public class MathUtils {
     }
 
     // doesn't belong here but whatever
-    public static final <T> T orElse(T value, T _default) {
+    public static final <T> T orIfNull(T value, T _default) {
         return value == null ? _default : value;
     }
 
     public static final <T> Optional<T> arrayGetSafe(T[] arr, int idx) {
-        return idx >= arr.length ? Optional.empty() : Optional.of(arr[idx]);        
+        return idx >= arr.length ? Optional.empty() : Optional.of(arr[idx]);
     }
-    
+
     public static final <T> T printAndReturn(T value, String prefix, String suffix) {
         System.out.println(prefix + value + suffix);
         return value;
@@ -48,8 +54,8 @@ public class MathUtils {
 
     public static final double[] rotateVector(double[] vec, double thetaRad) {
         return new double[] {
-            vec[0] * Math.cos(thetaRad) - vec[1] * Math.sin(thetaRad),
-            vec[0] * Math.sin(thetaRad) + vec[1] * Math.cos(thetaRad),
+                vec[0] * Math.cos(thetaRad) - vec[1] * Math.sin(thetaRad),
+                vec[0] * Math.sin(thetaRad) + vec[1] * Math.cos(thetaRad),
         };
     }
 }

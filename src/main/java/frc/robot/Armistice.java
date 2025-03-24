@@ -109,7 +109,7 @@ public class Armistice extends SudoSubsystem {
     public static enum ArmisticePositions {
         STOW(3.382, 9),
         CLEAN(0.189, 8.601),
-        PIPE1(0.327, 3.11),
+        PIPE1(0.151, 3.116),
         PIPE2(1, 5),
         Cora_L1(0.378, 0),
         Cora_L2(3.382, 10),
@@ -176,6 +176,17 @@ public class Armistice extends SudoSubsystem {
                 return Cora_L2;
             else if (this == Cora_L3_PIPE)
                 return Cora_L3;
+            else
+                return this;
+        }
+
+        public ArmisticePositions toPipe() {
+            if (isAcquire())
+                return PIPE1;
+            else if (this == Cora_L2)
+                return Cora_L2_PIPE;
+            else if (this == Cora_L3)
+                return Cora_L3_PIPE;
             else
                 return this;
         }
@@ -289,6 +300,14 @@ public class Armistice extends SudoSubsystem {
 
     public Command toggleCoralReefOffset() {
         return Commands.runOnce(() -> coralReefAcquireOffset = !coralReefAcquireOffset).ignoringDisable(true);
+    }
+
+    public Command setCoralReefOffset(boolean isPipe) {
+        return Commands.runOnce(() -> coralReefAcquireOffset = isPipe).ignoringDisable(true);
+    }
+
+    public boolean getCoralReefOffset() {
+        return coralReefAcquireOffset;
     }
 
     public Command runToFutureArmisticePositionCommand() {

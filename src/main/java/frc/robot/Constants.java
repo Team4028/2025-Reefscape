@@ -30,7 +30,7 @@ public final class Constants {
     public static final Rotation2d SCORING_SIDE_FROM_FRONT_ROT = Rotation2d.kCCW_Pi_2;
     public static final Pose2d CENTRAL_POWER_AUTON_START_POSE = new Pose2d(7.2, 4.028, Rotation2d.kCCW_90deg);
 
-    public static final Pose2d AQUIRE_POS = new Pose2d(1.2825183868408203, 0.8288688659667969, Rotation2d.fromRadians(-0.6287963059722557));
+    public static final Pose2d AQUIRE_RIGHT_POS = new Pose2d(1.2825183868408203, 0.8288688659667969, Rotation2d.fromRadians(-0.6287963059722557));
     public static final Pose2d AQUIRE_LEFT_POS = new Pose2d(1.2929733991622925, 7.2203779220581055, Rotation2d.fromRadians(3.7805067024924734));
 
     public static final class Streams {
