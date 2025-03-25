@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -429,8 +430,10 @@ public class Drive extends SubsystemBase {
     }
 
     public BooleanSupplier hasPipeAtReef(Armistice armistice) {
-        return () -> (!pidLineup.atSetpoint() || armistice.getCoralReefOffset()) && getChassisSpeeds().get2dVelocity() < 0.25
-                && getPose().getTranslation().getDistance(pipe1ClosestReefPose().getTranslation()) < 0.1;
+        return () -> ((!pidLineup.atSetpoint() || armistice.getCoralReefOffset())
+                && getChassisSpeeds().get2dVelocity() < 0.25
+                && getPose().getTranslation().getDistance(pipe1ClosestReefPose().getTranslation()) < 0.1)
+                && Arrays.stream(modules).allMatch(m -> m.getDriveCurrent() > 60);
     }
 
     public BooleanSupplier translatePidInPositionJankier() {

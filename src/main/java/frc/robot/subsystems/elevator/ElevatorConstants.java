@@ -72,7 +72,7 @@ public class ElevatorConstants {
 
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
                 .withForwardSoftLimitThreshold(FORWARD_SOFT_LIMIT_ROTATIONS)
-                .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(3).withReverseSoftLimitEnable(true);
+                .withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(1).withReverseSoftLimitEnable(true);
     }
 
     public static final SysIdRoutine.Config sysIDConfig = new SysIdRoutine.Config(null, Volts.of(4), null,
