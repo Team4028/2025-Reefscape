@@ -303,14 +303,16 @@ public class RobotContainer {
         // ==============================================
         operatorController.rightBumper().onTrue(
                 Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands.defer(this::runToClosestReef,
-                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)))
+                        .onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- LB: Magic Score Left Branch
         // ==============================================
         operatorController.leftBumper().onTrue(
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(this::runToClosestReef,
-                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)))
+                        .onlyIf(() -> !climbDeadmanUnsafe));
 
         operatorController.back().onTrue(armistice.toggleAutoAlgae());
 
@@ -357,19 +359,22 @@ public class RobotContainer {
         // ==============================================
         operatorController.y()
                 .onTrue(armistice.runToFutureAquirePositionCommand(drive::closestReefName,
-                        drive::getReefTargetIsRight).onlyIf(() -> !algae.hasGamePieceSupplier().getAsBoolean()));
+                        drive::getReefTargetIsRight).onlyIf(() -> !algae.hasGamePieceSupplier().getAsBoolean())
+                        .onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- A: Run To Manual Index Position
         // ==============================================
         operatorController.a().onTrue(
-                armistice.runToFutureArmisticePositionCommand(drive::closestReefName, drive::getReefTargetIsRight));
+                armistice.runToFutureArmisticePositionCommand(drive::closestReefName, drive::getReefTargetIsRight)
+                        .onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- X: Run To Stow
         // ==============================================
         operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW)).onTrue(
-                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).andThen(coral.runMotorCommand(0)));
+                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).andThen(coral.runMotorCommand(0))
+                        .onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- B: Magic Score Algae
@@ -386,15 +391,17 @@ public class RobotContainer {
         // operatorController.b().and(magicAlgaeOn).onTrue(Commands.defer(this::runToClosestSuperCycle,
         // Set.of(drive, armistice.getArm(), armistice.getElevator(), coral, algae)));
         operatorController.b().and(magicAlgaeOn).and(supercycleIsL4).and(scIsGood).onTrue(Commands
-                .defer(this::runMagicBackupAlgaeL4, Set.of(drive, armistice.getArm(), armistice.getElevator(), algae)));
+                .defer(this::runMagicBackupAlgaeL4, Set.of(drive, armistice.getArm(), armistice.getElevator(), algae))
+                .onlyIf(() -> !climbDeadmanUnsafe));
 
         operatorController.b().and(magicAlgaeOn).and(scIsGood).and(supercycleIsL4.negate())
                 .onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(
                         this::runMagicAlgaeLOther,
-                        Set.of(drive, armistice.getArm(), armistice.getElevator(), algae, coral))));
+                        Set.of(drive, armistice.getArm(), armistice.getElevator(), algae, coral)))
+                        .onlyIf(() -> !climbDeadmanUnsafe));
 
         operatorController.b().and(magicAlgaeOn.negate())
-                .onTrue(armistice.runToPositionCommand(ArmisticePositions.BARGE));
+                .onTrue(armistice.runToPositionCommand(ArmisticePositions.BARGE).onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- RX: Snap To Coral Stations
@@ -406,7 +413,8 @@ public class RobotContainer {
                         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
                                 ? Rotation2d.fromDegrees(Constants.CORAL_STATION_RIGHT_ROTATION_DEG)
                                 : FlippingUtil.flipFieldRotation(
-                                        Rotation2d.fromDegrees(Constants.CORAL_STATION_RIGHT_ROTATION_DEG))));
+                                        Rotation2d.fromDegrees(Constants.CORAL_STATION_RIGHT_ROTATION_DEG)))
+                        .onlyIf(() -> !climbDeadmanUnsafe));
         operatorController.axisLessThan(XboxController.Axis.kRightX.value, -0.5)
                 .onTrue(drive.joystickDriveAtAngle(
                         () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
@@ -414,7 +422,8 @@ public class RobotContainer {
                         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
                                 ? Rotation2d.fromDegrees(Constants.CORAL_STATION_LEFT_ROTATION_DEG)
                                 : FlippingUtil.flipFieldRotation(
-                                        Rotation2d.fromDegrees(Constants.CORAL_STATION_LEFT_ROTATION_DEG))));
+                                        Rotation2d.fromDegrees(Constants.CORAL_STATION_LEFT_ROTATION_DEG)))
+                        .onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==================== //
         /* EMERGENCY CONTROLLER */
