@@ -89,8 +89,7 @@ public class Armistice extends SudoSubsystem {
 
     private Map<Integer, ArmisticePositions> aquireOffsetMap = Map.of(
             0, ArmisticePositions.CLEAN,
-            1, ArmisticePositions.PIPE1,
-            2, ArmisticePositions.PIPE2);
+            1, ArmisticePositions.PIPE1);
 
     private Map<ArmisticePositions, ArmisticePositions> positionsMap = Map.of(
             ArmisticePositions.Cora_L1, ArmisticePositions.LOLI,

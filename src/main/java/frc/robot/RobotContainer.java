@@ -337,6 +337,8 @@ public class RobotContainer {
                 .onTrue(climber.runVbusCommand(0));
         operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5)
                 .onTrue(climber.runVbusCommand(0.7).onlyIf(() -> climbDeadmanUnsafe));
+        operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5)
+                .onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLI).onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- DPAD UP: Increment Armistice Manual Index
@@ -460,12 +462,9 @@ public class RobotContainer {
 
         emergencyController.rightStick().onTrue(armistice.resetNudges().ignoringDisable(true));
 
-        emergencyController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.4)
-                .onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLI));
-
         emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value, 0.5)
                 .onTrue(armistice.toggleCoralReefOffset()
-                        .alongWith(setRumble(driverController, 1, RumbleType.kBothRumble, 0.2))
+                        .alongWith(setRumble(operatorController, 1, RumbleType.kBothRumble, 0.2))
                         .ignoringDisable(true));
 
         emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kLeftX.value, 0.5)
@@ -477,9 +476,16 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                         .ignoringDisable(true));
 
-        sensesPipeMagicScore
-                .onTrue(setRumble(operatorController, 1, RumbleType.kBothRumble, 0.2).asProxy())
-                .onFalse(setRumble(operatorController, 0, RumbleType.kBothRumble, 0));
+        // sensesPipeMagicScore
+        // .onTrue(setRumble(operatorController, 1, RumbleType.kBothRumble, 0.2))
+        // .onFalse(setRumble(operatorController, 0, RumbleType.kBothRumble, 0));
+        sensesPipeMagicScore.onTrue(armistice.setCoralReefOffset(true).andThen(Commands.runOnce(() -> {
+        }, drive, armistice.getArm(), armistice.getElevator(), coral)).andThen(Commands.defer(this::runToClosestReef,
+                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)))
+                .alongWith(setRumble(operatorController, 1, RumbleType.kBothRumble, 0.3)).finallyDo(() -> {
+                    armistice.setCoralReefOffset(false).schedule();
+                }))
+                .onFalse(armistice.setCoralReefOffset(false));
     }
 
     public Command getAutonomousCommand() {
@@ -608,7 +614,8 @@ public class RobotContainer {
 
     private double getOutfeedVBus() {
         return armistice.getElevatorPosition() > 45 ? -.85
-                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.3 : -.45;
+                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.3
+                        : (armistice.getTargetPosition().isPipe() ? -.4 : -.45);
     }
 
     public Command realDrivetrainStop() {

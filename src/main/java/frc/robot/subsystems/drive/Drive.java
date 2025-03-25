@@ -128,6 +128,9 @@ public class Drive extends SubsystemBase {
 
     private boolean reefTargetIsRight = true;
 
+    @AutoLogOutput
+    private boolean inPidTranslate = false;
+
     private final PIDController pidLineup = new PIDController(4, 0, 0), angleController = new PIDController(4, 0, 0);
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
@@ -405,6 +408,7 @@ public class Drive extends SubsystemBase {
                         .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d())).getTranslation()
                         .getNorm(),
                 0, (d) -> {
+                    inPidTranslate = true;
                     if (pidLineup.atSetpoint()) {
                         stop();
                         return;
@@ -419,6 +423,7 @@ public class Drive extends SubsystemBase {
                                     -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
                             getRotation()));
                 }, this).finallyDo(i -> {
+                    inPidTranslate = false;
                     pidLineup.reset();
                     angleController.reset();
                     stop();
@@ -430,10 +435,10 @@ public class Drive extends SubsystemBase {
     }
 
     public BooleanSupplier hasPipeAtReef(Armistice armistice) {
-        return () -> ((!pidLineup.atSetpoint() || armistice.getCoralReefOffset())
-                && getChassisSpeeds().get2dVelocity() < 0.25
+        return () -> (inPidTranslate && (((!pidLineup.atSetpoint())
+                && getChassisSpeeds().get2dVelocity() < 0.1
                 && getPose().getTranslation().getDistance(pipe1ClosestReefPose().getTranslation()) < 0.1)
-                && Arrays.stream(modules).allMatch(m -> m.getDriveCurrent() > 60);
+                && Arrays.stream(modules).allMatch(m -> m.getDriveCurrent() > 50)));
     }
 
     public BooleanSupplier translatePidInPositionJankier() {
