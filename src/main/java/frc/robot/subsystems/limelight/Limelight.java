@@ -176,7 +176,7 @@ public class Limelight extends SubsystemBase {
         io.seedSolverYaw(chassisYaw);
     }
 
-    public double getGoodActualAngleToFixProbelmsOrbitalStrikeV2() {
+    public double getLimelightRobotYaw() {
         return inputs.robotYawInternalIMU;
     }
 

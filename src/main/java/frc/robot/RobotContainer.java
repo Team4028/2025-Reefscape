@@ -20,6 +20,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -130,7 +131,20 @@ public class RobotContainer {
                 .raceWith(Commands.defer(() -> drive.translateToPositionWithPID(
                         AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_RIGHT_POS)
                                 : Constants.AQUIRE_RIGHT_POS),
-                        Set.of(drive))));
+                        Set.of(drive)))
+                .withTimeout(
+                        1.5)
+                .andThen(drive.run(() -> drive.runVelocity(new ChassisSpeeds(2, 0, 0)))
+                        .alongWith(coral.runMotorCommand(getOutfeedVBus())).withTimeout(0.5).andThen(Commands
+                                .defer(() -> drive.translateToPositionWithPID(
+                                        AutoBuilder.shouldFlip()
+                                                ? FlippingUtil.flipFieldPose(Constants.AQUIRE_RIGHT_POS)
+                                                : Constants.AQUIRE_RIGHT_POS),
+                                        Set.of(drive))
+                                .raceWith(coral.runMotorCommand(.7)
+                                        .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier()))
+                                        .andThen(coral.runMotorCommand(0))))
+                        .unless(coral.hasGamePieceSupplier())));
 
         NamedCommands.registerCommand("Acquire Left", coral.runMotorCommand(.7)
                 .alongWith(Commands.waitUntil(
@@ -139,7 +153,19 @@ public class RobotContainer {
                 .raceWith(Commands.defer(() -> drive.translateToPositionWithPID(
                         AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_LEFT_POS)
                                 : Constants.AQUIRE_LEFT_POS),
-                        Set.of(drive))));
+                        Set.of(drive)))
+                .withTimeout(
+                        1.5)
+                .andThen(drive.run(() -> drive.runVelocity(new ChassisSpeeds(2, 0, 0)))
+                        .alongWith(coral.runMotorCommand(getOutfeedVBus())).withTimeout(0.5).andThen(Commands
+                                .defer(() -> drive.translateToPositionWithPID(
+                                        AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_LEFT_POS)
+                                                : Constants.AQUIRE_LEFT_POS),
+                                        Set.of(drive))
+                                .raceWith(coral.runMotorCommand(.7)
+                                        .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier()))
+                                        .andThen(coral.runMotorCommand(0))))
+                        .unless(coral.hasGamePieceSupplier())));
         NamedCommands.registerCommand("Acquire Run",
                 coral.runMotorCommand(.7).alongWith(Commands.waitUntil(coral.hasGamePieceSupplier())));
         NamedCommands.registerCommand("Score Outfeed",
@@ -206,7 +232,7 @@ public class RobotContainer {
         if (!VisionUtil.requestingSeed
                 || VisionUtil.poseSources.keySet().stream()
                         .allMatch(ll -> Math.abs(drive.getRotation()
-                                .minus(Rotation2d.fromDegrees(ll.getGoodActualAngleToFixProbelmsOrbitalStrikeV2()))
+                                .minus(Rotation2d.fromDegrees(ll.getLimelightRobotYaw()))
                                 .getDegrees()) < 0.02)) {
             VisionUtil.setLLIMUModes(true);
             VisionUtil.requestingSeed = false;
@@ -231,8 +257,8 @@ public class RobotContainer {
         RobotSim.logMechanism();
     }
 
-    public void disableArmistice() {
-        armistice.orbitalStrike();
+    public void disableArmisticeArm() {
+        armistice.disableArm();
     }
 
     private void configureBindings() {

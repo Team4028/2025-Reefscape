@@ -217,8 +217,7 @@ public class Armistice extends SudoSubsystem {
         summit.runMotors(vbus);
     }
 
-    /** Kills the arm(y) */
-    public void orbitalStrike() {
+    public void disableArm() {
         disarm.runMotor(0);
     }
 

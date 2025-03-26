@@ -89,7 +89,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledInit() {
         // SignalLogger.stop();
-        robotContainer.disableArmistice();
+        robotContainer.disableArmisticeArm();
     }
 
     @Override
