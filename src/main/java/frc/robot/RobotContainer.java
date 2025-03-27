@@ -640,7 +640,7 @@ public class RobotContainer {
 
     private double getOutfeedVBus() {
         return armistice.getElevatorPosition() > 45 ? -.85
-                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.3
+                : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.2
                         : (armistice.getTargetPosition().isPipe() ? -.4 : -.45);
     }
 
