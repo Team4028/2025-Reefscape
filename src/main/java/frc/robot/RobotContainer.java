@@ -365,6 +365,8 @@ public class RobotContainer {
                 .onTrue(climber.runVbusCommand(0.7).onlyIf(() -> climbDeadmanUnsafe));
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5)
                 .onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLI).onlyIf(() -> !climbDeadmanUnsafe));
+        operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5)
+                .onTrue(climber.runVbusCommand(0.25).onlyIf(() -> climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- DPAD UP: Increment Armistice Manual Index
