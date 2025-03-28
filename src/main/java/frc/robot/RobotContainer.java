@@ -510,10 +510,15 @@ public class RobotContainer {
         sensesPipeMagicScore.onTrue(armistice.setCoralReefOffset(true).andThen(Commands.runOnce(() -> {
         }, drive, armistice.getArm(), armistice.getElevator(), coral)).andThen(Commands.defer(this::runToClosestReef,
                 Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)))
-                .alongWith(setRumble(operatorController, 1, RumbleType.kBothRumble, 0.3)).finallyDo(() -> {
+                .alongWith(setRumble(operatorController, 0.3, RumbleType.kBothRumble, 0.3))
+                .alongWith(setRumble(driverController, 0.3, RumbleType.kBothRumble, 0.3)).finallyDo(() -> {
                     armistice.setCoralReefOffset(false).schedule();
+                    setRumble(operatorController, 0, RumbleType.kBothRumble, 0).schedule();
+                    setRumble(driverController, 0, RumbleType.kBothRumble, 0).schedule();
                 }))
-                .onFalse(armistice.setCoralReefOffset(false));
+                .onFalse(armistice.setCoralReefOffset(false)
+                        .alongWith(setRumble(operatorController, 0, RumbleType.kBothRumble, 0))
+                        .alongWith(setRumble(driverController, 0, RumbleType.kBothRumble, 0)));
     }
 
     public Command getAutonomousCommand() {
