@@ -361,12 +361,13 @@ public class RobotContainer {
         // 0.5).onTrue(climber.runVbusCommand(-0.4));
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, -0.5)
                 .onTrue(climber.runVbusCommand(0));
+        operatorController.axisLessThan(XboxController.Axis.kLeftY.value, 0.5).onTrue(climber.runVbusCommand(0));
         operatorController.axisLessThan(XboxController.Axis.kLeftY.value, -0.5)
                 .onTrue(climber.runVbusCommand(0.7).onlyIf(() -> climbDeadmanUnsafe));
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5)
                 .onTrue(armistice.runToPositionCommand(ArmisticePositions.LOLI).onlyIf(() -> !climbDeadmanUnsafe));
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, 0.5)
-                .onTrue(climber.runVbusCommand(0.25).onlyIf(() -> climbDeadmanUnsafe));
+                .onTrue(climber.runVbusCommand(0.2).onlyIf(() -> climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- DPAD UP: Increment Armistice Manual Index
@@ -648,7 +649,7 @@ public class RobotContainer {
     private double getOutfeedVBus() {
         return armistice.getElevatorPosition() > 45 ? -.85
                 : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.35
-                        : (armistice.getTargetPosition().isPipe() ? -.4 : -.45);
+                        : (armistice.getTargetPosition().isPipe() ? -.4 : -.4);
     }
 
     public Command realDrivetrainStop() {
