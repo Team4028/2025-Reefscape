@@ -59,8 +59,8 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private boolean elevatorWaiting = true;
 
-    private static final double[] ARM_SAFE_RANGE = new double[] { 5, 45 };
-    private static final boolean USE_SAFETY = true;
+    private static final double[] ARM_SAFE_RANGE = new double[] { 11, 45 };
+    private static boolean useSafety = true;
 
     @AutoLogOutput
     private double armCharVoltage = 0;
@@ -75,9 +75,6 @@ public class Armistice extends SudoSubsystem {
     private boolean magicAlgaeOn = true;
 
     @AutoLogOutput
-    private ArmisticePositions futureAquirePosition = ArmisticePositions.CLEAN;
-
-    @AutoLogOutput
     private int coralAquireOffset = 0;
 
     @AutoLogOutput
@@ -86,10 +83,6 @@ public class Armistice extends SudoSubsystem {
     // private Map<String, Map<String, Map<String, Map<String, Double>>>>
     // heatmapOffsets = new HashMap<>();
     private JSONObject heatmapOffset = null;
-
-    private Map<Integer, ArmisticePositions> aquireOffsetMap = Map.of(
-            0, ArmisticePositions.CLEAN,
-            1, ArmisticePositions.PIPE1);
 
     private Map<ArmisticePositions, ArmisticePositions> positionsMap = Map.of(
             ArmisticePositions.Cora_L1, ArmisticePositions.LOLI,
@@ -106,16 +99,23 @@ public class Armistice extends SudoSubsystem {
             "10oC", ArmisticePositions.A3_lgae);
 
     public static enum ArmisticePositions {
-        STOW(3.382, 9),
-        CLEAN(0.189, 8.601),
-        PIPE1(0.151, 3.116),
-        PIPE2(1, 5),
+        STOW(5.8, 5),
+        CLEAN(2.635, 12),
+        SHANK(2.635, 9),
         Cora_L1(0.378, 0),
-        Cora_L2(3.382, 10),
+        Cora_L1_PIPE(0, 0),
+        Cora_L2(4.738, 0),
+        Cora_L2_SC(4.2, 0),
         Cora_L2_PIPE(3.382, 15),
-        Cora_L3(3.382, 25.54),
+        Cora_L2_PIPE_SC(0, 0),
+        Cora_L3(5.018, 11.011),
+        Cora_L3_SC(4.4, 11.011),
         Cora_L3_PIPE(3.382, 31.55),
-        Cora_L4(3.18, 55.5),
+        Cora_L3_PIPE_SC(0, 0),
+        Cora_L4(4.913, 37.008),
+        Cora_L4_SC(4.652, 34.006),
+        Cora_L4_PIPE(0, 0),
+        Cora_L4_PIPE_SC(0, 0),
         A2_lgae(5.103, 7.149),
         A3_lgae(5.103, 23.144),
         LOLI(4.342, 1),
@@ -161,7 +161,7 @@ public class Armistice extends SudoSubsystem {
         }
 
         public boolean isAcquire() {
-            return this == CLEAN || this == PIPE1 || this == PIPE2;
+            return this == CLEAN;
         }
 
         public boolean isAquireAlgae() {
@@ -169,25 +169,71 @@ public class Armistice extends SudoSubsystem {
         }
 
         public ArmisticePositions getUnPipe() {
-            if (isAcquire())
-                return CLEAN;
-            else if (this == Cora_L2_PIPE)
-                return Cora_L2;
-            else if (this == Cora_L3_PIPE)
-                return Cora_L3;
-            else
-                return this;
+            switch (this) {
+                case Cora_L1_PIPE:
+                    return Cora_L1;
+                case Cora_L2_PIPE:
+                    return Cora_L2;
+                case Cora_L3_PIPE:
+                    return Cora_L3;
+                case Cora_L4_PIPE:
+                    return Cora_L4;
+                default:
+                    return this;
+            }
         }
 
         public ArmisticePositions toPipe() {
-            if (isAcquire())
-                return PIPE1;
-            else if (this == Cora_L2)
-                return Cora_L2_PIPE;
-            else if (this == Cora_L3)
-                return Cora_L3_PIPE;
-            else
-                return this;
+            switch (this) {
+                case Cora_L1:
+                    return Cora_L1_PIPE;
+                case Cora_L2:
+                    return Cora_L2_PIPE;
+                case Cora_L3:
+                    return Cora_L3_PIPE;
+                case Cora_L4:
+                    return Cora_L4_PIPE;
+                default:
+                    return this;
+            }
+        }
+
+        public ArmisticePositions getSCPose() {
+            switch (this) {
+                case Cora_L2:
+                    return Cora_L2_SC;
+                case Cora_L2_PIPE:
+                    return Cora_L2_PIPE_SC;
+                case Cora_L3:
+                    return Cora_L3_SC;
+                case Cora_L3_PIPE:
+                    return Cora_L3_PIPE_SC;
+                case Cora_L4:
+                    return Cora_L4_SC;
+                case Cora_L4_PIPE:
+                    return Cora_L4_PIPE_SC;
+                default:
+                    return this;
+            }
+        }
+
+        public ArmisticePositions unSCPose() {
+            switch (this) {
+                case Cora_L2_SC:
+                    return Cora_L2;
+                case Cora_L2_PIPE_SC:
+                    return Cora_L2_PIPE;
+                case Cora_L3_SC:
+                    return Cora_L3;
+                case Cora_L3_PIPE_SC:
+                    return Cora_L3_PIPE;
+                case Cora_L4_SC:
+                    return Cora_L4;
+                case Cora_L4_PIPE_SC:
+                    return Cora_L4_PIPE;
+                default:
+                    return this;
+            }
         }
     }
 
@@ -235,6 +281,14 @@ public class Armistice extends SudoSubsystem {
 
     public Command deltaArmCharVolts(double dVolts) {
         return Commands.runOnce(() -> armCharVoltage += dVolts);
+    }
+
+    public void setSafety(boolean isSafe) {
+        useSafety = isSafe;
+    }
+
+    public boolean getSafety() {
+        return useSafety;
     }
 
     public Command runToPositionCommand(ArmisticePositions position) {
@@ -312,19 +366,9 @@ public class Armistice extends SudoSubsystem {
         return Commands.defer(() -> runToPositionCommand(futureArmisticePositions), Set.of(disarm, summit));
     }
 
-    public Command runToFutureAquirePositionCommand() {
-        return Commands.defer(() -> runToPositionCommand(futureAquirePosition), Set.of(disarm, summit));
-    }
-
     public Command runToFutureArmisticePositionCommand(StringSupplier closestReefName, BooleanSupplier isRight) {
         return Commands.defer(
                 () -> runToPositionCommand(futureArmisticePositions, closestReefName.get(), isRight.getAsBoolean()),
-                Set.of(disarm, summit));
-    }
-
-    public Command runToFutureAquirePositionCommand(StringSupplier closestReefName, BooleanSupplier isRight) {
-        return Commands.defer(
-                () -> runToPositionCommand(futureAquirePosition, closestReefName.get(), isRight.getAsBoolean()),
                 Set.of(disarm, summit));
     }
 
@@ -371,26 +415,13 @@ public class Armistice extends SudoSubsystem {
         return magicAlgaeOn;
     }
 
-    public Command incFutureAquirePos() {
-        return Commands.runOnce(() -> coralAquireOffset = (coralAquireOffset + 1) % aquireOffsetMap.size())
-                .ignoringDisable(true);
-    }
-
-    public Command decFutureAquirePos() {
-        return Commands.runOnce(() -> {
-            coralAquireOffset = (coralAquireOffset - 1) % aquireOffsetMap.size();
-            while (coralAquireOffset < 0)
-                coralAquireOffset += aquireOffsetMap.size();
-        })
-                .ignoringDisable(true);
-    }
-
     public Command resetNudges() {
         return Commands.runOnce(() -> Arrays.asList(ArmisticePositions.values()).forEach(
                 p -> globalElevatorOffsetInches = globalArmOffsetRad = p.armOffsetRad = p.elevatorOffsetInches = 0))
                 .ignoringDisable(true);
     }
 
+    @AutoLogOutput
     public BooleanSupplier armAndElevatorAtTarget() {
         return () -> disarm.atTargetPosition().getAsBoolean() && summit.atTargetPosition().getAsBoolean();
     }
@@ -417,10 +448,6 @@ public class Armistice extends SudoSubsystem {
 
     public ArmisticePositions getAutoAlgaePosition() {
         return futureAutoAlgaePosition;
-    }
-
-    public ArmisticePositions getFutureAquirePosition() {
-        return futureAquirePosition;
     }
 
     public Arm getArm() {
@@ -477,6 +504,7 @@ public class Armistice extends SudoSubsystem {
     /** Elevator Offset first (in), then Arm Offset (rad) */
     public double[] getJSONOffsets(@NonNull String closestReefName, @NonNull ArmisticePositions targetPosition,
             boolean isRight) {
+        targetPosition = targetPosition.unSCPose();
         boolean isBlue = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue;
         if (heatmapOffset == null)
             return new double[] { 0, 0 };
@@ -514,7 +542,7 @@ public class Armistice extends SudoSubsystem {
 
     @Override
     public void periodic() {
-        if (USE_SAFETY) {
+        if (useSafety) {
             elevatorWaiting = !disarmAtSafeDistance() && !elevatorIsSafe();
             if (elevatorIsSafe() || (elevatorWaiting && summit.atTargetPosition().getAsBoolean())
                     || disarmAtSafeDistance()) {
@@ -542,16 +570,12 @@ public class Armistice extends SudoSubsystem {
                 futureArmisticePositions.elevatorOffsetInches);
         Logger.recordOutput("Armistice/ElevatorOffsets/AutoAlgaeCounterOffset",
                 futureAutoAlgaePosition.elevatorOffsetInches);
-        Logger.recordOutput("Armistice/ElevatorOffsets/FutureAquirePositionOffset",
-                futureAquirePosition.elevatorOffsetInches);
         Logger.recordOutput("Armistice/ElevatorOffsets/StowPositionOffset",
                 ArmisticePositions.STOW.elevatorOffsetInches);
         Logger.recordOutput("Armistice/ArmOffsets/FutureArmisticePositionOffset",
                 MathUtils.roundToPlace(Units.radiansToDegrees(futureArmisticePositions.armOffsetRad), 3));
         Logger.recordOutput("Armistice/ArmOffsets/AutoAlgaeCounterOffset",
                 MathUtils.roundToPlace(Units.radiansToDegrees(futureAutoAlgaePosition.armOffsetRad), 3));
-        Logger.recordOutput("Armistice/ArmOffsets/FutureAquirePositionOffset",
-                MathUtils.roundToPlace(Units.radiansToDegrees(futureAquirePosition.armOffsetRad), 3));
         Logger.recordOutput("Armistice/ArmOffsets/StowPositionOffset",
                 MathUtils.roundToPlace(Units.radiansToDegrees(ArmisticePositions.STOW.armOffsetRad), 3));
         Logger.recordOutput("Armistice/ElevatorTargetInchesFriendly", MathUtils.roundToPlace(elevatorTargetInches, 3));
@@ -583,7 +607,5 @@ public class Armistice extends SudoSubsystem {
                     ? ArmisticePositions.Cora_L2
                     : ArmisticePositions.Cora_L3;
         }
-
-        futureAquirePosition = coralMode ? aquireOffsetMap.get(coralAquireOffset) : ArmisticePositions.LOLI;
     }
 }

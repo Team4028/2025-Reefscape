@@ -1,19 +1,19 @@
-package frc.robot.subsystems.coral;
+package frc.robot.subsystems.stick;
 
 import com.revrobotics.spark.SparkMax;
 
 import frc.robot.util.MotorData;
 
-public class CoralManipulatorIOSparkMax implements CoralManipulatorIO {
+public class WhipStickIOSparkMax implements WhipStickIO {
     private final SparkMax motor;
 
-    public CoralManipulatorIOSparkMax() {
-        motor = new SparkMax(CoralManipulatorConstants.SparkMax.CAN_ID, CoralManipulatorConstants.SparkMax.MOTOR_TYPE);
-        motor.configure(CoralManipulatorConstants.SparkMax.CONFIG, null, null);
+    public WhipStickIOSparkMax() {
+        motor = new SparkMax(WhipStickConstants.SparkMax.CAN_ID, WhipStickConstants.SparkMax.MOTOR_TYPE);
+        motor.configure(WhipStickConstants.SparkMax.CONFIG, null, null);
     }
 
     @Override
-    public void updateInputs(CoralManipulatorIOInputs inputs) {
+    public void updateInputs(WhipStickIOInputs inputs) {
         inputs.appliedVolts = motor.getBusVoltage();
         inputs.currentAmps = motor.getOutputCurrent();
         inputs.motorData = MotorData.getMotorData(motor);

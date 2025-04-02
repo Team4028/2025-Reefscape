@@ -1,4 +1,4 @@
-package frc.robot.subsystems.coral;
+package frc.robot.subsystems.stick;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -11,26 +11,27 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.MotorData;
 
-public class CoralManipulatorIOTalonFX implements CoralManipulatorIO {
-    private final TalonFX motor = new TalonFX(CoralManipulatorConstants.TalonFX.CAN_ID,
+public class WhipStickIOTalonFX implements WhipStickIO {
+    private final TalonFX motor = new TalonFX(WhipStickConstants.TalonFX.CAN_ID,
             TunerConstants.DrivetrainConstants.CANBusName);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
     private final StatusSignal<Current> motorAmps = motor.getStatorCurrent();
 
     private final DutyCycleOut vbusControl = new DutyCycleOut(0)
-            .withEnableFOC(CoralManipulatorConstants.TalonFX.USE_FOC);
+            .withEnableFOC(WhipStickConstants.TalonFX.USE_FOC);
     private final VoltageOut voltageControl = new VoltageOut(0)
-            .withEnableFOC(CoralManipulatorConstants.TalonFX.USE_FOC);
+            .withEnableFOC(WhipStickConstants.TalonFX.USE_FOC);
 
-    public CoralManipulatorIOTalonFX() {
-        motor.getConfigurator().apply(CoralManipulatorConstants.TalonFX.CONFIG, 0.25);
+    public WhipStickIOTalonFX() {
+        motor.getConfigurator().apply(WhipStickConstants.TalonFX.CONFIG, 0.25);
+        motor.getConfigurator().apply(WhipStickConstants.TalonFX.CURR_LIMITS, 0.25);
 
         BaseStatusSignal.setUpdateFrequencyForAll(100, motorVolts, motorAmps);
         motor.optimizeBusUtilization();
     }
 
     @Override
-    public void updateInputs(CoralManipulatorIOInputs inputs) {
+    public void updateInputs(WhipStickIOInputs inputs) {
         BaseStatusSignal.refreshAll(motorVolts, motorAmps);
         inputs.appliedVolts = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorAmps.getValueAsDouble();

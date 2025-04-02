@@ -1,18 +1,18 @@
-package frc.robot.subsystems.coral;
+package frc.robot.subsystems.stick;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import frc.robot.util.MotorData;
 
-public interface CoralManipulatorIO {
+public interface WhipStickIO {
     @AutoLog
-    public static class CoralManipulatorIOInputs {
+    public static class WhipStickIOInputs {
         public double currentAmps = 0.0;
         public double appliedVolts = 0.0;
         public MotorData motorData = MotorData.empty();
     }
 
-    public default void updateInputs(CoralManipulatorIOInputs inputs) {
+    public default void updateInputs(WhipStickIOInputs inputs) {
     }
 
     public default void setVoltage(double volts) {

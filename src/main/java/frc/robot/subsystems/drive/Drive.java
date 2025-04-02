@@ -376,6 +376,15 @@ public class Drive extends SubsystemBase {
         return new Pose2d(plusCoral.getTranslation(), crPose.getRotation());
     }
 
+    public Pose2d scoreTomahawkClosestReefPose() {
+        var crPose = closestReefPose();
+        var crPoseNativeRot = new Pose2d(crPose.getTranslation(),
+                crPose.getRotation().minus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
+        var plusCoral = crPoseNativeRot
+                .transformBy(new Transform2d(Units.inchesToMeters(Constants.BACKUP_DIST_IN), 0, Rotation2d.kZero));
+        return new Pose2d(plusCoral.getTranslation(), crPose.getRotation());
+    }
+
     public int closestReefTag() {
         return closestReefTag.ID;
     }

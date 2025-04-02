@@ -1,6 +1,7 @@
-package frc.robot.subsystems.coral;
+package frc.robot.subsystems.stick;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -12,7 +13,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.SysIDUtil;
 
-public class CoralManipulatorConstants {
+public class WhipStickConstants {
 
     public static final double STATOR_LIMIT = 60;
     public static final double GEARING = 1;
@@ -39,7 +40,9 @@ public class CoralManipulatorConstants {
         public static final int CAN_ID = 17;
         public static final boolean USE_FOC = true;
         public static final MotorOutputConfigs CONFIG = new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
+                .withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast);
+        public static final CurrentLimitsConfigs CURR_LIMITS = new CurrentLimitsConfigs().withStatorCurrentLimit(60)
+                .withSupplyCurrentLimit(60).withStatorCurrentLimitEnable(true).withSupplyCurrentLimitEnable(true);
     }
 
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();

@@ -12,9 +12,6 @@ import frc.robot.Constants;
 import frc.robot.Armistice.SimData;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.algae.AlgaeManipulator;
-import frc.robot.subsystems.algae.AlgaeManipulatorIO;
-import frc.robot.subsystems.algae.AlgaeManipulatorIOSim;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
@@ -22,9 +19,6 @@ import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSim;
-import frc.robot.subsystems.coral.CoralManipulator;
-import frc.robot.subsystems.coral.CoralManipulatorIO;
-import frc.robot.subsystems.coral.CoralManipulatorIOSim;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -33,6 +27,9 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.stick.WhipStick;
+import frc.robot.subsystems.stick.WhipStickIO;
+import frc.robot.subsystems.stick.WhipStickIOSim;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -64,12 +61,8 @@ public class RobotSim {
         return new Climber(Constants.currentMode == Mode.REAL ? realClimber : new ClimberIOSim());
     }
 
-    public static final CoralManipulator simSwitch(CoralManipulatorIO realCoral) {
-        return new CoralManipulator(Constants.currentMode == Mode.REAL ? realCoral : new CoralManipulatorIOSim());
-    }
-
-    public static final AlgaeManipulator simSwitch(AlgaeManipulatorIO realAlgae) {
-        return new AlgaeManipulator(Constants.currentMode == Mode.REAL ? realAlgae : new AlgaeManipulatorIOSim());
+    public static final WhipStick simSwitch(WhipStickIO realCoral) {
+        return new WhipStick(Constants.currentMode == Mode.REAL ? realCoral : new WhipStickIOSim());
     }
 
     private static LoggedMechanism2d baseMech = new LoggedMechanism2d(5, 5);
