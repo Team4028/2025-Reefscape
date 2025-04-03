@@ -1,11 +1,13 @@
 package frc.robot.commands;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Armistice;
@@ -17,21 +19,27 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class MagicSequencing {
-
     public static final Command magicScoreScore(Drive drive, Armistice armistice, WhipStick coral,
-            Supplier<Pose2d> pReefPose, Supplier<Pose2d> reefPose, Supplier<Pose2d> tReefPose,
+            Supplier<Pose2d> reefPose, Supplier<Pose2d> tReefPose,
             Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> armistice.setSafety(false))
-                .andThen(drive.translateToPositionWithPID(pReefPose.get()).until(armistice.armAndElevatorAtTarget())
-                        .alongWith(armistice.runToPositionNoWait(scorePos.get(), drive.closestReefName(),
-                                drive.getReefTargetIsRight()))
-                        .andThen(drive.translateToPositionWithPID(reefPose.get()).until(drive.translatePidInPosition()))
-                        .andThen(armistice.runToPositionCommand(scorePos.get().getSCPose(), drive.closestReefName(),
-                                drive.getReefTargetIsRight()))
-                        .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
-                        .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
-                        .andThen(drive.translateToPositionWithPID(tReefPose.get())
-                                .until(drive.translatePidInPosition())))
+                .andThen(armistice.runToPositionNoWait(scorePos.get(), drive.closestReefName(),
+                        drive.getReefTargetIsRight()))
+                .andThen(
+                        drive.translateToPositionWithPID(reefPose.get()))
+                .raceWith(Commands.defer(
+                        () -> drive.waitForDrivetrainDistance(0),
+                        Set.of())
+                        .alongWith(Commands.waitUntil(armistice.armAndElevatorAtTarget())))
+                .andThen(armistice.runToPositionNoWait(
+                        scorePos.get().getSCPose(),
+                        drive.closestReefName(),
+                        drive.getReefTargetIsRight()))
+                .andThen(Commands.defer(() -> armistice.waitUntilThingsInTolerance(1, 0.2),
+                        Set.of()))
+                .andThen(drive
+                        .translateToPositionWithPID(tReefPose.get(), new TrapezoidProfile.Constraints(5, 10))
+                        .until(drive.translatePidInPosition()))
                 .andThen(Commands.runOnce(() -> armistice.setSafety(true)));
     }
 

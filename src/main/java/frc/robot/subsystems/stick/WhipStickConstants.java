@@ -41,7 +41,7 @@ public class WhipStickConstants {
         public static final boolean USE_FOC = true;
         public static final MotorOutputConfigs CONFIG = new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast);
-        public static final CurrentLimitsConfigs CURR_LIMITS = new CurrentLimitsConfigs().withStatorCurrentLimit(60)
+        public static final CurrentLimitsConfigs CURR_LIMITS = new CurrentLimitsConfigs().withStatorCurrentLimit(80)
                 .withSupplyCurrentLimit(60).withStatorCurrentLimitEnable(true).withSupplyCurrentLimitEnable(true);
     }
 

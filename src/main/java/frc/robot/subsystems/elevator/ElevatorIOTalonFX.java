@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -84,6 +85,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     public void setVbus(double vBus) {
         leader.setControl(vbusControl.withOutput(vBus));
         follower.setControl(indenturedServitude);
+    }
+
+    public void setBrake(boolean isBrake) {
+        leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs.withNeutralMode(NeutralModeValue.valueOf(isBrake ? 1 : 0)));
+        follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs.withNeutralMode(NeutralModeValue.valueOf(isBrake ? 1 : 0)));
     }
 
     @Override

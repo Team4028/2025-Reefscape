@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
+    public static final boolean tuningMode = false;
+    public static final boolean disableHAL = false;
     public static final double ALGAE_RADIUS_M = 0.206375;
     public static final double ALGAE_WEIGHT_KG = 0.680389;
     public static final double CORAL_DIAM_IN = 4.5;

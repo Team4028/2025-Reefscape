@@ -173,9 +173,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("WaitUntilClose", Commands.waitUntil(drive.driveCloseEnoughReefAuton()));
         NamedCommands.registerCommand("WaitUntilCloseAcq", Commands.waitUntil(drive.driveCloseEnoughAcquireAuton()));
         NamedCommands.registerCommand("Run To Closest Right Reef",
-                rightPidToClosestReefAuton().until(drive.translatePidInPosition()).withTimeout(1));
+                Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands.defer(this::runToClosestReef,
+                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Left Reef",
-                leftPidToClosestReefAuton().until(drive.translatePidInPosition()).withTimeout(1));
+                Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(this::runToClosestReef,
+                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
 
         NamedCommands.registerCommand("L4 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L4));
@@ -188,7 +190,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("L2 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L2));
         NamedCommands.registerCommand("Blip",
-                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).andThen(coral.runMotorCommand(0)));
+                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).withTimeout(1).andThen(coral.runMotorCommand(0)));
         NamedCommands.registerCommand("SuperCycle L4", Commands.defer(
                 () -> MagicSequencing.magicScoreSuperCycleL4(drive, armistice, coral,
                         drive::closestReefPose,
@@ -300,16 +302,11 @@ public class RobotContainer {
         // ==============================================
         // DC -- LT: Infeed Coral
         // ==============================================
-        driverController.leftTrigger().onTrue(coral.runMotorCommand(.8)).onFalse(coral.runMotorCommand(0));
+        driverController.leftTrigger().onTrue(coral.runMotorCommand(.9)).onFalse(coral.runMotorCommand(0));
 
         // ==============================================
         // DC -- LB: Outfeed Coral
         // ==============================================
-        driverController.leftBumper()
-                .onTrue(Commands.defer(
-                        () -> MagicSequencing.magicScoreScore(drive, armistice, coral, drive::pipe1ClosestReefPose,
-                                drive::closestReefPose, drive::scoreTomahawkClosestReefPose, armistice::getFutureArmisticePositions),
-                        Set.of(drive, coral, armistice.getArm(), armistice.getElevator())));
 
         driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
@@ -503,23 +500,28 @@ public class RobotContainer {
                         .ignoringDisable(true));
 
         emergencyController.leftBumper()
-                .onTrue(MagicSequencing.magicShank(armistice, coral, Commands.waitSeconds(1), Commands.waitSeconds(1)));
+                .onTrue(MagicSequencing.magicShank(armistice, coral,
+                        Commands.waitUntil(armistice.armAndElevatorAtTarget()), Commands.waitSeconds(1)));
 
         // sensesPipeMagicScore
         // .onTrue(setRumble(operatorController, 1, RumbleType.kBothRumble, 0.2))
         // .onFalse(setRumble(operatorController, 0, RumbleType.kBothRumble, 0));
-        sensesPipeMagicScore.onTrue(armistice.setCoralReefOffset(true).andThen(Commands.runOnce(() -> {
-        }, drive, armistice.getArm(), armistice.getElevator(), coral)).andThen(Commands.defer(this::runToClosestReef,
-                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)))
-                .alongWith(setRumble(operatorController, 0.3, RumbleType.kBothRumble, 0.3))
-                .alongWith(setRumble(driverController, 0.3, RumbleType.kBothRumble, 0.3)).finallyDo(() -> {
-                    armistice.setCoralReefOffset(false).schedule();
-                    setRumble(operatorController, 0, RumbleType.kBothRumble, 0).schedule();
-                    setRumble(driverController, 0, RumbleType.kBothRumble, 0).schedule();
-                }))
-                .onFalse(armistice.setCoralReefOffset(false)
-                        .alongWith(setRumble(operatorController, 0, RumbleType.kBothRumble, 0))
-                        .alongWith(setRumble(driverController, 0, RumbleType.kBothRumble, 0)));
+        // sensesPipeMagicScore.onTrue(armistice.setCoralReefOffset(true).andThen(Commands.runOnce(()
+        // -> {
+        // }, drive, armistice.getArm(), armistice.getElevator(),
+        // coral)).andThen(Commands.defer(this::runToClosestReef,
+        // Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(),
+        // coral)))
+        // .alongWith(setRumble(operatorController, 0.3, RumbleType.kBothRumble, 0.3))
+        // .alongWith(setRumble(driverController, 0.3, RumbleType.kBothRumble,
+        // 0.3)).finallyDo(() -> {
+        // armistice.setCoralReefOffset(false).schedule();
+        // setRumble(operatorController, 0, RumbleType.kBothRumble, 0).schedule();
+        // setRumble(driverController, 0, RumbleType.kBothRumble, 0).schedule();
+        // }))
+        // .onFalse(armistice.setCoralReefOffset(false)
+        // .alongWith(setRumble(operatorController, 0, RumbleType.kBothRumble, 0))
+        // .alongWith(setRumble(driverController, 0, RumbleType.kBothRumble, 0)));
     }
 
     public Command getAutonomousCommand() {
@@ -563,10 +565,8 @@ public class RobotContainer {
 
     private Command runToClosestReef() {
         return armistice.magicIsSnap() ? magicSnapL1()
-                : MagicSequencing.magicScoreNoScoreReefOnlyPID(drive, armistice, coral,
-                        () -> armistice.getFutureArmisticePositions().isPipe() ? drive.pipe1ClosestReefPose()
-                                : drive.closestReefPose(),
-                        armistice::getFutureArmisticePositions);
+                : MagicSequencing.magicScoreScore(drive, armistice, coral, drive::closestReefPose,
+                        drive::scoreTomahawkClosestReefPose, armistice::getFutureArmisticePositions);
     }
 
     // private Command runToClosestSuperCycle() {

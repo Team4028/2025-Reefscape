@@ -15,11 +15,13 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SysIDUtil;
+import frc.robot.util.LoggedTunables.LoggedChangableBoolean;
 
 public class Elevator extends SubsystemBase {
     private final ElevatorIO io;
     private ElevatorStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
+    private final LoggedChangableBoolean isBrake = new LoggedChangableBoolean("ElevatorInBrake", true);
     @AutoLogOutput
     private double targetPostitionInches = ArmisticePositions.STOW.getElevatorPositionInches(0);
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
@@ -89,12 +91,21 @@ public class Elevator extends SubsystemBase {
         runToPosition(targetPostitionInches + amount);
     }
 
+    public void configureBrakes(boolean brake) {
+        // just fx for now
+        if (io instanceof ElevatorIOTalonFX fxio) {
+            fxio.setBrake(brake);
+        }
+    }
+
     @Override
     public void periodic() {
         stateTracker.state.execute(this);
         io.updateInputs(inputs);
+        LoggedChangableBoolean.ifChanged(hashCode(), bools -> configureBrakes(bools[0]), isBrake);
         Logger.processInputs("Elevator", inputs);
-        Logger.recordOutput("Elevator/ElevatorPositionInchesFrieldly", MathUtils.roundToPlace(inputs.elevatorPositionInches, 3));
+        Logger.recordOutput("Elevator/ElevatorPositionInchesFrieldly",
+                MathUtils.roundToPlace(inputs.elevatorPositionInches, 3));
     }
 
     @CreateState("off")

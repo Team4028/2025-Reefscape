@@ -30,24 +30,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.3
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score Outfeed"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
@@ -98,24 +80,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score Outfeed"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
@@ -163,24 +127,6 @@
           "type": "named",
           "data": {
             "name": "Run To Closest Left Reef"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score Outfeed"
           }
         },
         {

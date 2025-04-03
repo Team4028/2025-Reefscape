@@ -55,7 +55,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Armistice;
@@ -68,7 +69,7 @@ import frc.robot.util.MathUtils;
 import frc.robot.util.VisionUtil;
 import lombok.experimental.ExtensionMethod;
 
-@ExtensionMethod(MathUtils.class)
+@ExtensionMethod({MathUtils.class})
 public class Drive extends SubsystemBase {
     // TunerConstants doesn't include these constants, so they are declared locally
     static final double ODOMETRY_FREQUENCY = new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD()
@@ -114,8 +115,8 @@ public class Drive extends SubsystemBase {
     private final ProfiledPIDController xPid, yPid, rotPid;
     private int ll2dLineupTagID = 0;
 
-    private static final double PID_TRANSLATION_SPEED_MPS = 1.5;
-    private static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
+    public static final double PID_TRANSLATION_SPEED_MPS = 2;
+    public static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
     private static final double AUTON_PATH_CANCEL_RADIUS_M = 0.8;
 
     @AutoLogOutput(key = "Odometry/ClosestReef")
@@ -131,7 +132,12 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput
     private boolean inPidTranslate = false;
 
-    private final PIDController pidLineup = new PIDController(4, 0, 0), angleController = new PIDController(4, 0, 0);
+    private final TrapezoidProfile.Constraints defaultPLConstraints = new TrapezoidProfile.Constraints(
+            PID_TRANSLATION_SPEED_MPS, 4 * PID_TRANSLATION_SPEED_MPS);
+
+    private final ProfiledPIDController pidLineup = new ProfiledPIDController(4, 0, 0, defaultPLConstraints);
+
+    private final PIDController angleController = new PIDController(8, 0, 0);
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();
@@ -406,41 +412,59 @@ public class Drive extends SubsystemBase {
                 .getDistance(closestReef.getTranslation()) < Constants.ARM_READY_AUTO_SCORE_RADIUS;
     }
 
-    @SuppressWarnings("removal") // PIDCommand is deprecated
     public Command translateToPositionWithPID(Pose2d pose) {
+        return translateToPositionWithPID(pose, defaultPLConstraints);
+    }
+
+    @SuppressWarnings("removal")
+    public Command translateToPositionWithPID(Pose2d pose, TrapezoidProfile.Constraints constraints) {
         DoubleSupplier theta = () -> new Pose2d(pose.getTranslation(), new Rotation2d())
                 .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d()))
                 .getTranslation().getAngle().getRadians();
         DoubleSupplier driveYaw = () -> (getRotation().getRadians() + 2 * Math.PI) % (2 * Math.PI);
-        return new PIDCommand(pidLineup,
+        return Commands.runOnce(() -> pidLineup.setConstraints(constraints)).andThen(new ProfiledPIDCommand(pidLineup,
                 () -> -new Pose2d(pose.getTranslation(), new Rotation2d())
                         .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d())).getTranslation()
                         .getNorm(),
-                0, (d) -> {
+                new TrapezoidProfile.State(0, 0), (d, s) -> {
                     inPidTranslate = true;
                     if (pidLineup.atSetpoint()) {
                         stop();
                         return;
                     }
+                    // runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
+                    // MathUtils.clamp(d * Math.cos(theta.getAsDouble()), -maxTranslationSpeed,
+                    // maxTranslationSpeed),
+                    // MathUtils.clamp(d * Math.sin(theta.getAsDouble()), -maxTranslationSpeed,
+                    // maxTranslationSpeed),
+                    // MathUtils.clamp(
+                    // angleController.calculate(driveYaw.getAsDouble(),
+                    // pose.getRotation().getRadians()),
+                    // -maxRotationSpeed, maxRotationSpeed)),
+                    // getRotation()));
                     runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
-                            MathUtils.clamp(d * Math.cos(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
-                                    PID_TRANSLATION_SPEED_MPS),
-                            MathUtils.clamp(d * Math.sin(theta.getAsDouble()), -PID_TRANSLATION_SPEED_MPS,
-                                    PID_TRANSLATION_SPEED_MPS),
+                            d * Math.cos(theta.getAsDouble()),
+                            d * Math.sin(theta.getAsDouble()),
                             MathUtils.clamp(
                                     angleController.calculate(driveYaw.getAsDouble(), pose.getRotation().getRadians()),
                                     -PID_ROTATION_RAD_PER_SEC, PID_ROTATION_RAD_PER_SEC)),
                             getRotation()));
                 }, this).finallyDo(i -> {
                     inPidTranslate = false;
-                    pidLineup.reset();
+                    pidLineup.reset(new TrapezoidProfile.State(0, 0));
                     angleController.reset();
                     stop();
-                });
+                }));
     }
 
     public BooleanSupplier translatePidInPosition() {
-        return () -> pidLineup.atSetpoint() && angleController.atSetpoint();
+        return () -> pidLineup.atGoal() && angleController.atSetpoint();
+    }
+
+    public Command waitForDrivetrainDistance(double posError) {
+        return Commands.waitUntil(() -> {
+            return inPidTranslate && Math.abs(pidLineup.getSetpoint().position) <= posError;
+        });
     }
 
     public BooleanSupplier hasPipeAtReef(Armistice armistice) {
@@ -451,7 +475,7 @@ public class Drive extends SubsystemBase {
     }
 
     public BooleanSupplier translatePidInPositionJankier() {
-        return () -> pidLineup.getError() <= 0.05 && angleController.atSetpoint();
+        return () -> pidLineup.getPositionError() <= 0.05 && angleController.atSetpoint();
     }
 
     public DoubleSupplier get2dFilteredX() {

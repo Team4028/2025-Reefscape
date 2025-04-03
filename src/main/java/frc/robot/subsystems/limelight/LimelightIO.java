@@ -14,7 +14,7 @@ import frc.robot.util.LimelightHelpers.RawFiducial;
 import lombok.experimental.ExtensionMethod;
 import frc.robot.util.MathUtils;
 
-@ExtensionMethod(frc.robot.util.MathUtils.class)
+@ExtensionMethod(frc.robot.util.MiscUtils.class)
 public class LimelightIO {
 
     private final boolean is4;

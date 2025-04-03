@@ -34,11 +34,6 @@ public class MathUtils {
         return Math.round(x * pow10) / pow10;
     }
 
-    // doesn't belong here but whatever
-    public static final <T> T orIfNull(T value, T _default) {
-        return value == null ? _default : value;
-    }
-
     public static final <T> Optional<T> arrayGetSafe(T[] arr, int idx) {
         return idx >= arr.length ? Optional.empty() : Optional.of(arr[idx]);
     }

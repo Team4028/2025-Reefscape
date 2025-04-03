@@ -6,11 +6,13 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.reduxrobotics.canand.CanandEventLoop;
 import com.reduxrobotics.sensors.canandmag.Canandmag;
 import com.reduxrobotics.sensors.canandmag.CanandmagFaults;
 import com.reduxrobotics.sensors.canandmag.CanandmagSettings;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -79,6 +81,11 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
         ArmIO.super.updateInputs(inputs);
     }
 
+    public void setBrake(boolean isBrake) {
+        motor.getConfigurator()
+                .apply(ArmConstants.TalonFX.motorConfigs.withNeutralMode(NeutralModeValue.valueOf(isBrake ? 1 : 0)));
+    }
+
     public void initEncoder() {
         motor.setPosition(canMag.getAbsPosition() * ArmConstants.GEAR_RATIO);
     }
@@ -96,7 +103,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     }
 
     public double getArmAngleRad() {
-        var rad = getEncoderPositionRad() - ArmConstants.PI_1_2;
+        var rad = getEncoderPositionRad() - ArmConstants.PI_1_2 + Units.degreesToRadians(30);
         rad = rad > 0 ? rad : ArmConstants.PI_2 + rad;
         return rad;
     }

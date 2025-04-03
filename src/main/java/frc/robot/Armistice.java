@@ -29,7 +29,6 @@ import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIOCanEncoderTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import frc.robot.util.DashboardStore.StringSupplier;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SudoSubsystem;
 import lombok.NonNull;
@@ -100,8 +99,8 @@ public class Armistice extends SudoSubsystem {
 
     public static enum ArmisticePositions {
         STOW(5.8, 5),
-        CLEAN(2.635, 12),
-        SHANK(2.635, 9),
+        CLEAN(2.635, 23),
+        SHANK(2.635, 19),
         Cora_L1(0.378, 0),
         Cora_L1_PIPE(0, 0),
         Cora_L2(4.738, 0),
@@ -112,7 +111,7 @@ public class Armistice extends SudoSubsystem {
         Cora_L3_SC(4.4, 11.011),
         Cora_L3_PIPE(3.382, 31.55),
         Cora_L3_PIPE_SC(0, 0),
-        Cora_L4(4.913, 37.008),
+        Cora_L4(5.2, 37.008),
         Cora_L4_SC(4.652, 34.006),
         Cora_L4_PIPE(0, 0),
         Cora_L4_PIPE_SC(0, 0),
@@ -366,7 +365,7 @@ public class Armistice extends SudoSubsystem {
         return Commands.defer(() -> runToPositionCommand(futureArmisticePositions), Set.of(disarm, summit));
     }
 
-    public Command runToFutureArmisticePositionCommand(StringSupplier closestReefName, BooleanSupplier isRight) {
+    public Command runToFutureArmisticePositionCommand(Supplier<String> closestReefName, BooleanSupplier isRight) {
         return Commands.defer(
                 () -> runToPositionCommand(futureArmisticePositions, closestReefName.get(), isRight.getAsBoolean()),
                 Set.of(disarm, summit));
@@ -478,6 +477,11 @@ public class Armistice extends SudoSubsystem {
         return Math.abs(armTargetRad - disarm.getCurrentPosition()) <= ArmConstants.SAFE_DISTANCE;
     }
 
+    public Command waitUntilThingsInTolerance(double elevatorTol, double armTol) {
+        return Commands.waitUntil(() -> Math.abs(elevatorTargetInches - summit.getCurrentPosition()) <= elevatorTol
+                && Math.abs(armTargetRad - disarm.getCurrentPosition()) <= armTol);
+    }
+
     public Command runElevator(ArmisticePositions position) {
         return Commands
                 .runOnce(() -> elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches))
@@ -561,7 +565,6 @@ public class Armistice extends SudoSubsystem {
             disarm.runToPosition(armTargetRad);
             summit.runToPosition(elevatorTargetInches);
         }
-
     }
 
     @Override

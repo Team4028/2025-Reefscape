@@ -15,11 +15,13 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SysIDUtil;
+import frc.robot.util.LoggedTunables.LoggedChangableBoolean;
 
 public class Arm extends SubsystemBase {
     private final ArmIO io;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
     private final ArmStateTracker stateTracker;
+    private final LoggedChangableBoolean isBrake = new LoggedChangableBoolean("ArmInBrake", true);
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput
     private double targetPositionRad = ArmisticePositions.STOW.getArmPositionRad(0);
@@ -33,7 +35,11 @@ public class Arm extends SubsystemBase {
         io.updateInputs(inputs);
     }
 
- 
+    public void configureBrake(boolean isBrake) {
+        if (io instanceof ArmIOCanEncoderTalonFX canio) {
+            canio.setBrake(isBrake);
+        }
+    }
 
     public Command sysIDTest(boolean dynamic, Direction direction) {
         return sysIDCommands.get(dynamic).get(direction);
@@ -95,6 +101,7 @@ public class Arm extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
+        LoggedChangableBoolean.ifChanged(hashCode(), bools -> configureBrake(bools[0]), isBrake);
         Logger.processInputs("Arm", inputs);
         Logger.recordOutput("Arm/ArmEncoderRadFriendly", MathUtils.roundToPlace(inputs.armEncoderRad, 3));
         Logger.recordOutput("Arm/ArmEncoderRawFriendly", MathUtils.roundToPlace(inputs.armEncoderRaw, 3));
