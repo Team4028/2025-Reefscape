@@ -38,12 +38,12 @@ public class MagicSequencing {
                                                                 drive.closestReefName(),
                                                                 drive.getReefTargetIsRight()))
                                                 .andThen(Commands.defer(
-                                                        () -> armistice.waitUntilThingsInTolerance(1, 0.3),
+                                                        () -> armistice.waitUntilThingsInTolerance(1, scorePos.get() == ArmisticePositions.Cora_L4 ? 0.3 : 0.1),
                                                         Set.of()))))
-                .andThen(Commands.defer(() -> armistice.waitUntilThingsInTolerance(1, 0.6),
+                .andThen(Commands.defer(() -> armistice.waitUntilThingsInTolerance(1, scorePos.get() == ArmisticePositions.Cora_L4 ? 0.6 : 0.3),
                         Set.of()))
-                .andThen(drive.runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, -2, 0)))
-                        .andThen(Commands.waitSeconds(0.2)))
+                .andThen(drive.runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, -2, 0))).alongWith(coral.runMotorCommand(-.3))
+                        .andThen(Commands.waitSeconds(0.2)).andThen(coral.runMotorCommand(0)))
                 .andThen(Commands.runOnce(() -> armistice.setSafety(true)));
     }
 
