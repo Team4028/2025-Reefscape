@@ -51,6 +51,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Acquire Left"
           }
         },
@@ -101,6 +107,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Acquire Left"
           }
         },
@@ -146,6 +158,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
           }
         },
         {

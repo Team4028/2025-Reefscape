@@ -143,28 +143,31 @@ public class RobotContainer {
                                         .andThen(coral.runMotorCommand(0))))
                         .unless(coral.hasGamePieceSupplier())));
 
-        NamedCommands.registerCommand("Acquire Left", coral.runMotorCommand(.7)
-                .alongWith(Commands.waitUntil(
-                        coral.hasGamePieceSupplier()))
-                .andThen(coral.runMotorCommand(0))
-                .raceWith(Commands.defer(() -> drive.translateToPositionWithPID(
-                        AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_LEFT_POS)
-                                : Constants.AQUIRE_LEFT_POS),
-                        Set.of(drive)))
-                .withTimeout(
-                        1.5)
-                .andThen(drive.run(() -> drive.runVelocity(new ChassisSpeeds(2, 0, 0)))
-                        .alongWith(coral.runMotorCommand(getOutfeedVBus())).withTimeout(0.5).andThen(Commands
-                                .defer(() -> drive.translateToPositionWithPID(
-                                        AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(Constants.AQUIRE_LEFT_POS)
-                                                : Constants.AQUIRE_LEFT_POS),
-                                        Set.of(drive))
-                                .raceWith(coral.runMotorCommand(.7)
-                                        .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier()))
-                                        .andThen(coral.runMotorCommand(0))))
-                        .unless(coral.hasGamePieceSupplier())));
+        // NamedCommands.registerCommand("Acquire Left", coral.runMotorCommand(.7)
+        // .alongWith(Commands.waitUntil(
+        // coral.hasGamePieceSupplier()))
+        // .andThen(coral.runMotorCommand(0))
+        // .raceWith(Commands.defer(() -> drive.translateToPositionWithPID(
+        // AutoBuilder.shouldFlip() ?
+        // FlippingUtil.flipFieldPose(Constants.AQUIRE_LEFT_POS)
+        // : Constants.AQUIRE_LEFT_POS),
+        // Set.of(drive)))
+        // .withTimeout(
+        // 1.5)
+        // .andThen(drive.run(() -> drive.runVelocity(new ChassisSpeeds(2, 0, 0)))
+        // .alongWith(coral.runMotorCommand(getOutfeedVBus())).withTimeout(0.5).andThen(Commands
+        // .defer(() -> drive.translateToPositionWithPID(
+        // AutoBuilder.shouldFlip() ?
+        // FlippingUtil.flipFieldPose(Constants.AQUIRE_LEFT_POS)
+        // : Constants.AQUIRE_LEFT_POS),
+        // Set.of(drive))
+        // .raceWith(coral.runMotorCommand(.7)
+        // .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier()))
+        // .andThen(coral.runMotorCommand(0))))
+        // .unless(coral.hasGamePieceSupplier())));
+        NamedCommands.registerCommand("Acquire Left", Commands.waitSeconds(2));
         NamedCommands.registerCommand("Acquire Run",
-                coral.runMotorCommand(.7).alongWith(Commands.waitUntil(coral.hasGamePieceSupplier())));
+                coral.runMotorCommand(.0).alongWith(Commands.waitUntil(coral.hasGamePieceSupplier())));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
                         .andThen(Commands.defer(() -> coral.runMotorCommand(getOutfeedVBus()), Set.of(coral))
@@ -184,13 +187,14 @@ public class RobotContainer {
         NamedCommands.registerCommand("Stow", armistice.runToPositionCommand(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Stow No Wait", armistice.runToPositionNoWait(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Acquire Pos",
-                runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.CLEAN));
+                runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.STOW));
         NamedCommands.registerCommand("L3 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L3));
         NamedCommands.registerCommand("L2 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L2));
         NamedCommands.registerCommand("Blip",
-                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).withTimeout(1).andThen(coral.runMotorCommand(0)));
+                coral.runMotorCommand(.0).alongWith(Commands.waitSeconds(0.25)).withTimeout(1)
+                        .andThen(coral.runMotorCommand(0)));
         NamedCommands.registerCommand("SuperCycle L4", Commands.defer(
                 () -> MagicSequencing.magicScoreSuperCycleL4(drive, armistice, coral,
                         drive::closestReefPose,
@@ -397,9 +401,8 @@ public class RobotContainer {
         // ==============================================
         // OC -- X: Run To Stow
         // ==============================================
-        operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW)).onTrue(
-                coral.runMotorCommand(.7).alongWith(Commands.waitSeconds(0.25)).andThen(coral.runMotorCommand(0))
-                        .onlyIf(() -> !climbDeadmanUnsafe));
+        operatorController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW)
+                .onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- B: Magic Score Algae
@@ -566,7 +569,8 @@ public class RobotContainer {
     private Command runToClosestReef() {
         return armistice.magicIsSnap() ? magicSnapL1()
                 : MagicSequencing.magicScoreScore(drive, armistice, coral, drive::closestReefPose,
-                        drive::scoreTomahawkClosestReefPose, armistice::getFutureArmisticePositions);
+                        () -> DriverStation.isAutonomous() ? ArmisticePositions.Cora_L4
+                                : armistice.getFutureArmisticePositions());
     }
 
     // private Command runToClosestSuperCycle() {
