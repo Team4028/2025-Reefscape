@@ -177,8 +177,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Acquire Left",
                 Commands.defer(
                         () -> sing.runMotorCommand(0.55).andThen(
-                                Commands.waitUntil(() -> MiscUtils.printAndReturn(sing.getLSwitch(), "thing: ", "")),
-                                Commands.print("SAFJRGJIAZETHJOAETHJOAETH"),
+                                Commands.waitUntil(() -> sing.getLSwitch()),
                                 armistice.runToPositionCommand(ArmisticePositions.SHANK)
                                         .alongWith(coral.runMotorCommand(0.3)),
                                 armistice.runToPositionNoWait(ArmisticePositions.STOW)
@@ -210,9 +209,7 @@ public class RobotContainer {
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L3));
         NamedCommands.registerCommand("L2 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L2));
-        NamedCommands.registerCommand("Blip",
-                coral.runMotorCommand(.0).alongWith(Commands.waitSeconds(0.25)).withTimeout(1)
-                        .andThen(coral.runMotorCommand(0)));
+        NamedCommands.registerCommand("Blip", Commands.none());
         NamedCommands.registerCommand("SuperCycle L4", Commands.defer(
                 () -> MagicSequencing.magicScoreSuperCycleL4(drive, armistice, coral,
                         drive::closestReefPose,
@@ -326,15 +323,13 @@ public class RobotContainer {
         // ==============================================
         driverController.leftTrigger().onTrue(sing.runMotorCommand(0.45)).onFalse(sing.runMotorCommand(0));
 
-        hasGamePiece.onTrue(Commands.defer(
-                () -> DriverStation.isTeleop() ? Commands.waitUntil(armistice.armAndElevatorAtTarget())
-                        .andThen(armistice.runToPositionCommand(ArmisticePositions.SHANK)
-                                .alongWith(coral.runMotorCommand(0.3)))
-                        .andThen(armistice.waitUntilThingsInTolerance(0.5, 0.1)).andThen(
-                                armistice.runToPositionCommand(ArmisticePositions.STOW)
-                                        .alongWith(coral.runMotorCommand(0)))
-                        : Commands.none(),
-                DriverStation.isTeleop() ? Set.of(coral, armistice.getArm(), armistice.getElevator()) : Set.of()));
+        hasGamePiece.onTrue(Commands.either(Commands.waitUntil(armistice.armAndElevatorAtTarget())
+                .andThen(armistice.runToPositionCommand(ArmisticePositions.SHANK)
+                        .alongWith(coral.runMotorCommand(0.3)))
+                .andThen(armistice.waitUntilThingsInTolerance(0.5, 0.1)).andThen(
+                        armistice.runToPositionCommand(ArmisticePositions.STOW)
+                                .alongWith(coral.runMotorCommand(0)))
+                .asProxy(), Commands.none(), DriverStation::isTeleop));
 
         // ==============================================
         // DC -- LB: Outfeed Coral

@@ -25,14 +25,15 @@ import lombok.experimental.UtilityClass;
 public class MagicSequencing {
     public static final Command magicScoreScore(Drive drive, Armistice armistice, WhipStick coral,
             Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
-        return Commands.runOnce(() -> armistice.setSafety(false))
-                .andThen(
-                        drive.translateToPositionWithPID(reefPose.get())
-                                .raceWith(Commands.defer(
-                                        () -> drive.waitForDrivetrainDistance(0.006),
-                                        Set.of())
-                                        .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
-                                                && armistice.armAndElevatorAtTarget().getAsBoolean())),
+        return drive.translateToPositionWithPID(reefPose.get())
+                .raceWith(Commands.defer(
+                        () -> drive.waitForDrivetrainDistance(0.006),
+                        Set.of())
+                        .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
+                                && armistice.armAndElevatorAtTarget().getAsBoolean())),
+                        armistice.runToPositionNoWait(ArmisticePositions.STOW)
+                                .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
+                                .andThen(Commands.runOnce(() -> armistice.setSafety(false)),
                                         Commands.waitUntil(drive.readyForArm())
                                                 .andThen(armistice.runToPositionNoWait(scorePos.get().toPipe()))
                                                 .andThen(
@@ -60,12 +61,12 @@ public class MagicSequencing {
                         () -> armistice.waitUntilThingsInTolerance(1,
                                 scorePos.get() == ArmisticePositions.Cora_L4 ? 0.6 : 0.3),
                         Set.of()))
-                .andThen(drive.runVelocityAngle(() -> 0, () -> -.5, () -> drive.getRotation())
+                .andThen(drive.runVelocityAngle(() -> 0, () -> -1, () -> drive.getRotation())
                         .alongWith(coral.runMotorCommand(-.3))
                         .withTimeout(0.3)
                         .andThen(coral.runMotorCommand(0))
-                        .alongWith(armistice.runToPositionNoWait(ArmisticePositions.STOW)))
-                .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
+                        .alongWith(armistice.runToPositionNoWait(ArmisticePositions.STOW))
+                        .andThen(armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))))
                 .finallyDo(() -> armistice.setSafety(true));
     }
 
