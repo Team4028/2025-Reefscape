@@ -31,6 +31,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SudoSubsystem;
+import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 
@@ -58,14 +59,14 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private boolean elevatorWaiting = true;
 
-    private static final double[] ARM_SAFE_RANGE = new double[] { 11, 45 };
+    private static final double[] ARM_SAFE_RANGE = new double[] { 14, 50 };
     private static boolean useSafety = true;
 
     @AutoLogOutput
-    private double armCharVoltage = 0;
+    private LoggedTunableNumber armCharVoltage = new LoggedTunableNumber("Arm Char Voltage", 0);
 
     @AutoLogOutput
-    private ArmisticePositions futureArmisticePositions = ArmisticePositions.Cora_L2;
+    private ArmisticePositions futureArmisticePositions = ArmisticePositions.Cora_L4;
 
     @AutoLogOutput
     private ArmisticePositions futureAutoAlgaePosition = ArmisticePositions.A2_lgae;
@@ -76,15 +77,14 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private int coralAquireOffset = 0;
 
+    private static final int SAFETY_TOLERANCE = 4;
+
     @AutoLogOutput
     private boolean coralReefAcquireOffset = false;
-
-    // private Map<String, Map<String, Map<String, Map<String, Double>>>>
-    // heatmapOffsets = new HashMap<>();
     private JSONObject heatmapOffset = null;
 
     private Map<ArmisticePositions, ArmisticePositions> positionsMap = Map.of(
-            ArmisticePositions.Cora_L1, ArmisticePositions.LOLI,
+            ArmisticePositions.Cora_L1, ArmisticePositions.GROND,
             ArmisticePositions.Cora_L2, ArmisticePositions.A2_lgae,
             ArmisticePositions.Cora_L3, ArmisticePositions.A3_lgae,
             ArmisticePositions.Cora_L4, ArmisticePositions.BARGE);
@@ -98,29 +98,29 @@ public class Armistice extends SudoSubsystem {
             "10oC", ArmisticePositions.A3_lgae);
 
     public static enum ArmisticePositions {
-        STOW(5.8, 5),
-        CLEAN(2.635, 23),
-        SHANK(2.635, 19),
-        Cora_L1(0.378, 0),
+        STOW(5.8 - 4, 5),
+        CLEAN(2.62 - 4 + 2 * Math.PI + 0.02 + Units.degreesToRadians(1), 9),
+        SHANK(2.62 - 4 + 2 * Math.PI, 7),
+        Cora_L1(0.378 - 4 + 2 * Math.PI, 0),
         Cora_L1_PIPE(0, 0),
-        Cora_L2(4.738, 0),
-        Cora_L2_SC(4.2, 0),
-        Cora_L2_PIPE(3.382, 15),
-        Cora_L2_PIPE_SC(0, 0),
-        Cora_L3(5.018, 11.011),
-        Cora_L3_SC(4.4, 11.011),
-        Cora_L3_PIPE(3.382, 31.55),
-        Cora_L3_PIPE_SC(0, 0),
-        Cora_L4(5.5, 33.008),
-        Cora_L4_SC(4.652, 33.008),
-        Cora_L4_PIPE(0, 0),
-        Cora_L4_PIPE_SC(0, 0),
-        A2_lgae(5.103, 7.149),
-        A3_lgae(5.103, 23.144),
-        LOLI(4.342, 1),
-        BARGE(5.77, 54),
-        CLIMB(0.439, 8.134),
-        CLIMB_2(0, 8.125),
+        Cora_L2(4.738 - 4, 0),
+        Cora_L2_SC(4.2 - 4, 0),
+        Cora_L2_PIPE(4.9 - 4, 0),
+        Cora_L2_PIPE_SC(4.2 - 4, 0),
+        Cora_L3(5.3 - 4, 8.011),
+        Cora_L3_SC(4.4 - 4, 8.011),
+        Cora_L3_PIPE(5.3 - 4, 16),
+        Cora_L3_PIPE_SC(4.09 - 4, 16),
+        Cora_L4(5.5 - Units.degreesToRadians(7) - 4, 31.008),
+        Cora_L4_SC(4.652 - 4, 31.008),
+        Cora_L4_PIPE(5.5 - 4, 40.01),
+        Cora_L4_PIPE_SC(4.29 - 4, 40.01),
+        A2_lgae(4.385 - 4, 7.009),
+        A3_lgae(4.247 - 4, 26),
+        GROND(3.602 - 4 + 2 * Math.PI, 0),
+        BARGE(5.367 - 4, 44),
+        CLIMB(0.439 - 4 + 2 * Math.PI, 8.134),
+        CLIMB_2(2 * Math.PI, 8.125),
         BARGE_ALT(1.515 - 0.52359878, 55);
 
         public final double armPositionRad;
@@ -141,6 +141,10 @@ public class Armistice extends SudoSubsystem {
             this.elevatorPositionInches = elevatorPositionInches;
             armOffsetRad = 0;
             elevatorOffsetInches = 0;
+        }
+
+        public boolean isSC() {
+            return name().contains("SC");
         }
 
         public boolean isPipe() {
@@ -177,6 +181,12 @@ public class Armistice extends SudoSubsystem {
                     return Cora_L3;
                 case Cora_L4_PIPE:
                     return Cora_L4;
+                case Cora_L2_PIPE_SC:
+                    return Cora_L2_SC;
+                case Cora_L3_PIPE_SC:
+                    return Cora_L3_SC;
+                case Cora_L4_PIPE_SC:
+                    return Cora_L4_SC;
                 default:
                     return this;
             }
@@ -192,6 +202,12 @@ public class Armistice extends SudoSubsystem {
                     return Cora_L3_PIPE;
                 case Cora_L4:
                     return Cora_L4_PIPE;
+                case Cora_L2_SC:
+                    return Cora_L2_PIPE_SC;
+                case Cora_L3_SC:
+                    return Cora_L3_PIPE_SC;
+                case Cora_L4_SC:
+                    return Cora_L4_PIPE_SC;
                 default:
                     return this;
             }
@@ -271,15 +287,11 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Command runArmVoltageForChar() {
-        return Commands.runOnce(() -> disarm.runMotor(Volts.of(armCharVoltage)), disarm);
+        return Commands.runOnce(() -> disarm.runMotor(Volts.of(armCharVoltage.get())), disarm);
     }
 
     public Command stopArm() {
         return Commands.runOnce(() -> disarm.runMotor(0), disarm);
-    }
-
-    public Command deltaArmCharVolts(double dVolts) {
-        return Commands.runOnce(() -> armCharVoltage += dVolts);
     }
 
     public void setSafety(boolean isSafe) {
@@ -378,10 +390,10 @@ public class Armistice extends SudoSubsystem {
             case Cora_L2_PIPE -> coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
             case Cora_L3, Cora_L3_PIPE -> ArmisticePositions.Cora_L4;
             case Cora_L4 -> ArmisticePositions.Cora_L1;
-            case LOLI -> ArmisticePositions.A2_lgae;
+            case GROND -> ArmisticePositions.A2_lgae;
             case A2_lgae -> ArmisticePositions.A3_lgae;
             case A3_lgae -> ArmisticePositions.BARGE;
-            case BARGE -> ArmisticePositions.LOLI;
+            case BARGE -> ArmisticePositions.GROND;
             default -> ArmisticePositions.STOW;
         }).ignoringDisable(true);
     }
@@ -394,8 +406,8 @@ public class Armistice extends SudoSubsystem {
             case Cora_L3_PIPE ->
                 coralReefAcquireOffset ? ArmisticePositions.Cora_L2_PIPE : ArmisticePositions.Cora_L2;
             case Cora_L4 -> coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
-            case LOLI -> ArmisticePositions.BARGE;
-            case A2_lgae -> ArmisticePositions.LOLI;
+            case GROND -> ArmisticePositions.BARGE;
+            case A2_lgae -> ArmisticePositions.GROND;
             case A3_lgae -> ArmisticePositions.A2_lgae;
             case BARGE -> ArmisticePositions.A3_lgae;
             default -> ArmisticePositions.STOW;
@@ -458,8 +470,8 @@ public class Armistice extends SudoSubsystem {
     }
 
     public boolean elevatorIsSafe() {
-        return MathUtils.inRange(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
-                && MathUtils.inRange(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]);
+        return MathUtils.inRangeWithTolerance(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1], SAFETY_TOLERANCE)
+                && MathUtils.inRangeWithTolerance(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1], SAFETY_TOLERANCE);
     }
 
     public Command stageArm(ArmisticePositions position) {
@@ -546,24 +558,27 @@ public class Armistice extends SudoSubsystem {
 
     @Override
     public void periodic() {
-        if (useSafety) {
-            elevatorWaiting = !disarmAtSafeDistance() && !elevatorIsSafe();
-            if (elevatorIsSafe() || (elevatorWaiting && summit.atTargetPosition().getAsBoolean())
-                    || disarmAtSafeDistance()) {
-                disarm.runToPosition(armTargetRad);
-                summit.runToPosition(
-                        elevatorWaiting ? MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
-                                : elevatorTargetInches);
+        if (Constants.USE_ARMISTICE_PID) {
+            if (useSafety) {
+                elevatorWaiting = !disarmAtSafeDistance() && !elevatorIsSafe();
+                if (elevatorIsSafe() || (elevatorWaiting && summit.withinRange(SAFETY_TOLERANCE))
+                        || disarmAtSafeDistance()) {
+                    disarm.runToPosition(armTargetRad);
+                    summit.runToPosition(
+                            elevatorWaiting
+                                    ? MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
+                                    : elevatorTargetInches);
+                } else {
+                    disarm.runToPosition(
+                            MathUtils.inRangeWithTolerance(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1], SAFETY_TOLERANCE)
+                                    ? armTargetRad
+                                    : disarm.getCurrentPosition());
+                    summit.runToPosition(MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]));
+                }
             } else {
-                disarm.runToPosition(
-                        MathUtils.inRange(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
-                                ? armTargetRad
-                                : disarm.getCurrentPosition());
-                summit.runToPosition(MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]));
+                disarm.runToPosition(armTargetRad);
+                summit.runToPosition(elevatorTargetInches);
             }
-        } else {
-            disarm.runToPosition(armTargetRad);
-            summit.runToPosition(elevatorTargetInches);
         }
     }
 

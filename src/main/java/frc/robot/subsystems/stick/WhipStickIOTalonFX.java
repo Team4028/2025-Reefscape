@@ -3,6 +3,7 @@ package frc.robot.subsystems.stick;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -21,6 +22,8 @@ public class WhipStickIOTalonFX implements WhipStickIO {
             .withEnableFOC(WhipStickConstants.TalonFX.USE_FOC);
     private final VoltageOut voltageControl = new VoltageOut(0)
             .withEnableFOC(WhipStickConstants.TalonFX.USE_FOC);
+
+    private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0);
 
     public WhipStickIOTalonFX() {
         motor.getConfigurator().apply(WhipStickConstants.TalonFX.CONFIG, 0.25);
@@ -46,5 +49,9 @@ public class WhipStickIOTalonFX implements WhipStickIO {
     @Override
     public void setVoltage(double volts) {
         motor.setControl(voltageControl.withOutput(volts));
+    }
+
+    public void setCurrent(double amps) {
+        motor.setControl(currentControl.withOutput(amps));
     }
 }

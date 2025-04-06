@@ -84,7 +84,7 @@ public class VisionUtil {
         sims.addAll(
                 poseSources.keySet().stream()
                         .<LimelightSim>map(l -> new LimelightSim(l,
-                                MathUtils.arrayGetSafe(robotToCameraTransforms, idx.getAndIncrement())
+                                MiscUtils.arrayGetSafe(robotToCameraTransforms, idx.getAndIncrement())
                                         .orElse(new Transform3d())))
                         .toList());
     }

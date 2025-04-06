@@ -4,8 +4,6 @@
 
 package frc.robot.util;
 
-import java.util.Optional;
-
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import lombok.experimental.UtilityClass;
 
@@ -20,6 +18,12 @@ public class MathUtils {
             return value;
     }
 
+    public static final double cyclic(double value, double peroid) {
+        while (value < 0)
+            value += peroid;
+        return value % peroid;
+    }
+
     public static final double get2dVelocity(ChassisSpeeds chassisSpeeds) {
         return Math.sqrt(chassisSpeeds.vxMetersPerSecond * chassisSpeeds.vxMetersPerSecond
                 + chassisSpeeds.vyMetersPerSecond * chassisSpeeds.vyMetersPerSecond);
@@ -29,18 +33,14 @@ public class MathUtils {
         return value.doubleValue() >= minInc.doubleValue() && value.doubleValue() <= maxInc.doubleValue();
     }
 
+    public static final <T extends Number> boolean inRangeWithTolerance(T value, T minInc, T maxInc, T tolerance) {
+        return value.doubleValue() + tolerance.doubleValue() >= minInc.doubleValue()
+                && value.doubleValue() - tolerance.doubleValue() <= maxInc.doubleValue();
+    }
+
     public static final double roundToPlace(double x, int place) {
         var pow10 = Math.pow(10, place);
         return Math.round(x * pow10) / pow10;
-    }
-
-    public static final <T> Optional<T> arrayGetSafe(T[] arr, int idx) {
-        return idx >= arr.length ? Optional.empty() : Optional.of(arr[idx]);
-    }
-
-    public static final <T> T printAndReturn(T value, String prefix, String suffix) {
-        System.out.println(prefix + value + suffix);
-        return value;
     }
 
     public static final int boolToInt(boolean b) {

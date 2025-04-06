@@ -65,6 +65,7 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import frc.robot.util.MathUtils;
 import frc.robot.util.VisionUtil;
 import lombok.experimental.ExtensionMethod;
@@ -115,9 +116,11 @@ public class Drive extends SubsystemBase {
     private final ProfiledPIDController xPid, yPid, rotPid;
     private int ll2dLineupTagID = 0;
 
+    private final LoggedTunableNumber branchOffsetM, coralScoreOffsetIn, algaeOffsetIn;
+
     public static final double PID_TRANSLATION_SPEED_MPS = 1.85;
     public static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
-    private static final double AUTON_PATH_CANCEL_RADIUS_M = 0.8;
+    private static final double AUTON_PATH_CANCEL_RADIUS_M = 1;
 
     @AutoLogOutput(key = "Odometry/ClosestReef")
     private Pose2d closestReef = new Pose2d();
@@ -131,6 +134,9 @@ public class Drive extends SubsystemBase {
 
     @AutoLogOutput
     private double pidErrorM = 0;
+
+    @AutoLogOutput
+    private double pidThetaR = 0;
 
     @AutoLogOutput
     private boolean inPidTranslate = false;
@@ -162,6 +168,12 @@ public class Drive extends SubsystemBase {
         modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
         modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
         modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+
+        branchOffsetM = new LoggedTunableNumber("Branch Offset (M)", Constants.TAG_TO_BRANCH_OFFSET_M);
+        coralScoreOffsetIn = new LoggedTunableNumber("Coral Scoring Offset (In)",
+                Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN);
+        algaeOffsetIn = new LoggedTunableNumber("Algae ACquire Offset (In)",
+                Constants.ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN);
 
         // Usage reporting for swerve template
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -349,9 +361,9 @@ public class Drive extends SubsystemBase {
                 nativePose.getRotation().minus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
         var invTrPose = nativePoseNativeRot
                 .transformBy(new Transform2d(0,
-                        ((reefTargetIsRight ? -Constants.TAG_TO_BRANCH_OFFSET_M : Constants.TAG_TO_BRANCH_OFFSET_M)
-                                + Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN))
-                                - Units.inchesToMeters(Constants.ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN),
+                        ((reefTargetIsRight ? -branchOffsetM.get() : branchOffsetM.get())
+                                + Units.inchesToMeters(coralScoreOffsetIn.get()))
+                                - Units.inchesToMeters(algaeOffsetIn.get()),
                         Rotation2d.kZero));
         return new Pose2d(invTrPose.getTranslation(), nativePose.getRotation());
     }
@@ -364,8 +376,8 @@ public class Drive extends SubsystemBase {
                 .findFirst().orElse(Limelight.field.getTags().get(0));
         Pose2d closestPose = closestTag.pose.toPose2d()
                 .transformBy(new Transform2d(Units.inchesToMeters(Constants.SCORING_SIDE_RADIUS_ROBOT_IN),
-                        ((reefTargetIsRight ? Constants.TAG_TO_BRANCH_OFFSET_M : -Constants.TAG_TO_BRANCH_OFFSET_M)
-                                - Units.inchesToMeters(Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN)),
+                        ((reefTargetIsRight ? branchOffsetM.get() : -branchOffsetM.get())
+                                - Units.inchesToMeters(coralScoreOffsetIn.get())),
                         Rotation2d.kZero));
         closestReefName = Constants.reefTagNames.get(closestTag.ID);
         closestReefTag = closestTag;
@@ -380,6 +392,13 @@ public class Drive extends SubsystemBase {
         var plusCoral = crPoseNativeRot
                 .transformBy(new Transform2d(Units.inchesToMeters(Constants.CORAL_DIAM_IN), 0, Rotation2d.kZero));
         return new Pose2d(plusCoral.getTranslation(), crPose.getRotation());
+    }
+
+    public Pose2d pipe1AlgaeClosestReefPose() {
+        var crPose = closestReefPoseAlgae();
+        var crPoseNativeRot = new Pose2d(crPose.getTranslation(), crPose.getRotation().minus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
+        var plosCoral = crPoseNativeRot.transformBy(new Transform2d(Units.inchesToMeters(Constants.CORAL_DIAM_IN), 0, Rotation2d.kZero));
+        return new Pose2d(plosCoral.getTranslation(), crPose.getRotation());
     }
 
     public Pose2d scoreTomahawkClosestReefPose() {
@@ -423,6 +442,7 @@ public class Drive extends SubsystemBase {
                         .relativeTo(new Pose2d(getPose().getTranslation(), new Rotation2d())).getTranslation()
                         .getNorm(),
                 0, (d) -> {
+                    pidThetaR = theta.getAsDouble();
                     inPidTranslate = true;
                     if (pidLineup.atSetpoint()) {
                         stop();
@@ -441,6 +461,7 @@ public class Drive extends SubsystemBase {
                 }, this).finallyDo(i -> {
                     inPidTranslate = false;
                     pidErrorM = 0;
+                    pidThetaR = 0;
                     pidLineup.reset();
                     angleController.reset();
                     stop();
@@ -457,7 +478,8 @@ public class Drive extends SubsystemBase {
 
     public Command waitForDrivetrainDistance(double posError) {
         return Commands.waitUntil(() -> {
-            return inPidTranslate && Math.abs(pidErrorM) <= posError;
+            return inPidTranslate && Math.abs(pidErrorM * Math.cos(pidThetaR)) <= posError
+                    && Math.abs(pidErrorM * Math.sin(pidThetaR)) <= Math.min(posError, Units.inchesToMeters(0.5)) && angleController.atSetpoint();
         });
     }
 
@@ -469,7 +491,7 @@ public class Drive extends SubsystemBase {
     }
 
     public BooleanSupplier translatePidInPositionJankier() {
-        return () -> pidLineup.getPositionError() <= 0.05 && angleController.atSetpoint();
+        return () -> pidLineup.getError() <= 0.05 && angleController.atSetpoint();
     }
 
     public DoubleSupplier get2dFilteredX() {

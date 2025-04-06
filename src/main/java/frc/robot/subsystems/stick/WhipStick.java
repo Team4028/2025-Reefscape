@@ -2,6 +2,7 @@ package frc.robot.subsystems.stick;
 
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
@@ -15,6 +16,7 @@ public class WhipStick extends SubsystemBase {
     private final WhipStickIOInputsAutoLogged inputs;
     private double targetVBus = 0.0;
     private final WhipStickStateTracker stateTracker;
+    private boolean isGettingAlgae = false;
     private Timer currentLimitTimer = new Timer();
 
     public WhipStick(WhipStickIO io) {
@@ -23,13 +25,23 @@ public class WhipStick extends SubsystemBase {
         stateTracker = new WhipStickStateTracker();
     }
 
-    public Command runMotorCommand(double vbus) {
+    public Command runMotorUnlimited(double vbus) {
         return runOnce(() -> {
             targetVBus = vbus;
+            isGettingAlgae = true;
             stateTracker.setStateVBus(vbus);
         });
     }
 
+    public Command runMotorCommand(double vbus) {
+        return runOnce(() -> {
+            targetVBus = vbus;
+            isGettingAlgae = false;
+            stateTracker.setStateVBus(vbus);
+        });
+    }
+
+    @AutoLogOutput
     public BooleanSupplier hasGamePieceSupplier() {
         return () -> stateTracker.hasCoral;
     }
@@ -54,13 +66,19 @@ public class WhipStick extends SubsystemBase {
     public void hold() {
         currentLimitTimer.stop();
         currentLimitTimer.reset();
-        io.setVoltage(0.0);
+        if (io instanceof WhipStickIOTalonFX iofx) {
+            iofx.setCurrent(50);
+        } else {
+            io.setVbus(0.95);
+        }
     }
 
     @CreateState("vbus_forward")
     public void infeedVBus() {
-        if (true//inputs.currentAmps < WhipStickConstants.STATOR_LIMIT
-                || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_SEC) {
+        if ((isGettingAlgae
+                && (inputs.currentAmps < 40 || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_SEC))
+                || (!isGettingAlgae && (inputs.currentAmps < WhipStickConstants.STATOR_LIMIT
+                        || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_SEC))) {
             currentLimitTimer.start();
             io.setVbus(targetVBus);
         } else {
@@ -68,7 +86,7 @@ public class WhipStick extends SubsystemBase {
             currentLimitTimer.reset();
             io.setVbus(0);
             stateTracker.hasCoral = true;
-            stateTracker.state = WhipStickStates.OFF;
+            stateTracker.state = isGettingAlgae ? WhipStickStates.HOLD : WhipStickStates.OFF;
         }
     }
 

@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
 import lombok.experimental.UtilityClass;
@@ -29,5 +30,14 @@ public class MiscUtils {
         }
 
         return barray;
+    }
+
+    public static final <T> Optional<T> arrayGetSafe(T[] arr, int idx) {
+        return idx >= arr.length ? Optional.empty() : Optional.of(arr[idx]);
+    }
+
+    public static final <T> T printAndReturn(T value, String prefix, String suffix) {
+        System.out.println(prefix + value + suffix);
+        return value;
     }
 }

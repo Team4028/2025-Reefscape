@@ -61,25 +61,6 @@
           }
         },
         {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SL-10ocL4-BC-8ocR4-BC-8ocR4.2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Run To Closest Right Reef"
@@ -117,25 +98,6 @@
           }
         },
         {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SL-10ocL4-BC-8ocR4-BC-8ocR4.4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Run To Closest Left Reef"
@@ -170,6 +132,18 @@
           "type": "named",
           "data": {
             "name": "Acquire Left"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SL-10ocL4-BC-8ocR4-BC-8ocR4.6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Left Reef"
           }
         }
       ]

@@ -15,7 +15,7 @@ import frc.robot.util.SysIDUtil;
 
 public class WhipStickConstants {
 
-    public static final double STATOR_LIMIT = 60;
+    public static final double STATOR_LIMIT = 30;
     public static final double GEARING = 1;
     public static final double CURRENT_LIMIT_DELAY_SEC = 0.5;
 
@@ -40,9 +40,9 @@ public class WhipStickConstants {
         public static final int CAN_ID = 17;
         public static final boolean USE_FOC = true;
         public static final MotorOutputConfigs CONFIG = new MotorOutputConfigs()
-                .withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast);
-        public static final CurrentLimitsConfigs CURR_LIMITS = new CurrentLimitsConfigs().withStatorCurrentLimit(80)
-                .withStatorCurrentLimitEnable(true);
+                .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Coast);
+        public static final CurrentLimitsConfigs CURR_LIMITS = new CurrentLimitsConfigs().withStatorCurrentLimit(50)
+                .withStatorCurrentLimitEnable(true).withSupplyCurrentLimitEnable(false);
     }
 
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();

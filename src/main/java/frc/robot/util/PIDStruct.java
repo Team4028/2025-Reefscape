@@ -16,6 +16,7 @@ import lombok.With;
 @With
 public record PIDStruct(double kP, double kI, double kD, double maxVel, double maxAccel, double maxJerk,
         double maxTourqueReverse, double maxTourqueForward, double kS, double kG, double kV, double kA) {
+            
     public PIDController makeController() {
         return new PIDController(kP, kI, kD);
     }

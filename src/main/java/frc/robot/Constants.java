@@ -12,21 +12,23 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
-    public static final boolean tuningMode = false;
-    public static final boolean disableHAL = false;
+    public static final boolean CHAR_MODE = false;
+    public static final boolean tuningMode = false || CHAR_MODE;
     public static final double ALGAE_RADIUS_M = 0.206375;
     public static final double ALGAE_WEIGHT_KG = 0.680389;
     public static final double CORAL_DIAM_IN = 4.5;
     public static final double BACKUP_DIST_IN = 12;
+
+    public static final boolean USE_ARMISTICE_PID = true && !CHAR_MODE;
 
     public static final int THE_BEST_NUMBER = 4028;
 
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
     public static final double TAG_TO_BRANCH_OFFSET_M = 0.17;
-    public static final double ARM_READY_AUTO_SCORE_RADIUS = 1.2;
+    public static final double ARM_READY_AUTO_SCORE_RADIUS = 1;
     public static final double SCORING_SIDE_RADIUS_ROBOT_IN = 18.25;
-    public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = -1.7;
+    public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = 2.4;
     public static final double ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN = 2.5;
     public static final double CORAL_STATION_LEFT_ROTATION_DEG = 36.86989764584399;
     public static final double CORAL_STATION_RIGHT_ROTATION_DEG = 146.0;

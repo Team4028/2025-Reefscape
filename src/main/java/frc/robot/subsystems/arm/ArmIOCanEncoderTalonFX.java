@@ -12,11 +12,11 @@ import com.reduxrobotics.sensors.canandmag.Canandmag;
 import com.reduxrobotics.sensors.canandmag.CanandmagFaults;
 import com.reduxrobotics.sensors.canandmag.CanandmagSettings;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.MathUtils;
 import frc.robot.util.MotorData;
 
 //...
@@ -87,7 +87,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     }
 
     public void initEncoder() {
-        motor.setPosition(canMag.getAbsPosition() * ArmConstants.GEAR_RATIO);
+        motor.setPosition(MathUtils.cyclic(canMag.getAbsPosition() - 0.6366, 1) * ArmConstants.GEAR_RATIO);
     }
 
     public double getRawEncoderPositon() {
@@ -103,7 +103,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     }
 
     public double getArmAngleRad() {
-        var rad = getEncoderPositionRad() - ArmConstants.PI_1_2 + Units.degreesToRadians(30);
+        var rad = getEncoderPositionRad() - 0.2;
         rad = rad > 0 ? rad : ArmConstants.PI_2 + rad;
         return rad;
     }

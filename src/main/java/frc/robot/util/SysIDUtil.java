@@ -5,8 +5,6 @@ import java.util.function.DoubleConsumer;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.SignalLogger;
-
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.State;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -16,13 +14,9 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class SysIDUtil {
-    private static final boolean USE_AK_LOGGER = false;
 
     public static void logSysIdState(State state) {
-        if (USE_AK_LOGGER)
-            Logger.recordOutput("test-mode", state.toString());
-        else
-            SignalLogger.writeString("test-mode", state.toString());
+        Logger.recordOutput("test-mode", state.toString());
     }
 
     public static SysIdRoutine.Config defaultConfig() {

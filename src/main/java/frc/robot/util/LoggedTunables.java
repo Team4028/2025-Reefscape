@@ -57,7 +57,7 @@ public class LoggedTunables {
             if (!hasDefault) {
                 hasDefault = true;
                 this.defaultValue = defaultValue;
-                if (Constants.tuningMode && !Constants.disableHAL) {
+                if (Constants.tuningMode) {
                     dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
                 }
             }
@@ -73,7 +73,7 @@ public class LoggedTunables {
             if (!hasDefault) {
                 return 0.0;
             } else {
-                return Constants.tuningMode && !Constants.disableHAL ? dashboardNumber.get() : defaultValue;
+                return Constants.tuningMode ? dashboardNumber.get() : defaultValue;
             }
         }
 
@@ -148,16 +148,14 @@ public class LoggedTunables {
             if (!hasDefault) {
                 hasDefault = true;
                 this.defaultValue = defaultValue;
-                if (!Constants.disableHAL) {
-                    dashBoolean = new LoggedNetworkBoolean(key, defaultValue);
-                }
+                dashBoolean = new LoggedNetworkBoolean(key, defaultValue);
             }
         }
 
         public boolean get() {
             if (!hasDefault)
                 return false;
-            return Constants.disableHAL ? defaultValue : dashBoolean.get();
+            return dashBoolean.get();
         }
 
         public boolean hasChanged(int id) {

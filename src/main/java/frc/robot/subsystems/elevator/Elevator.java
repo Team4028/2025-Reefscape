@@ -43,6 +43,10 @@ public class Elevator extends SubsystemBase {
                 - inputs.leaderPosition * ElevatorConstants.ROT_TO_IN) <= ElevatorConstants.PID_TOLERANCE;
     }
 
+    public boolean withinRange(double range) {
+        return Math.abs(targetPostitionInches - inputs.leaderPosition * ElevatorConstants.ROT_TO_IN) <= range;
+    }
+
     public void runMotorsVoltage(double volts) {
         targetVoltage = volts;
         stateTracker.setStateVoltage(volts);

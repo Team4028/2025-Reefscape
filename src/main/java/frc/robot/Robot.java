@@ -30,7 +30,6 @@ public class Robot extends LoggedRobot {
 
     public Robot() {
         robotContainer = new RobotContainer();
-        // SignalLogger.setPath("/media/sda1/ctre");
         Logger.recordMetadata("ProjectName", "2025-Reefscape");
         Logger.recordMetadata("TimeStamp", ZonedDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -88,7 +87,6 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
-        // SignalLogger.stop();
         robotContainer.disableArmisticeArm();
     }
 
@@ -118,9 +116,6 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-
-        // uncomment for use w/ sysid
-        // SignalLogger.start();
         robotContainer.periodicLL4IMU(true);
         Elastic.selectTab("Teleoperated");
     }
