@@ -3,6 +3,7 @@ plugins {
     id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "com.peterabeles.gversion" version "1.10.3"
     id "io.freefair.lombok" version "8.12.2.1"
+    id("com.github.gmazzo.buildconfig") version "5.6.2"
 }
 
 java {
@@ -11,6 +12,7 @@ java {
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
+def IS_FC = false
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -45,6 +47,24 @@ deploy {
                     directory = '/home/lvuser/deploy'
                     deleteOldFiles = false // Change to true to delete files on roboRIO that no
                                            // longer exist in deploy directory of this project
+                }
+            }
+        }
+    }
+}
+
+task setIsFieldCal {
+    IS_FC = project.hasProperty("fc") ? project.fc == "true" : false
+    println("Setting field cal to " + IS_FC)
+    buildConfig {
+        packageName("frc.robot")
+        buildConfigField(boolean, "FIELD_CAL", IS_FC)
+    }
+    doLast {
+        sourceSets {
+            main {
+                java {
+                    srcDirs += "$buildDir/generated/sources/buildConfig"
                 }
             }
         }
@@ -126,6 +146,7 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
+project.compileJava.dependsOn(setIsFieldCal)
 project.compileJava.dependsOn(createVersionFile)
 
 gversion {

@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -129,25 +128,27 @@ public class MagicSequencing {
 
     public static final Command magicGetAlgaeOnlyPID(Drive drive, Armistice armistice, WhipStick algae,
             Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition) {
-        return armistice
-                .runToPositionNoWait(acquirePosition.get(), drive.closestReefName(), drive.getReefTargetIsRight())
-                .alongWith(armistice.waitUntilThingsInTolerance(1, 0.3))
-                .alongWith(drive
+        return armistice.runToPositionNoWait(ArmisticePositions.STOW)
+                .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
+                .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
+                .andThen(armistice.runToPositionNoWait(acquirePosition.get()))
+                .andThen(armistice.waitUntilThingsInTolerance(3, 0.3).alongWith(drive.waitForDrivetrainDistance(0.5)))
+                .raceWith(drive
                         .translateToPositionWithPID(
                                 reefPosition.get()
-                                        .transformBy(new Transform2d(new Translation2d(-1, 0)
-                                                .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
-                        .raceWith(drive.waitForDrivetrainDistance(0.05)))
+                                        .transformBy(new Transform2d(new Translation2d(-0.35, 0)
+                                                .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero))))
                 .andThen(
-                        drive.translateToPositionWithPID(
-                                reefPosition.get()
-                                        .transformBy(new Transform2d(
-                                                new Translation2d(Units.inchesToMeters(Constants.CORAL_DIAM_IN + 2), 0)
-                                                        .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT),
-                                                Rotation2d.kZero)))
+                        drive.translateToPositionWithPID(reefPosition.get()
+                                .transformBy(new Transform2d(new Translation2d(Units.inchesToMeters(1), 0)
+                                        .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
+                                .alongWith(algae.runMotorCommandAlgae(0.95))
                                 .until(algae.hasGamePieceSupplier()))
-                .andThen(drive.runOnce(() -> drive.runVelocity(new ChassisSpeeds(0, -2, 0))).andThen(
-                        Commands.waitSeconds(0.3)).alongWith(armistice.nudgeCommand(0, Units.degreesToRadians(4))));
+                .andThen(drive.runVelocityAngle(() -> 0, () -> -2, () -> drive.getRotation()).withTimeout(0.3)
+                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)
+                                .alongWith(drive.runOnce(drive::stop).asProxy()))
+                        .andThen(armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))))
+                .finallyDo(() -> armistice.setSafety(true));
 
     }
 
@@ -162,10 +163,6 @@ public class MagicSequencing {
                         .until(drive.translatePidInPositionJankier()))
                 .andThen(magicScoreNoScoreReefOnlyPID(drive, armistice, coral, reefPosition, scorePosition)
                         .until(drive.translatePidInPosition()));
-        // .andThen(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
-        // .andThen(Commands.waitSeconds(0.2)
-        // .andThen(coral.runMotorCommand(-.4).repeatedly().withTimeout(.3))
-        // .andThen(coral.runMotorCommand(0))));
     }
 
     public static final Command magicScoreSuperCycleL4(Drive drive, Armistice armistice, WhipStick coral,

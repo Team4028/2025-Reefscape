@@ -57,6 +57,7 @@ public class ArmConstants {
     public static final double PI_1_2 = 0.5 * Math.PI;
     public static final double PI_3_2 = 1.5 * Math.PI;
     public static final double PI_2 = 2 * Math.PI;
+    public static final double ARM_ACCEL_W_ALGAE = 200;
 
     public static final PIDStruct pidConfig = new PIDStruct(4, 0, 0, 400, 400, 1600, 0, 0.15, 0.425, 0, 0, 0);
     // public static final PIDStruct pidConfig = new PIDStruct(4, 0, 0, 100, 200, 800, 0, 0, 0.3, 0.5, 0, 0);

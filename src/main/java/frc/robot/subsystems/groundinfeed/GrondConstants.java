@@ -10,7 +10,7 @@ public class GrondConstants {
         public static final int CAN_ID = 20;
         public static final boolean USE_FOC = true;
         public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
+                .withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
         public static final CurrentLimitsConfigs currLimits = new CurrentLimitsConfigs().withStatorCurrentLimit(60)
                 .withStatorCurrentLimitEnable(true).withSupplyCurrentLimitEnable(false);
     }

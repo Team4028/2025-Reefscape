@@ -23,15 +23,16 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIOCanEncoderTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SudoSubsystem;
-import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
 
@@ -57,9 +58,14 @@ public class Armistice extends SudoSubsystem {
     private boolean coralMode = true;
 
     @AutoLogOutput
+    private final BooleanSupplier algaeSafety;
+
+    @AutoLogOutput
     private boolean elevatorWaiting = true;
 
     private static final double[] ARM_SAFE_RANGE = new double[] { 14, 50 };
+    private static final double[] ARM_SAFE_RANGE_ALG = new double[] {
+            15 + Units.metersToInches(Constants.ALGAE_RADIUS_M) * 2, 50 };
     private static boolean useSafety = true;
 
     @AutoLogOutput
@@ -97,6 +103,9 @@ public class Armistice extends SudoSubsystem {
             "8oC", ArmisticePositions.A2_lgae,
             "10oC", ArmisticePositions.A3_lgae);
 
+    public static final double GLOBAL_ARM_OFFSET = Units.degreesToRadians(-2);
+    public static final double GLOBAL_ELEVATOR_OFFSET = 0;
+
     public static enum ArmisticePositions {
         STOW(5.8 - 4, 5),
         CLEAN(2.62 - 4 + 2 * Math.PI + 0.02 + Units.degreesToRadians(1), 9),
@@ -115,9 +124,10 @@ public class Armistice extends SudoSubsystem {
         Cora_L4_SC(4.652 - 4, 31.008),
         Cora_L4_PIPE(5.5 - 4, 40.01),
         Cora_L4_PIPE_SC(4.29 - 4, 40.01),
-        A2_lgae(4.385 - 4, 7.009),
+        A2_lgae(4.2 - 4, 10.009),
         A3_lgae(4.247 - 4, 26),
-        GROND(3.602 - 4 + 2 * Math.PI, 0),
+        GROND(3.602 - 4, 0),
+        PROC(-0.041, 0),
         BARGE(5.367 - 4, 44),
         CLIMB(0.439 - 4 + 2 * Math.PI, 8.134),
         CLIMB_2(2 * Math.PI, 8.125),
@@ -128,19 +138,19 @@ public class Armistice extends SudoSubsystem {
         public double armOffsetRad;
         public double elevatorOffsetInches;
 
+        private ArmisticePositions(double armPositionRad, double elevatorPositionInches) {
+            this.armPositionRad = armPositionRad + GLOBAL_ARM_OFFSET;
+            this.elevatorPositionInches = elevatorPositionInches + GLOBAL_ELEVATOR_OFFSET;
+            armOffsetRad = 0;
+            elevatorOffsetInches = 0;
+        }
+
         public double getElevatorPositionInches(double elevatorGlobalOffset) {
             return elevatorPositionInches + elevatorOffsetInches + elevatorGlobalOffset;
         }
 
         public double getArmPositionRad(double armGlobalOffset) {
             return armPositionRad + armOffsetRad + armGlobalOffset;
-        }
-
-        private ArmisticePositions(double armPositionRad, double elevatorPositionInches) {
-            this.armPositionRad = armPositionRad;
-            this.elevatorPositionInches = elevatorPositionInches;
-            armOffsetRad = 0;
-            elevatorOffsetInches = 0;
         }
 
         public boolean isSC() {
@@ -252,8 +262,11 @@ public class Armistice extends SudoSubsystem {
         }
     }
 
-    public Armistice() {
+    public Armistice(BooleanSupplier hasAlgae) {
         File offsetInput = new File(Filesystem.getDeployDirectory(), "HeatmapReefOffsets.json");
+        new Trigger(hasAlgae).onTrue(disarm.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
+                .onFalse(disarm.runOnce(() -> disarm.setArmAccel(ArmConstants.pidConfig.maxAccel())));
+        this.algaeSafety = hasAlgae;
         if (offsetInput.isFile()) {
             try {
                 String content = new String(Files.readAllBytes(Paths.get(offsetInput.getAbsolutePath())));
@@ -268,6 +281,11 @@ public class Armistice extends SudoSubsystem {
 
     public void getCanMagPosition() {
         disarm.getCanMagPosition();
+    }
+
+    public double[] getSafetyAlgaeCompensation() {
+        // return algaeSafety.getAsBoolean() ? ARM_SAFE_RANGE_ALG : ARM_SAFE_RANGE;
+        return ARM_SAFE_RANGE;
     }
 
     public void runArmVbus(double vbus) {
@@ -470,8 +488,9 @@ public class Armistice extends SudoSubsystem {
     }
 
     public boolean elevatorIsSafe() {
-        return MathUtils.inRangeWithTolerance(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1], SAFETY_TOLERANCE)
-                && MathUtils.inRangeWithTolerance(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1], SAFETY_TOLERANCE);
+        var safeR = getSafetyAlgaeCompensation();
+        return MathUtils.inRangeWithTolerance(summit.getCurrentPosition(), safeR[0], safeR[1], SAFETY_TOLERANCE)
+                && MathUtils.inRangeWithTolerance(elevatorTargetInches, safeR[0], safeR[1], SAFETY_TOLERANCE);
     }
 
     public Command stageArm(ArmisticePositions position) {
@@ -560,20 +579,22 @@ public class Armistice extends SudoSubsystem {
     public void periodic() {
         if (Constants.USE_ARMISTICE_PID) {
             if (useSafety) {
+                var safeR = getSafetyAlgaeCompensation();
                 elevatorWaiting = !disarmAtSafeDistance() && !elevatorIsSafe();
                 if (elevatorIsSafe() || (elevatorWaiting && summit.withinRange(SAFETY_TOLERANCE))
                         || disarmAtSafeDistance()) {
                     disarm.runToPosition(armTargetRad);
                     summit.runToPosition(
                             elevatorWaiting
-                                    ? MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1])
+                                    ? MathUtils.clamp(elevatorTargetInches, safeR[0], safeR[1])
                                     : elevatorTargetInches);
                 } else {
                     disarm.runToPosition(
-                            MathUtils.inRangeWithTolerance(summit.getCurrentPosition(), ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1], SAFETY_TOLERANCE)
-                                    ? armTargetRad
-                                    : disarm.getCurrentPosition());
-                    summit.runToPosition(MathUtils.clamp(elevatorTargetInches, ARM_SAFE_RANGE[0], ARM_SAFE_RANGE[1]));
+                            MathUtils.inRangeWithTolerance(summit.getCurrentPosition(), safeR[0], safeR[1],
+                                    SAFETY_TOLERANCE)
+                                            ? armTargetRad
+                                            : disarm.getCurrentPosition());
+                    summit.runToPosition(MathUtils.clamp(elevatorTargetInches, safeR[0], safeR[1]));
                 }
             } else {
                 disarm.runToPosition(armTargetRad);

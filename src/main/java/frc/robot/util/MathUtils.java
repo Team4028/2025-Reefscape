@@ -17,11 +17,16 @@ public class MathUtils {
         else
             return value;
     }
+    
+    public static double multOfPI(double mul) {
+        return Math.PI * mul;
+    }
 
     public static final double cyclic(double value, double peroid) {
-        while (value < 0)
-            value += peroid;
-        return value % peroid;
+        var tempVal = value;
+        while (tempVal < 0)
+            tempVal += peroid;
+        return tempVal % peroid;
     }
 
     public static final double get2dVelocity(ChassisSpeeds chassisSpeeds) {

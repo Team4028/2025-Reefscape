@@ -69,6 +69,12 @@ public class Arm extends SubsystemBase {
         stateTracker.state = ArmStates.POSITION;
     }
 
+    public void setArmAccel(double accel) {
+        if (io instanceof ArmIOCanEncoderTalonFX iocan) {
+            iocan.setArmAccel(accel);
+        }
+    }
+
     public void nudge(double amount) {
         targetPositionRad += amount;
         stateTracker.state = ArmStates.POSITION;

@@ -394,6 +394,7 @@ public class Drive extends SubsystemBase {
         return new Pose2d(plusCoral.getTranslation(), crPose.getRotation());
     }
 
+    @AutoLogOutput
     public Pose2d pipe1AlgaeClosestReefPose() {
         var crPose = closestReefPoseAlgae();
         var crPoseNativeRot = new Pose2d(crPose.getTranslation(), crPose.getRotation().minus(Constants.SCORING_SIDE_FROM_FRONT_ROT));

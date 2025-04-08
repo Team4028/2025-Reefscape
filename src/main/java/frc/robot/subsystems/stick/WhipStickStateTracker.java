@@ -1,12 +1,12 @@
 package frc.robot.subsystems.stick;
 
 public class WhipStickStateTracker {
-    public boolean hasCoral;
+    public boolean hasGP;
     public WhipStickStates state;
 
     public WhipStickStateTracker() {
         state = WhipStickStates.OFF;
-        hasCoral = false;
+        hasGP = false;
     }
 
     public void setStateVBus(double vbus) {

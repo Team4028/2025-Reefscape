@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public final class Constants {
-    public static final boolean CHAR_MODE = false;
+    public static final boolean CHAR_MODE = BuildConfig.FIELD_CAL;
     public static final boolean tuningMode = false || CHAR_MODE;
     public static final double ALGAE_RADIUS_M = 0.206375;
     public static final double ALGAE_WEIGHT_KG = 0.680389;
@@ -29,7 +29,7 @@ public final class Constants {
     public static final double ARM_READY_AUTO_SCORE_RADIUS = 1;
     public static final double SCORING_SIDE_RADIUS_ROBOT_IN = 18.25;
     public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = 2.4;
-    public static final double ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN = 2.5;
+    public static final double ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN = CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN;
     public static final double CORAL_STATION_LEFT_ROTATION_DEG = 36.86989764584399;
     public static final double CORAL_STATION_RIGHT_ROTATION_DEG = 146.0;
     public static final Rotation2d SCORING_SIDE_FROM_FRONT_ROT = Rotation2d.kCCW_Pi_2;
