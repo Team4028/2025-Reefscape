@@ -42,7 +42,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "WaitUntilCloseAcq"
+                  "name": "WaitUntilCloseAcqLoliLeft"
                 }
               }
             ]
@@ -57,7 +57,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Acquire Loli Left"
+            "name": "Acquire Left"
           }
         },
         {
@@ -98,7 +98,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "WaitUntilCloseAcq"
+                  "name": "WaitUntilCloseAcqLoliMid"
                 }
               }
             ]
@@ -113,7 +113,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Acquire Loli Mid"
+            "name": "Acquire Left"
           }
         },
         {
@@ -135,7 +135,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "WaitUntilCloseAcq"
+                  "name": "WaitUntilCloseAcqLoliRight"
                 }
               }
             ]
@@ -150,7 +150,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Loli Acquire Right"
+            "name": "Acquire Left"
           }
         },
         {

@@ -37,6 +37,9 @@ public final class Constants {
 
     public static final Pose2d AQUIRE_RIGHT_POS = new Pose2d(1.2825183868408203, 0.8288688659667969, Rotation2d.fromRadians(-0.6287963059722557));
     public static final Pose2d AQUIRE_LEFT_POS = new Pose2d(1.2929733991622925, 7.2203779220581055, Rotation2d.fromRadians(3.7805067024924734));
+    public static final Pose2d AQUIRE_LOLI_LEFT_POS = new Pose2d(1.2749271392822266, 5.844161510467529 , Rotation2d.fromRadians(4.7123889803846898576939650749193));
+    public static final Pose2d AQUIRE_LOLI_MID_POS = new Pose2d(1.0918461084365845, 3.990466833114624, Rotation2d.fromRadians(4.7123889803846898576939650749193));
+    public static final Pose2d AQUIRE_LOLI_RIGHT_POS = new Pose2d(1.2282840013504028, 2.1938467025756836, Rotation2d.fromRadians(-0.7853977870530993));
 
     public static final class Streams {
         public static final String SCORE_CAMERA = "http://photonvision.local:1186/stream.mjpg";

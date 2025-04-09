@@ -318,11 +318,29 @@ public class Drive extends SubsystemBase {
                 .getDistance(closestReefTag.pose.toPose2d().getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
     }
 
+    public BooleanSupplier driveCloseEnoughAcquireAutonLeftLoli() {
+        return () -> getPose().getTranslation().getDistance(
+                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_LEFT_POS.getTranslation())
+                        : Constants.AQUIRE_LOLI_LEFT_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
+    }
+    public BooleanSupplier driveCloseEnoughAcquireAutonMidLoli() {
+        return () -> getPose().getTranslation().getDistance(
+                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_MID_POS.getTranslation())
+                        : Constants.AQUIRE_LOLI_MID_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
+    }
+    public BooleanSupplier driveCloseEnoughAcquireAutonRightLoli() {
+        return () -> getPose().getTranslation().getDistance(
+                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_RIGHT_POS.getTranslation())
+                        : Constants.AQUIRE_LOLI_RIGHT_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
+    }
+
     public BooleanSupplier driveCloseEnoughAcquireAuton() {
         return () -> getPose().getTranslation().getDistance(
                 AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_RIGHT_POS.getTranslation())
                         : Constants.AQUIRE_RIGHT_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
     }
+
+
 
     /**
      * Runs the drive at the desired velocity.

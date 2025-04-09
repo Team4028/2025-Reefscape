@@ -194,6 +194,9 @@ public class RobotContainer {
                                 .alongWith(Commands.waitSeconds(0.15))
                                 .andThen(coral.runMotorCommand(0))));
         NamedCommands.registerCommand("WaitUntilClose", Commands.waitUntil(drive.driveCloseEnoughReefAuton()));
+        NamedCommands.registerCommand("WaitUntilCloseAcqLoliLeft", Commands.waitUntil(drive.driveCloseEnoughAcquireAutonLeftLoli()));
+        NamedCommands.registerCommand("WaitUntilCloseAcqLoliMid", Commands.waitUntil(drive.driveCloseEnoughAcquireAutonMidLoli()));
+        NamedCommands.registerCommand("WaitUntilCloseAcqLoliRight", Commands.waitUntil(drive.driveCloseEnoughAcquireAutonRightLoli()));
         NamedCommands.registerCommand("WaitUntilCloseAcq", Commands.waitUntil(drive.driveCloseEnoughAcquireAuton()));
         NamedCommands.registerCommand("Run To Closest Right Reef",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands.defer(this::runToClosestReef,
