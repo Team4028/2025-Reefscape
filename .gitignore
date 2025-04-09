@@ -159,6 +159,7 @@ src/main/java/frc/robot/BuildConstants.java
 .project
 .settings/
 bin/
+lib/
 
 # IntelliJ
 *.iml

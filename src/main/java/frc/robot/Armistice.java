@@ -118,13 +118,13 @@ public class Armistice extends SudoSubsystem {
         Cora_L2_PIPE_SC(4.2 - 4, 0),
         Cora_L3(5.3 - 4, 8.011),
         Cora_L3_SC(4.4 - 4, 8.011),
-        Cora_L3_PIPE(5.3 - 4, 16),
+        Cora_L3_PIPE(1.135, 16),
         Cora_L3_PIPE_SC(4.09 - 4, 16),
         Cora_L4(5.5 - Units.degreesToRadians(7) - 4, 31.008),
         Cora_L4_SC(4.652 - 4, 31.008),
         Cora_L4_PIPE(5.5 - 4, 40.01),
         Cora_L4_PIPE_SC(4.29 - 4, 40.01),
-        A2_lgae(4.2 - 4, 10.009),
+        A2_lgae(0.287 + Units.degreesToRadians(3), 8),
         A3_lgae(4.247 - 4, 26),
         GROND(3.602 - 4, 0),
         PROC(-0.041, 0),
@@ -264,8 +264,8 @@ public class Armistice extends SudoSubsystem {
 
     public Armistice(BooleanSupplier hasAlgae) {
         File offsetInput = new File(Filesystem.getDeployDirectory(), "HeatmapReefOffsets.json");
-        new Trigger(hasAlgae).onTrue(disarm.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
-                .onFalse(disarm.runOnce(() -> disarm.setArmAccel(ArmConstants.pidConfig.maxAccel())));
+        new Trigger(hasAlgae).onTrue(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
+                .onFalse(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.pidConfig.maxAccel())));
         this.algaeSafety = hasAlgae;
         if (offsetInput.isFile()) {
             try {
@@ -315,6 +315,29 @@ public class Armistice extends SudoSubsystem {
     public void setSafety(boolean isSafe) {
         useSafety = isSafe;
     }
+
+    // public boolean armTargetIsSafe() {
+    //     return ((Units.metersToInches(ArmConstants.ARM_LENGTH_METRES) + (algaeSafety.getAsBoolean()
+    //             ? Units.metersToInches(2 * Constants.ALGAE_RADIUS_M)
+    //             : 0)) * -Math.sin(armTargetRad)) < (12
+    //                     + summit.getCurrentPosition()) && armTargetClamp(disarm.getCurrentPosition()) == disarm.getCurrentPosition();
+    // }
+
+    // public double armTargetClamp(double targ) {
+    //     var ang = ArmConstants.PI_1_2 - Math.asin((12 + summit.getCurrentPosition())
+    //             / (Units.metersToInches(ArmConstants.ARM_LENGTH_METRES) + (algaeSafety.getAsBoolean()
+    //                     ? Units.metersToInches(2 * Constants.ALGAE_RADIUS_M)
+    //                     : 0)));
+    //     if (targ > 0) {
+    //         return Math.abs(ArmConstants.PI_3_2 - targ) < ang
+    //                 ? (targ > ArmConstants.PI_3_2 ? ArmConstants.PI_3_2 + ang : ArmConstants.PI_3_2 - ang)
+    //                 : targ;
+    //     } else {
+    //         return Math.abs(targ - ArmConstants.PI_1_2) < ang
+    //                 ? (targ < -ArmConstants.PI_1_2 ? -ang - ArmConstants.PI_1_2 : ang - ArmConstants.PI_1_2)
+    //                 : targ;
+    //     }
+    // }
 
     public boolean getSafety() {
         return useSafety;
@@ -406,8 +429,10 @@ public class Armistice extends SudoSubsystem {
             case Cora_L1 -> coralReefAcquireOffset ? ArmisticePositions.Cora_L2_PIPE : ArmisticePositions.Cora_L2;
             case Cora_L2 -> coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
             case Cora_L2_PIPE -> coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
-            case Cora_L3, Cora_L3_PIPE -> ArmisticePositions.Cora_L4;
+            case Cora_L3 -> coralReefAcquireOffset ? ArmisticePositions.Cora_L4_PIPE : ArmisticePositions.Cora_L4;
+            case Cora_L3_PIPE -> coralReefAcquireOffset ? ArmisticePositions.Cora_L4_PIPE : ArmisticePositions.Cora_L4;
             case Cora_L4 -> ArmisticePositions.Cora_L1;
+            case Cora_L4_PIPE -> ArmisticePositions.Cora_L1;
             case GROND -> ArmisticePositions.A2_lgae;
             case A2_lgae -> ArmisticePositions.A3_lgae;
             case A3_lgae -> ArmisticePositions.BARGE;
@@ -424,6 +449,7 @@ public class Armistice extends SudoSubsystem {
             case Cora_L3_PIPE ->
                 coralReefAcquireOffset ? ArmisticePositions.Cora_L2_PIPE : ArmisticePositions.Cora_L2;
             case Cora_L4 -> coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
+            case Cora_L4_PIPE -> coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
             case GROND -> ArmisticePositions.BARGE;
             case A2_lgae -> ArmisticePositions.GROND;
             case A3_lgae -> ArmisticePositions.A2_lgae;
@@ -636,15 +662,21 @@ public class Armistice extends SudoSubsystem {
         }
 
         if (coralReefAcquireOffset && (futureArmisticePositions == ArmisticePositions.Cora_L2
-                || futureArmisticePositions == ArmisticePositions.Cora_L3)) {
+                || futureArmisticePositions == ArmisticePositions.Cora_L3
+                || futureArmisticePositions == ArmisticePositions.Cora_L4)) {
             futureArmisticePositions = futureArmisticePositions == ArmisticePositions.Cora_L2
                     ? ArmisticePositions.Cora_L2_PIPE
-                    : ArmisticePositions.Cora_L3_PIPE;
+                    : futureArmisticePositions == ArmisticePositions.Cora_L3
+                            ? ArmisticePositions.Cora_L3_PIPE
+                            : ArmisticePositions.Cora_L4_PIPE;
         } else if (!coralReefAcquireOffset && (futureArmisticePositions == ArmisticePositions.Cora_L2_PIPE
-                || futureArmisticePositions == ArmisticePositions.Cora_L3_PIPE)) {
+                || futureArmisticePositions == ArmisticePositions.Cora_L3_PIPE
+                || futureArmisticePositions == ArmisticePositions.Cora_L4_PIPE)) {
             futureArmisticePositions = futureArmisticePositions == ArmisticePositions.Cora_L2_PIPE
                     ? ArmisticePositions.Cora_L2
-                    : ArmisticePositions.Cora_L3;
+                    : futureArmisticePositions == ArmisticePositions.Cora_L3_PIPE
+                            ? ArmisticePositions.Cora_L3
+                            : ArmisticePositions.Cora_L4;
         }
     }
 }

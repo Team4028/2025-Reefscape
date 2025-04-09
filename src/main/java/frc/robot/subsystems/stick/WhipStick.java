@@ -85,7 +85,7 @@ public class WhipStick extends SubsystemBase {
     @CreateState("vbus_forward")
     public void infeedVBus() {
         if ((isGettingAlgae
-                && (inputs.currentAmps < 60 || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_SEC))
+                && (inputs.currentAmps < 80 || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_SEC))
                 || (!isGettingAlgae && (inputs.currentAmps < WhipStickConstants.STATOR_LIMIT
                         || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_SEC))) {
             currentLimitTimer.start();
