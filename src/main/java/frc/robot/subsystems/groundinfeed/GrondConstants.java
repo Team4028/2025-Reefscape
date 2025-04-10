@@ -6,7 +6,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class GrondConstants {
-    public static final double STATOR_LIMIT = 60;
+    public static final double STATOR_LIMIT = 45;
     public static final double CURRENT_LIMIT_DELAY_SEC = 0.5;
 
     public static final class TalonFX {

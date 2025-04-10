@@ -3,6 +3,7 @@ package frc.robot.subsystems.groundinfeed;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -18,6 +19,7 @@ public class GrondIOTalonFX implements GrondIO {
 
     private final DutyCycleOut vbusControl = new DutyCycleOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
     private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
+    private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0);
 
     public GrondIOTalonFX() {
         motor.getConfigurator().apply(GrondConstants.TalonFX.motorConfigs);
@@ -43,5 +45,10 @@ public class GrondIOTalonFX implements GrondIO {
     @Override
     public void setVoltage(double voltage) {
         motor.setControl(voltageControl.withOutput(voltage));
+    }
+
+    @Override
+    public void setCurrent(double amps) {
+        motor.setControl(currentControl.withOutput(amps));
     }
 }

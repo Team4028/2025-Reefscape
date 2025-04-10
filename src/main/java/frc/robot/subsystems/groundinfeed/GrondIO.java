@@ -20,4 +20,7 @@ public interface GrondIO {
 
     public default void setVoltage(double voltage) {
     }
+
+    public default void setCurrent(double amps) {
+    }
 }

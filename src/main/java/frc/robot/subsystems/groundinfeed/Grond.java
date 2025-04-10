@@ -1,5 +1,7 @@
 package frc.robot.subsystems.groundinfeed;
 
+import java.util.function.BooleanSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
@@ -7,7 +9,6 @@ import com.bskd.annotations.CreateState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.infeedpivot.InfeedPivotStates;
 
 public class Grond extends SubsystemBase {
     private final GrondIO io;
@@ -20,6 +21,10 @@ public class Grond extends SubsystemBase {
     public Grond(GrondIO io) {
         this.io = io;
         inputs = new GrondIOInputsAutoLogged();
+    }
+
+    public BooleanSupplier hasGamepieceSupplier() {
+        return () -> hasCoral;
     }
 
     public Command runMotorCommand(double vbus) {
@@ -37,7 +42,6 @@ public class Grond extends SubsystemBase {
         } else {
             currentLimitTimer.stop();
             currentLimitTimer.reset();
-            io.setVbus(0);
             hasCoral = true;
             state = GrondStates.HOLD;
         }
@@ -56,7 +60,7 @@ public class Grond extends SubsystemBase {
     public void hold() {
         currentLimitTimer.stop();
         currentLimitTimer.reset();
-        io.setVbus(0.8);
+        io.setCurrent(15);
     }
 
     @CreateState("vbus_reverse")

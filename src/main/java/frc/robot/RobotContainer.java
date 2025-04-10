@@ -44,12 +44,13 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.groundinfeed.Grond;
 import frc.robot.subsystems.groundinfeed.GrondIOTalonFX;
+import frc.robot.subsystems.infeedpivot.InfeedPivot;
+import frc.robot.subsystems.infeedpivot.InfeedPivotEncoderIOCancoder;
+import frc.robot.subsystems.infeedpivot.InfeedPivotMotorIOTalonFX;
 import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.subsystems.limelight.LimelightConstants;
 import frc.robot.subsystems.limelight.LimelightIO;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
-import frc.robot.subsystems.singulator.Singulator;
-import frc.robot.subsystems.singulator.SingulatorIOTalonFX;
 import frc.robot.subsystems.stick.WhipStick;
 import frc.robot.subsystems.stick.WhipStickIOTalonFX;
 import frc.robot.util.MiscUtils;
@@ -68,8 +69,8 @@ public class RobotContainer {
     private final WhipStick coral = new WhipStickIOTalonFX().simSwitch();
     private final Armistice armistice = new Armistice(coral.hasAlgae());
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
-    private final Singulator sing = new Singulator(new SingulatorIOTalonFX());
     private final Grond infeed = new Grond(new GrondIOTalonFX());
+    private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFX(), new InfeedPivotEncoderIOCancoder());
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
     private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty()));
@@ -96,7 +97,7 @@ public class RobotContainer {
 
     private final Trigger magicAlgaeOn = new Trigger(armistice::getMagicAlgaeOn);
     private final Trigger hasGamePiece = new Trigger(
-            sing.hasGamepieceSupplier().and(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN));
+            infeed.hasGamepieceSupplier().and(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN));
 
     @AutoLogOutput
     private final Trigger supercycleIsL4 = new Trigger(
@@ -178,7 +179,8 @@ public class RobotContainer {
         // .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier()))
         // .andThen(coral.runMotorCommand(0))))
         // .unless(coral.hasGamePieceSupplier())));
-        NamedCommands.registerCommand("Acquire Left", Commands.waitSeconds(2).andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)));
+        NamedCommands.registerCommand("Acquire Left",
+                Commands.waitSeconds(2).andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)));
         NamedCommands.registerCommand("Acquire Run", Commands.none());
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
@@ -186,29 +188,36 @@ public class RobotContainer {
                                 .alongWith(Commands.waitSeconds(0.15))
                                 .andThen(coral.runMotorCommand(0))));
         NamedCommands.registerCommand("WaitUntilClose", Commands.waitUntil(drive.driveCloseEnoughReefAuton()));
-        NamedCommands.registerCommand("WaitUntilCloseAcqLoliLeft", Commands.waitUntil(drive.driveCloseEnoughAcquireAutonLeftLoli()));
-        NamedCommands.registerCommand("WaitUntilCloseAcqLoliMid", Commands.waitUntil(drive.driveCloseEnoughAcquireAutonMidLoli()));
-        NamedCommands.registerCommand("WaitUntilCloseAcqLoliRight", Commands.waitUntil(drive.driveCloseEnoughAcquireAutonRightLoli()));
+        NamedCommands.registerCommand("WaitUntilCloseAcqLoliLeft",
+                Commands.waitUntil(drive.driveCloseEnoughAcquireAutonLeftLoli()));
+        NamedCommands.registerCommand("WaitUntilCloseAcqLoliMid",
+                Commands.waitUntil(drive.driveCloseEnoughAcquireAutonMidLoli()));
+        NamedCommands.registerCommand("WaitUntilCloseAcqLoliRight",
+                Commands.waitUntil(drive.driveCloseEnoughAcquireAutonRightLoli()));
         NamedCommands.registerCommand("WaitUntilCloseAcq", Commands.waitUntil(drive.driveCloseEnoughAcquireAuton()));
         NamedCommands.registerCommand("Run To Closest Right Reef",
-                Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands.defer(this::runToClosestReefAuto,
-                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                Commands.runOnce(() -> drive.setReefTargetIsRight(true))
+                        .andThen(Commands.defer(this::runToClosestReefAuto,
+                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Right Reef DB",
-                Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands.defer(this::runToClosestReefAuto,
-                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                Commands.runOnce(() -> drive.setReefTargetIsRight(true))
+                        .andThen(Commands.defer(this::runToClosestReefAuto,
+                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Left Reef",
-                Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(this::runToClosestReefAuto,
-                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                Commands.runOnce(() -> drive.setReefTargetIsRight(false))
+                        .andThen(Commands.defer(this::runToClosestReefAuto,
+                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Left Reef DB",
-                Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(this::runToClosestReefAuto,
-                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                Commands.runOnce(() -> drive.setReefTargetIsRight(false))
+                        .andThen(Commands.defer(this::runToClosestReefAuto,
+                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("L4 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L4_PIPE));
         NamedCommands.registerCommand("Stow", armistice.runToPositionCommand(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Stow No Wait", armistice.runToPositionNoWait(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Acquire Pos",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.CLEAN)
-                        .alongWith(sing.runMotorCommand(0.55)));
+                        .alongWith(infeed.runMotorCommand(0.55)));
         NamedCommands.registerCommand("L3 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L3));
         NamedCommands.registerCommand("L2 Score",
@@ -320,12 +329,11 @@ public class RobotContainer {
         // ==============================================
         // DC -- LT: Infeed Coral
         // ==============================================
-        driverController.leftTrigger().whileTrue(sing.runMotorCommand(0.45).repeatedly())
-                .onFalse(sing.runMotorCommand(0))
-                .onTrue(infeed.runMotorCommand(0.8)).onFalse(infeed.runMotorCommand(0));
+        driverController.leftTrigger().whileTrue(pivot.runMotorCommand(0.1).repeatedly())
+                .onFalse(pivot.runMotorCommand(0));
 
-        driverController.leftBumper().onTrue(sing.runMotorCommand(-.5)).onTrue(infeed.runMotorCommand(-0.7))
-                .onFalse(sing.runMotorCommand(0)).onFalse(infeed.runMotorCommand(0));
+        driverController.leftBumper().onTrue(pivot.runMotorCommand(-.1))
+                .onFalse(pivot.runMotorCommand(0));
 
         hasGamePiece.onTrue(Commands.either(Commands.waitUntil(armistice.armAndElevatorAtTarget())
                 .andThen(armistice.runToPositionCommand(ArmisticePositions.SHANK)
@@ -433,8 +441,11 @@ public class RobotContainer {
         // ==============================================
         // OC -- A: Run To Manual Index Position
         // ==============================================
-        operatorController.a().onTrue(Commands.runOnce(() -> armistice.setSafety(false)).andThen(armistice.runToPositionCommand(ArmisticePositions.GROND, drive.closestReefName(),
-                drive.getReefTargetIsRight())).finallyDo(() -> armistice.setSafety(true)));
+        operatorController.a()
+                .onTrue(Commands.runOnce(() -> armistice.setSafety(false))
+                        .andThen(armistice.runToPositionCommand(ArmisticePositions.GROND, drive.closestReefName(),
+                                drive.getReefTargetIsRight()))
+                        .finallyDo(() -> armistice.setSafety(true)));
 
         // ==============================================
         // OC -- X: Run To Stow
@@ -581,7 +592,8 @@ public class RobotContainer {
     }
 
     private Command runToClosestReefAuto() {
-        return MagicSequencing.magicScoreNoDB(drive, armistice, coral, drive::pipe1ClosestReefPose, () -> ArmisticePositions.Cora_L4);
+        return MagicSequencing.magicScoreNoDB(drive, armistice, coral, drive::pipe1ClosestReefPose,
+                () -> ArmisticePositions.Cora_L4);
     }
 
     private Command magicSnapL1() {
