@@ -53,7 +53,7 @@ public class ElevatorConstants {
     public static final class TalonFX {
         public static final int LEADER_ID = 15, FOLLOWER_ID = 14;
 
-        public static final Slot0Configs pidConfigs = pidConstants.makeSlotConfigs(GravityTypeValue.Elevator_Static);
+        public static final Slot0Configs pidConfigs = pidConstants.makeSlot0Configs(GravityTypeValue.Elevator_Static);
         public static final MotionMagicConfigs mmConfigs = pidConstants.makeMMConfigs();
         public static final TorqueCurrentConfigs tcConfigs = pidConstants.makeTCConfigs();
 

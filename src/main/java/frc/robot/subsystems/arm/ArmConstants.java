@@ -36,7 +36,7 @@ public class ArmConstants {
         public static final int MOTOR_ID = 10;
         public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
-        public static final Slot0Configs pidConfigs = pidConfig.makeSlotConfigs(GravityTypeValue.Arm_Cosine);
+        public static final Slot0Configs pidConfigs = pidConfig.makeSlot0Configs(GravityTypeValue.Arm_Cosine);
         public static final MotionMagicConfigs mmConfigs = pidConfig.makeMMConfigs();
 
     }

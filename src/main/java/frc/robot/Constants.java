@@ -26,7 +26,7 @@ public final class Constants {
     public static final Mode simMode = Mode.SIM;
     public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
     public static final double TAG_TO_BRANCH_OFFSET_M = 0.17;
-    public static final double ARM_READY_AUTO_SCORE_RADIUS = 1;
+    public static final double ARM_READY_AUTO_SCORE_RADIUS = 1.2;
     public static final double SCORING_SIDE_RADIUS_ROBOT_IN = 18.25;
     public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = 2.4;
     public static final double ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN = CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN;

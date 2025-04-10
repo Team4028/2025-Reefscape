@@ -407,19 +407,9 @@
   "splits":[0,31,123,164,224,256,299]
  },
  "events":[
-   {"name":"Stow", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}},
    {"name":"Acquire Post 10oc", "from":{"target":1, "targetTimestamp":1.4933, "offset":{"exp":"0.3 s", "val":0.3}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
-   {"name":"Acquire 1", "from":{"target":2, "targetTimestamp":2.16068, "offset":{"exp":"0.3 s", "val":0.3}}, "event":{"type":"named", "data":{"name":"Acquire Run"}}},
-   {"name":"Stow Post Acquire 1", "from":{"target":4, "targetTimestamp":3.75934, "offset":{"exp":"0.1 s", "val":0.1}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Score R", "from":{"target":4, "targetTimestamp":3.75934, "offset":{"exp":"0.6 s", "val":0.6}}, "event":{"type":"named", "data":{"name":"L4 Score"}}},
    {"name":"Acquire 2", "from":{"target":5, "targetTimestamp":5.38908, "offset":{"exp":"0.3 s", "val":0.3}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
-   {"name":"Acquire 2", "from":{"target":5, "targetTimestamp":5.38908, "offset":{"exp":"0.3 s", "val":0.3}}, "event":{"type":"named", "data":{"name":"Acquire Run"}}},
-   {"name":"Stow Post Acquire 2", "from":{"target":7, "targetTimestamp":7.16834, "offset":{"exp":"0.1 s", "val":0.1}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Score L", "from":{"target":7, "targetTimestamp":7.16834, "offset":{"exp":"0.6 s", "val":0.6}}, "event":{"type":"named", "data":{"name":"L4 Score"}}},
-   {"name":"Score L Post Stow", "from":{"target":8, "targetTimestamp":8.7313, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Blip 1", "from":{"target":4, "targetTimestamp":3.75934, "offset":{"exp":"0.25 s", "val":0.25}}, "event":{"type":"named", "data":{"name":"Blip"}}},
-   {"name":"Blip 2", "from":{"target":7, "targetTimestamp":7.16834, "offset":{"exp":"0.25 s", "val":0.25}}, "event":{"type":"named", "data":{"name":"Blip"}}},
    {"name":"Last Acquire", "from":{"target":8, "targetTimestamp":8.7313, "offset":{"exp":"0.4 s", "val":0.4}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
-   {"name":"Last Acquire Run", "from":{"target":8, "targetTimestamp":8.7313, "offset":{"exp":"0.5 s", "val":0.5}}, "event":{"type":"named", "data":{"name":"Acquire Run"}}},
-   {"name":"Score 6ocR", "from":{"target":9, "targetTimestamp":10.52515, "offset":{"exp":"0.6 s", "val":0.6}}, "event":{"type":"named", "data":{"name":"L4 Score"}}}]
+   {"name":"Acquire Thing", "from":{"target":5, "targetTimestamp":5.38908, "offset":{"exp":"0.05 s", "val":0.05}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
+   {"name":"Acquire Thing 2", "from":{"target":8, "targetTimestamp":8.7313, "offset":{"exp":"0.05 s", "val":0.05}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}}]
 }

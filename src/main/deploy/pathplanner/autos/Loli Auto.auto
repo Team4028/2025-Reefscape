@@ -5,25 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Loli-Auto.0"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Run To Closest Right Reef"
@@ -37,12 +18,6 @@
                 "type": "path",
                 "data": {
                   "pathName": "Loli-Auto.1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcqLoliLeft"
                 }
               }
             ]
@@ -94,12 +69,6 @@
                 "data": {
                   "pathName": "Loli-Auto.3"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcqLoliMid"
-                }
               }
             ]
           }
@@ -130,12 +99,6 @@
                 "type": "path",
                 "data": {
                   "pathName": "Loli-Auto.5"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcqLoliRight"
                 }
               }
             ]
@@ -175,7 +138,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Right Reef"
+            "name": "Run To Closest Right Reef DB"
           }
         }
       ]
