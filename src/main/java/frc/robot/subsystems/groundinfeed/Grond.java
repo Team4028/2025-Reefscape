@@ -37,7 +37,12 @@ public class Grond extends SubsystemBase {
     @CreateState("vbus_forward")
     public void infeedVbus() {
         if (inputs.currentAmps < GrondConstants.STATOR_LIMIT || currentLimitTimer.get() <= GrondConstants.CURRENT_LIMIT_DELAY_SEC) {
-            currentLimitTimer.start();
+            if (inputs.currentAmps >= GrondConstants.STATOR_LIMIT) {
+                currentLimitTimer.start();
+            } else {
+                currentLimitTimer.stop();
+                currentLimitTimer.reset();
+            }
             io.setVbus(targetVbus);
         } else {
             currentLimitTimer.stop();
@@ -45,6 +50,10 @@ public class Grond extends SubsystemBase {
             hasCoral = true;
             state = GrondStates.HOLD;
         }
+    }
+
+    public void setHasCoral(boolean hasCoral) {
+        this.hasCoral = hasCoral;
     }
 
     @CreateState("off")

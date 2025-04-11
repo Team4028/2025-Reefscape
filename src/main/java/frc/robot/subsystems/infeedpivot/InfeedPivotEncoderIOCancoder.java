@@ -23,6 +23,7 @@ public class InfeedPivotEncoderIOCancoder implements InfeedPivotEncoderIO {
 
     @Override
     public void updateInputs(InfeedPivotEncoderIOInputs inputs) {
+        BaseStatusSignal.refreshAll(position, velocity);
         inputs.positionRad = position.getValueAsDouble() * ArmConstants.PI_2;
         inputs.velocityRad = velocity.getValueAsDouble() * ArmConstants.PI_2;
         inputs.connected = cancoder.isConnected();

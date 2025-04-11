@@ -7,6 +7,8 @@ package frc.robot;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -14,6 +16,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 public final class Constants {
     public static final boolean CHAR_MODE = BuildConfig.FIELD_CAL;
     public static final boolean tuningMode = false || CHAR_MODE;
+    public static final NeutralModeValue defaultMotorValue = CHAR_MODE ? NeutralModeValue.Coast : NeutralModeValue.Brake;
     public static final double ALGAE_RADIUS_M = 0.206375;
     public static final double ALGAE_WEIGHT_KG = 0.680389;
     public static final double CORAL_DIAM_IN = 4.5;

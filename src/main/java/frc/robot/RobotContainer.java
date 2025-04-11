@@ -47,6 +47,7 @@ import frc.robot.subsystems.groundinfeed.GrondIOTalonFX;
 import frc.robot.subsystems.infeedpivot.InfeedPivot;
 import frc.robot.subsystems.infeedpivot.InfeedPivotEncoderIOCancoder;
 import frc.robot.subsystems.infeedpivot.InfeedPivotMotorIOTalonFX;
+import frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions;
 import frc.robot.subsystems.limelight.Limelight;
 import frc.robot.subsystems.limelight.LimelightConstants;
 import frc.robot.subsystems.limelight.LimelightIO;
@@ -56,6 +57,7 @@ import frc.robot.subsystems.stick.WhipStickIOTalonFX;
 import frc.robot.util.MiscUtils;
 import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
+import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({ frc.robot.util.RobotSim.class, frc.robot.commands.DriveCommands.class, MiscUtils.class })
@@ -70,7 +72,8 @@ public class RobotContainer {
     private final Armistice armistice = new Armistice(coral.hasAlgae());
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
     private final Grond infeed = new Grond(new GrondIOTalonFX());
-    private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFX(), new InfeedPivotEncoderIOCancoder());
+    private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFX(),
+            new InfeedPivotEncoderIOCancoder());
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
     private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty()));
@@ -95,9 +98,9 @@ public class RobotContainer {
     @AutoLogOutput
     private boolean isSuperCycle = false;
 
-    private final Trigger magicAlgaeOn = new Trigger(armistice::getMagicAlgaeOn);
     private final Trigger hasGamePiece = new Trigger(
-            infeed.hasGamepieceSupplier().and(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN));
+            infeed.hasGamepieceSupplier().and(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN)
+                    .and(pivot.isUp().not()));
 
     @AutoLogOutput
     private final Trigger supercycleIsL4 = new Trigger(
@@ -122,7 +125,10 @@ public class RobotContainer {
     private final CommandXboxController emergencyController = new CommandXboxController(
             OperatorConstants.kEmergencyControllerPort);
 
+    private final LoggedTunableNumber ipVbusChar = new LoggedTunableNumber("Infeed Pivot Char Vbus", 0);
+
     public RobotContainer() {
+        pivot.zero();
         drive.setPose(new Pose2d(drive.getPose().getTranslation(),
                 DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                         ? Rotation2d.kZero
@@ -329,18 +335,18 @@ public class RobotContainer {
         // ==============================================
         // DC -- LT: Infeed Coral
         // ==============================================
-        driverController.leftTrigger().whileTrue(pivot.runMotorCommand(0.1).repeatedly())
-                .onFalse(pivot.runMotorCommand(0));
+        driverController.leftTrigger().onTrue(infeed.runMotorCommand(.8))
+                .onFalse(infeed.runMotorCommand(0));
 
-        driverController.leftBumper().onTrue(pivot.runMotorCommand(-.1))
-                .onFalse(pivot.runMotorCommand(0));
+        // driverController.leftBumper().onTrue(infeed.runMotorCommand(-.5))
+        // .onFalse(infeed.runMotorCommand(0));
+        driverController.leftBumper().onTrue(Commands.either(pivot.runDown(), pivot.runUp(), pivot.isUp()));
 
-        hasGamePiece.onTrue(Commands.either(Commands.waitUntil(armistice.armAndElevatorAtTarget())
-                .andThen(armistice.runToPositionCommand(ArmisticePositions.SHANK)
-                        .alongWith(coral.runMotorCommand(0.3)))
-                .andThen(armistice.waitUntilThingsInTolerance(0.5, 0.1)).andThen(
-                        armistice.runToPositionCommand(ArmisticePositions.STOW)
-                                .alongWith(coral.runMotorCommand(0)))
+        hasGamePiece.onTrue(Commands.either(armistice.waitUntilThingsInTolerance(1, 0.1)
+                .andThen(pivot.runUp()).alongWith(coral.runMotorCommand(0.5))
+                .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
+                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
+                        Commands.runOnce(() -> infeed.setHasCoral(false)).alongWith(infeed.runMotorCommand(0))))
                 .asProxy(), Commands.none(), DriverStation::isTeleop));
 
         // ==============================================
@@ -436,7 +442,7 @@ public class RobotContainer {
         operatorController.y()
                 .onTrue(Commands.defer(() -> armistice.runToPositionCommand(ArmisticePositions.CLEAN,
                         drive.closestReefName(), drive.getReefTargetIsRight()),
-                        Set.of(armistice.getArm(), armistice.getElevator())).onlyIf(coral.hasAlgae().not()));
+                        Set.of(armistice.getArm(), armistice.getElevator())).onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- A: Run To Manual Index Position
@@ -478,6 +484,12 @@ public class RobotContainer {
                     .whileTrue(armistice.sysIDCommandElevator(() -> true, () -> Direction.kReverse));
             emergencyController.start().onTrue(armistice.runArmVoltageForChar());
             emergencyController.back().onTrue(armistice.stopArm());
+            emergencyController.rightBumper()
+                    .onTrue(Commands.defer(() -> pivot.runMotorCommand(ipVbusChar.get()), Set.of(pivot)))
+                    .onFalse(pivot.runMotorCommand(0));
+            emergencyController.b().onTrue(pivot.runToPositionCommand(InfeedPivotPositions.UP.posRad));
+            emergencyController.x().onTrue(pivot.runMotorCommand(-0.2));
+            emergencyController.leftTrigger().onTrue(pivot.runToPositionCommand(InfeedPivotPositions.HANDOFF.posRad));
         } else {
             // ==============================================
             // EC -- DPAD: Global Nudges

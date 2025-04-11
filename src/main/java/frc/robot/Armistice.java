@@ -108,7 +108,7 @@ public class Armistice extends SudoSubsystem {
 
     public static enum ArmisticePositions {
         STOW(5.8 - 4, 5),
-        CLEAN(2.62 - 4 + 2 * Math.PI + 0.02 + Units.degreesToRadians(1), 9),
+        CLEAN(3.902 + Units.degreesToRadians(2), 4.017),
         SHANK(2.62 - 4 + 2 * Math.PI, 7),
         Cora_L1(0.378 - 4 + 2 * Math.PI, 0),
         Cora_L1_PIPE(0, 0),
@@ -317,26 +317,31 @@ public class Armistice extends SudoSubsystem {
     }
 
     // public boolean armTargetIsSafe() {
-    //     return ((Units.metersToInches(ArmConstants.ARM_LENGTH_METRES) + (algaeSafety.getAsBoolean()
-    //             ? Units.metersToInches(2 * Constants.ALGAE_RADIUS_M)
-    //             : 0)) * -Math.sin(armTargetRad)) < (12
-    //                     + summit.getCurrentPosition()) && armTargetClamp(disarm.getCurrentPosition()) == disarm.getCurrentPosition();
+    // return ((Units.metersToInches(ArmConstants.ARM_LENGTH_METRES) +
+    // (algaeSafety.getAsBoolean()
+    // ? Units.metersToInches(2 * Constants.ALGAE_RADIUS_M)
+    // : 0)) * -Math.sin(armTargetRad)) < (12
+    // + summit.getCurrentPosition()) && armTargetClamp(disarm.getCurrentPosition())
+    // == disarm.getCurrentPosition();
     // }
 
     // public double armTargetClamp(double targ) {
-    //     var ang = ArmConstants.PI_1_2 - Math.asin((12 + summit.getCurrentPosition())
-    //             / (Units.metersToInches(ArmConstants.ARM_LENGTH_METRES) + (algaeSafety.getAsBoolean()
-    //                     ? Units.metersToInches(2 * Constants.ALGAE_RADIUS_M)
-    //                     : 0)));
-    //     if (targ > 0) {
-    //         return Math.abs(ArmConstants.PI_3_2 - targ) < ang
-    //                 ? (targ > ArmConstants.PI_3_2 ? ArmConstants.PI_3_2 + ang : ArmConstants.PI_3_2 - ang)
-    //                 : targ;
-    //     } else {
-    //         return Math.abs(targ - ArmConstants.PI_1_2) < ang
-    //                 ? (targ < -ArmConstants.PI_1_2 ? -ang - ArmConstants.PI_1_2 : ang - ArmConstants.PI_1_2)
-    //                 : targ;
-    //     }
+    // var ang = ArmConstants.PI_1_2 - Math.asin((12 + summit.getCurrentPosition())
+    // / (Units.metersToInches(ArmConstants.ARM_LENGTH_METRES) +
+    // (algaeSafety.getAsBoolean()
+    // ? Units.metersToInches(2 * Constants.ALGAE_RADIUS_M)
+    // : 0)));
+    // if (targ > 0) {
+    // return Math.abs(ArmConstants.PI_3_2 - targ) < ang
+    // ? (targ > ArmConstants.PI_3_2 ? ArmConstants.PI_3_2 + ang :
+    // ArmConstants.PI_3_2 - ang)
+    // : targ;
+    // } else {
+    // return Math.abs(targ - ArmConstants.PI_1_2) < ang
+    // ? (targ < -ArmConstants.PI_1_2 ? -ang - ArmConstants.PI_1_2 : ang -
+    // ArmConstants.PI_1_2)
+    // : targ;
+    // }
     // }
 
     public boolean getSafety() {

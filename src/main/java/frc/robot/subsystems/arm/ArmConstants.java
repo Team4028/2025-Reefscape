@@ -5,7 +5,6 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -13,6 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.util.PIDStruct;
 import frc.robot.util.SysIDUtil;
 
@@ -35,7 +35,7 @@ public class ArmConstants {
     public static class TalonFX {
         public static final int MOTOR_ID = 10;
         public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
+                .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(Constants.defaultMotorValue);
         public static final Slot0Configs pidConfigs = pidConfig.makeSlot0Configs(GravityTypeValue.Arm_Cosine);
         public static final MotionMagicConfigs mmConfigs = pidConfig.makeMMConfigs();
 

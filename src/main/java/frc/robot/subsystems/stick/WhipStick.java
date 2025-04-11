@@ -21,6 +21,7 @@ public class WhipStick extends SubsystemBase {
     private final WhipStickStateTracker stateTracker;
     private boolean isGettingAlgae = false;
     private Timer currentLimitTimer = new Timer();
+    private Timer coralHoldTimer = new Timer();
 
     public WhipStick(WhipStickIO io) {
         this.io = io;
@@ -64,15 +65,21 @@ public class WhipStick extends SubsystemBase {
 
     @CreateState("off")
     public void stop() {
-        if (stateTracker.hasGP)
+        if (isGettingAlgae)
             stateTracker.state = WhipStickStates.HOLD;
         io.setVbus(0);
         currentLimitTimer.stop();
         currentLimitTimer.reset();
+        coralHoldTimer.stop();
+        coralHoldTimer.reset();
     }
 
     @CreateState("hold")
     public void hold() {
+        if (coralHoldTimer.get() >= 1) {
+            stateTracker.state = WhipStickStates.OFF;
+            targetVBus = 0;
+        }
         currentLimitTimer.stop();
         currentLimitTimer.reset();
         if (io instanceof WhipStickIOTalonFX iofx) {
@@ -95,7 +102,11 @@ public class WhipStick extends SubsystemBase {
             currentLimitTimer.reset();
             io.setVbus(0);
             stateTracker.hasGP = true;
-            stateTracker.state = isGettingAlgae ? WhipStickStates.HOLD : WhipStickStates.OFF;
+            stateTracker.state = WhipStickStates.HOLD;
+            if (stateTracker.hasGP && !isGettingAlgae) {
+                coralHoldTimer.reset();
+                coralHoldTimer.start();
+            }
         }
     }
 
@@ -103,6 +114,8 @@ public class WhipStick extends SubsystemBase {
     public void outfeedVBus() {
         currentLimitTimer.stop();
         currentLimitTimer.reset();
+        coralHoldTimer.stop();
+        coralHoldTimer.reset();
         io.setVbus(targetVBus);
         stateTracker.hasGP = false;
     }

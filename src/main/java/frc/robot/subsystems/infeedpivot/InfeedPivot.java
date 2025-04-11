@@ -1,8 +1,14 @@
 package frc.robot.subsystems.infeedpivot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.arm.ArmConstants;
+import frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions;
+
 import static frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions.*;
+
+import java.util.function.BooleanSupplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -15,6 +21,7 @@ public class InfeedPivot extends SubsystemBase {
     private final InfeedPivotEncoderIOInputsAutoLogged encoderInputs;
     private double targetVbus = 0;
     private double targetPositionRad = UP.posRad;
+    private boolean up = true;
     private InfeedPivotStates state = InfeedPivotStates.OFF;
 
     public InfeedPivot(InfeedPivotMotorIO motorIO, InfeedPivotEncoderIO encoderIO) {
@@ -26,10 +33,23 @@ public class InfeedPivot extends SubsystemBase {
         motorIO.zeroPosition(encoderInputs.positionRad);
     }
 
+    public Command runUp() {
+        return runToPositionCommand(InfeedPivotPositions.UP.posRad).alongWith(Commands.runOnce(() -> up = true));
+    }
+
+    public Command runDown() {
+        return runMotorCommand(-0.2).alongWith(Commands.runOnce(() -> up = false));
+    }
+
+    public BooleanSupplier isUp() {
+        return () -> up;
+    }
+
     public Command runMotorCommand(double vbus) {
         return runOnce(() -> {
             targetVbus = vbus;
-            state = vbus > 0 ? InfeedPivotStates.VBUS_FORWARD : (vbus < 0 ? InfeedPivotStates.VBUS_REVERSE : InfeedPivotStates.OFF);
+            state = vbus > 0 ? InfeedPivotStates.VBUS_FORWARD
+                    : (vbus < 0 ? InfeedPivotStates.VBUS_REVERSE : InfeedPivotStates.OFF);
         });
     }
 
@@ -58,6 +78,11 @@ public class InfeedPivot extends SubsystemBase {
     @CreateState("vbus_reverse")
     @CreateState("off")
     public void runTargetVbus() {
+        if ((motorInputs.positionRad / ArmConstants.PI_2 * InfeedPivotConstants.GEAR_RATIO)
+                - 1 < InfeedPivotConstants.TalonFX.softLimits.ReverseSoftLimitThreshold) {
+            targetVbus = 0;
+            state = InfeedPivotStates.OFF;
+        }
         motorIO.setVBus(targetVbus);
     }
 
