@@ -129,7 +129,7 @@ public class Armistice extends SudoSubsystem {
         GROND(3.602 - 4, 0),
         PROC(-0.041, 0),
         BARGE(5.367 - 4, 44),
-        CLIMB(0.439 - 4 + 2 * Math.PI, 8.134),
+        CLIMB(3.902 + Units.degreesToRadians(2), 4.017), // negative version of this
         CLIMB_2(2 * Math.PI, 8.125),
         BARGE_ALT(1.515 - 0.52359878, 55);
 
