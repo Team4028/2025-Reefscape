@@ -2,16 +2,9 @@ package frc.robot.subsystems.infeedpivot;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -34,7 +27,7 @@ public class InfeedPivotConstants {
         }
     }
 
-    public static final PIDStruct pidConfig = new PIDStruct(2, 0, 0, 16, 32, 32, 0, 0, 0.065, 1.7, 0, 0);
+    public static final PIDStruct pidConfig = new PIDStruct(2, 0, 0, 64, 128, 256, 0, 0, 0.065, 1.7, 0, 0);
     // public static final PIDStruct pid2Config = new PIDStruct(1, 0, 0, 40, 80, 320, 0, 0, 0, 0, 0, 0);
 
     public static final class TalonFX {

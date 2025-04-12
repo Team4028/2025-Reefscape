@@ -110,8 +110,8 @@ public class Armistice extends SudoSubsystem {
         STOW(5.8 - 4, 5),
         CLEAN(3.902 + Units.degreesToRadians(2), 4.017),
         SHANK(2.62 - 4 + 2 * Math.PI, 7),
-        Cora_L1(0.378 - 4 + 2 * Math.PI, 0), // 3.78
-        Cora_L1_PIPE(0, 0),
+        Cora_L1(-0.477 + Units.degreesToRadians(8), 11.015),
+        Cora_L1_PIPE(-0.477 + Units.degreesToRadians(8), 11.015),
         Cora_L2(4.738 - 4, 0),
         Cora_L2_SC(4.2 - 4, 0),
         Cora_L2_PIPE(0.926 + Units.degreesToRadians(2), 0),
@@ -129,9 +129,9 @@ public class Armistice extends SudoSubsystem {
         GROND(3.602 - 4, 0),
         PROC(-0.041, 0),
         BARGE(2.373 + Units.degreesToRadians(2), 44),
+        BARGE_INTERMEDIATE(1.8, 42),
         CLIMB(3.902 + Units.degreesToRadians(2), 4.017), // negative version of this
-        CLIMB_2(2 * Math.PI, 8.125),
-        BARGE_ALT(1.515 - 0.52359878, 55);
+        CLIMB_2(2 * Math.PI, 8.125);
 
         public final double armPositionRad;
         public final double elevatorPositionInches;
@@ -321,23 +321,35 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Command runToPositionCommand(ArmisticePositions position) {
-        return Commands.runOnce(() -> {
-            targetArmisticePosition = position;
-            elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
-            armTargetRad = position.getArmPositionRad(globalArmOffsetRad);
-        }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
+        return runToPositionUnsafe(ArmisticePositions.BARGE_INTERMEDIATE).andThen(waitUntilThingsInTolerance(1, 0.3))
+                .onlyIf(() -> targetArmisticePosition == ArmisticePositions.BARGE && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                    targetArmisticePosition = position;
+                    elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
+                    armTargetRad = position.getArmPositionRad(globalArmOffsetRad);
+                }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget())));
     }
 
     public Command runToPositionCommand(ArmisticePositions position, String closestReefName, boolean isRight) {
-        return Commands.runOnce(() -> {
-            targetArmisticePosition = position;
-            double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
-            elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches) + jsonOffsets[0];
-            armTargetRad = position.getArmPositionRad(globalArmOffsetRad) + jsonOffsets[1];
-        }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget()));
+        return runToPositionUnsafe(ArmisticePositions.BARGE_INTERMEDIATE).andThen(waitUntilThingsInTolerance(1, 0.3))
+                .onlyIf(() -> targetArmisticePosition == ArmisticePositions.BARGE && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                    targetArmisticePosition = position;
+                    double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
+                    elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches)
+                            + jsonOffsets[0];
+                    armTargetRad = position.getArmPositionRad(globalArmOffsetRad) + jsonOffsets[1];
+                }, summit, disarm).alongWith(Commands.waitUntil(armAndElevatorAtTarget())));
     }
 
     public Command runToPositionNoWait(ArmisticePositions position) {
+        return runToPositionUnsafe(ArmisticePositions.BARGE_INTERMEDIATE).andThen(waitUntilThingsInTolerance(1, 0.3))
+                .onlyIf(() -> targetArmisticePosition == ArmisticePositions.BARGE && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                    targetArmisticePosition = position;
+                    elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
+                    armTargetRad = position.getArmPositionRad(globalArmOffsetRad);
+                }, summit, disarm));
+    }
+
+    private Command runToPositionUnsafe(ArmisticePositions position) {
         return Commands.runOnce(() -> {
             targetArmisticePosition = position;
             elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
@@ -346,12 +358,14 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Command runToPositionNoWait(ArmisticePositions position, String closestReefName, boolean isRight) {
-        return Commands.runOnce(() -> {
-            targetArmisticePosition = position;
-            double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
-            elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches) + jsonOffsets[0];
-            armTargetRad = position.getArmPositionRad(globalArmOffsetRad) + jsonOffsets[1];
-        }, summit, disarm);
+        return runToPositionUnsafe(ArmisticePositions.BARGE_INTERMEDIATE).andThen(waitUntilThingsInTolerance(1, 0.3))
+                .onlyIf(() -> targetArmisticePosition == ArmisticePositions.BARGE && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                    targetArmisticePosition = position;
+                    double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
+                    elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches)
+                            + jsonOffsets[0];
+                    armTargetRad = position.getArmPositionRad(globalArmOffsetRad) + jsonOffsets[1];
+                }, summit, disarm));
     }
 
     public Command nudgeCommand(double elevatorInches, double armRad) {
