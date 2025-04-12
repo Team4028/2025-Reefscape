@@ -2,6 +2,7 @@ package frc.robot.subsystems.groundinfeed;
 
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
@@ -12,17 +13,22 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Grond extends SubsystemBase {
     private final GrondIO io;
+    private final GrondTOFIO tokio;
     private final GrondIOInputsAutoLogged inputs;
+    private final GrondTOFIOInputsAutoLogged tofInputs;
     private double targetVbus = 0.0;
     private GrondStates state = GrondStates.OFF;
     private boolean hasCoral = false;
     private Timer currentLimitTimer = new Timer();
 
-    public Grond(GrondIO io) {
+    public Grond(GrondIO io, GrondTOFIO tofIo) {
         this.io = io;
+        this.tokio = tofIo;
         inputs = new GrondIOInputsAutoLogged();
+        tofInputs = new GrondTOFIOInputsAutoLogged();
     }
 
+    @AutoLogOutput
     public BooleanSupplier hasGamepieceSupplier() {
         return () -> hasCoral;
     }
@@ -36,7 +42,7 @@ public class Grond extends SubsystemBase {
 
     @CreateState("vbus_forward")
     public void infeedVbus() {
-        if (inputs.currentAmps < GrondConstants.STATOR_LIMIT || currentLimitTimer.get() <= GrondConstants.CURRENT_LIMIT_DELAY_SEC) {
+        if (tofInputs.range > GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH/*inputs.currentAmps < GrondConstants.STATOR_LIMIT || currentLimitTimer.get() <= GrondConstants.CURRENT_LIMIT_DELAY_SEC*/) {
             if (inputs.currentAmps >= GrondConstants.STATOR_LIMIT) {
                 currentLimitTimer.start();
             } else {
@@ -85,6 +91,8 @@ public class Grond extends SubsystemBase {
     public void periodic() {
         state.execute(this);
         io.updateInputs(inputs);
-        Logger.processInputs("Ground Infeed", inputs);
+        tokio.updateInputs(tofInputs);
+        Logger.processInputs("Ground Infeed/Motor", inputs);
+        Logger.processInputs("Ground Infeed/TOF Sensor", tofInputs);
     }
 }

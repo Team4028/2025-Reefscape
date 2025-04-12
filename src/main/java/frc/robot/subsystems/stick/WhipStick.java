@@ -31,7 +31,8 @@ public class WhipStick extends SubsystemBase {
 
     public Command runMotorCommandAlgae(double vbus) {
         return runOnce(() -> {
-            if (stateTracker.state == WhipStickStates.HOLD) return;
+            if (stateTracker.state == WhipStickStates.HOLD)
+                return;
             targetVBus = vbus;
             isGettingAlgae = true;
             stateTracker.setStateVBus(vbus);
@@ -40,6 +41,7 @@ public class WhipStick extends SubsystemBase {
 
     public Command runMotorCommand(double vbus) {
         return runOnce(() -> {
+            if (stateTracker.state == WhipStickStates.HOLD && vbus == 0) return;
             targetVBus = vbus;
             isGettingAlgae = false;
             stateTracker.setStateVBus(vbus);
@@ -54,6 +56,10 @@ public class WhipStick extends SubsystemBase {
     @AutoLogOutput
     public BooleanSupplier hasGamePieceSupplier() {
         return () -> stateTracker.hasGP;
+    }
+
+    public void setHasGamepiece(boolean has) {
+        stateTracker.hasGP = has;
     }
 
     @Override
@@ -82,6 +88,10 @@ public class WhipStick extends SubsystemBase {
         }
         currentLimitTimer.stop();
         currentLimitTimer.reset();
+        if (!isGettingAlgae) {
+            io.setVbus(0.1);
+            return;
+        }
         if (io instanceof WhipStickIOTalonFX iofx) {
             iofx.setCurrent(50);
         } else {
@@ -92,15 +102,13 @@ public class WhipStick extends SubsystemBase {
     @CreateState("vbus_forward")
     public void infeedVBus() {
         if ((isGettingAlgae
-                && (inputs.currentAmps < 80 || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_SEC))
-                || (!isGettingAlgae && (inputs.currentAmps < WhipStickConstants.STATOR_LIMIT
-                        || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_SEC))) {
+                && (inputs.currentAmps < 48 || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_ALGAE_SEC))
+                || (!isGettingAlgae && (inputs.currentAmps < WhipStickConstants.STATOR_LIMIT) || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_ALGAE_SEC)) {
             currentLimitTimer.start();
             io.setVbus(targetVBus);
         } else {
             currentLimitTimer.stop();
             currentLimitTimer.reset();
-            io.setVbus(0);
             stateTracker.hasGP = true;
             stateTracker.state = WhipStickStates.HOLD;
             if (stateTracker.hasGP && !isGettingAlgae) {

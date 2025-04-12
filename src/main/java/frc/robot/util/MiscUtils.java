@@ -3,6 +3,7 @@ package frc.robot.util;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -39,5 +40,9 @@ public class MiscUtils {
     public static final <T> T printAndReturn(T value, String prefix, String suffix) {
         System.out.println(prefix + value + suffix);
         return value;
+    }
+
+    public static final Command onlyIfNoReqs(Command toRun, BooleanSupplier willRun) {
+        return toRun.asProxy().onlyIf(willRun);
     }
 }
