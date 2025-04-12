@@ -5,44 +5,13 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Right Reef"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Loli-Auto.1"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Acquire Left"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Loli-Auto.2"
+                  "pathName": "Frogger-Left.0"
                 }
               },
               {
@@ -61,28 +30,21 @@
           }
         },
         {
-          "type": "race",
+          "type": "wait",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Loli-Auto.3"
-                }
-              }
-            ]
+            "waitTime": 0.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Frogger-Left.1"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Acquire Left"
           }
         },
         {
@@ -92,16 +54,9 @@
           }
         },
         {
-          "type": "race",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Loli-Auto.5"
-                }
-              }
-            ]
+            "pathName": "Frogger-Left.3"
           }
         },
         {
@@ -111,19 +66,13 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Acquire Left"
-          }
-        },
-        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Loli-Auto.6"
+                  "pathName": "Frogger-Left.4"
                 }
               },
               {

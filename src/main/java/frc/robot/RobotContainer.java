@@ -181,9 +181,17 @@ public class RobotContainer {
                 Commands.runOnce(() -> drive.setReefTargetIsRight(true))
                         .andThen(Commands.defer(this::runToClosestReefAuto,
                                 Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+        NamedCommands.registerCommand("Run To Closest Right Reef L2",
+                Commands.runOnce(() -> drive.setReefTargetIsRight(true))
+                        .andThen(Commands.defer(this::runToClosestReefAutoL2,
+                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Left Reef",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false))
                         .andThen(Commands.defer(this::runToClosestReefAuto,
+                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+        NamedCommands.registerCommand("Run To Closest Left Reef L2",
+                Commands.runOnce(() -> drive.setReefTargetIsRight(false))
+                        .andThen(Commands.defer(this::runToClosestReefAutoL2,
                                 Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Left Reef DB",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false))
@@ -391,7 +399,9 @@ public class RobotContainer {
         // OC -- RT: Outfeed Algae
         // ==============================================
         operatorController.rightTrigger()
-                .onTrue(Commands.defer(() -> coral.runMotorCommand(coral.hasAlgae().getAsBoolean() ? -0.6  : /* L1 */ -0.1), Set.of(coral)))
+                .onTrue(Commands.defer(
+                        () -> coral.runMotorCommand(coral.hasAlgae().getAsBoolean() ? -0.6 : /* L1 */ -0.1),
+                        Set.of(coral)))
                 .onFalse(coral.runMotorCommand(0));
 
         // ==============================================
@@ -600,6 +610,11 @@ public class RobotContainer {
     private Command runToClosestReefAuto() {
         return MagicSequencing.magicScoreNoDB(drive, armistice, coral, drive::pipe1ClosestReefPose,
                 () -> ArmisticePositions.Cora_L4);
+    }
+
+    private Command runToClosestReefAutoL2() {
+        return MagicSequencing.magicScoreNoDB(drive, armistice, coral, drive::pipe1ClosestReefPose,
+                () -> ArmisticePositions.Cora_L2);
     }
 
     private Command magicSnapL1() {

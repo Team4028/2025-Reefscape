@@ -11,143 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4 Pop.0"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Left Reef"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.4
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score Outfeed"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4 Pop.1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcq"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Acquire"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4 Pop.2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Left Reef"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.05
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score Outfeed"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4 Pop.3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcq"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Acquire"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4 Pop.4"
+                  "pathName": "Station-Auto-Left.0"
                 }
               },
               {
@@ -166,21 +30,15 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Station-Auto-Left.1"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.05
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score Outfeed"
           }
         },
         {
@@ -190,13 +48,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SR-2ocR4-PC-4ocL4-PC-4ocR4 Pop.5"
+                  "pathName": "Station-Auto-Left.2"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "WaitUntilCloseAcq"
+                  "name": "WaitUntilClose"
                 }
               }
             ]
@@ -205,7 +63,81 @@
         {
           "type": "named",
           "data": {
-            "name": "Acquire"
+            "name": "Run To Closest Left Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Station-Auto-Left.3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Station-Auto-Left.4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Right Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Station-Auto-Left.5"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Station-Auto-Left.6"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Left Reef"
           }
         }
       ]

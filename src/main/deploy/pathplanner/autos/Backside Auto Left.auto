@@ -5,13 +5,56 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "Backside-Auto-Left.0"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SL-10ocL4-BC-8ocR4-BC-8ocR4.0"
+                  "pathName": "Backside-Auto-Left.1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Left Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Backside-Auto-Left.2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Backside-Auto-Left.3"
                 }
               },
               {
@@ -30,22 +73,9 @@
           }
         },
         {
-          "type": "race",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SL-10ocL4-BC-8ocR4-BC-8ocR4.1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcq"
-                }
-              }
-            ]
+            "pathName": "Backside-Auto-Left.4"
           }
         },
         {
@@ -57,93 +87,44 @@
         {
           "type": "named",
           "data": {
-            "name": "Acquire Left"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Right Reef"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SL-10ocL4-BC-8ocR4-BC-8ocR4.3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcq"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Acquire Left"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Left Reef"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SL-10ocL4-BC-8ocR4-BC-8ocR4.5"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilCloseAcq"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Guarentee Stop"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Acquire Left"
+            "name": "Run To Closest Left Reef L2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "SL-10ocL4-BC-8ocR4-BC-8ocR4.6"
+            "pathName": "Backside-Auto-Left.6"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Left Reef"
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Backside-Auto-Left.7"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Right Reef L2"
           }
         }
       ]
