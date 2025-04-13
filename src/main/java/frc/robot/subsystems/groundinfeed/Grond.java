@@ -10,7 +10,10 @@ import com.bskd.annotations.CreateState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.MiscUtils;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod(MiscUtils.class)
 public class Grond extends SubsystemBase {
     private final GrondIO io;
     private final GrondTOFIO tokio;
@@ -33,11 +36,24 @@ public class Grond extends SubsystemBase {
         return () -> hasCoral;
     }
 
+    @AutoLogOutput
+    public BooleanSupplier hasGamepieceSupplierRawTOF() {
+        return () -> tofInputs.range <= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH;
+    } 
+
     public Command runMotorCommand(double vbus) {
         return runOnce(() -> {
             targetVbus = vbus;
             state = vbus > 0 ? GrondStates.VBUS_FORWARD : vbus < 0 ? GrondStates.VBUS_REVERSE : GrondStates.OFF;
         });
+    }
+
+    public BooleanSupplier isJammed() {
+        return currLimitHasGP().and(hasGamepieceSupplierRawTOF().not());
+    }
+
+    public BooleanSupplier currLimitHasGP() {
+        return () -> inputs.currentAmps - GrondConstants.TalonFX.currLimits.StatorCurrentLimit >= -5;
     }
 
     @CreateState("vbus_forward")

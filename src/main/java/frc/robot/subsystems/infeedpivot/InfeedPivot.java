@@ -22,7 +22,7 @@ public class InfeedPivot extends SubsystemBase {
     private double targetVbus = 0;
     private double targetPositionRad = UP.posRad;
     private boolean up = true;
-    private InfeedPivotStates state = InfeedPivotStates.OFF;
+    private InfeedPivotStates state = InfeedPivotStates.POSITION;
 
     public InfeedPivot(InfeedPivotMotorIO motorIO, InfeedPivotEncoderIO encoderIO) {
         this.motorIO = motorIO;
@@ -39,6 +39,14 @@ public class InfeedPivot extends SubsystemBase {
 
     public Command runDown() {
         return runMotorCommand(-0.2).alongWith(Commands.runOnce(() -> up = false));
+    }
+
+    public Command hhhTest() {
+        return runUp().andThen(Commands.waitSeconds(0.001)).andThen(runDown()).andThen(runDown()).repeatedly();
+    }
+
+    public Command waitUntilInTolerance(double toleranceRad) {
+        return Commands.waitUntil(() -> Math.abs(motorInputs.positionRad - InfeedPivotPositions.HANDOFF.posRad) <= toleranceRad);
     }
 
     public BooleanSupplier isUp() {
@@ -71,13 +79,24 @@ public class InfeedPivot extends SubsystemBase {
         motorIO.setVBus(0);
         targetVbus = 0;
         motorIO.zeroPosition(encoderInputs.positionRad);
-        state = InfeedPivotStates.OFF;
+        state = up ? InfeedPivotStates.POSITION : InfeedPivotStates.OFF;
     }
 
     @CreateState("vbus_forward")
     @CreateState("vbus_reverse")
     @CreateState("off")
+    @CreateState("holding_down")
     public void runTargetVbus() {
+        if (state == InfeedPivotStates.HOLDING_DOWN) {
+            motorIO.setVBus(-0.2);
+            return;
+        } else if (motorInputs.positionRad < 0.7) {
+            if (motorInputs.positionRad < 0.05) {
+                state = InfeedPivotStates.HOLDING_DOWN;
+            }
+            motorIO.setVBus(0);
+            return;
+        }
         if ((motorInputs.positionRad / ArmConstants.PI_2 * InfeedPivotConstants.GEAR_RATIO)
                 - 1 < InfeedPivotConstants.TalonFX.softLimits.ReverseSoftLimitThreshold) {
             targetVbus = 0;

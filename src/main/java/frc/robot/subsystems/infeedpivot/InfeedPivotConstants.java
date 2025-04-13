@@ -44,7 +44,7 @@ public class InfeedPivotConstants {
         // public static final Slot1Configs pid2Configs = pid2Config.makeSlot1Configs(GravityTypeValue.Arm_Cosine);
         // public static final MotionMagicConfigs mmConfigs = pidConfig.makeMMConfigs();
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-                .withReverseSoftLimitThreshold(0.7 / ArmConstants.PI_2 * GEAR_RATIO).withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(0 / ArmConstants.PI_2 * GEAR_RATIO).withReverseSoftLimitEnable(true)
                 .withForwardSoftLimitThreshold(1.9 / ArmConstants.PI_2 * GEAR_RATIO).withForwardSoftLimitEnable(true);
     }
 
@@ -52,7 +52,7 @@ public class InfeedPivotConstants {
         public static final int CAN_ID = 5;
         public static final CANcoderConfiguration cancoderConfigs = new CANcoderConfiguration()
                 .withMagnetSensor(new MagnetSensorConfigs()
-                        .withMagnetOffset(-0.07666015625)
+                        .withMagnetOffset(-0.425048828125)
                         .withSensorDirection(SensorDirectionValue.Clockwise_Positive));
     }
 }

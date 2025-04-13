@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -107,17 +108,7 @@ public class RobotContainer {
                     .and(pivot.isUp().not()));
 
     @AutoLogOutput
-    private final Trigger supercycleIsL4 = new Trigger(
-            () -> armistice.getFutureArmisticePositions() == ArmisticePositions.Cora_L4);
-
-    @AutoLogOutput
-    private final Trigger scIsGood = new Trigger(() -> (armistice.getFutureArmisticePositions().isCoralScore()
-            && armistice.getFutureArmisticePositions() != ArmisticePositions.Cora_L1)
-            && (armistice.getTargetPosition() != ArmisticePositions.Cora_L4
-                    || drive.driveCloseEnoughReefAuton().getAsBoolean()));
-
-    @AutoLogOutput
-    private final Trigger sensesPipeMagicScore = new Trigger(drive.hasPipeAtReef(armistice));
+    private final Trigger needsUnjam = new Trigger(infeed.isJammed());
 
     // add actual limits
     private final SlewRateLimiter xLimiterL4, yLimiterL4, thetaLimiterL4, xLimiter, yLimiter, thetaLimiter;
@@ -145,21 +136,24 @@ public class RobotContainer {
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
-        NamedCommands.registerCommand("Acquire", infeed.runMotorCommand(.8).alongWith(pivot.runDown()).andThen(
-                Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
-                .andThen(armistice.waitUntilThingsInTolerance(1, 0.1))
-                .alongWith(Commands.waitUntil(infeed.hasGamepieceSupplier()))
-                .andThen(coral.runMotorCommand(0.5))
-                .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
-                .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
-                .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
-                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
-                        Commands.runOnce(() -> infeed.setHasCoral(false))
-                                .alongWith(infeed.runMotorCommand(0))))
-                .finallyDo(() -> {
-                    armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
-                            .andThen(Commands.runOnce(() -> armistice.setSafety(true))).schedule();
-                }));
+        NamedCommands.registerCommand("Acquire",
+                infeed.runMotorCommand(.8).alongWith(pivot.runDown()).andThen(
+                        Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
+                        .andThen(armistice.waitUntilThingsInTolerance(1, 0.1)
+                                .alongWith(Commands.waitUntil(infeed.hasGamepieceSupplier())))
+                        .andThen(coral.runMotorCommand(0.5))
+                        .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
+                        .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
+                        .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
+                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
+                                Commands.runOnce(() -> infeed.setHasCoral(false))
+                                        .alongWith(infeed.runMotorCommand(0))))
+                        .finallyDo(() -> {
+                            armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
+                                    .andThen(Commands.runOnce(() -> armistice.setSafety(true))
+                                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
+                                    .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule();
+                        }));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
                         .andThen(Commands.defer(() -> coral.runMotorCommand(getOutfeedVBus()), Set.of(coral))
@@ -199,16 +193,19 @@ public class RobotContainer {
                                 Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("L4 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L4_PIPE));
+        NamedCommands.registerCommand("Wait TOF", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
         NamedCommands.registerCommand("Stow", armistice.runToPositionCommand(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Stow No Wait", armistice.runToPositionNoWait(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Acquire Pos",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.CLEAN)
-                        .alongWith(infeed.runMotorCommand(0.55)).alongWith(pivot.runDown()));
+                        .alongWith(pivot.runDown()));
         NamedCommands.registerCommand("L3 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L3));
         NamedCommands.registerCommand("L2 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L2));
         NamedCommands.registerCommand("Blip", Commands.none());
+        NamedCommands.registerCommand("Forever", Commands.run(() -> {
+        }));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization())
@@ -312,6 +309,11 @@ public class RobotContainer {
         // ==============================================
         driverController.x().onTrue(drive.runOnce(drive::stopWithX));
 
+        driverController.a().onTrue(
+                pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown()).onlyIf(pivot.isUp().not()));
+        needsUnjam.debounce(0.2).onTrue(pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown())
+                .onlyIf(pivot.isUp().not()));
+
         // ==============================================
         // DC -- RS: Cancel Command
         // ==============================================
@@ -333,16 +335,18 @@ public class RobotContainer {
                 .alongWith(coral.runMotorCommand(0.5))
                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                 .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
-                .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
+                .andThen(pivot.waitUntilInTolerance(0.1))
                 .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
                         Commands.runOnce(() -> infeed.setHasCoral(false))
                                 .alongWith(infeed.runMotorCommand(0))))
                 .finallyDo(() -> {
                     armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
-                            .andThen(Commands.runOnce(() -> armistice.setSafety(true))).schedule();
+                            .andThen(Commands.runOnce(() -> armistice.setSafety(true))
+                                    .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
+                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule();
                 }),
                 Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed))
-                .asProxy().onlyIfNoReqs(DriverStation::isTeleop));
+                .onlyIfNoReqs(DriverStation::isTeleop));
 
         // ==============================================
         // DC -- LB: Outfeed Coral

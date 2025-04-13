@@ -22,11 +22,22 @@ public class MathUtils {
         return Math.PI * mul;
     }
 
-    public static final double cyclic(double value, double peroid) {
+    public static final double cyclic(double value, double period) {
         var tempVal = value;
         while (tempVal < 0)
-            tempVal += peroid;
-        return tempVal % peroid;
+            tempVal += period;
+        return tempVal % period;
+    }
+
+    public static final double cyclicRange(double value, double low, double high, double period) {
+        var tempValue = value;
+        while (tempValue < low || tempValue > high) {
+            if (tempValue > high)
+                tempValue -= period;
+            else tempValue += period;
+        }
+
+        return tempValue;
     }
 
     public static final double get2dVelocity(ChassisSpeeds chassisSpeeds) {

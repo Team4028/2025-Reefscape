@@ -445,6 +445,10 @@ public class Drive extends SubsystemBase {
         return AutoBuilder.pathfindToPose(pose, new PathConstraints(2, 2, Math.PI, 2 * Math.PI));
     }
 
+    public BooleanSupplier inPidTranslation() {
+        return () -> inPidTranslate;
+    }
+
     public BooleanSupplier readyForArm() {
         return () -> getPose().getTranslation()
                 .getDistance(closestReef.getTranslation()) < Constants.ARM_READY_AUTO_SCORE_RADIUS;

@@ -1,18 +1,18 @@
 {
- "name":"Backside-Auto-Left",
+ "name":"Asteriod-Left",
  "version":1,
  "snapshot":{
   "waypoints":[
     {"x":7.166599273681641, "y":7.517256736755371, "heading":4.71238898038469, "intervals":64, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":1.9863873720169067, "y":4.643705368041992, "heading":0.0, "intervals":36, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":3.32, "y":4.18, "heading":-1.5707963267948966, "intervals":37, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":1.751811981201172, "y":5.171500205993652, "heading":-2.542417211853724, "intervals":43, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":1.751811981201172, "y":5.171500205993652, "heading":-2.542417211853724, "intervals":43, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":1.067633032798767, "y":6.090254783630371, "heading":-2.542417211853724, "intervals":47, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":3.32, "y":3.82, "heading":-1.5707963267948966, "intervals":36, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":1.947291612625122, "y":4.01816987991333, "heading":0.0, "intervals":52, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":1.947291612625122, "y":4.01816987991333, "heading":0.0, "intervals":52, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":0.8721533417701721, "y":4.01816987991333, "heading":4.71238898038469, "intervals":34, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":3.32, "y":4.18, "heading":-1.5707963267948966, "intervals":36, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":2.0059356689453125, "y":3.060319662094116, "heading":-0.6435010274826745, "intervals":48, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":2.0059356689453125, "y":3.060319662094116, "heading":-0.6435010274826745, "intervals":48, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":1.126276969909668, "y":2.0047292709350586, "heading":-0.6435010274826745, "intervals":44, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":3.32, "y":3.82, "heading":-1.5707963267948966, "intervals":40, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
@@ -47,13 +47,13 @@
     {"x":{"exp":"7.166599273681641 m", "val":7.166599273681641}, "y":{"exp":"7.517256736755371 m", "val":7.517256736755371}, "heading":{"exp":"270 deg", "val":4.71238898038469}, "intervals":64, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"1.9863873720169067 m", "val":1.9863873720169067}, "y":{"exp":"4.643705368041992 m", "val":4.643705368041992}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":36, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"P6ocL.x", "val":3.32}, "y":{"exp":"P6ocL.y", "val":4.18}, "heading":{"exp":"P6ocL.heading", "val":-1.5707963267948966}, "intervals":37, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"1.7518119812011719 m", "val":1.751811981201172}, "y":{"exp":"5.171500205993652 m", "val":5.171500205993652}, "heading":{"exp":"-2.542417211853724 rad", "val":-2.542417211853724}, "intervals":43, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"1.7518119812011719 m", "val":1.751811981201172}, "y":{"exp":"5.171500205993652 m", "val":5.171500205993652}, "heading":{"exp":"-2.542417211853724 rad", "val":-2.542417211853724}, "intervals":43, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"1.067633032798767 m", "val":1.067633032798767}, "y":{"exp":"6.090254783630371 m", "val":6.090254783630371}, "heading":{"exp":"-2.542417211853724 rad", "val":-2.542417211853724}, "intervals":47, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"P6ocR.x", "val":3.32}, "y":{"exp":"P6ocR.y", "val":3.82}, "heading":{"exp":"P6ocR.heading", "val":-1.5707963267948966}, "intervals":36, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"1.947291612625122 m", "val":1.947291612625122}, "y":{"exp":"4.01816987991333 m", "val":4.01816987991333}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":52, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"1.947291612625122 m", "val":1.947291612625122}, "y":{"exp":"4.01816987991333 m", "val":4.01816987991333}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":52, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"0.8721533417701721 m", "val":0.8721533417701721}, "y":{"exp":"4.01816987991333 m", "val":4.01816987991333}, "heading":{"exp":"270 deg", "val":4.71238898038469}, "intervals":34, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"P6ocL.x", "val":3.32}, "y":{"exp":"P6ocL.y", "val":4.18}, "heading":{"exp":"P6ocL.heading", "val":-1.5707963267948966}, "intervals":36, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"2.0059356689453125 m", "val":2.0059356689453125}, "y":{"exp":"3.060319662094116 m", "val":3.060319662094116}, "heading":{"exp":"-0.6435010274826745 rad", "val":-0.6435010274826745}, "intervals":48, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"2.0059356689453125 m", "val":2.0059356689453125}, "y":{"exp":"3.060319662094116 m", "val":3.060319662094116}, "heading":{"exp":"-0.6435010274826745 rad", "val":-0.6435010274826745}, "intervals":48, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"1.126276969909668 m", "val":1.126276969909668}, "y":{"exp":"2.0047292709350586 m", "val":2.0047292709350586}, "heading":{"exp":"-0.6435010274826745 rad", "val":-0.6435010274826745}, "intervals":44, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"P6ocR.x", "val":3.32}, "y":{"exp":"P6ocR.y", "val":3.82}, "heading":{"exp":"P6ocR.heading", "val":-1.5707963267948966}, "intervals":40, "split":true, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
@@ -528,14 +528,11 @@
     {"t":17.73933, "x":3.31063, "y":3.81224, "heading":-1.5507, "vx":0.22474, "vy":0.18606, "omega":-0.31134, "ax":-2.69531, "ay":-2.23138, "alpha":3.37534, "fx":[-35.94316,-52.23992,-49.38786,-33.589], "fy":[-25.89419,-24.74925,-44.59355,-46.46222]},
     {"t":17.78102, "x":3.31766, "y":3.81806, "heading":-1.56368, "vx":0.11237, "vy":0.09303, "omega":-0.17062, "ax":-2.69532, "ay":-2.23143, "alpha":4.0926, "fx":[-34.68244,-54.04532,-50.88026,-31.55263], "fy":[-23.85398,-22.38809,-46.40892,-49.0516]},
     {"t":17.82272, "x":3.32, "y":3.82, "heading":-1.5708, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
-  "splits":[0,54,80,160,207,275,309,393]
+  "splits":[0,54,80,117,160,207,233,275,309,345,393]
  },
  "events":[
    {"name":"Stow", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stow"}}},
    {"name":"Acquire Post L4 Left", "from":{"target":2, "targetTimestamp":3.79308, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
-   {"name":"Handoff Post L4 1", "from":{"target":3, "targetTimestamp":5.02152, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire"}}},
    {"name":"Acquire Post L4 2", "from":{"target":5, "targetTimestamp":8.61179, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
-   {"name":"Handoff post L4 2", "from":{"target":6, "targetTimestamp":9.64932, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire"}}},
-   {"name":"Acquire Post L2 1", "from":{"target":8, "targetTimestamp":12.93637, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}},
-   {"name":"Handoff Post L2 1", "from":{"target":9, "targetTimestamp":14.1132, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire"}}}]
+   {"name":"Acquire Post L2 1", "from":{"target":8, "targetTimestamp":12.93637, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Acquire Pos"}}}]
 }
