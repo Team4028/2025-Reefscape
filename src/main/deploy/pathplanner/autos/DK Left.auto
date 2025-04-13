@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Stow No Wait"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
@@ -138,7 +144,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "DK-Left.5"
+                              "pathName": "DK-Left.2"
                             }
                           },
                           {
@@ -214,7 +220,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "DK-Left.8"
+                              "pathName": "DK-Left.2"
                             }
                           },
                           {

@@ -142,14 +142,15 @@ public class RobotContainer {
         thetaLimiter = new SlewRateLimiter(4.0);
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire",
-                infeed.runMotorCommand(.8).alongWith(pivot.runDown().asProxy()).andThen(
-                        Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
+                infeed.runMotorCommand(.8).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
+                        .alongWith(pivot.runDown().asProxy()).andThen(
+                                Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
                         .andThen(armistice.waitUntilThingsInTolerance(1, 0.1)
                                 .alongWith(Commands.waitUntil(infeed.hasGamepieceSupplier())))
                         .andThen(coral.runMotorCommand(0.5))
                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                         .andThen(pivot.runUp().asProxy().onlyIf(pivot.isUp().not()))
-                        .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
+                        .andThen(pivot.waitUntilInTolerance(0.1))
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
                                 Commands.runOnce(() -> infeed.setHasCoral(false))
                                         .alongWith(infeed.runMotorCommand(0))))

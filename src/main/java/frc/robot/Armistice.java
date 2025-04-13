@@ -103,7 +103,7 @@ public class Armistice extends SudoSubsystem {
             "8oC", ArmisticePositions.A2_lgae,
             "10oC", ArmisticePositions.A3_lgae);
 
-    public static final double GLOBAL_ARM_OFFSET = Units.degreesToRadians(-2);
+    public static final double GLOBAL_ARM_OFFSET = Units.degreesToRadians(-1);
     public static final double GLOBAL_ELEVATOR_OFFSET = 0;
 
     public static enum ArmisticePositions {
