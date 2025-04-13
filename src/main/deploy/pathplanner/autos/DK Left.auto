@@ -50,15 +50,28 @@
                 "data": {
                   "commands": [
                     {
-                      "type": "path",
-                      "data": {
-                        "pathName": "DK-Left.2"
-                      }
-                    },
-                    {
                       "type": "named",
                       "data": {
                         "name": "Forever"
+                      }
+                    },
+                    {
+                      "type": "sequential",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "DK-Left.2"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Guarentee Stop"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -113,15 +126,28 @@
                 "data": {
                   "commands": [
                     {
-                      "type": "path",
-                      "data": {
-                        "pathName": "DK-Left.5"
-                      }
-                    },
-                    {
                       "type": "named",
                       "data": {
                         "name": "Forever"
+                      }
+                    },
+                    {
+                      "type": "sequential",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "DK-Left.5"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Guarentee Stop"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -176,15 +202,28 @@
                 "data": {
                   "commands": [
                     {
-                      "type": "path",
-                      "data": {
-                        "pathName": "DK-Left.8"
-                      }
-                    },
-                    {
                       "type": "named",
                       "data": {
                         "name": "Forever"
+                      }
+                    },
+                    {
+                      "type": "sequential",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "DK-Left.8"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Guarentee Stop"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]

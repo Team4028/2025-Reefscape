@@ -107,8 +107,13 @@ public class RobotContainer {
             infeed.hasGamepieceSupplier().and(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN)
                     .and(pivot.isUp().not()));
 
+    private final Trigger hasGPRaw = new Trigger(infeed.hasGamepieceSupplierRawTOF());
+
     @AutoLogOutput
     private final Trigger needsUnjam = new Trigger(infeed.isJammed());
+
+    @AutoLogOutput
+    private boolean unjamOn = true;
 
     // add actual limits
     private final SlewRateLimiter xLimiterL4, yLimiterL4, thetaLimiterL4, xLimiter, yLimiter, thetaLimiter;
@@ -137,13 +142,13 @@ public class RobotContainer {
         thetaLimiter = new SlewRateLimiter(4.0);
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire",
-                infeed.runMotorCommand(.8).alongWith(pivot.runDown()).andThen(
+                infeed.runMotorCommand(.8).alongWith(pivot.runDown().asProxy()).andThen(
                         Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
                         .andThen(armistice.waitUntilThingsInTolerance(1, 0.1)
                                 .alongWith(Commands.waitUntil(infeed.hasGamepieceSupplier())))
                         .andThen(coral.runMotorCommand(0.5))
                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
-                        .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
+                        .andThen(pivot.runUp().asProxy().onlyIf(pivot.isUp().not()))
                         .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
                                 Commands.runOnce(() -> infeed.setHasCoral(false))
@@ -312,7 +317,12 @@ public class RobotContainer {
         driverController.a().onTrue(
                 pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown()).onlyIf(pivot.isUp().not()));
         needsUnjam.debounce(0.2).onTrue(pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown())
-                .onlyIf(pivot.isUp().not()));
+                .onlyIf(pivot.isUp().not()).onlyIfNoReqs(() -> unjamOn))
+                .onTrue(setRumble(driverController, 0.8, RumbleType.kBothRumble, 0.3));
+
+        hasGPRaw.onTrue(Commands.runOnce(() -> {
+            unjamOn = true;
+        }));
 
         // ==============================================
         // DC -- RS: Cancel Command
@@ -330,6 +340,8 @@ public class RobotContainer {
         driverController.b().onTrue(infeed.runMotorCommand(-0.5)).onFalse(infeed.runMotorCommand(0));
 
         driverController.leftBumper().onTrue(Commands.either(pivot.runDown(), pivot.runUp(), pivot.isUp()));
+
+        driverController.leftStick().onTrue(Commands.runOnce(() -> unjamOn = !unjamOn));
 
         hasGamePiece.onTrue(Commands.defer(() -> armistice.waitUntilThingsInTolerance(1, 0.1)
                 .alongWith(coral.runMotorCommand(0.5))
@@ -510,9 +522,9 @@ public class RobotContainer {
             emergencyController.povDown().onTrue(armistice.nudgeCommandGlobalPermanant(-1,
                     0));
             emergencyController.povRight().onTrue(armistice.nudgeCommandGlobalPermanant(0,
-                    Units.degreesToRadians(1)));
+                    Units.degreesToRadians(2)));
             emergencyController.povLeft().onTrue(armistice.nudgeCommandGlobalPermanant(0,
-                    Units.degreesToRadians(-1)));
+                    Units.degreesToRadians(-2)));
 
             // ==============================================
             // EC -- DPAD: Positional Nudges
@@ -520,9 +532,9 @@ public class RobotContainer {
             emergencyController.y().onTrue(armistice.nudgeCommandPermanant(1, 0));
             emergencyController.a().onTrue(armistice.nudgeCommandPermanant(-1, 0));
             emergencyController.b().onTrue(armistice.nudgeCommandPermanant(0,
-                    Units.degreesToRadians(1)));
+                    Units.degreesToRadians(2)));
             emergencyController.x().onTrue(armistice.nudgeCommandPermanant(0,
-                    Units.degreesToRadians(-1)));
+                    Units.degreesToRadians(-2)));
 
             // ==============================================
             // EC -- START: Run To Climb Position
@@ -555,7 +567,7 @@ public class RobotContainer {
                     .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                             .ignoringDisable(true));
 
-            emergencyController.leftBumper().onTrue(NamedCommands.getCommand("Acquire"));
+            emergencyController.leftBumper().onTrue(pivot.hhhTest());
         }
     }
 
@@ -603,7 +615,7 @@ public class RobotContainer {
                 : MagicSequencing.magicScoreScore(drive, armistice, coral, drive::pipe1ClosestReefPose,
                         () -> DriverStation.isAutonomous() ? ArmisticePositions.Cora_L4
                                 : armistice.getFutureArmisticePositions(),
-                        () -> isSuperCycle)
+                        () -> isSuperCycle).andThen(pivot.runDown().asProxy())
                         .andThen(MagicSequencing
                                 .magicGetAlgaeOnlyPID(drive, armistice, coral, drive::pipe1AlgaeClosestReefPose,
                                         armistice::getAutoAlgaePosition, () -> isSuperCycle)

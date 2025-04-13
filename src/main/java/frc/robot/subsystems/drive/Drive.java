@@ -120,7 +120,7 @@ public class Drive extends SubsystemBase {
 
     public static final double PID_TRANSLATION_SPEED_MPS = 1.85;
     public static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
-    private static final double AUTON_PATH_CANCEL_RADIUS_M = 1;
+    private static final double AUTON_PATH_CANCEL_RADIUS_M = 2;
 
     @AutoLogOutput(key = "Odometry/ClosestReef")
     private Pose2d closestReef = new Pose2d();

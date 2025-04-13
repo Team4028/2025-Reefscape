@@ -126,7 +126,7 @@ public class Armistice extends SudoSubsystem {
         Cora_L4_PIPE_SC(4.29 - 4, 37.008),
         A2_lgae(0.287 + Units.degreesToRadians(3), 8),
         A3_lgae(4.247 - 4, 26),
-        GROND(3.602 - 4, 0),
+        GROND(-0.363 + Units.degreesToRadians(2), 0),
         PROC(-0.041, 0),
         BARGE(2.373 + Units.degreesToRadians(2), 44),
         BARGE_INTERMEDIATE(1.8, 42),

@@ -42,7 +42,7 @@ public class InfeedPivot extends SubsystemBase {
     }
 
     public Command hhhTest() {
-        return runUp().andThen(Commands.waitSeconds(0.001)).andThen(runDown()).andThen(runDown()).repeatedly();
+        return runUp().andThen(Commands.waitSeconds(0.001)).andThen(runDown()).andThen(runDown()).andThen(Commands.waitSeconds(0.001)).repeatedly();
     }
 
     public Command waitUntilInTolerance(double toleranceRad) {

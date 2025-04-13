@@ -87,7 +87,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     }
 
     public void initEncoder() {
-        motor.setPosition(MathUtils.cyclicRange(canMag.getAbsPosition() - 0.6366, -0.5, 0.5, 1) * ArmConstants.GEAR_RATIO);
+        motor.setPosition(MathUtils.cyclicRange(canMag.getAbsPosition() - 0.6366, -0.5, 1, 1) * ArmConstants.GEAR_RATIO);
     }
 
     public double getRawEncoderPositon() {
