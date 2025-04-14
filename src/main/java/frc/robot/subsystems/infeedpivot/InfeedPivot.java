@@ -30,7 +30,14 @@ public class InfeedPivot extends SubsystemBase {
         motorInputs = new InfeedPivotIOMotorInputsAutoLogged();
         encoderInputs = new InfeedPivotEncoderIOInputsAutoLogged();
         encoderIO.updateInputs(encoderInputs);
-        motorIO.zeroPosition(encoderInputs.positionRad);
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {}
+            encoderIO.updateInputs(encoderInputs);
+            motorIO.zeroPosition(encoderInputs.positionRad);
+        }).start();
     }
 
     public Command runUp() {

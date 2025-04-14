@@ -403,6 +403,7 @@ public class Drive extends SubsystemBase {
                 closestPose.getRotation().plus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
     }
 
+    @AutoLogOutput
     public Pose2d pipe1ClosestReefPose() {
         var crPose = closestReefPose();
         var crPoseNativeRot = new Pose2d(crPose.getTranslation(),

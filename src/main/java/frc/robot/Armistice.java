@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
-import frc.robot.subsystems.arm.ArmIOCanEncoderTalonFX;
+import frc.robot.subsystems.arm.ArmIOCancoderTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.LoggedTunables.LoggedTunableNumber;
@@ -103,7 +103,7 @@ public class Armistice extends SudoSubsystem {
             "8oC", ArmisticePositions.A2_lgae,
             "10oC", ArmisticePositions.A3_lgae);
 
-    public static final double GLOBAL_ARM_OFFSET = Units.degreesToRadians(-9);
+    public static final double GLOBAL_ARM_OFFSET = -0.343585 - Units.degreesToRadians(4);
     public static final double GLOBAL_ELEVATOR_OFFSET = 0;
 
     public static enum ArmisticePositions {
@@ -127,10 +127,10 @@ public class Armistice extends SudoSubsystem {
         A2_lgae(0.287 + Units.degreesToRadians(3), 8),
         A3_lgae(4.247 - 4, 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
-        PROC(-0.041, 0),
+        PROC(-0.384 - GLOBAL_ARM_OFFSET, 0),
         BARGE(2.373 + Units.degreesToRadians(2), 44),
         BARGE_INTERMEDIATE(1.8, 42),
-        CLIMB(3.902 + Units.degreesToRadians(2), 4.017), // negative version of this
+        CLIMB(0.383 - GLOBAL_ARM_OFFSET, 0), // negative version of this
         CLIMB_2(2 * Math.PI, 8.125);
 
         public final double armPositionRad;
@@ -277,7 +277,7 @@ public class Armistice extends SudoSubsystem {
     }
 
     private final Elevator summit = new ElevatorIOTalonFX().simSwitch();
-    private final Arm disarm = new ArmIOCanEncoderTalonFX().simSwitch();
+    private final Arm disarm = new ArmIOCancoderTalonFX().simSwitch();
 
     public void getCanMagPosition() {
         disarm.getCanMagPosition();

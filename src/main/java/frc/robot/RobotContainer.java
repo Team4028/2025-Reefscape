@@ -128,7 +128,6 @@ public class RobotContainer {
     private final LoggedTunableNumber ipVbusChar = new LoggedTunableNumber("Infeed Pivot Char Vbus", 0);
 
     public RobotContainer() {
-        pivot.zero();
         drive.setPose(new Pose2d(drive.getPose().getTranslation(),
                 DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                         ? Rotation2d.kZero
@@ -448,6 +447,9 @@ public class RobotContainer {
         // ==============================================
         operatorController.povDown().onTrue(armistice.decFutureArmisticePosition());
 
+        operatorController.povRight()
+                .onTrue(armistice.runToPositionNoWait(ArmisticePositions.CLIMB).onlyIfNoReqs(() -> climbDeadmanUnsafe));
+
         // ==============================================
         // OC -- DPAD LEFT/RIGHT: Inc/Dev Magic Score Algae Height
         // ==============================================
@@ -538,13 +540,6 @@ public class RobotContainer {
                     Units.degreesToRadians(1)));
             emergencyController.x().onTrue(armistice.nudgeCommandPermanant(0,
                     Units.degreesToRadians(-1)));
-
-            // ==============================================
-            // EC -- START: Run To Climb Position
-            // ==============================================
-            emergencyController.start().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB));
-
-            emergencyController.back().onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB_2));
 
             emergencyController.rightStick().onTrue(armistice.resetNudges().ignoringDisable(true));
             emergencyController.leftStick().onTrue(
@@ -637,10 +632,7 @@ public class RobotContainer {
     }
 
     private Command magicSnapL1() {
-        return armistice.runToPositionNoWait(ArmisticePositions.Cora_L1).alongWith(drive.joystickDriveAtAngle(
-                () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
-                () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
-                drive::closestReefL1Rotation));
+        return armistice.runToPositionNoWait(ArmisticePositions.Cora_L1);
     }
 
     private Command runToClosestAlgae() {

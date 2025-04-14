@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Right Reef"
-          }
-        },
-        {
           "type": "wait",
           "data": {
             "waitTime": 0.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Right Reef"
           }
         },
         {
