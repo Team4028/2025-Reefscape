@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Asteriod-Left.0"
+            "pathName": "Asteroid-Right.0"
           }
         },
         {
@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Asteriod-Left.1"
+                  "pathName": "Asteroid-Right.1"
                 }
               },
               {
@@ -32,96 +32,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Left Reef"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Asteriod-Left.2"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "race",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "parallel",
-                            "data": {
-                              "commands": [
-                                {
-                                  "type": "path",
-                                  "data": {
-                                    "pathName": "Asteriod-Left.3"
-                                  }
-                                },
-                                {
-                                  "type": "named",
-                                  "data": {
-                                    "name": "Forever"
-                                  }
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "Acquire Wait"
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "type": "race",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "path",
-                            "data": {
-                              "pathName": "Asteriod-Left.4"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "WaitUntilClose"
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Acquire"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "Run To Closest Right Reef"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Asteriod-Left.5"
+            "pathName": "Asteroid-Right.2"
           }
         },
         {
@@ -143,7 +60,7 @@
                                 {
                                   "type": "path",
                                   "data": {
-                                    "pathName": "Asteriod-Left.6"
+                                    "pathName": "Asteroid-Right.3"
                                   }
                                 },
                                 {
@@ -171,7 +88,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "Asteriod-Left.7"
+                              "pathName": "Asteroid-Right.4"
                             }
                           },
                           {
@@ -198,13 +115,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Left Reef L2"
+            "name": "Run To Closest Left Reef"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Asteriod-Left.8"
+            "pathName": "Asteroid-Right.5"
           }
         },
         {
@@ -226,7 +143,7 @@
                                 {
                                   "type": "path",
                                   "data": {
-                                    "pathName": "Asteriod-Left.9"
+                                    "pathName": "Asteroid-Right.6"
                                   }
                                 },
                                 {
@@ -254,7 +171,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "Asteriod-Left.10"
+                              "pathName": "Asteroid-Right.7"
                             }
                           },
                           {
@@ -282,6 +199,89 @@
           "type": "named",
           "data": {
             "name": "Run To Closest Right Reef L2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Asteroid-Right.8"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "race",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "parallel",
+                            "data": {
+                              "commands": [
+                                {
+                                  "type": "path",
+                                  "data": {
+                                    "pathName": "Asteroid-Right.9"
+                                  }
+                                },
+                                {
+                                  "type": "named",
+                                  "data": {
+                                    "name": "Forever"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Acquire Wait"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "race",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Asteroid-Right.10"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "WaitUntilClose"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Acquire"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Left Reef L2"
           }
         }
       ]

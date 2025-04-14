@@ -56,6 +56,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
             } catch (InterruptedException ignored) {
             }
 
+            while (motor.getVelocity(true).getValueAsDouble() != 0);
             initEncoder();
             System.out.println(String.format("Successfully initialized TalonFX %d Position", motor.getDeviceID()));
         }).start();
