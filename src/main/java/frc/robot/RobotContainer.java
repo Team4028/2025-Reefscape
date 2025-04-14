@@ -56,6 +56,7 @@ import frc.robot.subsystems.limelight.LimelightIO;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.subsystems.stick.WhipStick;
 import frc.robot.subsystems.stick.WhipStickIOTalonFX;
+import frc.robot.util.LoggedTunables.LoggedChangableBoolean;
 import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import frc.robot.util.MiscUtils;
 import frc.robot.util.RobotSim;
@@ -114,6 +115,8 @@ public class RobotContainer {
 
     @AutoLogOutput
     private boolean unjamOn = true;
+
+    private LoggedChangableBoolean zeroArm = new LoggedChangableBoolean("Zero Arm", false);
 
     // add actual limits
     private final SlewRateLimiter xLimiterL4, yLimiterL4, thetaLimiterL4, xLimiter, yLimiter, thetaLimiter;
@@ -224,6 +227,9 @@ public class RobotContainer {
 
     public void updateArmisticeAutoAlgae() {
         armistice.updateAutoAlgaePos(drive.closestReefTag());
+        if (zeroArm.hasChanged(hashCode())) {
+            armistice.getArm().setPosition(-0.87);
+        }
     }
 
     private void addVisionMeasurement(LoggablePoseEstimate poseEstimate) {

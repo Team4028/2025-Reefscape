@@ -124,12 +124,12 @@ public class Armistice extends SudoSubsystem {
         Cora_L4_SC(4.652 - 4, 31.008),
         Cora_L4_PIPE(1.11 + Units.degreesToRadians(2), 37.008),
         Cora_L4_PIPE_SC(4.29 - 4, 37.008),
-        A2_lgae(0.287 + Units.degreesToRadians(3), 8),
-        A3_lgae(4.247 - 4, 26),
+        A2_lgae(0.287 + Units.degreesToRadians(9), 8),
+        A3_lgae(4.247 - 4 + Units.degreesToRadians(6), 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
         PROC(-0.384 - GLOBAL_ARM_OFFSET, 0),
-        BARGE(2.373 + Units.degreesToRadians(2), 44),
-        BARGE_INTERMEDIATE(1.8, 42),
+        BARGE(2.373 + Units.degreesToRadians(2), 46),
+        BARGE_INTERMEDIATE(1.8, 44),
         CLIMB(0.383 - GLOBAL_ARM_OFFSET, 0), // negative version of this
         CLIMB_2(2 * Math.PI, 8.125);
 

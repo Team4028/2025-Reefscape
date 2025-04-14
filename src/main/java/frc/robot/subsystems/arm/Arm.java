@@ -30,13 +30,18 @@ public class Arm extends SubsystemBase {
 
     public Arm(ArmIO io) {
         this.io = io;
-        stateTracker = new ArmStateTracker();;
+        stateTracker = new ArmStateTracker();
         sysIDCommands = SysIDUtil.generateTests(ArmConstants.sysIDConfig, this::runMotor, this);
         io.updateInputs(inputs);
     }
 
+    public void setPosition(double positionRad) {
+        if (io instanceof ArmIOCancoderTalonFX iocanc)
+            iocanc.setPosition(positionRad);
+    }
+
     public void configureBrake(boolean isBrake) {
-        if (io instanceof ArmIOCanEncoderTalonFX canio) {
+        if (io instanceof ArmIOCancoderTalonFX canio) {
             canio.setBrake(isBrake);
         }
     }
@@ -70,7 +75,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void setArmAccel(double accel) {
-        if (io instanceof ArmIOCanEncoderTalonFX iocan) {
+        if (io instanceof ArmIOCancoderTalonFX iocan) {
             iocan.setArmAccel(accel);
         }
     }

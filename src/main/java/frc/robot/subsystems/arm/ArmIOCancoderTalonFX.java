@@ -83,6 +83,10 @@ public class ArmIOCancoderTalonFX implements ArmIO {
         motor.setPosition(encoderPosition.getValueAsDouble() * ArmConstants.GEAR_RATIO);
     }
 
+    public void setPosition(double positionRad) {
+        motor.setPosition((positionRad / ArmConstants.PI_2) * ArmConstants.GEAR_RATIO);
+    }
+
     public double getRawEncoderPositon() {
         encoderPosition.refresh();
         return encoderPosition.getValueAsDouble();
