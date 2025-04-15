@@ -78,8 +78,10 @@ public class RobotContainer {
     private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFX(),
             new InfeedPivotEncoderIOCancoder());
 
-    private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty()));
-    private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty()));
+    private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty(), true));
+    private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), true));
+    private final Limelight ll3Coral = new Limelight(
+            new LimelightIO("limelight-threei", false, Optional.empty(), false));
 
     private static final double SLOW_SPEED = 0.2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -142,6 +144,9 @@ public class RobotContainer {
         xLimiter = new SlewRateLimiter(4.0);
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
+        NamedCommands.registerCommand("Set Coral Lock ON",
+                Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
+        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() -> drive.setGPVisionCorrection(null)));
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
         NamedCommands.registerCommand("Acquire",
@@ -385,10 +390,6 @@ public class RobotContainer {
         // () -> armistice.getTargetPosition() == ArmisticePositions.CLIMB)
         // .onlyIf(() -> climbDeadmanUnsafe));
         operatorController.start().onTrue(Commands.runOnce(() -> isSuperCycle = !isSuperCycle).ignoringDisable(true));
-        operatorController.povRight()
-                .onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB_2).onlyIf(() -> climbDeadmanUnsafe));
-        operatorController.povLeft()
-                .onTrue(armistice.runToPositionCommand(ArmisticePositions.CLIMB).onlyIf(() -> climbDeadmanUnsafe));
 
         // =================== //
         /* OPERATOR CONTROLLER */
@@ -548,12 +549,6 @@ public class RobotContainer {
                     Units.degreesToRadians(-1)));
 
             emergencyController.rightStick().onTrue(armistice.resetNudges().ignoringDisable(true));
-            emergencyController.leftStick().onTrue(
-                    armistice.runToFutureArmisticePositionCommand(drive::closestReefName,
-                            drive::getReefTargetIsRight)
-                            .onlyIf(() -> !climbDeadmanUnsafe));
-
-            emergencyController.leftTrigger().onTrue(armistice.toggleCoralMode());
 
             emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value,
                     0.5)
@@ -567,11 +562,19 @@ public class RobotContainer {
                             Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0))
                             .ignoringDisable(true));
 
-            emergencyController.rightBumper()
+            emergencyController.start().onTrue(
+                    armistice.runToFutureArmisticePositionCommand(drive::closestReefName,
+                            drive::getReefTargetIsRight)
+                            .onlyIf(() -> !climbDeadmanUnsafe));
+
+            emergencyController.back()
                     .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                             .ignoringDisable(true));
 
-            emergencyController.leftBumper().onTrue(pivot.hhhTest());
+            emergencyController.leftBumper().onTrue(armistice.toggleCoralMode());
+            emergencyController.rightBumper()
+                    .onTrue(Commands.either(Commands.runOnce(() -> drive.setGPVisionCorrection(null)),
+                            Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)), drive.hasCoralCorrection()));
         }
     }
 

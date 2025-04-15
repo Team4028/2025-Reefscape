@@ -20,29 +20,32 @@ public class LimelightIO {
     private final boolean is4;
     private final String limelightName;
     private Transform3d robotToCamera;
+    public boolean is3d;
 
-    public LimelightIO(String limelightName, boolean is4, Optional<Integer[]> tagFilter) {
+    public LimelightIO(String limelightName, boolean is4, Optional<Integer[]> tagFilter, boolean use3d) {
         this.is4 = is4;
+        is3d = use3d;
         this.limelightName = limelightName;
         if (tagFilter.isPresent()) {
             LimelightHelpers.SetFiducialIDFiltersOverride(limelightName,
                     Arrays.stream(tagFilter.get()).mapToInt(Integer::intValue).toArray());
         }
 
-        robotToCamera = new Transform3d(new Pose3d(), LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
-
-        new Thread(() -> {
-            while (robotToCamera.equals(new Transform3d())) {
-                System.out.println(limelightName + " is looking for robotToCamera transform...");
-                robotToCamera = new Transform3d(new Pose3d(),
-                        LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
-                try {
-                    Thread.sleep(20);
-                } catch (InterruptedException ignored) {
+        if (use3d) {
+            robotToCamera = new Transform3d(new Pose3d(), LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
+            new Thread(() -> {
+                while (robotToCamera.equals(new Transform3d())) {
+                    System.out.println(limelightName + " is looking for robotToCamera transform...");
+                    robotToCamera = new Transform3d(new Pose3d(),
+                            LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
+                    try {
+                        Thread.sleep(20);
+                    } catch (InterruptedException ignored) {
+                    }
                 }
-            }
-            System.out.println(limelightName + " found robotToCamera transform");
-        }).start();
+                System.out.println(limelightName + " found robotToCamera transform");
+            }).start();
+        }
     }
 
     @AutoLog
@@ -93,9 +96,12 @@ public class LimelightIO {
         if (LimelightHelpers.getTV(limelightName) && LimelightHelpers.getRawFiducials(limelightName).length != 0) {
             inputs.ta = LimelightHelpers.getTA(limelightName);
             inputs.targetCount = LimelightHelpers.getTargetCount(limelightName);
-            inputs.solverPoseBlue = LoggablePoseEstimate
-                    .fromPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName).orIfNull(new PoseEstimate()));
-            inputs.targetPoseCameraSpace = LimelightHelpers.getTargetPose_CameraSpace(limelightName);
+            if (is3d) {
+                inputs.solverPoseBlue = LoggablePoseEstimate
+                        .fromPoseEstimate(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName)
+                                .orIfNull(new PoseEstimate()));
+                inputs.targetPoseCameraSpace = LimelightHelpers.getTargetPose_CameraSpace(limelightName);
+            }
             try {
                 inputs.tid = LimelightHelpers.getRawFiducials(limelightName)[0].id;
             } catch (ArrayIndexOutOfBoundsException ignored) {
@@ -104,19 +110,19 @@ public class LimelightIO {
             inputs.rawFiducials = Arrays.stream(LimelightHelpers.getRawFiducials(limelightName))
                     .map(LoggableRawFiducial::fromRawFiducial).toArray(LoggableRawFiducial[]::new);
             inputs.tv = true;
-            var txty = MathUtils.rotateVector(
-                    new double[] { LimelightHelpers.getTX(limelightName), LimelightHelpers.getTY(limelightName) },
-                    robotToCamera.getRotation().getX());
-            inputs.tx = txty[0];
-            inputs.ty = txty[1];
-            txty = MathUtils.rotateVector(
-                    new double[] { LimelightHelpers.getTXNC(limelightName), LimelightHelpers.getTYNC(limelightName) },
-                    robotToCamera.getRotation().getX());
-            inputs.txnc = txty[0];
-            inputs.tync = txty[1];
         } else {
             inputs.tv = false;
         }
+        var txty = MathUtils.rotateVector(
+                new double[] { LimelightHelpers.getTX(limelightName), LimelightHelpers.getTY(limelightName) },
+                robotToCamera.orIfNull(new Transform3d()).getRotation().getX());
+        inputs.tx = txty[0];
+        inputs.ty = txty[1];
+        txty = MathUtils.rotateVector(
+                new double[] { LimelightHelpers.getTXNC(limelightName), LimelightHelpers.getTYNC(limelightName) },
+                robotToCamera.orIfNull(new Transform3d()).getRotation().getX());
+        inputs.txnc = txty[0];
+        inputs.tync = txty[1];
         inputs.robotYawInternalIMU = LimelightHelpers.getIMUData(limelightName).robotYaw;
         inputs.imuMode = (int) LimelightHelpers.getLimelightNTDouble(limelightName, "imumode_set");
     }
@@ -142,7 +148,8 @@ public class LimelightIO {
         var e = LimelightHelpers.getLimelightDoubleArrayEntry(limelightName, "robot_orientation_set");
         if (e.exists())
             return e.get()[0];
-        else return 0;
+        else
+            return 0;
     }
 
     public String getName() {

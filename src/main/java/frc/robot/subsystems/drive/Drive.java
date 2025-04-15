@@ -109,18 +109,23 @@ public class Drive extends SubsystemBase {
     private final Alert gyroDisconnectedAlert = new Alert("Disconnected gyro, using kinematics as fallback.",
             AlertType.kError);
 
+    @AutoLogOutput
+    private boolean useGPVisionCorrect = false;
+    private Limelight gpVisionSource = null;
+    
     private boolean isFinished2dAlign = true;
     private double filteredX, filteredY, filteredRot;
     private final LinearFilter xFilter, yFilter, rotFilter;
     private Limelight limelightLineupSource2d = null;
     private final ProfiledPIDController xPid, yPid, rotPid;
     private int ll2dLineupTagID = 0;
-
+    
     private final LoggedTunableNumber branchOffsetM, coralScoreOffsetIn, algaeOffsetIn;
-
+    
     public static final double PID_TRANSLATION_SPEED_MPS = 1.85;
     public static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
     private static final double AUTON_PATH_CANCEL_RADIUS_M = 2;
+    private static final double GP_CORRECTION_SPEED = 1;
 
     @AutoLogOutput(key = "Odometry/ClosestReef")
     private Pose2d closestReef = new Pose2d();
@@ -246,6 +251,11 @@ public class Drive extends SubsystemBase {
         });
     }
 
+    /** Enables gamepiece vision-based driving correction (via runVelocity), or disables it if the limelight is null */
+    public void setGPVisionCorrection(Limelight limelight) {
+        useGPVisionCorrect = (gpVisionSource = limelight) != null;
+    }
+
     @Override
     public void periodic() {
         Logger.recordOutput("Drive/ReefSide", reefTargetIsRight ? "R" : "L");
@@ -340,7 +350,9 @@ public class Drive extends SubsystemBase {
                         : Constants.AQUIRE_RIGHT_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
     }
 
-
+    public BooleanSupplier hasCoralCorrection() {
+        return () -> useGPVisionCorrect;
+    }
 
     /**
      * Runs the drive at the desired velocity.
@@ -348,6 +360,10 @@ public class Drive extends SubsystemBase {
      * @param speeds Speeds in meters/sec
      */
     public void runVelocity(ChassisSpeeds speeds) {
+        if (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect) {
+            speeds.vyMetersPerSecond += MathUtils.clamp(-gpVisionSource.getTX() / 10, -3.0, 3.0) * GP_CORRECTION_SPEED;
+            System.out.println(speeds.vxMetersPerSecond + ", " + speeds.vyMetersPerSecond);
+        }
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);

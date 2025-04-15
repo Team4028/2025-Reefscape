@@ -28,7 +28,8 @@ public class Limelight extends SubsystemBase {
     public Limelight(LimelightIO io) {
         this.io = io;
         name = io.getName();
-        VisionUtil.registerPoseSource(this, this::getBotposeEstimateMT2);
+        if (io.is3d)
+            VisionUtil.registerPoseSource(this, this::getBotposeEstimateMT2);
     }
 
     public boolean trustPose(Translation2d driveTrans) {
