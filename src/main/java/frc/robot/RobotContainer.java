@@ -215,7 +215,6 @@ public class RobotContainer {
         NamedCommands.registerCommand("Wait TOF", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
         NamedCommands.registerCommand("Stow", armistice.runToPositionCommand(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Stow No Wait", armistice.runToPositionNoWait(ArmisticePositions.STOW));
-        NamedCommands.registerCommand("Infeed Deploy", pivot.runDown());
         NamedCommands.registerCommand("Acquire Pos",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.CLEAN)
                         .alongWith(pivot.runDown()));
@@ -337,6 +336,7 @@ public class RobotContainer {
 
         hasGPRaw.onTrue(Commands.runOnce(() -> {
             unjamOn = true;
+            drive.resetGPTY();
         }));
 
         driverController.y().onTrue(pivot.runUp().alongWith(coral.runMotorCommand(0.5)))

@@ -65,7 +65,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.limelight.Limelight;
-import frc.robot.subsystems.limelight.LimelightConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import frc.robot.util.MathUtils;
@@ -114,6 +113,7 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput
     private boolean useGPVisionCorrect = false;
     private Limelight gpVisionSource = null;
+    private double lastTY = 0;
 
     private final InterpolatingDoubleTreeMap txty = new InterpolatingDoubleTreeMap();
 
@@ -370,6 +370,10 @@ public class Drive extends SubsystemBase {
         return () -> useGPVisionCorrect;
     }
 
+    public void resetGPTY() {
+        lastTY = 0;
+    }
+
     /**
      * Runs the drive at the desired velocity.
      *
@@ -377,12 +381,15 @@ public class Drive extends SubsystemBase {
      */
     public void runVelocity(ChassisSpeeds speeds) {
         if (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect) {
-            speeds.vyMetersPerSecond += MathUtils.clamp(
-                    (-gpVisionSource.getTX()
-                            - txty.get(gpVisionSource.getTY()))
-                            / 10,
-                    -3.0,
-                    3.0) * GP_CORRECTION_SPEED;
+            speeds.vyMetersPerSecond = ((lastTY < -10 && !gpVisionSource.getTV()) ? 0
+                    : speeds.vyMetersPerSecond + MathUtils.clamp(
+                            (-gpVisionSource.getTX()
+                                    - txty.get(gpVisionSource.getTY()))
+                                    / 10,
+                            -3.0,
+                            3.0) * GP_CORRECTION_SPEED);
+            if (gpVisionSource.getTV())
+                lastTY = gpVisionSource.getTY();
         }
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
