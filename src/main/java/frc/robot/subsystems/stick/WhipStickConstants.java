@@ -14,8 +14,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.SysIDUtil;
 
 public class WhipStickConstants {
-
-    public static final double STATOR_LIMIT = 32;
+    public static final double STATOR_LIMIT = 20;
     public static final double GEARING = 1;
     public static final double CURRENT_LIMIT_DELAY_ALGAE_SEC = 0.5;
     public static final double CURRENT_LIMIT_DELAY_CORAL_SEC = 0.1;

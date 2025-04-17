@@ -111,7 +111,7 @@ public class Armistice extends SudoSubsystem {
 
     public static enum ArmisticePositions {
         STOW(5.8 - 4, 5),
-        CLEAN(3.902 + Units.degreesToRadians(2), 4.017),
+        CLEAN(3.902 + Units.degreesToRadians(1), 4.017),
         SHANK(2.62 - 4 + 2 * Math.PI, 7),
         Cora_L1(-0.477 + Units.degreesToRadians(8), 11.015),
         Cora_L1_PIPE(-0.477 + Units.degreesToRadians(8), 11.015),
@@ -130,7 +130,7 @@ public class Armistice extends SudoSubsystem {
         A2_lgae(0.287 + Units.degreesToRadians(9), 8),
         A3_lgae(4.247 - 4 + Units.degreesToRadians(6), 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
-        PROC(-0.384 - GLOBAL_ARM_OFFSET, 0),
+        PROC(-0.384 - GLOBAL_ARM_OFFSET + Units.degreesToRadians(4), 0),
         BARGE(2.373 + Units.degreesToRadians(2), 46),
         BARGE_INTERMEDIATE(1.8, 44),
         CLIMB(0.383 - GLOBAL_ARM_OFFSET, 0), // negative version of this

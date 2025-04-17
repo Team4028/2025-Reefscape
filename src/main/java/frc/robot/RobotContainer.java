@@ -151,7 +151,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Set Coral Lock OFF", Commands.none());
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
-        NamedCommands.registerCommand("Acquire",///
+        NamedCommands.registerCommand("Acquire", ///
                 infeed.runMotorCommand(.8).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
                         .alongWith(pivot.runDown().asProxy()).andThen(
                                 Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
@@ -340,6 +340,9 @@ public class RobotContainer {
         hasGPRaw.onTrue(Commands.runOnce(() -> {
             unjamOn = true;
         }));
+
+        driverController.y().onTrue(pivot.runUp().alongWith(coral.runMotorCommand(0.5)))
+                .onFalse(coral.runMotorCommand(0));
 
         // ==============================================
         // DC -- RS: Cancel Command
@@ -583,13 +586,13 @@ public class RobotContainer {
 
             // emergencyController.leftBumper().onTrue(armistice.toggleCoralMode());
             // emergencyController.rightBumper().onTrue(armistice.runToPositionCommand(ArmisticePositions.GROND)
-            //         .andThen(Commands.runOnce(() -> disableArmisticeArm()))
-            //         .andThen(Commands.waitUntil(() -> armistice.getArm().getVelocityRad() == 0))
-            //         .andThen(Commands.waitSeconds(0.2))
-            //         .andThen(Commands.runOnce(() -> {
-            //             armistice.getArm().setPosition(-0.87);
-            //             DriverStation.reportWarning("Rezeroed arm", false);
-            //         })).finallyDo(this::enableArmisticeArm));
+            // .andThen(Commands.runOnce(() -> disableArmisticeArm()))
+            // .andThen(Commands.waitUntil(() -> armistice.getArm().getVelocityRad() == 0))
+            // .andThen(Commands.waitSeconds(0.2))
+            // .andThen(Commands.runOnce(() -> {
+            // armistice.getArm().setPosition(-0.87);
+            // DriverStation.reportWarning("Rezeroed arm", false);
+            // })).finallyDo(this::enableArmisticeArm));
             // emergencyController.rightBumper()
             // .onTrue(Commands.either(Commands.runOnce(() ->
             // drive.setGPVisionCorrection(null)),
