@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.LimelightHelpers.RawFiducial;
@@ -60,8 +62,9 @@ public class LimelightIO {
         this.robotToCamera = robotToCamera;
     }
 
+    @AutoLogOutput
     public double get2dXOffs() {
-        return Math.atan((Math.tan(robotToCamera.getRotation().getY() + LimelightHelpers.getTYNC(limelightName))
+        return ArmConstants.PI_1_2 - Math.atan((Math.tan(robotToCamera.getRotation().getY() + LimelightHelpers.getTYNC(limelightName))
                 * robotToCamera.getZ()) / robotToCamera.getX());
     }
 

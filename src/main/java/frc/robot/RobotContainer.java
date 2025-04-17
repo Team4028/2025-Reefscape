@@ -78,8 +78,12 @@ public class RobotContainer {
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty(), true));
     private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), true));
     // private final Limelight ll3Coral = new Limelight(
-    // new LimelightIO("limelight-threei", false, Optional.empty(), new
-    // Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0)), false));
+            // new LimelightIO("limelight-threei", false, Optional.empty(),
+            //         new Transform3d(
+            //                 new Translation3d(Units.inchesToMeters(-9), Units.inchesToMeters(-10),
+            //                         Units.inchesToMeters(21.75)),
+            //                 new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(270))),
+            //         false));
 
     private static final double SLOW_SPEED = 0.2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -144,10 +148,9 @@ public class RobotContainer {
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
         // NamedCommands.registerCommand("Set Coral Lock ON",
-        // Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
+        //         Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
         NamedCommands.registerCommand("Set Coral Lock ON", Commands.none());
-        // NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() ->
-        // drive.setGPVisionCorrection(null)));
+        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() -> drive.setGPVisionCorrection(null)));
         NamedCommands.registerCommand("Set Coral Lock OFF", Commands.none());
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));

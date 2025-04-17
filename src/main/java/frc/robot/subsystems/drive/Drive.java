@@ -64,6 +64,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.limelight.Limelight;
+import frc.robot.subsystems.limelight.LimelightConstants;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import frc.robot.util.MathUtils;
@@ -112,16 +113,16 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput
     private boolean useGPVisionCorrect = false;
     private Limelight gpVisionSource = null;
-    
+
     private boolean isFinished2dAlign = true;
     private double filteredX, filteredY, filteredRot;
     private final LinearFilter xFilter, yFilter, rotFilter;
     private Limelight limelightLineupSource2d = null;
     private final ProfiledPIDController xPid, yPid, rotPid;
     private int ll2dLineupTagID = 0;
-    
+
     private final LoggedTunableNumber branchOffsetM, coralScoreOffsetIn, algaeOffsetIn;
-    
+
     public static final double PID_TRANSLATION_SPEED_MPS = 1.85;
     public static final double PID_ROTATION_RAD_PER_SEC = Math.PI;
     private static final double AUTON_PATH_CANCEL_RADIUS_M = 2;
@@ -228,6 +229,11 @@ public class Drive extends SubsystemBase {
         angleController.setTolerance(Units.degreesToRadians(1));
         angleController.enableContinuousInput(0, 2 * Math.PI);
 
+        LimelightConstants.txty.put(-20.0, -15.);
+        LimelightConstants.txty.put(-5.2, -12.2);
+        LimelightConstants.txty.put(3., -8.);
+        LimelightConstants.txty.put(5.8, -7.1);
+
         SmartDashboard.putData("Swerve Drive", new Sendable() {
             @Override
             public void initSendable(SendableBuilder builder) {
@@ -251,7 +257,10 @@ public class Drive extends SubsystemBase {
         });
     }
 
-    /** Enables gamepiece vision-based driving correction (via runVelocity), or disables it if the limelight is null */
+    /**
+     * Enables gamepiece vision-based driving correction (via runVelocity), or
+     * disables it if the limelight is null
+     */
     public void setGPVisionCorrection(Limelight limelight) {
         useGPVisionCorrect = (gpVisionSource = limelight) != null;
     }
@@ -330,17 +339,22 @@ public class Drive extends SubsystemBase {
 
     public BooleanSupplier driveCloseEnoughAcquireAutonLeftLoli() {
         return () -> getPose().getTranslation().getDistance(
-                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_LEFT_POS.getTranslation())
+                AutoBuilder.shouldFlip()
+                        ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_LEFT_POS.getTranslation())
                         : Constants.AQUIRE_LOLI_LEFT_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
     }
+
     public BooleanSupplier driveCloseEnoughAcquireAutonMidLoli() {
         return () -> getPose().getTranslation().getDistance(
-                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_MID_POS.getTranslation())
+                AutoBuilder.shouldFlip()
+                        ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_MID_POS.getTranslation())
                         : Constants.AQUIRE_LOLI_MID_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
     }
+
     public BooleanSupplier driveCloseEnoughAcquireAutonRightLoli() {
         return () -> getPose().getTranslation().getDistance(
-                AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_RIGHT_POS.getTranslation())
+                AutoBuilder.shouldFlip()
+                        ? FlippingUtil.flipFieldPosition(Constants.AQUIRE_LOLI_RIGHT_POS.getTranslation())
                         : Constants.AQUIRE_LOLI_RIGHT_POS.getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
     }
 
@@ -360,8 +374,10 @@ public class Drive extends SubsystemBase {
      * @param speeds Speeds in meters/sec
      */
     public void runVelocity(ChassisSpeeds speeds) {
-        if (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect) {
-            speeds.vyMetersPerSecond += MathUtils.clamp((-gpVisionSource.getTX() - /*gpVisionSource.get2dXOffs()*/20) / 10, -3.0, 3.0) * GP_CORRECTION_SPEED;
+        if (false && (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect)) {
+            speeds.vyMetersPerSecond += MathUtils.clamp(
+                    (-gpVisionSource.getTX() - /*Units.radiansToDegrees(gpVisionSource.get2dXOffs())*//*LimelightConstants.txty.get(gpVisionSource.getTY())*/20) / 10, -3.0,
+                    3.0) * GP_CORRECTION_SPEED;
             System.out.println(speeds.vxMetersPerSecond + ", " + speeds.vyMetersPerSecond);
         }
         // Calculate module setpoints
@@ -432,8 +448,10 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput
     public Pose2d pipe1AlgaeClosestReefPose() {
         var crPose = closestReefPoseAlgae();
-        var crPoseNativeRot = new Pose2d(crPose.getTranslation(), crPose.getRotation().minus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
-        var plosCoral = crPoseNativeRot.transformBy(new Transform2d(Units.inchesToMeters(Constants.CORAL_DIAM_IN), 0, Rotation2d.kZero));
+        var crPoseNativeRot = new Pose2d(crPose.getTranslation(),
+                crPose.getRotation().minus(Constants.SCORING_SIDE_FROM_FRONT_ROT));
+        var plosCoral = crPoseNativeRot
+                .transformBy(new Transform2d(Units.inchesToMeters(Constants.CORAL_DIAM_IN), 0, Rotation2d.kZero));
         return new Pose2d(plosCoral.getTranslation(), crPose.getRotation());
     }
 
@@ -519,7 +537,8 @@ public class Drive extends SubsystemBase {
     public Command waitForDrivetrainDistance(double posError) {
         return Commands.waitUntil(() -> {
             return inPidTranslate && Math.abs(pidErrorM * Math.cos(pidThetaR)) <= posError
-                    && Math.abs(pidErrorM * Math.sin(pidThetaR)) <= Math.min(posError, Units.inchesToMeters(0.5)) && angleController.atSetpoint();
+                    && Math.abs(pidErrorM * Math.sin(pidThetaR)) <= Math.min(posError, Units.inchesToMeters(0.5))
+                    && angleController.atSetpoint();
         });
     }
 
