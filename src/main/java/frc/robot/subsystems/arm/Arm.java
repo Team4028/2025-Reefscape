@@ -35,6 +35,10 @@ public class Arm extends SubsystemBase {
         io.updateInputs(inputs);
     }
 
+    public double getVelocityRad() {
+        return inputs.armVelocityRotPerSec * 2 * Math.PI;
+    }
+
     public void setPosition(double positionRad) {
         if (io instanceof ArmIOCancoderTalonFX iocanc)
             iocanc.setPosition(positionRad);

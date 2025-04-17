@@ -14,16 +14,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -80,8 +77,9 @@ public class RobotContainer {
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty(), true));
     private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), true));
-    private final Limelight ll3Coral = new Limelight(
-            new LimelightIO("limelight-threei", false, Optional.empty(), false));
+    // private final Limelight ll3Coral = new Limelight(
+    // new LimelightIO("limelight-threei", false, Optional.empty(), new
+    // Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0)), false));
 
     private static final double SLOW_SPEED = 0.2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -133,6 +131,7 @@ public class RobotContainer {
     private final LoggedTunableNumber ipVbusChar = new LoggedTunableNumber("Infeed Pivot Char Vbus", 0);
 
     public RobotContainer() {
+        zeroArm.hasChanged(hashCode());
         drive.setPose(new Pose2d(drive.getPose().getTranslation(),
                 DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                         ? Rotation2d.kZero
@@ -144,12 +143,15 @@ public class RobotContainer {
         xLimiter = new SlewRateLimiter(4.0);
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
-        NamedCommands.registerCommand("Set Coral Lock ON",
-                Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
-        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() -> drive.setGPVisionCorrection(null)));
+        // NamedCommands.registerCommand("Set Coral Lock ON",
+        // Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
+        NamedCommands.registerCommand("Set Coral Lock ON", Commands.none());
+        // NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() ->
+        // drive.setGPVisionCorrection(null)));
+        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.none());
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
-        NamedCommands.registerCommand("Acquire",
+        NamedCommands.registerCommand("Acquire",///
                 infeed.runMotorCommand(.8).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
                         .alongWith(pivot.runDown().asProxy()).andThen(
                                 Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
@@ -222,10 +224,9 @@ public class RobotContainer {
         }));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
-        autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization())
+        autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization());
 
         // Set up SysId routines
-        ;
         VisionUtil.bindSimCameras(new Transform3d[] { new Transform3d() });
         configureBindings();
     }
@@ -285,6 +286,10 @@ public class RobotContainer {
 
     public void disableArmisticeArm() {
         armistice.disableArm();
+    }
+
+    public void enableArmisticeArm() {
+        armistice.enableArm();
     }
 
     private void configureBindings() {
@@ -523,6 +528,11 @@ public class RobotContainer {
             emergencyController.b().onTrue(pivot.runToPositionCommand(InfeedPivotPositions.UP.posRad));
             emergencyController.x().onTrue(pivot.runMotorCommand(-0.2));
             emergencyController.leftTrigger().onTrue(pivot.runToPositionCommand(InfeedPivotPositions.HANDOFF.posRad));
+            emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kLeftX.value,
+                    0.5)
+                    .onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(
+                            Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0))
+                            .ignoringDisable(true));
         } else {
             // emergencyController.leftBumper().onTrue(coral.runMotorCommand(-0.5)).onFalse(coral.runMotorCommand(0));
             // emergencyController.rightBumper().onTrue(coral.runMotorCommand(0.5)).onFalse(coral.runMotorCommand(0));
@@ -571,10 +581,28 @@ public class RobotContainer {
                     .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                             .ignoringDisable(true));
 
-            emergencyController.leftBumper().onTrue(armistice.toggleCoralMode());
-            emergencyController.rightBumper()
-                    .onTrue(Commands.either(Commands.runOnce(() -> drive.setGPVisionCorrection(null)),
-                            Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)), drive.hasCoralCorrection()));
+            // emergencyController.leftBumper().onTrue(armistice.toggleCoralMode());
+            // emergencyController.rightBumper().onTrue(armistice.runToPositionCommand(ArmisticePositions.GROND)
+            //         .andThen(Commands.runOnce(() -> disableArmisticeArm()))
+            //         .andThen(Commands.waitUntil(() -> armistice.getArm().getVelocityRad() == 0))
+            //         .andThen(Commands.waitSeconds(0.2))
+            //         .andThen(Commands.runOnce(() -> {
+            //             armistice.getArm().setPosition(-0.87);
+            //             DriverStation.reportWarning("Rezeroed arm", false);
+            //         })).finallyDo(this::enableArmisticeArm));
+            // emergencyController.rightBumper()
+            // .onTrue(Commands.either(Commands.runOnce(() ->
+            // drive.setGPVisionCorrection(null)),
+            // Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)),
+            // drive.hasCoralCorrection()));
+            emergencyController.rightBumper().onTrue(armistice.runToPositionCommand(ArmisticePositions.GROND)
+                    .andThen(Commands.runOnce(this::disableArmisticeArm))
+                    .andThen(Commands.waitUntil(() -> armistice.getArm().getVelocityRad() == 0))
+                    .andThen(Commands.waitSeconds(0.2))
+                    .andThen(Commands.runOnce(() -> {
+                        armistice.getArm().setPosition(-0.87);
+                        DriverStation.reportWarning("Rezeroed Arm", false);
+                    })).finallyDo(this::enableArmisticeArm));
         }
     }
 

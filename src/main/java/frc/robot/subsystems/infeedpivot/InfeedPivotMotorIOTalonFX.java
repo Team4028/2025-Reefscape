@@ -3,7 +3,6 @@ package frc.robot.subsystems.infeedpivot;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -13,6 +12,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.ArmConstants;
 
@@ -30,7 +30,6 @@ public class InfeedPivotMotorIOTalonFX implements InfeedPivotMotorIO {
     private final ArmFeedforward aFF = InfeedPivotConstants.pidConfig.makeArmFeedforward();
 
     public InfeedPivotMotorIOTalonFX() {
-        // motor.getConfigurator().apply(InfeedPivotConstants.TalonFX.feedback);
         motor.getConfigurator().apply(InfeedPivotConstants.TalonFX.motorConfigs);
         motor.getConfigurator().apply(InfeedPivotConstants.TalonFX.currLimits);
         motor.getConfigurator().apply(InfeedPivotConstants.TalonFX.softLimits);
@@ -51,19 +50,21 @@ public class InfeedPivotMotorIOTalonFX implements InfeedPivotMotorIO {
 
     @Override
     public void setVBus(double vbus) {
-        motor.setControl(vbusControl.withOutput(vbus));
+        if (!Constants.CHAR_MODE)
+            motor.setControl(vbusControl.withOutput(vbus));
     }
 
     @Override
     public void setPid(double posRad) {
-        motor.setControl(voltControl.withOutput(pid.calculate(
-                motor.getPosition(true).getValueAsDouble() * ArmConstants.PI_2 / InfeedPivotConstants.GEAR_RATIO,
-                posRad)
-                + aFF.calculate(
-                        motor.getPosition().getValueAsDouble() * ArmConstants.PI_2
-                                / InfeedPivotConstants.GEAR_RATIO,
-                        motor.getVelocity(true).getValueAsDouble() * ArmConstants.PI_2
-                                / InfeedPivotConstants.GEAR_RATIO)));
+        if (!Constants.CHAR_MODE)
+            motor.setControl(voltControl.withOutput(pid.calculate(
+                    motor.getPosition(true).getValueAsDouble() * ArmConstants.PI_2 / InfeedPivotConstants.GEAR_RATIO,
+                    posRad)
+                    + aFF.calculate(
+                            motor.getPosition().getValueAsDouble() * ArmConstants.PI_2
+                                    / InfeedPivotConstants.GEAR_RATIO,
+                            motor.getVelocity(true).getValueAsDouble() * ArmConstants.PI_2
+                                    / InfeedPivotConstants.GEAR_RATIO)));
     }
 
     @Override

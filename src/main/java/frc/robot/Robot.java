@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -65,6 +66,7 @@ public class Robot extends LoggedRobot {
                 break;
         }
 
+        SignalLogger.enableAutoLogging(false);
         Logger.start();
     }
 
@@ -97,6 +99,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        robotContainer.enableArmisticeArm();
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         if (autonomousCommand != null) {
@@ -113,6 +116,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
+        robotContainer.enableArmisticeArm();
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }

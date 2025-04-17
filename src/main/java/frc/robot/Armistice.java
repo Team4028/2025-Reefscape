@@ -86,6 +86,9 @@ public class Armistice extends SudoSubsystem {
     private static final int SAFETY_TOLERANCE = 4;
 
     @AutoLogOutput
+    private boolean armIsDisabled = false;
+
+    @AutoLogOutput
     private boolean coralReefAcquireOffset = false;
     private JSONObject heatmapOffset = null;
 
@@ -103,7 +106,7 @@ public class Armistice extends SudoSubsystem {
             "8oC", ArmisticePositions.A2_lgae,
             "10oC", ArmisticePositions.A3_lgae);
 
-    public static final double GLOBAL_ARM_OFFSET = -0.343585 - Units.degreesToRadians(4);
+    public static final double GLOBAL_ARM_OFFSET = -0.343585;
     public static final double GLOBAL_ELEVATOR_OFFSET = 0;
 
     public static enum ArmisticePositions {
@@ -298,6 +301,11 @@ public class Armistice extends SudoSubsystem {
 
     public void disableArm() {
         disarm.runMotor(0);
+        armIsDisabled = true;
+    }
+
+    public void enableArm() {
+        armIsDisabled = false;
     }
 
     public Command sysIDCommandElevator(BooleanSupplier dynamic, Supplier<Direction> direction) {
@@ -594,7 +602,7 @@ public class Armistice extends SudoSubsystem {
 
     @Override
     public void periodic() {
-        if (Constants.USE_ARMISTICE_PID) {
+        if (Constants.USE_ARMISTICE_PID && !armIsDisabled) {
             if (useSafety) {
                 var safeR = getSafetyAlgaeCompensation();
                 elevatorWaiting = !disarmAtSafeDistance() && !elevatorIsSafe();

@@ -42,6 +42,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock ON"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
@@ -75,6 +81,12 @@
                             "type": "named",
                             "data": {
                               "name": "Guarentee Stop"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Set Coral Lock OFF"
                             }
                           }
                         ]
@@ -118,6 +130,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock ON"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
@@ -151,6 +169,12 @@
                             "type": "named",
                             "data": {
                               "name": "Guarentee Stop"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Set Coral Lock OFF"
                             }
                           }
                         ]
@@ -194,6 +218,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock ON"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
@@ -227,6 +257,12 @@
                             "type": "named",
                             "data": {
                               "name": "Guarentee Stop"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Set Coral Lock OFF"
                             }
                           }
                         ]

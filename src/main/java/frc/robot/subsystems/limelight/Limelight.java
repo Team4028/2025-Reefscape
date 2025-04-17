@@ -43,6 +43,10 @@ public class Limelight extends SubsystemBase {
         return inputs.tx;
     }
 
+    public double get2dXOffs() {
+        return io.get2dXOffs();
+    }
+
     public double getTY() {
         return inputs.ty;
     }

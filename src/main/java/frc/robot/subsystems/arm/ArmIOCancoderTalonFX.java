@@ -13,6 +13,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.MotorData;
 
@@ -41,16 +43,25 @@ public class ArmIOCancoderTalonFX implements ArmIO {
         motor.getConfigurator().apply(ArmConstants.TalonFX.pidConfigs, 0.25);
         motor.getConfigurator().apply(ArmConstants.TalonFX.mmConfigs, 0.25);
         cancoder.getConfigurator().apply(ArmConstants.Cancoder.config);
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-            }
+        // new Thread(() -> {
+        //     try {
+        //         Thread.sleep(1000);
+        //     } catch (InterruptedException ignored) {
+        //     }
 
-            while (motor.getVelocity(true).getValueAsDouble() != 0)
-                ;
-            initEncoder();
-            System.out.println(String.format("Successfully initialized TalonFX %d Position", motor.getDeviceID()));
+        //     while (RobotController.getCANStatus().percentBusUtilization < 0 || RobotController.getCANStatus().percentBusUtilization > 94)
+        //         ;
+        //     initEncoder();
+        //     System.out.println(String.format("Successfully initialized TalonFX %d Position", motor.getDeviceID()));
+        // }).start();
+        new Thread(() -> {
+            while (RobotController.getCANStatus().percentBusUtilization < 0.9) {
+                System.out.println("Waiting to zero arm");
+            }
+            if (DriverStation.isDisabled()) {
+                setPosition(-0.87);
+                DriverStation.reportWarning("ZEROED MOTOR " + motor.getDeviceID(), false);
+            }
         }).start();
 
         BaseStatusSignal.setUpdateFrequencyForAll(100, motorVolts, motorCurrent, motorPosition, motorVel,
@@ -75,7 +86,7 @@ public class ArmIOCancoderTalonFX implements ArmIO {
 
     public void setBrake(boolean isBrake) {
         motor.getConfigurator()
-                .apply(ArmConstants.TalonFX.motorConfigs.withNeutralMode(NeutralModeValue.valueOf(isBrake ? 1 : 0)));
+                .apply(ArmConstants.TalonFX.motorConfigs.withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
     }
 
     public void initEncoder() {

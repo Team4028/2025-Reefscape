@@ -361,7 +361,7 @@ public class Drive extends SubsystemBase {
      */
     public void runVelocity(ChassisSpeeds speeds) {
         if (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect) {
-            speeds.vyMetersPerSecond += MathUtils.clamp(-gpVisionSource.getTX() / 10, -3.0, 3.0) * GP_CORRECTION_SPEED;
+            speeds.vyMetersPerSecond += MathUtils.clamp((-gpVisionSource.getTX() - /*gpVisionSource.get2dXOffs()*/20) / 10, -3.0, 3.0) * GP_CORRECTION_SPEED;
             System.out.println(speeds.vxMetersPerSecond + ", " + speeds.vyMetersPerSecond);
         }
         // Calculate module setpoints

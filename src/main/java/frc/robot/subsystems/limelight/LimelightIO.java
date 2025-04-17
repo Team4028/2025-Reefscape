@@ -48,6 +48,23 @@ public class LimelightIO {
         }
     }
 
+    public LimelightIO(String limelightName, boolean is4, Optional<Integer[]> tagFilter, Transform3d robotToCamera,
+            boolean use3d) {
+        this.is4 = is4;
+        is3d = use3d;
+        this.limelightName = limelightName;
+        if (tagFilter.isPresent()) {
+            LimelightHelpers.SetFiducialIDFiltersOverride(limelightName,
+                    Arrays.stream(tagFilter.get()).mapToInt(Integer::intValue).toArray());
+        }
+        this.robotToCamera = robotToCamera;
+    }
+
+    public double get2dXOffs() {
+        return Math.atan((Math.tan(robotToCamera.getRotation().getY() + LimelightHelpers.getTYNC(limelightName))
+                * robotToCamera.getZ()) / robotToCamera.getX());
+    }
+
     @AutoLog
     public static class LimelightIOInputs {
         public boolean tv = false;
