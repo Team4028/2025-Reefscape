@@ -18,7 +18,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -77,13 +79,13 @@ public class RobotContainer {
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty(), true));
     private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), true));
-    // private final Limelight ll3Coral = new Limelight(
-            // new LimelightIO("limelight-threei", false, Optional.empty(),
-            //         new Transform3d(
-            //                 new Translation3d(Units.inchesToMeters(-9), Units.inchesToMeters(-10),
-            //                         Units.inchesToMeters(21.75)),
-            //                 new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(270))),
-            //         false));
+    private final Limelight ll3Coral = new Limelight(
+            new LimelightIO("limelight-threei", false, Optional.empty(),
+                    new Transform3d(
+                            new Translation3d(Units.inchesToMeters(-9), Units.inchesToMeters(-10),
+                                    Units.inchesToMeters(21.75)),
+                            new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(270))),
+                    false));
 
     private static final double SLOW_SPEED = 0.2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -147,11 +149,9 @@ public class RobotContainer {
         xLimiter = new SlewRateLimiter(4.0);
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
-        // NamedCommands.registerCommand("Set Coral Lock ON",
-        //         Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
-        NamedCommands.registerCommand("Set Coral Lock ON", Commands.none());
+        NamedCommands.registerCommand("Set Coral Lock ON",
+                Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
         NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() -> drive.setGPVisionCorrection(null)));
-        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.none());
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
         NamedCommands.registerCommand("Acquire", ///
@@ -215,6 +215,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Wait TOF", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
         NamedCommands.registerCommand("Stow", armistice.runToPositionCommand(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Stow No Wait", armistice.runToPositionNoWait(ArmisticePositions.STOW));
+        NamedCommands.registerCommand("Infeed Deploy", pivot.runDown());
         NamedCommands.registerCommand("Acquire Pos",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.CLEAN)
                         .alongWith(pivot.runDown()));
@@ -304,17 +305,11 @@ public class RobotContainer {
         // ==============================================
         // DC -- LY/LX/RX: Drive
         // ==============================================
-        drive.setDefaultCommand(
-                Commands.either(drive.joystickDrive(
+        drive.setDefaultCommand(drive.joystickDrive(
                         () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
                         () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
                         () -> scaleDriverController(() -> -driverController.getRightX(),
-                                LimiterState.THETA)),
-                        drive.joystickDriveRR(
-                                () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
-                                () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
-                                () -> scaleDriverController(() -> -driverController.getRightX(), LimiterState.THETA)),
-                        () -> !isRRelative));
+                                LimiterState.THETA)));
 
         // ==============================================
         // DC -- START: Zero Drive
@@ -351,8 +346,6 @@ public class RobotContainer {
         // DC -- RS: Cancel Command
         // ==============================================
         driverController.rightStick().onTrue(drive.runOnce(drive::stop));
-
-        driverController.y().onTrue(Commands.runOnce(() -> isRRelative = !isRRelative));
 
         // ==============================================
         // DC -- LT: Infeed Coral

@@ -38,6 +38,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -114,6 +115,8 @@ public class Drive extends SubsystemBase {
     private boolean useGPVisionCorrect = false;
     private Limelight gpVisionSource = null;
 
+    private final InterpolatingDoubleTreeMap txty = new InterpolatingDoubleTreeMap();
+
     private boolean isFinished2dAlign = true;
     private double filteredX, filteredY, filteredRot;
     private final LinearFilter xFilter, yFilter, rotFilter;
@@ -169,6 +172,10 @@ public class Drive extends SubsystemBase {
             ModuleIO frModuleIO,
             ModuleIO blModuleIO,
             ModuleIO brModuleIO) {
+        txty.put(-20.0, -15.);
+        txty.put(-5.2, -12.2);
+        txty.put(3., -8.);
+        txty.put(5.8, -7.1);
         this.gyroIO = gyroIO;
         modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
         modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
@@ -228,11 +235,6 @@ public class Drive extends SubsystemBase {
         pidLineup.setTolerance(0.00635);
         angleController.setTolerance(Units.degreesToRadians(1));
         angleController.enableContinuousInput(0, 2 * Math.PI);
-
-        LimelightConstants.txty.put(-20.0, -15.);
-        LimelightConstants.txty.put(-5.2, -12.2);
-        LimelightConstants.txty.put(3., -8.);
-        LimelightConstants.txty.put(5.8, -7.1);
 
         SmartDashboard.putData("Swerve Drive", new Sendable() {
             @Override
@@ -374,11 +376,13 @@ public class Drive extends SubsystemBase {
      * @param speeds Speeds in meters/sec
      */
     public void runVelocity(ChassisSpeeds speeds) {
-        if (false && (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect)) {
+        if (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect) {
             speeds.vyMetersPerSecond += MathUtils.clamp(
-                    (-gpVisionSource.getTX() - /*Units.radiansToDegrees(gpVisionSource.get2dXOffs())*//*LimelightConstants.txty.get(gpVisionSource.getTY())*/20) / 10, -3.0,
+                    (-gpVisionSource.getTX()
+                            - txty.get(gpVisionSource.getTY()))
+                            / 10,
+                    -3.0,
                     3.0) * GP_CORRECTION_SPEED;
-            System.out.println(speeds.vxMetersPerSecond + ", " + speeds.vyMetersPerSecond);
         }
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);

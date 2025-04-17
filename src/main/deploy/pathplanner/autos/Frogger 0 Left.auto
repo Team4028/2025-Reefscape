@@ -74,6 +74,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Infeed Deploy"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Frogger-Left.4"
@@ -147,6 +153,12 @@
           "type": "named",
           "data": {
             "name": "Run To Closest Right Reef"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Infeed Deploy"
           }
         }
       ]

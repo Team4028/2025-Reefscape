@@ -36,6 +36,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Infeed Deploy"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Asteriod-Left.2"
@@ -116,6 +122,12 @@
           "type": "named",
           "data": {
             "name": "Run To Closest Right Reef"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Infeed Deploy"
           }
         },
         {
@@ -202,6 +214,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Infeed Deploy"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Asteriod-Left.8"
@@ -282,6 +300,12 @@
           "type": "named",
           "data": {
             "name": "Run To Closest Right Reef L2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Infeed Deploy"
           }
         }
       ]
