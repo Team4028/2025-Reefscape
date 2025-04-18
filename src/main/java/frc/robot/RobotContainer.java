@@ -378,13 +378,13 @@ public class RobotContainer {
                         .alongWith(coral.runMotorCommand(0.5)))
                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                 .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
-                .andThen(pivot.waitUntilInTolerance(0.1).andThen(
-                        Commands.runOnce(() -> infeed.setHasCoral(false))
-                                .alongWith(Commands.runOnce(() -> infeed.setBrake(false))
-                                        .andThen(infeed.runMotorCommand(0))))
+                .andThen(pivot.waitUntilInTolerance(0.1)
                         .alongWith(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
                         .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier())))
-                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
+                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
+                    Commands.runOnce(() -> infeed.setHasCoral(false))
+                            .alongWith(Commands.runOnce(() -> infeed.setBrake(false))
+                                    .andThen(infeed.runMotorCommand(0)))))
                 .finallyDo(() -> {
                     armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
                             .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier()))
