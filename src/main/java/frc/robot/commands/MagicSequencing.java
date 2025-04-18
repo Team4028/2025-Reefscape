@@ -211,7 +211,7 @@ public class MagicSequencing {
                                 .alongWith(algae.runMotorCommandAlgae(0.95))
                                 .until(algae.hasGamePieceSupplier()).withTimeout(3))
                 .andThen(drive.runVelocityAngle(() -> 0, () -> -2, () -> drive.getRotation()).withTimeout(0.3)
-                        .alongWith(armistice.nudgeCommand(2, 0))
+                        .alongWith(armistice.nudgeCommand(2, 0)).onlyIf(() -> acquirePosition.get() == ArmisticePositions.A3_lgae)
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)
                                 .alongWith(drive.runOnce(drive::stop)))
                         .andThen(armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))))
