@@ -18,7 +18,8 @@ public class InfeedPivotConstants {
     public static enum InfeedPivotPositions {
         DOWN(0.2),
         HANDOFF(1),
-        UP(1.7);
+        UP(1.7),
+        CLIMB(2.5);
 
         public double posRad;
 

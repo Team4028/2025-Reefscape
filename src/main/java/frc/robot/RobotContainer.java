@@ -230,7 +230,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Stow No Wait", armistice.runToPositionNoWait(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Acquire Pos",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.CLEAN)
-                        .alongWith(pivot.runDown()));
+                        .alongWith(pivot.runDown()).alongWith(infeed.runMotorCommand(.8)));
         NamedCommands.registerCommand("L3 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L3));
         NamedCommands.registerCommand("L2 Score",
@@ -378,17 +378,20 @@ public class RobotContainer {
                         .alongWith(coral.runMotorCommand(0.5)))
                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                 .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
-                .andThen(pivot.waitUntilInTolerance(0.1))
-                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
+                .andThen(pivot.waitUntilInTolerance(0.1).andThen(
                         Commands.runOnce(() -> infeed.setHasCoral(false))
                                 .alongWith(Commands.runOnce(() -> infeed.setBrake(false))
-                                        .andThen(infeed.runMotorCommand(0)))))
+                                        .andThen(infeed.runMotorCommand(0))))
+                        .alongWith(Commands.waitUntil(armistice.armAndElevatorAtTarget()))
+                        .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier())))
+                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
                 .finallyDo(() -> {
-                    infeed.setBrake(true);
                     armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
+                            .alongWith(Commands.waitUntil(coral.hasGamePieceSupplier()))
                             .andThen(Commands.runOnce(() -> armistice.setSafety(true))
                                     .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
-                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule();
+                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning)
+                            .alongWith(Commands.runOnce(() -> infeed.setBrake(true))).schedule();
                 }),
                 Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed))
                 .onlyIfNoReqs(DriverStation::isTeleop));

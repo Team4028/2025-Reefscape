@@ -49,6 +49,10 @@ public class InfeedPivot extends SubsystemBase {
         return runToPositionCommand(InfeedPivotPositions.UP.posRad).alongWith(Commands.runOnce(() -> up = true));
     }
 
+    public Command runUpClimb() {
+        return runToPositionCommand(InfeedPivotPositions.CLIMB.posRad).alongWith(Commands.runOnce(() -> up = true));
+    }
+
     public Command runDown() {
         return runMotorCommand(-0.2).alongWith(Commands.runOnce(() -> up = false));
     }
