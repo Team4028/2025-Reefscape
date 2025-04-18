@@ -10,6 +10,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -110,6 +111,9 @@ public class RobotContainer {
     @AutoLogOutput
     private boolean isSuperCycle = false;
 
+    @AutoLogOutput
+    private boolean isAltBarge = false;
+
     private final Trigger hasGamePiece = new Trigger(
             infeed.hasGamepieceSupplier().and(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN)
                     .and(pivot.isUp().not()));
@@ -149,6 +153,15 @@ public class RobotContainer {
         xLimiter = new SlewRateLimiter(4.0);
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
+        NamedCommands.registerCommand("Lolipop Algae",
+                Commands.runOnce(() -> armistice.setSafety(climbDeadmanUnsafe))
+                        .andThen(armistice.runToPositionCommand(ArmisticePositions.PROC)
+                                .alongWith(coral.runMotorCommandAlgae(0.95))
+                                .alongWith(Commands.waitUntil(coral.hasAlgae()))
+                                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)))
+                        .finallyDo(() -> armistice.setSafety(true)));
+        NamedCommands.registerCommand("Loli Acquire Wait", Commands.waitUntil(coral.hasAlgae()));
+        NamedCommands.registerCommand("Loli Stage", armistice.runToPositionNoWait(ArmisticePositions.PROC));
         NamedCommands.registerCommand("Set Coral Lock ON",
                 Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
         NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() -> drive.setGPVisionCorrection(null)));
@@ -274,6 +287,7 @@ public class RobotContainer {
 
     public void logLLPoses() {
         VisionUtil.logPoses(drive);
+        Logger.recordOutput("Barge Mode", !isAltBarge ? "Std/Inf" : "Opp/Clmb");
     }
 
     public void seedll4IMU() {
@@ -305,10 +319,10 @@ public class RobotContainer {
         // DC -- LY/LX/RX: Drive
         // ==============================================
         drive.setDefaultCommand(drive.joystickDrive(
-                        () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
-                        () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
-                        () -> scaleDriverController(() -> -driverController.getRightX(),
-                                LimiterState.THETA)));
+                () -> scaleDriverController(() -> -driverController.getLeftY(), LimiterState.X),
+                () -> scaleDriverController(() -> -driverController.getLeftX(), LimiterState.Y),
+                () -> scaleDriverController(() -> -driverController.getRightX(),
+                        LimiterState.THETA)));
 
         // ==============================================
         // DC -- START: Zero Drive
@@ -393,7 +407,7 @@ public class RobotContainer {
         // armistice.runToPositionCommand(ArmisticePositions.CLIMB),
         // () -> armistice.getTargetPosition() == ArmisticePositions.CLIMB)
         // .onlyIf(() -> climbDeadmanUnsafe));
-        operatorController.start().onTrue(Commands.runOnce(() -> isSuperCycle = !isSuperCycle).ignoringDisable(true));
+        operatorController.start().onTrue(Commands.runOnce(() -> isAltBarge = !isAltBarge).ignoringDisable(true));
 
         // =================== //
         /* OPERATOR CONTROLLER */
@@ -504,11 +518,14 @@ public class RobotContainer {
                 .defer(this::runToClosestAlgae, Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))
                 .onlyIf(() -> !climbDeadmanUnsafe));
 
-        operatorController.axisLessThan(XboxController.Axis.kRightY.value, -0.5).onTrue(armistice
-                .runToPositionCommand(ArmisticePositions.BARGE, drive.closestReefName(), drive.getReefTargetIsRight()));
+        operatorController.axisLessThan(XboxController.Axis.kRightY.value, -0.5).onTrue(Commands.defer(() -> armistice
+                .runToPositionCommand(isAltBarge ? ArmisticePositions.BARGE_OPPOSITE : ArmisticePositions.BARGE),
+                Set.of(armistice.getArm(), armistice.getElevator())));
 
         operatorController.axisGreaterThan(XboxController.Axis.kRightY.value, 0.5)
-                .onTrue(armistice.runToPositionCommand(ArmisticePositions.PROC));
+                .onTrue(Commands.runOnce(() -> armistice.setSafety(false))
+                        .andThen(armistice.runToPositionCommand(ArmisticePositions.PROC))
+                        .finallyDo(() -> armistice.setSafety(true)));
 
         // ==================== //
         /* EMERGENCY CONTROLLER */
@@ -580,20 +597,6 @@ public class RobotContainer {
                     .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                             .ignoringDisable(true));
 
-            // emergencyController.leftBumper().onTrue(armistice.toggleCoralMode());
-            // emergencyController.rightBumper().onTrue(armistice.runToPositionCommand(ArmisticePositions.GROND)
-            // .andThen(Commands.runOnce(() -> disableArmisticeArm()))
-            // .andThen(Commands.waitUntil(() -> armistice.getArm().getVelocityRad() == 0))
-            // .andThen(Commands.waitSeconds(0.2))
-            // .andThen(Commands.runOnce(() -> {
-            // armistice.getArm().setPosition(-0.87);
-            // DriverStation.reportWarning("Rezeroed arm", false);
-            // })).finallyDo(this::enableArmisticeArm));
-            // emergencyController.rightBumper()
-            // .onTrue(Commands.either(Commands.runOnce(() ->
-            // drive.setGPVisionCorrection(null)),
-            // Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)),
-            // drive.hasCoralCorrection()));
             emergencyController.rightBumper().onTrue(armistice.runToPositionCommand(ArmisticePositions.GROND)
                     .andThen(Commands.runOnce(this::disableArmisticeArm))
                     .andThen(Commands.waitUntil(() -> armistice.getArm().getVelocityRad() == 0))
@@ -658,12 +661,12 @@ public class RobotContainer {
     }
 
     private Command runToClosestReefAuto() {
-        return MagicSequencing.magicScoreNoDB(drive, armistice, coral, drive::pipe1ClosestReefPose,
+        return MagicSequencing.magicScoreNoDB(drive, armistice, coral, pivot, drive::pipe1ClosestReefPose,
                 () -> ArmisticePositions.Cora_L4);
     }
 
     private Command runToClosestReefAutoL2() {
-        return MagicSequencing.magicScoreNoDBL2(drive, armistice, coral, drive::pipe1ClosestReefPose,
+        return MagicSequencing.magicScoreNoDBL2(drive, armistice, coral, pivot, drive::pipe1ClosestReefPose,
                 () -> ArmisticePositions.Cora_L2);
     }
 

@@ -127,12 +127,13 @@ public class Armistice extends SudoSubsystem {
         Cora_L4_SC(4.652 - 4, 31.008),
         Cora_L4_PIPE(1.11 + Units.degreesToRadians(2), 37.008),
         Cora_L4_PIPE_SC(4.29 - 4, 37.008),
-        A2_lgae(0.287 + Units.degreesToRadians(9), 8),
-        A3_lgae(4.247 - 4 + Units.degreesToRadians(6), 26),
+        A2_lgae(0.287 + Units.degreesToRadians(9) - 0.0408, 8),
+        A3_lgae(4.247 - 4 + Units.degreesToRadians(6) - 0.0408, 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
         PROC(-0.384 - GLOBAL_ARM_OFFSET + Units.degreesToRadians(4), 0),
         BARGE(2.373 + Units.degreesToRadians(5), 48),
         BARGE_INTERMEDIATE(1.8, 44),
+        BARGE_OPPOSITE(0.923 - GLOBAL_ARM_OFFSET, 48),
         CLIMB(0.383 - GLOBAL_ARM_OFFSET, 0), // negative version of this
         CLIMB_2(2 * Math.PI, 8.125);
 
@@ -169,11 +170,15 @@ public class Armistice extends SudoSubsystem {
         }
 
         public boolean isAlgae() {
-            return name().contains("lgae") || this == BARGE;
+            return name().contains("lgae") || isBarge();
         }
 
         public boolean isClimb() {
             return name().contains("CLIMB");
+        }
+
+        public boolean isBarge() {
+            return this == BARGE || this == BARGE_OPPOSITE;
         }
 
         public boolean isAcquire() {
@@ -330,7 +335,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionCommand(ArmisticePositions position) {
         return runToPositionUnsafe(ArmisticePositions.BARGE_INTERMEDIATE).andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition == ArmisticePositions.BARGE && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
                     armTargetRad = position.getArmPositionRad(globalArmOffsetRad);
@@ -339,7 +344,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionCommand(ArmisticePositions position, String closestReefName, boolean isRight) {
         return runToPositionUnsafe(ArmisticePositions.BARGE_INTERMEDIATE).andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition == ArmisticePositions.BARGE && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches)
@@ -350,7 +355,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionNoWait(ArmisticePositions position) {
         return runToPositionUnsafe(ArmisticePositions.BARGE_INTERMEDIATE).andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition == ArmisticePositions.BARGE && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
                     armTargetRad = position.getArmPositionRad(globalArmOffsetRad);
@@ -367,7 +372,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionNoWait(ArmisticePositions position, String closestReefName, boolean isRight) {
         return runToPositionUnsafe(ArmisticePositions.BARGE_INTERMEDIATE).andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition == ArmisticePositions.BARGE && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches)

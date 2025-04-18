@@ -241,7 +241,7 @@
                           {
                             "type": "named",
                             "data": {
-                              "name": "Acquire Wait"
+                              "name": "Loli Acquire Wait"
                             }
                           }
                         ]
@@ -272,16 +272,10 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Acquire"
+                  "name": "Lolipop Algae"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Right Reef L2"
           }
         }
       ]

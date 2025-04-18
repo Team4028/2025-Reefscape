@@ -15,6 +15,7 @@ import frc.robot.Armistice;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.infeedpivot.InfeedPivot;
 import frc.robot.subsystems.stick.WhipStick;
 import frc.robot.util.MiscUtils;
 import lombok.experimental.ExtensionMethod;
@@ -25,7 +26,7 @@ import lombok.experimental.UtilityClass;
 public class MagicSequencing {
     public static boolean isMagicScoreRunning = false;
 
-    public static final Command magicScoreNoDB(Drive drive, Armistice armistice, WhipStick coral,
+    public static final Command magicScoreNoDB(Drive drive, Armistice armistice, WhipStick coral, InfeedPivot pivot,
             Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -78,7 +79,7 @@ public class MagicSequencing {
                                 .schedule()));
     }
 
-    public static final Command magicScoreNoDBL2(Drive drive, Armistice armistice, WhipStick coral,
+    public static final Command magicScoreNoDBL2(Drive drive, Armistice armistice, WhipStick coral, InfeedPivot pivot,
             Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -205,6 +206,7 @@ public class MagicSequencing {
                                 .alongWith(algae.runMotorCommandAlgae(0.95))
                                 .until(algae.hasGamePieceSupplier()).withTimeout(3))
                 .andThen(drive.runVelocityAngle(() -> 0, () -> -2, () -> drive.getRotation()).withTimeout(0.3)
+                        .alongWith(armistice.nudgeCommand(2, 0))
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)
                                 .alongWith(drive.runOnce(drive::stop)))
                         .andThen(armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))))

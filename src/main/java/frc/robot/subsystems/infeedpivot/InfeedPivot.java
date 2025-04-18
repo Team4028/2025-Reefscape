@@ -95,7 +95,7 @@ public class InfeedPivot extends SubsystemBase {
     @CreateState("holding_down")
     public void runTargetVbus() {
         if (state == InfeedPivotStates.HOLDING_DOWN) {
-            motorIO.setVBus(-0.2);
+            motorIO.setVBus(-0.5);
             return;
         } else if (motorInputs.positionRad < 0.7) {
             if (motorInputs.positionRad < 0.05) {

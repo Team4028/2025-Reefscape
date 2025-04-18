@@ -76,40 +76,66 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Frogger-Right.4"
+            "pathName": "Asteroid-Right.5"
           }
         },
         {
-          "type": "race",
+          "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "parallel",
+                "type": "sequential",
                 "data": {
                   "commands": [
                     {
-                      "type": "sequential",
+                      "type": "race",
                       "data": {
                         "commands": [
                           {
-                            "type": "path",
+                            "type": "parallel",
                             "data": {
-                              "pathName": "Frogger-Right.5"
+                              "commands": [
+                                {
+                                  "type": "path",
+                                  "data": {
+                                    "pathName": "Asteroid-Right.6"
+                                  }
+                                },
+                                {
+                                  "type": "named",
+                                  "data": {
+                                    "name": "Forever"
+                                  }
+                                }
+                              ]
                             }
                           },
                           {
                             "type": "named",
                             "data": {
-                              "name": "Guarentee Stop"
+                              "name": "Acquire Wait"
                             }
                           }
                         ]
                       }
                     },
                     {
-                      "type": "named",
+                      "type": "race",
                       "data": {
-                        "name": "Forever"
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Asteroid-Right.7"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "WaitUntilClose"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -125,28 +151,86 @@
           }
         },
         {
-          "type": "race",
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Right Reef L2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Asteroid-Right.8"
+          }
+        },
+        {
+          "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "Frogger-Right.6"
+                  "commands": [
+                    {
+                      "type": "race",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "parallel",
+                            "data": {
+                              "commands": [
+                                {
+                                  "type": "path",
+                                  "data": {
+                                    "pathName": "Asteroid-Right.9"
+                                  }
+                                },
+                                {
+                                  "type": "named",
+                                  "data": {
+                                    "name": "Forever"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Loli Acquire Wait"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "race",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Asteroid-Right.10"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "WaitUntilClose"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "WaitUntilClose"
+                  "name": "Lolipop Algae"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Left Reef"
           }
         }
       ]
