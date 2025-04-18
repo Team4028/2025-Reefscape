@@ -79,6 +79,7 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
         inputs.canMagPosition = canMag.getPosition();
         inputs.canMagVelocity = canMag.getVelocity();
         inputs.canMagInRange = canMag.magnetInRange();
+        inputs.isConnected = motor.isConnected();
         ArmIO.super.updateInputs(inputs);
     }
 

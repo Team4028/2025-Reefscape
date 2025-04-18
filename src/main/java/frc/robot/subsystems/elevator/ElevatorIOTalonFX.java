@@ -73,6 +73,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.elevatorVelocityInchesPerSecond = inputs.leaderVelocity * ElevatorConstants.ROT_TO_IN;
         inputs.leaderData = MotorData.getMotorData(leader);
         inputs.followerData = MotorData.getMotorData(follower);
+        inputs.leaderConnected = leader.isConnected();
+        inputs.followerConnected = follower.isConnected();
     }
 
     @Override

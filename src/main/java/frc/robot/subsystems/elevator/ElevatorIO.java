@@ -21,6 +21,8 @@ public interface ElevatorIO {
         public double elevatorVelocityInchesPerSecond = 0.0;
         public MotorData leaderData = MotorData.empty();
         public MotorData followerData = MotorData.empty();
+        public boolean leaderConnected = false;
+        public boolean followerConnected = false;
     }
 
     public default void updateInputs(ElevatorIOInputs inputs) {

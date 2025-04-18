@@ -45,6 +45,7 @@ public class InfeedPivotMotorIOTalonFX implements InfeedPivotMotorIO {
         inputs.velRad = velocity.getValueAsDouble() * ArmConstants.PI_2 / InfeedPivotConstants.GEAR_RATIO;
         inputs.appliedV = motorVolts.getValueAsDouble();
         inputs.currentA = motorCurrent.getValueAsDouble();
+        inputs.isConnected = motor.isConnected();
         InfeedPivotMotorIO.super.updateInputs(inputs);
     }
 

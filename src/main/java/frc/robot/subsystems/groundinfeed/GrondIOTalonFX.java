@@ -35,6 +35,7 @@ public class GrondIOTalonFX implements GrondIO {
         inputs.appliedVoltage = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorCurrent.getValueAsDouble();
         inputs.motorData = MotorData.empty();
+        inputs.isConnected = motor.isConnected();
     }
 
     @Override

@@ -188,7 +188,10 @@ public class MagicSequencing {
 
     public static final Command magicGetAlgaeOnlyPID(Drive drive, Armistice armistice, WhipStick algae,
             Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition, BooleanSupplier superCycle) {
-        return Commands.runOnce(() -> isMagicScoreRunning = true).andThen(armistice
+        return Commands.runOnce(() -> {
+            isMagicScoreRunning = true;
+            algae.setHasGamepiece(false);
+        }).andThen(armistice
                 .runToPositionNoWait(ArmisticePositions.STOW)
                 .andThen(armistice.waitUntilThingsInTolerance(10, 0.3)).onlyIf(superCycle.not())
                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))

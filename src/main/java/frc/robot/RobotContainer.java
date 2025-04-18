@@ -154,14 +154,17 @@ public class RobotContainer {
         yLimiter = new SlewRateLimiter(4.0);
         thetaLimiter = new SlewRateLimiter(4.0);
         NamedCommands.registerCommand("Lolipop Algae",
-                Commands.runOnce(() -> armistice.setSafety(climbDeadmanUnsafe))
-                        .andThen(armistice.runToPositionCommand(ArmisticePositions.PROC)
+                Commands.runOnce(() -> armistice.setSafety(false))
+                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.LOLI_ACQUIRE)
                                 .alongWith(coral.runMotorCommandAlgae(0.95))
                                 .alongWith(Commands.waitUntil(coral.hasAlgae()))
-                                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)))
+                                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
+                        .alongWith(infeed.runMotorCommand(.8)
+                                .alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
+                                .alongWith(pivot.runDown().asProxy())))
                         .finallyDo(() -> armistice.setSafety(true)));
         NamedCommands.registerCommand("Loli Acquire Wait", Commands.waitUntil(coral.hasAlgae()));
-        NamedCommands.registerCommand("Loli Stage", armistice.runToPositionNoWait(ArmisticePositions.PROC));
+        NamedCommands.registerCommand("Loli Stage", armistice.runToPositionNoWait(ArmisticePositions.LOLI_ACQUIRE));
         NamedCommands.registerCommand("Set Coral Lock ON",
                 Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
         NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() -> drive.setGPVisionCorrection(null)));

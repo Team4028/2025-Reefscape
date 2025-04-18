@@ -39,6 +39,7 @@ public class WhipStickIOTalonFX implements WhipStickIO {
         inputs.appliedVolts = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorAmps.getValueAsDouble();
         inputs.motorData = MotorData.empty();
+        inputs.isConnected = motor.isConnected();
     }
 
     @Override

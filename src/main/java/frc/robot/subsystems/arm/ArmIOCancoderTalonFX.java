@@ -81,6 +81,7 @@ public class ArmIOCancoderTalonFX implements ArmIO {
         inputs.armEncoderRad = getEncoderPositionRad();
         inputs.armEncoderRaw = getRawEncoderPositon();
         inputs.motorData = MotorData.getMotorData(motor);
+        inputs.isConnected = motor.isConnected();
         ArmIO.super.updateInputs(inputs);
     }
 

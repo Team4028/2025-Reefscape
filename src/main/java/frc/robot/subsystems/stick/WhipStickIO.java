@@ -10,6 +10,7 @@ public interface WhipStickIO {
         public double currentAmps = 0.0;
         public double appliedVolts = 0.0;
         public MotorData motorData = MotorData.empty();
+        public boolean isConnected = false;
     }
 
     public default void updateInputs(WhipStickIOInputs inputs) {

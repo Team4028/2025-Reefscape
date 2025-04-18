@@ -31,6 +31,7 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.appliedVoltage = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorAmps.getValueAsDouble();
         inputs.motorData = MotorData.empty();
+        inputs.isConnected = motor.isConnected();
     }
 
 

@@ -40,6 +40,7 @@ public class ArmIODIOEncoderTalonFX implements ArmIO {
         lastPosition = encoder.get();
         inputs.armVelocityRotPerSec = fakeVel;
         inputs.motorData = MotorData.getMotorData(motor);
+        inputs.isConnected = motor.isConnected();
         ArmIO.super.updateInputs(inputs);
     }
 

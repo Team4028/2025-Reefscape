@@ -10,6 +10,7 @@ public interface ClimberIO {
         public double appliedVoltage = 0.0;
         public double currentAmps = 0.0;
         public MotorData motorData = MotorData.empty();
+        public boolean isConnected = false;
     }
 
     

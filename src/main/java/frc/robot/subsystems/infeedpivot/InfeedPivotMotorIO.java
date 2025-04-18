@@ -14,6 +14,7 @@ public interface InfeedPivotMotorIO {
         public double velDeg = 0;
         public double appliedV = 0;
         public double currentA = 0;
+        public boolean isConnected = false;
     }
 
     public default void updateInputs(InfeedPivotIOMotorInputs inputs) {

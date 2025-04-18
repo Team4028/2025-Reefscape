@@ -21,6 +21,7 @@ public interface ArmIO {
         public double canMagVelocity = 0.0;
         public boolean canMagInRange = false;
         public MotorData motorData = MotorData.empty();
+        public boolean isConnected = false;
     }
 
     public default void updateInputs(ArmIOInputs inputs) {

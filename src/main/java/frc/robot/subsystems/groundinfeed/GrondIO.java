@@ -10,6 +10,7 @@ public interface GrondIO {
         public double appliedVoltage = 0.0;
         public double currentAmps = 0.0;
         public MotorData motorData = MotorData.empty();
+        public boolean isConnected = false;
     }
 
     public default void updateInputs(GrondIOInputs inputs) {
