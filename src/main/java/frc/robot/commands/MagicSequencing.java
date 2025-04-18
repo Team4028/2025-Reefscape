@@ -178,7 +178,9 @@ public class MagicSequencing {
                                 .alongWith(coral.runMotorCommand(-.3))
                                 .withTimeout(0.3)
                                 .andThen(coral.runMotorCommand(0))
-                                .alongWith(armistice.runToPositionNoWait(ArmisticePositions.STOW)
+                                .alongWith(Commands.waitSeconds(0.5)
+                                        .onlyIf(() -> scorePos.get().getUnPipe() == ArmisticePositions.Cora_L2)
+                                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
                                         .either(armistice.runToPositionNoWait(armistice.getAutoAlgaePosition(),
                                                 drive.closestReefName(), drive.getReefTargetIsRight()),
                                                 superCycle.not()))

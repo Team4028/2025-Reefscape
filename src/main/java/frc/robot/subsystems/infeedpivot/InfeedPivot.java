@@ -10,6 +10,7 @@ import static frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotP
 
 import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.bskd.annotations.CreateState;
@@ -21,7 +22,11 @@ public class InfeedPivot extends SubsystemBase {
     private final InfeedPivotEncoderIOInputsAutoLogged encoderInputs;
     private double targetVbus = 0;
     private double targetPositionRad = UP.posRad;
+
+    @AutoLogOutput
     private boolean up = true;
+
+    @AutoLogOutput
     private InfeedPivotStates state = InfeedPivotStates.POSITION;
 
     public InfeedPivot(InfeedPivotMotorIO motorIO, InfeedPivotEncoderIO encoderIO) {

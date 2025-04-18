@@ -94,6 +94,12 @@ public class Grond extends SubsystemBase {
         io.setCurrent(15);
     }
 
+    public void setBrake(boolean isBrake) {
+        if (io instanceof GrondIOTalonFX fx) {
+            fx.setBrakeMode(isBrake);
+        }
+    }
+
     @CreateState("vbus_reverse")
     public void outfeedVBus() {
         currentLimitTimer.stop();

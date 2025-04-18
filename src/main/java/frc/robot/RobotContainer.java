@@ -19,9 +19,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -80,13 +78,13 @@ public class RobotContainer {
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty(), true));
     private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), true));
-    private final Limelight ll3Coral = new Limelight(
-            new LimelightIO("limelight-threei", false, Optional.empty(),
-                    new Transform3d(
-                            new Translation3d(Units.inchesToMeters(-9), Units.inchesToMeters(-10),
-                                    Units.inchesToMeters(21.75)),
-                            new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(270))),
-                    false));
+    // private final Limelight ll3Coral = new Limelight(
+    // new LimelightIO("limelight-threei", false, Optional.empty(),
+    // new Transform3d(
+    // new Translation3d(Units.inchesToMeters(-9), Units.inchesToMeters(-10),
+    // Units.inchesToMeters(21.75)),
+    // new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(270))),
+    // false));
 
     private static final double SLOW_SPEED = 0.2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -158,16 +156,15 @@ public class RobotContainer {
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.LOLI_ACQUIRE)
                                 .alongWith(coral.runMotorCommandAlgae(0.95))
                                 .alongWith(Commands.waitUntil(coral.hasAlgae()))
-                                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
-                        .alongWith(infeed.runMotorCommand(.8)
-                                .alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
-                                .alongWith(pivot.runDown().asProxy())))
+                                .alongWith(infeed.runMotorCommand(.8)
+                                        .alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
+                                        .alongWith(pivot.runDown().asProxy())))
                         .finallyDo(() -> armistice.setSafety(true)));
         NamedCommands.registerCommand("Loli Acquire Wait", Commands.waitUntil(coral.hasAlgae()));
         NamedCommands.registerCommand("Loli Stage", armistice.runToPositionNoWait(ArmisticePositions.LOLI_ACQUIRE));
         NamedCommands.registerCommand("Set Coral Lock ON",
-                Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
-        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() -> drive.setGPVisionCorrection(null)));
+                Commands.runOnce(() -> Commands.none()));
+        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.none());
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
         NamedCommands.registerCommand("Acquire", ///
@@ -384,8 +381,10 @@ public class RobotContainer {
                 .andThen(pivot.waitUntilInTolerance(0.1))
                 .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
                         Commands.runOnce(() -> infeed.setHasCoral(false))
-                                .alongWith(infeed.runMotorCommand(0))))
+                                .alongWith(Commands.runOnce(() -> infeed.setBrake(false))
+                                        .andThen(infeed.runMotorCommand(0)))))
                 .finallyDo(() -> {
+                    infeed.setBrake(true);
                     armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
                             .andThen(Commands.runOnce(() -> armistice.setSafety(true))
                                     .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))

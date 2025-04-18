@@ -130,7 +130,7 @@ public class Armistice extends SudoSubsystem {
         A2_lgae(0.287 + Units.degreesToRadians(9) - 0.0408, 8),
         A3_lgae(4.247 - 4 + Units.degreesToRadians(6) - 0.0408, 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
-        LOLI_ACQUIRE(3.7993646535, 0),
+        LOLI_ACQUIRE(3.193 - GLOBAL_ARM_OFFSET, 0),
         PROC(-0.384 - GLOBAL_ARM_OFFSET + Units.degreesToRadians(4), 0),
         BARGE(2.373 + Units.degreesToRadians(5), 48),
         BARGE_INTERMEDIATE(1.8, 44),
