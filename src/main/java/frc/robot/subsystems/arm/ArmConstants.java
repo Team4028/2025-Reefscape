@@ -1,10 +1,12 @@
 package frc.robot.subsystems.arm;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -48,7 +50,18 @@ public class ArmConstants {
                 .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(Constants.defaultMotorValue);
         public static final Slot0Configs pidConfigs = pidConfig.makeSlot0Configs(GravityTypeValue.Arm_Cosine);
         public static final MotionMagicConfigs mmConfigs = pidConfig.makeMMConfigs();
+    }
 
+    public static class TalonFXCC {
+        public static final int MOTOR_ID = 10;
+        public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
+                .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(Constants.defaultMotorValue);
+        public static final Slot0Configs pidConfigs = pidConfig.makeSlot0Configs(GravityTypeValue.Arm_Cosine);
+        public static final MotionMagicConfigs mmConfigs = pidConfig.makeMMConfigs();
+        public static final FeedbackConfigs feedbackConfigs = new FeedbackConfigs()
+                .withFeedbackRemoteSensorID(Cancoder.CAN_ID)
+                .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
+                .withRotorToSensorRatio(GEAR_RATIO);
     }
 
     public static class SparkEncoder {
@@ -66,9 +79,9 @@ public class ArmConstants {
     public static final double PI_1_2 = 0.5 * Math.PI;
     public static final double PI_3_2 = 1.5 * Math.PI;
     public static final double PI_2 = 2 * Math.PI;
-    public static final double ARM_ACCEL_W_ALGAE = 100;
+    public static final double ARM_ACCEL_W_ALGAE = 1.26028806584;
 
-    public static final PIDStruct pidConfig = new PIDStruct(4, 0, 0, 400, 400, 1600, 0, 0.15, 0.425, 0, 0, 0);
+    public static final PIDStruct pidConfig = new PIDStruct(80, 0, 0, 5, 10, 40, 0, 0.15, 0.425, 0, 0, 0);
     // public static final PIDStruct pidConfig = new PIDStruct(4, 0, 0, 100, 200,
     // 800, 0, 0, 0.3, 0.5, 0, 0);
     public static final PIDStruct simPidConfig = new PIDStruct(16, 0, 0, PI_2, 2 * PI_2, 0, 0, 0, 0.2, 0.5, 0, 0);

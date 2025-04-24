@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
-import frc.robot.subsystems.arm.ArmIOCancoderTalonFX;
+import frc.robot.subsystems.arm.ArmIOCancoderSourceTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.LoggedTunables.LoggedTunableNumber;
@@ -110,8 +110,8 @@ public class Armistice extends SudoSubsystem {
     public static final double GLOBAL_ELEVATOR_OFFSET = 0;
 
     public static enum ArmisticePositions {
-        STOW(5.8 - 4, 5),
-        CLEAN(3.902 + Units.degreesToRadians(1), 4.017),
+        STOW(1.8, 5),
+        CLEAN(3.624 + GLOBAL_ARM_OFFSET, 4.017),
         SHANK(2.62 - 4 + 2 * Math.PI, 7),
         Cora_L1(-0.477 + Units.degreesToRadians(11), 11.015),
         Cora_L1_PIPE(-0.477 + Units.degreesToRadians(11), 11.015),
@@ -286,7 +286,7 @@ public class Armistice extends SudoSubsystem {
     }
 
     private final Elevator summit = new ElevatorIOTalonFX().simSwitch();
-    private final Arm disarm = new ArmIOCancoderTalonFX().simSwitch();
+    private final Arm disarm = new ArmIOCancoderSourceTalonFX().simSwitch();
 
     public void getCanMagPosition() {
         disarm.getCanMagPosition();

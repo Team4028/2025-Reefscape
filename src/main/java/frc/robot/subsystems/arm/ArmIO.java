@@ -11,6 +11,7 @@ public interface ArmIO {
         public double armEncoderRaw = 0.0;
         public double armEncoderRad = 0.0;
         public double armEncoderDeg = 0.0;
+        public double armMotorPositionRaw = 0.0;
         public double armAngleRad = 0.0;
         public double armAngleDeg = 0.0;
         public double armVelocityRotPerSec = 0.0;

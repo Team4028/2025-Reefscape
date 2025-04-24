@@ -365,7 +365,7 @@ public class RobotContainer {
         // DC -- LT: Infeed Coral
         // ==============================================
         driverController.leftTrigger()
-                .onTrue(infeed.runMotorCommand(.8).onlyIfNoReqs(infeed.hasGamepieceSupplier().not()))
+                .onTrue(infeed.runMotorCommand(.95).onlyIfNoReqs(infeed.hasGamepieceSupplier().not()))
                 .onFalse(infeed.runMotorCommand(0).onlyIfNoReqs(infeed.hasGamepieceSupplier().not()));
         driverController.b().onTrue(infeed.runMotorCommand(-0.5)).onFalse(infeed.runMotorCommand(0));
 
