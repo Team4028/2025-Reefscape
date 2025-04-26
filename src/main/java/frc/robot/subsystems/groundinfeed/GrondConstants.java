@@ -22,6 +22,7 @@ public class GrondConstants {
     public static final class TalonFX {
         public static final int CAN_ID = 20;
         public static final boolean USE_FOC = true;
+        public static final double JAM_STATOR = 30;
         public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
                 .withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast);
         public static final CurrentLimitsConfigs currLimits = new CurrentLimitsConfigs().withStatorCurrentLimit(80)

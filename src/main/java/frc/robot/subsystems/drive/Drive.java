@@ -209,7 +209,7 @@ public class Drive extends SubsystemBase {
         PathPlannerLogging.setLogActivePathCallback(
                 (activePath) -> {
                     Logger.recordOutput(
-                            "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+                            "Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
                 });
         PathPlannerLogging.setLogTargetPoseCallback(
                 (targetPose) -> {
@@ -381,10 +381,9 @@ public class Drive extends SubsystemBase {
      */
     public void runVelocity(ChassisSpeeds speeds) {
         if (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect) {
-            speeds.vyMetersPerSecond = ((lastTY < -10 && !gpVisionSource.getTV()) ? 0
-                    : speeds.vyMetersPerSecond + MathUtils.clamp(
-                            (-gpVisionSource.getTX()
-                                    - txty.get(gpVisionSource.getTY()))
+            speeds.vxMetersPerSecond = ((lastTY < -10 || !gpVisionSource.getTV()) ? 0
+                    : MathUtils.clamp(
+                            (-gpVisionSource.getTX())
                                     / 10,
                             -3.0,
                             3.0) * GP_CORRECTION_SPEED);
@@ -431,10 +430,8 @@ public class Drive extends SubsystemBase {
 
     public Pose2d closestReefPose() {
         AprilTag closestTag = Limelight.field.getTags().stream()
-                .filter(t -> Constants.reefTagNames.containsKey(t.ID))
-                .sorted(Comparator.comparingDouble(
-                        t -> t.pose.toPose2d().getTranslation().getDistance(getPose().getTranslation())))
-                .findFirst().orElse(Limelight.field.getTags().get(0));
+                .filter(t -> Constants.reefTagNames.containsKey(t.ID)).min(Comparator.comparingDouble(
+                        t -> t.pose.toPose2d().getTranslation().getDistance(getPose().getTranslation()))).orElse(Limelight.field.getTags().get(0));
         Pose2d closestPose = closestTag.pose.toPose2d()
                 .transformBy(new Transform2d(Units.inchesToMeters(Constants.SCORING_SIDE_RADIUS_ROBOT_IN),
                         ((reefTargetIsRight ? branchOffsetM.get() : -branchOffsetM.get())

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.DoubleFunction;
 
@@ -71,8 +70,12 @@ public class VisionUtil {
     }
 
     public static void addMeasurements(Consumer<LoggablePoseEstimate> poseAdder, Drive drivetrain) {
-        poseSources.entrySet().stream().filter(e -> e.getKey().trustPose(drivetrain.getPose().getTranslation()))
-                .forEach(e -> poseAdder.accept(e.getValue().apply(drivetrain.getPose().getRotation().getRadians())));
+        for (var e : poseSources.entrySet()) {
+            Pose2d dtPose = drivetrain.getPose();
+            if (!e.getKey().trustPose(dtPose.getTranslation()))
+                continue;
+            poseAdder.accept(e.getValue().apply(dtPose.getRotation().getRadians()));
+        }
     }
 
     public static Command addMeasurementsCommand(Consumer<LoggablePoseEstimate> poseAddr, Drive drivetrain) {
@@ -80,13 +83,9 @@ public class VisionUtil {
     }
 
     public static void bindSimCameras(Transform3d[] robotToCameraTransforms) {
-        AtomicInteger idx = new AtomicInteger(0);
-        sims.addAll(
-                poseSources.keySet().stream()
-                        .<LimelightSim>map(l -> new LimelightSim(l,
-                                MiscUtils.arrayGetSafe(robotToCameraTransforms, idx.getAndIncrement())
-                                        .orElse(new Transform3d())))
-                        .toList());
+        for (int i = 0; i < robotToCameraTransforms.length; i++) {
+            sims.add(new LimelightSim(new ArrayList<>(poseSources.keySet()).get(i), robotToCameraTransforms[i]));
+        }
     }
 
     public static void updateSimDrivePose(Pose2d drivePose) {
@@ -133,8 +132,12 @@ public class VisionUtil {
 
         public Pose3d[] getTagsSeen() {
             ArrayList<Pose3d> poses = new ArrayList<>();
-            cam.getAllUnreadResults().stream().forEach(r -> poses.addAll(r.targets.stream()
-                    .map(t -> Limelight.field.getTagPose(t.fiducialId).orElse(new Pose3d())).toList()));
+            for (var r : cam.getAllUnreadResults()) {
+                for (var t : r.targets) {
+                    poses.add(Limelight.field.getTagPose(t.fiducialId).orElse(new Pose3d()));
+                }
+            }
+
             return poses.toArray(Pose3d[]::new);
         }
     }

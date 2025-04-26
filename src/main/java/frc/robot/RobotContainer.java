@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.geometry.*;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -17,9 +18,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -78,13 +76,13 @@ public class RobotContainer {
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty(), true));
     private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), true));
-    // private final Limelight ll3Coral = new Limelight(
-    // new LimelightIO("limelight-threei", false, Optional.empty(),
-    // new Transform3d(
-    // new Translation3d(Units.inchesToMeters(-9), Units.inchesToMeters(-10),
-    // Units.inchesToMeters(21.75)),
-    // new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(270))),
-    // false));
+    private final Limelight ll3Coral = new Limelight(
+            new LimelightIO("limelight-threei", false, Optional.empty(),
+                    new Transform3d(
+                            new Translation3d(Units.inchesToMeters(-9), Units.inchesToMeters(-10),
+                                    Units.inchesToMeters(21.75)),
+                            new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(270))),
+                    false));
 
     private static final double SLOW_SPEED = 0.2;
     private static final double DEFAULT_BASE_SPEED = 0.3;
@@ -163,8 +161,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("Loli Acquire Wait", Commands.waitUntil(coral.hasAlgae()));
         NamedCommands.registerCommand("Loli Stage", armistice.runToPositionNoWait(ArmisticePositions.LOLI_ACQUIRE));
         NamedCommands.registerCommand("Set Coral Lock ON",
-                Commands.runOnce(() -> Commands.none()));
-        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.none());
+                Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)));
+        NamedCommands.registerCommand("Set Coral Lock OFF", Commands.runOnce(() -> {
+            drive.setGPVisionCorrection(null);
+            drive.resetGPTY();
+        }));
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
         NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
         NamedCommands.registerCommand("Acquire", ///
@@ -344,9 +345,11 @@ public class RobotContainer {
 
         driverController.a().onTrue(
                 pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown()).onlyIf(pivot.isUp().not()));
-        needsUnjam.debounce(0.2).onTrue(pivot.runUp().andThen(Commands.waitSeconds(0.025)).andThen(pivot.runDown())
-                .onlyIf(pivot.isUp().not()).onlyIfNoReqs(() -> unjamOn))
-                .onTrue(setRumble(driverController, 0.8, RumbleType.kBothRumble, 0.3));
+        // needsUnjam.debounce(0.2).onTrue(pivot.runUp().andThen(Commands.waitSeconds(0.025)).andThen(pivot.runDown())
+        // .onlyIf(pivot.isUp().not()).onlyIfNoReqs(() -> unjamOn))
+        // .onTrue(setRumble(driverController, 0.8, RumbleType.kBothRumble, 0.3));
+        needsUnjam.debounce(0.4).onTrue(
+                infeed.runMotorCommand(-0.5).andThen(Commands.waitSeconds(0.09)).andThen(infeed.runMotorCommand(0.95)));
 
         hasGPRaw.onTrue(Commands.runOnce(() -> {
             unjamOn = true;
@@ -596,6 +599,10 @@ public class RobotContainer {
             emergencyController.back()
                     .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                             .ignoringDisable(true));
+            emergencyController.rightBumper()
+                    .onTrue(Commands.either(Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)),
+                            Commands.runOnce(() -> drive.setGPVisionCorrection(null)),
+                            drive.hasCoralCorrection().not()));
         }
     }
 

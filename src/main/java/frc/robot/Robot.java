@@ -108,7 +108,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousPeriodic() {
         robotContainer.addMeasurements();
-        robotContainer.turnOnIfGood();
+        // robotContainer.turnOnIfGood();
     }
 
     @Override
@@ -124,7 +124,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void teleopPeriodic() {
         robotContainer.addMeasurements();
-        robotContainer.turnOnIfGood();
+        // robotContainer.turnOnIfGood();
     }
 
     @Override

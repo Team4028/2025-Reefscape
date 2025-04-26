@@ -53,7 +53,7 @@ public class Grond extends SubsystemBase {
     }
 
     public BooleanSupplier currLimitHasGP() {
-        return () -> inputs.currentAmps - GrondConstants.TalonFX.currLimits.StatorCurrentLimit >= -5;
+        return () -> inputs.currentAmps - GrondConstants.TalonFX.JAM_STATOR >= -5;
     }
 
     @CreateState("vbus_forward")

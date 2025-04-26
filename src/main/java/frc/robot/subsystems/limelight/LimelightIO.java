@@ -113,7 +113,7 @@ public class LimelightIO {
     }
 
     public void updateInputs(LimelightIOInputs inputs) {
-        if (LimelightHelpers.getTV(limelightName) && LimelightHelpers.getRawFiducials(limelightName).length != 0) {
+        if ((inputs.tv = LimelightHelpers.getTV(limelightName)) && LimelightHelpers.getRawFiducials(limelightName).length != 0) {
             inputs.ta = LimelightHelpers.getTA(limelightName);
             inputs.targetCount = LimelightHelpers.getTargetCount(limelightName);
             if (is3d) {
@@ -129,9 +129,6 @@ public class LimelightIO {
             inputs.targetCount = LimelightHelpers.getTargetCount(limelightName);
             inputs.rawFiducials = Arrays.stream(LimelightHelpers.getRawFiducials(limelightName))
                     .map(LoggableRawFiducial::fromRawFiducial).toArray(LoggableRawFiducial[]::new);
-            inputs.tv = true;
-        } else {
-            inputs.tv = false;
         }
         var txty = MathUtils.rotateVector(
                 new double[] { LimelightHelpers.getTX(limelightName), LimelightHelpers.getTY(limelightName) },
