@@ -111,7 +111,7 @@ public class Armistice extends SudoSubsystem {
 
     public static enum ArmisticePositions {
         STOW(1.8, 5),
-        CLEAN(3.624 + GLOBAL_ARM_OFFSET, 4.017),
+        CLEAN(3.624 - GLOBAL_ARM_OFFSET, 4.017),
         SHANK(2.62 - 4 + 2 * Math.PI, 7),
         Cora_L1(-0.477 + Units.degreesToRadians(11), 11.015),
         Cora_L1_PIPE(-0.477 + Units.degreesToRadians(11), 11.015),
@@ -127,7 +127,7 @@ public class Armistice extends SudoSubsystem {
         Cora_L4_SC(4.652 - 4, 31.008),
         Cora_L4_PIPE(1.11 + Units.degreesToRadians(2), 37.008),
         Cora_L4_PIPE_SC(4.29 - 4, 37.008),
-        A2_lgae(0.287 + Units.degreesToRadians(9) - 0.0408, 8),
+        A2_lgae(-GLOBAL_ARM_OFFSET, 8),
         A3_lgae(4.247 - 4 + Units.degreesToRadians(6) - 0.0408, 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
         LOLI_ACQUIRE(3.193 - GLOBAL_ARM_OFFSET, 0),

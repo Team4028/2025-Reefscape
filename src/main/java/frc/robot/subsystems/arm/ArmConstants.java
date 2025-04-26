@@ -28,7 +28,7 @@ public class ArmConstants {
     public static final double CG = ARM_LENGTH_METRES / 2; // uniform density
     public static final double GEAR_RATIO = (64.0 / 14.0) * (54.0 / 28.0) * (54.0 / 18.0) * (36.0 / 12.0);
     public static final double PID_TOLERANCE = Units.degreesToRadians(1);
-    public static final double SAFE_DISTANCE = Units.degreesToRadians(3);
+    public static final double SAFE_DISTANCE = Units.degreesToRadians(5);
 
     public static final boolean USE_FOC = true;
 

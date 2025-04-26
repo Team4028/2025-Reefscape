@@ -81,6 +81,8 @@ public class Arm extends SubsystemBase {
     public void setArmAccel(double accel) {
         if (io instanceof ArmIOCancoderTalonFX iocan) {
             iocan.setArmAccel(accel);
+        } else if (io instanceof ArmIOCancoderSourceTalonFX iocans) {
+            iocans.setArmAccel(accel);
         }
     }
 

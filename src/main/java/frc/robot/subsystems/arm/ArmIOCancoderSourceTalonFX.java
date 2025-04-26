@@ -1,7 +1,5 @@
 package frc.robot.subsystems.arm;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -68,7 +66,7 @@ public class ArmIOCancoderSourceTalonFX implements ArmIO {
 
     public void setBrake(boolean isBrake) {
         motor.getConfigurator()
-                .apply(ArmConstants.TalonFX.motorConfigs.withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
+                .apply(ArmConstants.TalonFXCC.motorConfigs.withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
     }
 
     public double getRawEncoderPositon() {
@@ -98,7 +96,7 @@ public class ArmIOCancoderSourceTalonFX implements ArmIO {
     }
 
     public void setArmAccel(double accel) {
-        motor.getConfigurator().apply(ArmConstants.TalonFX.mmConfigs.withMotionMagicAcceleration(accel));
+        motor.getConfigurator().apply(ArmConstants.TalonFXCC.mmConfigs.withMotionMagicAcceleration(accel));
     }
 
     @Override
