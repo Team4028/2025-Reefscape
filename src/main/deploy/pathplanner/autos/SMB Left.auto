@@ -173,6 +173,12 @@
                             "data": {
                               "pathName": "SMB-Left.7"
                             }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "WaitUntilClose"
+                            }
                           }
                         ]
                       }

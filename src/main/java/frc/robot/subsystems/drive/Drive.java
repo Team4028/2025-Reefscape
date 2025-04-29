@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -48,8 +49,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.sendable.Sendable;
-import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -115,14 +114,15 @@ public class Drive extends SubsystemBase {
     private Limelight gpVisionSource = null;
     private double lastTY = 0;
 
-    private final InterpolatingDoubleTreeMap txty = new InterpolatingDoubleTreeMap();
-
     private boolean isFinished2dAlign = true;
     private double filteredX, filteredY, filteredRot;
     private final LinearFilter xFilter, yFilter, rotFilter;
     private Limelight limelightLineupSource2d = null;
     private final ProfiledPIDController xPid, yPid, rotPid;
     private int ll2dLineupTagID = 0;
+
+    private final LinearFilter txCoralFilter = LinearFilter.movingAverage(5);
+    private final PIDController txCoralLockPid = new PIDController(0.05, 0, 0.005);
 
     private final LoggedTunableNumber branchOffsetM, coralScoreOffsetIn, algaeOffsetIn;
 
@@ -139,6 +139,7 @@ public class Drive extends SubsystemBase {
 
     private AprilTag closestReefTag = Limelight.field.getTags().get(0);
 
+    @Setter
     private boolean reefTargetIsRight = true;
 
     @AutoLogOutput
@@ -154,16 +155,16 @@ public class Drive extends SubsystemBase {
 
     private final PIDController angleController = new PIDController(8, 0, 0);
 
-    private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
+    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();
-    private SwerveModulePosition[] lastModulePositions = // For delta tracking
+    private final SwerveModulePosition[] lastModulePositions = // For delta tracking
             new SwerveModulePosition[] {
                     new SwerveModulePosition(),
                     new SwerveModulePosition(),
                     new SwerveModulePosition(),
                     new SwerveModulePosition()
             };
-    private SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, rawGyroRotation,
+    private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(kinematics, rawGyroRotation,
             lastModulePositions, new Pose2d());
 
     public Drive(
@@ -172,6 +173,7 @@ public class Drive extends SubsystemBase {
             ModuleIO frModuleIO,
             ModuleIO blModuleIO,
             ModuleIO brModuleIO) {
+        InterpolatingDoubleTreeMap txty = new InterpolatingDoubleTreeMap();
         txty.put(-20.0, -15.);
         txty.put(-5.2, -12.2);
         txty.put(3., -8.);
@@ -207,14 +209,10 @@ public class Drive extends SubsystemBase {
                 this);
         Pathfinding.setPathfinder(new LocalADStarAK());
         PathPlannerLogging.setLogActivePathCallback(
-                (activePath) -> {
-                    Logger.recordOutput(
-                            "Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-                });
+                (activePath) -> Logger.recordOutput(
+                        "Odometry/Trajectory", activePath.toArray(new Pose2d[0])));
         PathPlannerLogging.setLogTargetPoseCallback(
-                (targetPose) -> {
-                    Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-                });
+                (targetPose) -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
 
         // Configure SysId
         sysId = new SysIdRoutine(
@@ -236,26 +234,23 @@ public class Drive extends SubsystemBase {
         angleController.setTolerance(Units.degreesToRadians(1));
         angleController.enableContinuousInput(0, 2 * Math.PI);
 
-        SmartDashboard.putData("Swerve Drive", new Sendable() {
-            @Override
-            public void initSendable(SendableBuilder builder) {
-                builder.setSmartDashboardType("SwerveDrive");
+        SmartDashboard.putData("Swerve Drive", builder -> {
+            builder.setSmartDashboardType("SwerveDrive");
 
-                builder.addDoubleProperty("Front Left Angle", () -> getModuleStates()[0].angle.getRadians(), null);
-                builder.addDoubleProperty("Front Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+            builder.addDoubleProperty("Front Left Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+            builder.addDoubleProperty("Front Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
 
-                builder.addDoubleProperty("Front Right Angle", () -> getModuleStates()[0].angle.getRadians(), null);
-                builder.addDoubleProperty("Front Right Velocity", () -> getModuleStates()[0].speedMetersPerSecond,
-                        null);
+            builder.addDoubleProperty("Front Right Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+            builder.addDoubleProperty("Front Right Velocity", () -> getModuleStates()[0].speedMetersPerSecond,
+                    null);
 
-                builder.addDoubleProperty("Back Left Angle", () -> getModuleStates()[0].angle.getRadians(), null);
-                builder.addDoubleProperty("Back Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+            builder.addDoubleProperty("Back Left Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+            builder.addDoubleProperty("Back Left Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
 
-                builder.addDoubleProperty("Back Right Angle", () -> getModuleStates()[0].angle.getRadians(), null);
-                builder.addDoubleProperty("Back Right Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
+            builder.addDoubleProperty("Back Right Angle", () -> getModuleStates()[0].angle.getRadians(), null);
+            builder.addDoubleProperty("Back Right Velocity", () -> getModuleStates()[0].speedMetersPerSecond, null);
 
-                builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
-            }
+            builder.addDoubleProperty("Robot Angle", () -> getRotation().getRadians(), null);
         });
     }
 
@@ -269,6 +264,7 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (gpVisionSource != null) txCoralFilter.calculate(gpVisionSource.getTX());
         Logger.recordOutput("Drive/ReefSide", reefTargetIsRight ? "R" : "L");
         Logger.recordOutput("Drive/ClosestTagID", closestReefTag.ID);
         Logger.recordOutput("Current Command", getCurrentCommand() == null ? "" : getCurrentCommand().getName());
@@ -381,14 +377,15 @@ public class Drive extends SubsystemBase {
      */
     public void runVelocity(ChassisSpeeds speeds) {
         if (!inPidTranslate && gpVisionSource != null && useGPVisionCorrect) {
-            speeds.vxMetersPerSecond = ((lastTY < -10 || !gpVisionSource.getTV()) ? 0
-                    : MathUtils.clamp(
-                            (-gpVisionSource.getTX())
-                                    / 10,
+            speeds.vxMetersPerSecond = MathUtils.clamp(
+                            txCoralLockPid.calculate(txCoralFilter.lastValue(), 0),
                             -3.0,
-                            3.0) * GP_CORRECTION_SPEED);
+                            3.0) * GP_CORRECTION_SPEED;
             if (gpVisionSource.getTV())
                 lastTY = gpVisionSource.getTY();
+        } else if (gpVisionSource == null) {
+            lastTY = 0;
+            txCoralLockPid.reset();
         }
         // Calculate module setpoints
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
@@ -543,11 +540,10 @@ public class Drive extends SubsystemBase {
     }
 
     public Command waitForDrivetrainDistance(double posError) {
-        return Commands.waitUntil(() -> {
-            return inPidTranslate && Math.abs(pidErrorM * Math.cos(pidThetaR)) <= posError
-                    && Math.abs(pidErrorM * Math.sin(pidThetaR)) <= Math.min(posError, Units.inchesToMeters(0.5))
-                    && angleController.atSetpoint();
-        });
+        return Commands.waitUntil(() -> inPidTranslate && Math.abs(pidErrorM * Math.cos(pidThetaR)) <= posError
+                && Math.abs(pidErrorM * Math.sin(pidThetaR)) <= Math.min(posError, Units.inchesToMeters(0.5))
+                && Math.abs(getChassisSpeeds().vxMetersPerSecond) <= 0.1
+                && angleController.atSetpoint());
     }
 
     public BooleanSupplier hasPipeAtReef(Armistice armistice) {
@@ -616,10 +612,6 @@ public class Drive extends SubsystemBase {
 
     public BooleanSupplier isFinishedAligning2d() {
         return () -> isFinished2dAlign;
-    }
-
-    public void setReefTargetIsRight(boolean reefTargetIsRight) {
-        this.reefTargetIsRight = reefTargetIsRight;
     }
 
     public boolean getReefTargetIsRight() {

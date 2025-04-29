@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleFunction;
 
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -100,7 +101,7 @@ public class VisionUtil {
         private static final VisionSystemSim vSim = new VisionSystemSim("main");
         private static final SimCameraProperties llProp = new SimCameraProperties();
         private final PhotonCamera cam;
-        private final PhotonCameraSim sim;
+        @Getter
         private final String name;
 
         static {
@@ -115,15 +116,11 @@ public class VisionUtil {
         public LimelightSim(Limelight ll, Transform3d robotToCameraTransform) {
             name = ll.getName() + "_sim";
             cam = new PhotonCamera(name);
-            sim = new PhotonCameraSim(cam, llProp);
+            PhotonCameraSim sim = new PhotonCameraSim(cam, llProp);
             vSim.addCamera(sim, robotToCameraTransform);
             sim.enableRawStream(true);
             sim.enableProcessedStream(true);
             sim.enableDrawWireframe(true);
-        }
-
-        public String getName() {
-            return name;
         }
 
         public void updateRobotPose(Pose2d drivePose) {

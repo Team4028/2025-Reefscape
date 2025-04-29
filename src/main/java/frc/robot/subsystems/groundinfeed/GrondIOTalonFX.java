@@ -14,20 +14,26 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.MotorData;
 
 public class GrondIOTalonFX implements GrondIO {
-    private final TalonFX motor = new TalonFX(GrondConstants.TalonFX.CAN_ID, TunerConstants.DrivetrainConstants.CANBusName);
-    private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
-    private final StatusSignal<Current> motorCurrent = motor.getStatorCurrent();
+    private final TalonFX motor;
+    private final StatusSignal<Voltage> motorVolts;
+    private final StatusSignal<Current> motorCurrent;
 
-    private final DutyCycleOut vbusControl = new DutyCycleOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
-    private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
-    private final TorqueCurrentFOC currentControl = new TorqueCurrentFOC(0);
+    private final DutyCycleOut vbusControl;
+    private final VoltageOut voltageControl;
+    private final TorqueCurrentFOC currentControl;
 
-    public GrondIOTalonFX() {
-        motor.getConfigurator().apply(GrondConstants.TalonFX.motorConfigs);
+    public GrondIOTalonFX(boolean isLeft) {
+        motor = new TalonFX(isLeft ? GrondConstants.TalonFX.CAN_ID_LEFT : GrondConstants.TalonFX.CAN_ID_RIGHT, TunerConstants.DrivetrainConstants.CANBusName);
+        motor.getConfigurator().apply(isLeft ? GrondConstants.TalonFX.motorConfigs : GrondConstants.TalonFX.motorConfigsRight);
         motor.getConfigurator().apply(GrondConstants.TalonFX.currLimits);
 
+        motorVolts = motor.getMotorVoltage();
+        motorCurrent = motor.getStatorCurrent();
         BaseStatusSignal.setUpdateFrequencyForAll(100, motorVolts, motorCurrent);
         motor.optimizeBusUtilization();
+        vbusControl = new DutyCycleOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
+        voltageControl = new VoltageOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
+        currentControl = new TorqueCurrentFOC(0);
     }
 
     public void setBrakeMode(boolean isBrake) {

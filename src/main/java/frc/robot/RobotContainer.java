@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -59,7 +58,7 @@ import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
 import lombok.experimental.ExtensionMethod;
 
-@ExtensionMethod({ frc.robot.util.RobotSim.class, frc.robot.commands.DriveCommands.class, MiscUtils.class })
+@ExtensionMethod({frc.robot.util.RobotSim.class, frc.robot.commands.DriveCommands.class, MiscUtils.class})
 public class RobotContainer {
     public enum LimiterState {
         X,
@@ -70,7 +69,7 @@ public class RobotContainer {
     private final WhipStick coral = new WhipStickIOTalonFX().simSwitch();
     private final Armistice armistice = new Armistice(coral.hasAlgae());
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
-    private final Grond infeed = new Grond(new GrondIOTalonFX(), new GrondTOFIOPWF());
+    private final Grond infeed = new Grond(new GrondIOTalonFX(true), new GrondIOTalonFX(false), new GrondTOFIOPWF());
     private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFX(),
             new InfeedPivotEncoderIOCancoder());
 
@@ -89,10 +88,10 @@ public class RobotContainer {
     private double currSpeed = DEFAULT_BASE_SPEED;
 
     @AutoLogOutput
-    private boolean isRRelative = false;
+    private final boolean isRRelative = false;
 
     private final LoggedDashboardChooser<Command> autonChooser;
-    private final Drive drive = RobotSim.simSwitch(new GyroIOPigeon2(), new ModuleIO[] {
+    private final Drive drive = RobotSim.simSwitch(new GyroIOPigeon2(), new ModuleIO[]{
             new ModuleIOTalonFX(TunerConstants.FrontLeft),
             new ModuleIOTalonFX(TunerConstants.FrontRight),
             new ModuleIOTalonFX(TunerConstants.BackLeft),
@@ -122,7 +121,7 @@ public class RobotContainer {
     @AutoLogOutput
     private boolean unjamOn = true;
 
-    private LoggedChangableBoolean zeroArm = new LoggedChangableBoolean("Zero Arm", false);
+    private final LoggedChangableBoolean zeroArm = new LoggedChangableBoolean("Zero Arm", false);
 
     // add actual limits
     private final SlewRateLimiter xLimiterL4, yLimiterL4, thetaLimiterL4, xLimiter, yLimiter, thetaLimiter;
@@ -181,12 +180,10 @@ public class RobotContainer {
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
                                 Commands.runOnce(() -> infeed.setHasCoral(false))
                                         .alongWith(infeed.runMotorCommand(0))))
-                        .finallyDo(() -> {
-                            armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
-                                    .andThen(Commands.runOnce(() -> armistice.setSafety(true))
-                                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
-                                    .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule();
-                        }));
+                        .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
+                                .andThen(Commands.runOnce(() -> armistice.setSafety(true))
+                                        .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
+                                .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule()));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
                         .andThen(Commands.defer(() -> coral.runMotorCommand(getOutfeedVBus()), Set.of(coral))
@@ -203,27 +200,27 @@ public class RobotContainer {
         NamedCommands.registerCommand("Run To Closest Right Reef",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(true))
                         .andThen(Commands.defer(this::runToClosestReefAuto,
-                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Right Reef DB",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(true))
                         .andThen(Commands.defer(this::runToClosestReefAuto,
-                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Right Reef L2",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(true))
                         .andThen(Commands.defer(this::runToClosestReefAutoL2,
-                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Left Reef",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false))
                         .andThen(Commands.defer(this::runToClosestReefAuto,
-                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Left Reef L2",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false))
                         .andThen(Commands.defer(this::runToClosestReefAutoL2,
-                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("Run To Closest Left Reef DB",
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false))
                         .andThen(Commands.defer(this::runToClosestReefAuto,
-                                Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
         NamedCommands.registerCommand("L4 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L4_PIPE));
         NamedCommands.registerCommand("Wait TOF", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
@@ -244,7 +241,7 @@ public class RobotContainer {
         autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization());
 
         // Set up SysId routines
-        VisionUtil.bindSimCameras(new Transform3d[] { new Transform3d() });
+        VisionUtil.bindSimCameras(new Transform3d[]{new Transform3d()});
         configureBindings();
     }
 
@@ -275,9 +272,9 @@ public class RobotContainer {
     public void turnOnIfGood() {
         if (!VisionUtil.requestingSeed
                 || VisionUtil.poseSources.keySet().stream()
-                        .allMatch(ll -> Math.abs(drive.getRotation()
-                                .minus(Rotation2d.fromDegrees(ll.getLimelightRobotYaw()))
-                                .getDegrees()) < 0.02)) {
+                .allMatch(ll -> Math.abs(drive.getRotation()
+                        .minus(Rotation2d.fromDegrees(ll.getLimelightRobotYaw()))
+                        .getDegrees()) < 0.02)) {
             VisionUtil.setLLIMUModes(true);
             VisionUtil.requestingSeed = false;
         } else {
@@ -330,12 +327,12 @@ public class RobotContainer {
         // ==============================================
         driverController.start().onTrue(
                 Commands.runOnce(
-                        () -> drive.setPose(
-                                new Pose2d(drive.getPose().getTranslation(),
-                                        DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
-                                                ? Rotation2d.kZero
-                                                : Rotation2d.kPi)),
-                        drive)
+                                () -> drive.setPose(
+                                        new Pose2d(drive.getPose().getTranslation(),
+                                                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+                                                        ? Rotation2d.kZero
+                                                        : Rotation2d.kPi)),
+                                drive)
                         .ignoringDisable(true));
 
         // ==============================================
@@ -345,17 +342,16 @@ public class RobotContainer {
 
         driverController.a().onTrue(
                 pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown()).onlyIf(pivot.isUp().not()));
-        // needsUnjam.debounce(0.2).onTrue(pivot.runUp().andThen(Commands.waitSeconds(0.025)).andThen(pivot.runDown())
-        // .onlyIf(pivot.isUp().not()).onlyIfNoReqs(() -> unjamOn))
-        // .onTrue(setRumble(driverController, 0.8, RumbleType.kBothRumble, 0.3));
-        needsUnjam.debounce(0.4).onTrue(
-                infeed.runMotorCommand(-0.5).andThen(Commands.waitSeconds(0.09)).andThen(infeed.runMotorCommand(0.95)));
+        needsUnjam.debounce(0.4).onTrue(infeed.unjamCommand());
 
         hasGPRaw.onTrue(Commands.runOnce(() -> {
             unjamOn = true;
             drive.resetGPTY();
         }));
 
+        // ==============================================
+        // DC -- Y: Manual Handoff Jank
+        // ==============================================
         driverController.y().onTrue(pivot.runUp().alongWith(coral.runMotorCommand(0.5)))
                 .onFalse(coral.runMotorCommand(0));
 
@@ -377,21 +373,19 @@ public class RobotContainer {
         driverController.leftStick().onTrue(Commands.runOnce(() -> unjamOn = !unjamOn));
 
         hasGamePiece.onTrue(Commands.defer(() -> Commands.runOnce(() -> coral.setHasGamepiece(false))
-                .andThen(armistice.waitUntilThingsInTolerance(1, 0.1)
-                        .alongWith(coral.runMotorCommand(0.5)))
-                .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
-                .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
-                .andThen(pivot.waitUntilInTolerance(0.1))
-                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
-                        Commands.runOnce(() -> infeed.setHasCoral(false))
-                                .alongWith(infeed.runMotorCommand(0))))
-                .finallyDo(() -> {
-                    armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
-                            .andThen(Commands.runOnce(() -> armistice.setSafety(true))
-                                    .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
-                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule();
-                }),
-                Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed))
+                                .andThen(armistice.waitUntilThingsInTolerance(1, 0.1)
+                                        .alongWith(coral.runMotorCommand(0.5)))
+                                .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
+                                .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
+                                .andThen(pivot.waitUntilInTolerance(0.1))
+                                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
+                                        Commands.runOnce(() -> infeed.setHasCoral(false))
+                                                .alongWith(infeed.runMotorCommand(0))))
+                                .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
+                                        .andThen(Commands.runOnce(() -> armistice.setSafety(true))
+                                                .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
+                                        .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule()),
+                        Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed))
                 .onlyIfNoReqs(DriverStation::isTeleop));
 
         // ==============================================
@@ -401,27 +395,22 @@ public class RobotContainer {
         driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
 
-        // ==============================================
-        // OC -- START: Toggle Game Piece Mode
-        // ==============================================
-        // operatorController.start()
-        // .onTrue(Commands
-        // .either(armistice.runToPositionCommand(ArmisticePositions.CLIMB_2),
-        // armistice.runToPositionCommand(ArmisticePositions.CLIMB),
-        // () -> armistice.getTargetPosition() == ArmisticePositions.CLIMB)
-        // .onlyIf(() -> climbDeadmanUnsafe));
-        operatorController.start().onTrue(Commands.runOnce(() -> isAltBarge = !isAltBarge).ignoringDisable(true));
 
         // =================== //
         /* OPERATOR CONTROLLER */
         // =================== //
 
         // ==============================================
+        // OC -- START: Toggle Barge Mode
+        // ==============================================
+        operatorController.start().onTrue(Commands.runOnce(() -> isAltBarge = !isAltBarge).ignoringDisable(true));
+
+        // ==============================================
         // OC -- RB: Magic Score Right Branch
         // ==============================================
         operatorController.rightBumper().onTrue(
                 Commands.runOnce(() -> drive.setReefTargetIsRight(true)).andThen(Commands.defer(this::runToClosestReef,
-                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)))
+                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral)))
                         .onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
@@ -429,9 +418,12 @@ public class RobotContainer {
         // ==============================================
         operatorController.leftBumper().onTrue(
                 Commands.runOnce(() -> drive.setReefTargetIsRight(false)).andThen(Commands.defer(this::runToClosestReef,
-                        Set.<Subsystem>of(drive, armistice.getArm(), armistice.getElevator(), coral)))
+                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral)))
                         .onlyIf(() -> !climbDeadmanUnsafe));
 
+        // ==============================================
+        // OC -- Back: Toggle climb deadman
+        // ==============================================
         operatorController.back()
                 .onTrue(Commands.runOnce(() -> climbDeadmanUnsafe = !climbDeadmanUnsafe).ignoringDisable(true));
 
@@ -453,8 +445,6 @@ public class RobotContainer {
         // ==============================================
         // OC -- LY: Climber (up = climb, down = slow)
         // ==============================================
-        // operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value,
-        // 0.5).onTrue(climber.runVbusCommand(-0.4));
         operatorController.axisGreaterThan(XboxController.Axis.kLeftY.value, -0.5)
                 .onTrue(climber.runVbusCommand(0));
         operatorController.axisLessThan(XboxController.Axis.kLeftY.value, 0.5).onTrue(climber.runVbusCommand(0));
@@ -475,31 +465,30 @@ public class RobotContainer {
         // ==============================================
         operatorController.povDown().onTrue(armistice.decFutureArmisticePosition());
 
+        // ==============================================
+        // OC -- DPAD RIGHT: Run to Climb
+        // ==============================================
         operatorController.povRight()
                 .onTrue(armistice.runToPositionNoWait(ArmisticePositions.CLIMB).onlyIfNoReqs(() -> climbDeadmanUnsafe));
 
         // ==============================================
-        // OC -- DPAD LEFT/RIGHT: Inc/Dev Magic Score Algae Height
-        // ==============================================
-
-        // ==============================================
-        // OC -- Y: Run To Aquire/Lollipop
+        // OC -- Y: Run To Aquire
         // ==============================================
         operatorController.y()
                 .onTrue(Commands
                         .defer(() -> Commands.runOnce(() -> {
-                            armistice.setSafety(false);
-                            coral.setHasGamepiece(false);
-                        }).andThen(armistice.runToPositionCommand(ArmisticePositions.CLEAN,
-                                drive.closestReefName(), drive.getReefTargetIsRight()))
-                                .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
-                                        .andThen(Commands.runOnce(() -> armistice.setSafety(true)))),
+                                            armistice.setSafety(false);
+                                            coral.setHasGamepiece(false);
+                                        }).andThen(armistice.runToPositionCommand(ArmisticePositions.CLEAN,
+                                                drive.closestReefName(), drive.getReefTargetIsRight()))
+                                        .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
+                                                .andThen(Commands.runOnce(() -> armistice.setSafety(true)))),
                                 Set.of(armistice.getArm(), armistice.getElevator()))
                         .alongWith(pivot.runDown())
                         .onlyIf(() -> !climbDeadmanUnsafe));
 
         // ==============================================
-        // OC -- A: Run To Manual Index Position
+        // OC -- A: Run to ground algae
         // ==============================================
         operatorController.a()
                 .onTrue(Commands.runOnce(() -> armistice.setSafety(false))
@@ -521,10 +510,16 @@ public class RobotContainer {
                 .defer(this::runToClosestAlgae, Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))
                 .onlyIf(() -> !climbDeadmanUnsafe));
 
+        // ==============================================
+        // OC -- RS UP: Run to Barge
+        // ==============================================
         operatorController.axisLessThan(XboxController.Axis.kRightY.value, -0.5).onTrue(Commands.defer(() -> armistice
-                .runToPositionCommand(isAltBarge ? ArmisticePositions.BARGE_OPPOSITE : ArmisticePositions.BARGE),
+                        .runToPositionCommand(isAltBarge ? ArmisticePositions.BARGE_OPPOSITE : ArmisticePositions.BARGE),
                 Set.of(armistice.getArm(), armistice.getElevator())));
 
+        // ==============================================
+        // OC -- RS DOWN: Run to Proc
+        // ==============================================
         operatorController.axisGreaterThan(XboxController.Axis.kRightY.value, 0.5)
                 .onTrue(Commands.runOnce(() -> armistice.setSafety(false))
                         .andThen(armistice.runToPositionCommand(ArmisticePositions.PROC))
@@ -548,52 +543,50 @@ public class RobotContainer {
             emergencyController.x().onTrue(pivot.runMotorCommand(-0.2));
             emergencyController.leftTrigger().onTrue(pivot.runToPositionCommand(InfeedPivotPositions.HANDOFF.posRad));
             emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kLeftX.value,
-                    0.5)
+                            0.5)
                     .onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(
-                            Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0))
+                                    Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0))
                             .ignoringDisable(true));
         } else {
-            // emergencyController.leftBumper().onTrue(coral.runMotorCommand(-0.5)).onFalse(coral.runMotorCommand(0));
-            // emergencyController.rightBumper().onTrue(coral.runMotorCommand(0.5)).onFalse(coral.runMotorCommand(0));
             // ==============================================
             // EC -- DPAD: Global Nudges
             // ==============================================
-            emergencyController.povUp().onTrue(armistice.nudgeCommandGlobalPermanant(1,
+            emergencyController.povUp().onTrue(armistice.nudgeCommandGlobalPermanent(1,
                     0));
-            emergencyController.povDown().onTrue(armistice.nudgeCommandGlobalPermanant(-1,
+            emergencyController.povDown().onTrue(armistice.nudgeCommandGlobalPermanent(-1,
                     0));
-            emergencyController.povRight().onTrue(armistice.nudgeCommandGlobalPermanant(0,
+            emergencyController.povRight().onTrue(armistice.nudgeCommandGlobalPermanent(0,
                     Units.degreesToRadians(1)));
-            emergencyController.povLeft().onTrue(armistice.nudgeCommandGlobalPermanant(0,
+            emergencyController.povLeft().onTrue(armistice.nudgeCommandGlobalPermanent(0,
                     Units.degreesToRadians(-1)));
 
             // ==============================================
             // EC -- DPAD: Positional Nudges
             // ==============================================
-            emergencyController.y().onTrue(armistice.nudgeCommandPermanant(1, 0));
-            emergencyController.a().onTrue(armistice.nudgeCommandPermanant(-1, 0));
-            emergencyController.b().onTrue(armistice.nudgeCommandPermanant(0,
+            emergencyController.y().onTrue(armistice.nudgeCommandPermanent(1, 0));
+            emergencyController.a().onTrue(armistice.nudgeCommandPermanent(-1, 0));
+            emergencyController.b().onTrue(armistice.nudgeCommandPermanent(0,
                     Units.degreesToRadians(1)));
-            emergencyController.x().onTrue(armistice.nudgeCommandPermanant(0,
+            emergencyController.x().onTrue(armistice.nudgeCommandPermanent(0,
                     Units.degreesToRadians(-1)));
 
             emergencyController.rightStick().onTrue(armistice.resetNudges().ignoringDisable(true));
 
             emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kRightX.value,
-                    0.5)
+                            0.5)
                     .onTrue(armistice.toggleCoralReefOffset()
                             .alongWith(setRumble(operatorController, 1, RumbleType.kBothRumble, 0.2))
                             .ignoringDisable(true));
 
             emergencyController.axisMagnitudeGreaterThan(XboxController.Axis.kLeftX.value,
-                    0.5)
+                            0.5)
                     .onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(
-                            Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0))
+                                    Math.signum(emergencyController.getRawAxis(XboxController.Axis.kLeftX.value)) > 0))
                             .ignoringDisable(true));
 
             emergencyController.start().onTrue(
                     armistice.runToFutureArmisticePositionCommand(drive::closestReefName,
-                            drive::getReefTargetIsRight)
+                                    drive::getReefTargetIsRight)
                             .onlyIf(() -> !climbDeadmanUnsafe));
 
             emergencyController.back()
@@ -611,8 +604,7 @@ public class RobotContainer {
     }
 
     public double chooseXLimiter(double input) {
-        var a = armistice.getElevatorPosition();
-        if (a > 40) {
+        if (armistice.getElevatorPosition() > 40) {
             return xLimiterL4.calculate(input);
         } else {
             return xLimiter.calculate(input);
@@ -621,8 +613,7 @@ public class RobotContainer {
     }
 
     public double chooseYLimiter(double input) {
-        var a = armistice.getElevatorPosition();
-        if (a > 40) {
+        if (armistice.getElevatorPosition() > 40) {
             return yLimiterL4.calculate(input);
         } else {
             return yLimiter.calculate(input);
@@ -630,8 +621,7 @@ public class RobotContainer {
     }
 
     public double chooseThetaLimiter(double input) {
-        var a = armistice.getElevatorPosition();
-        if (a > 40) {
+        if (armistice.getElevatorPosition() > 40) {
             return thetaLimiterL4.calculate(input);
         } else {
             return thetaLimiter.calculate(input);
@@ -651,11 +641,11 @@ public class RobotContainer {
                         () -> DriverStation.isAutonomous() ? ArmisticePositions.Cora_L4
                                 : armistice.getFutureArmisticePositions(),
                         () -> isSuperCycle).andThen(pivot.runDown().asProxy())
-                        .andThen(MagicSequencing
-                                .magicGetAlgaeOnlyPID(drive, armistice, coral, drive::pipe1AlgaeClosestReefPose,
-                                        armistice::getAutoAlgaePosition, () -> isSuperCycle)
-                                .finallyDo(() -> isSuperCycle = false)
-                                .asProxy().onlyIf(() -> isSuperCycle));
+                .andThen(MagicSequencing
+                        .magicGetAlgaeOnlyPID(drive, armistice, coral, drive::pipe1AlgaeClosestReefPose,
+                                armistice::getAutoAlgaePosition, () -> isSuperCycle)
+                        .finallyDo(() -> isSuperCycle = false)
+                        .asProxy().onlyIf(() -> isSuperCycle));
     }
 
     private Command runToClosestReefAuto() {
@@ -682,16 +672,11 @@ public class RobotContainer {
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {
         double input = controllerInput.getAsDouble() * ((currSpeed)
                 + (currSpeed == SLOW_SPEED ? 0 : driverController.getRightTriggerAxis() * (1 - currSpeed)));
-        switch (type) {
-            case X:
-                return chooseXLimiter(input);
-            case Y:
-                return chooseYLimiter(input);
-            case THETA:
-                return chooseThetaLimiter(input);
-            default:
-                return 0.0;
-        }
+        return switch (type) {
+            case X -> chooseXLimiter(input);
+            case Y -> chooseYLimiter(input);
+            case THETA -> chooseThetaLimiter(input);
+        };
     }
 
     private Command setRumble(CommandXboxController controller, double amnt, RumbleType type, double time) {
@@ -702,7 +687,7 @@ public class RobotContainer {
     private double getOutfeedVBus() {
         return armistice.getElevatorPosition() > 45 ? -.85
                 : armistice.getTargetPosition() == ArmisticePositions.Cora_L1 ? -.35
-                        : (armistice.getTargetPosition().isPipe() ? -.4 : -.4);
+                : -.4;
     }
 
     public Command realDrivetrainStop() {

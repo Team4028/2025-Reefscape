@@ -2,6 +2,9 @@ package frc.robot.subsystems.groundinfeed;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.util.MathUtils;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -15,19 +18,24 @@ import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod(MiscUtils.class)
 public class Grond extends SubsystemBase {
-    private final GrondIO io;
+    private final GrondIO ioleft, ioright;
     private final GrondTOFIO tokio;
-    private final GrondIOInputsAutoLogged inputs;
+    private final GrondIOInputsAutoLogged inputsLeft;
+    private final GrondIOInputsAutoLogged inputsRight;
     private final GrondTOFIOInputsAutoLogged tofInputs;
-    private double targetVbus = 0.0;
+    private double targetVbusLeft = 0.0;
+    private double targetVbusRight = 0.0;
     private GrondStates state = GrondStates.OFF;
+    @Setter
     private boolean hasCoral = false;
-    private Timer currentLimitTimer = new Timer();
+    private final Timer currentLimitTimer = new Timer();
 
-    public Grond(GrondIO io, GrondTOFIO tofIo) {
-        this.io = io;
+    public Grond(GrondIO ioleft, GrondIO ioright, GrondTOFIO tofIo) {
+        this.ioleft = ioleft;
+        this.ioright = ioright;
         this.tokio = tofIo;
-        inputs = new GrondIOInputsAutoLogged();
+        inputsLeft = new GrondIOInputsAutoLogged();
+        inputsRight = new GrondIOInputsAutoLogged();
         tofInputs = new GrondTOFIOInputsAutoLogged();
     }
 
@@ -39,13 +47,18 @@ public class Grond extends SubsystemBase {
     @AutoLogOutput
     public BooleanSupplier hasGamepieceSupplierRawTOF() {
         return () -> tofInputs.range <= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH;
-    } 
+    }
 
     public Command runMotorCommand(double vbus) {
         return runOnce(() -> {
-            targetVbus = vbus;
+            targetVbusRight = vbus;
+            targetVbusLeft = vbus * GrondConstants.RIGHT_TO_LEFT_RATIO;
             state = vbus > 0 ? GrondStates.VBUS_FORWARD : vbus < 0 ? GrondStates.VBUS_REVERSE : GrondStates.OFF;
         });
+    }
+
+    public Command unjamCommand() {
+        return runOnce(() -> state = GrondStates.UNJAM).alongWith(Commands.waitSeconds(0.05)).finallyDo(() -> state = GrondStates.VBUS_FORWARD);
     }
 
     public BooleanSupplier isJammed() {
@@ -53,19 +66,20 @@ public class Grond extends SubsystemBase {
     }
 
     public BooleanSupplier currLimitHasGP() {
-        return () -> inputs.currentAmps - GrondConstants.TalonFX.JAM_STATOR >= -5;
+        return () -> MathUtils.average(inputsLeft.currentAmps, inputsRight.currentAmps) - GrondConstants.TalonFX.JAM_STATOR >= -5;
     }
 
     @CreateState("vbus_forward")
     public void infeedVbus() {
         if (tofInputs.range > GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH/*inputs.currentAmps < GrondConstants.STATOR_LIMIT || currentLimitTimer.get() <= GrondConstants.CURRENT_LIMIT_DELAY_SEC*/) {
-            if (inputs.currentAmps >= GrondConstants.STATOR_LIMIT) {
+            if (MathUtils.average(inputsLeft.currentAmps, inputsRight.currentAmps) >= GrondConstants.STATOR_LIMIT) {
                 currentLimitTimer.start();
             } else {
                 currentLimitTimer.stop();
                 currentLimitTimer.reset();
             }
-            io.setVbus(targetVbus);
+            ioleft.setVbus(targetVbusLeft);
+            ioright.setVbus(targetVbusRight);
         } else {
             currentLimitTimer.stop();
             currentLimitTimer.reset();
@@ -74,15 +88,20 @@ public class Grond extends SubsystemBase {
         }
     }
 
-    public void setHasCoral(boolean hasCoral) {
-        this.hasCoral = hasCoral;
+    @CreateState("unjam")
+    public void unjam() {
+        ioleft.setVbus(-0.25);
+        ioright.setVbus(0.9);
+        currentLimitTimer.stop();
+        currentLimitTimer.reset();
     }
 
     @CreateState("off")
     public void stop() {
         if (hasCoral)
             state = GrondStates.HOLD;
-        io.setVbus(0);
+        ioleft.setVbus(0);
+        ioright.setVbus(0);
         currentLimitTimer.stop();
         currentLimitTimer.reset();
     }
@@ -91,11 +110,15 @@ public class Grond extends SubsystemBase {
     public void hold() {
         currentLimitTimer.stop();
         currentLimitTimer.reset();
-        io.setCurrent(15);
+        ioleft.setCurrent(15);
+        ioright.setCurrent(15);
     }
 
     public void setBrake(boolean isBrake) {
-        if (io instanceof GrondIOTalonFX fx) {
+        if (ioleft instanceof GrondIOTalonFX fx) {
+            fx.setBrakeMode(isBrake);
+        }
+        if (ioright instanceof GrondIOTalonFX fx) {
             fx.setBrakeMode(isBrake);
         }
     }
@@ -104,7 +127,8 @@ public class Grond extends SubsystemBase {
     public void outfeedVBus() {
         currentLimitTimer.stop();
         currentLimitTimer.reset();
-        io.setVbus(targetVbus);
+        ioleft.setVbus(targetVbusLeft);
+        ioright.setVbus(targetVbusLeft);
         hasCoral = false;
     }
 
@@ -112,9 +136,11 @@ public class Grond extends SubsystemBase {
     @Override
     public void periodic() {
         state.execute(this);
-        io.updateInputs(inputs);
+        ioleft.updateInputs(inputsLeft);
+        ioright.updateInputs(inputsRight);
         tokio.updateInputs(tofInputs);
-        Logger.processInputs("Ground Infeed/Motor", inputs);
+        Logger.processInputs("Ground Infeed/MotorLeft", inputsLeft);
+        Logger.processInputs("Ground Infeed/MotorRight", inputsRight);
         Logger.processInputs("Ground Infeed/TOF Sensor", tofInputs);
     }
 }

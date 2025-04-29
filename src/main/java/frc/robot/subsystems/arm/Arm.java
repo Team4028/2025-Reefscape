@@ -47,6 +47,8 @@ public class Arm extends SubsystemBase {
     public void configureBrake(boolean isBrake) {
         if (io instanceof ArmIOCancoderTalonFX canio) {
             canio.setBrake(isBrake);
+        } else if (io instanceof ArmIOCancoderSourceTalonFX iocans) {
+            iocans.setBrake(isBrake);
         }
     }
 

@@ -7,7 +7,7 @@ import frc.robot.util.MotorData;
 
 public interface ArmIO {
     @AutoLog
-    public static class ArmIOInputs {
+    class ArmIOInputs {
         public double armEncoderRaw = 0.0;
         public double armEncoderRad = 0.0;
         public double armEncoderDeg = 0.0;
@@ -25,17 +25,17 @@ public interface ArmIO {
         public boolean isConnected = false;
     }
 
-    public default void updateInputs(ArmIOInputs inputs) {
+    default void updateInputs(ArmIOInputs inputs) {
         inputs.armAngleDeg = Units.radiansToDegrees(inputs.armAngleRad);
         inputs.armEncoderDeg = Units.radiansToDegrees(inputs.armEncoderRad);
     }
 
-    public default void setVoltage(double volts) {
+    default void setVoltage(double volts) {
     }
 
-    public default void setVBus(double vBus) {
+    default void setVBus(double vBus) {
     }
 
-    public default void setPID(double position) {
+    default void setPID(double position) {
     }
 }

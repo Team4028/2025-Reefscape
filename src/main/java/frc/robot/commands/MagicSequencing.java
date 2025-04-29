@@ -21,20 +21,20 @@ import frc.robot.util.MiscUtils;
 import lombok.experimental.ExtensionMethod;
 import lombok.experimental.UtilityClass;
 
-@ExtensionMethod({ MiscUtils.class, DriveCommands.class, Commands.class })
+@ExtensionMethod({MiscUtils.class, DriveCommands.class, Commands.class})
 @UtilityClass
 public class MagicSequencing {
     public static boolean isMagicScoreRunning = false;
 
-    public static final Command magicScoreNoDB(Drive drive, Armistice armistice, WhipStick coral, InfeedPivot pivot,
-            Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
+    public static Command magicScoreNoDB(Drive drive, Armistice armistice, WhipStick coral, InfeedPivot pivot,
+                                         Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
                         .raceWith(Commands.defer(
-                                () -> drive.waitForDrivetrainDistance(0.006),
-                                Set.of())
-                                .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
-                                        && armistice.armAndElevatorAtTarget().getAsBoolean())),
+                                                () -> drive.waitForDrivetrainDistance(0.006),
+                                                Set.of())
+                                        .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
+                                                && armistice.armAndElevatorAtTarget().getAsBoolean())),
                                 armistice.runToPositionNoWait(ArmisticePositions.STOW).onlyIf(drive.readyForArm().not())
                                         .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
                                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)),
@@ -42,13 +42,13 @@ public class MagicSequencing {
                                                         .andThen(armistice.runToPositionNoWait(scorePos.get().toPipe()))
                                                         .andThen(
                                                                 Commands.defer(
-                                                                        () -> drive.waitForDrivetrainDistance(
-                                                                                switch (scorePos.get().getUnPipe()) {
-                                                                                    case Cora_L4 -> 0.5;
-                                                                                    case Cora_L3 -> 0.3;
-                                                                                    default -> 0.2;
-                                                                                }),
-                                                                        Set.of())
+                                                                                () -> drive.waitForDrivetrainDistance(
+                                                                                        switch (scorePos.get().getUnPipe()) {
+                                                                                            case Cora_L4 -> 0.5;
+                                                                                            case Cora_L3 -> 0.3;
+                                                                                            default -> 0.2;
+                                                                                        }),
+                                                                                Set.of())
                                                                         .andThen(armistice.waitUntilThingsInTolerance(3,
                                                                                 0.3))
                                                                         .andThen(
@@ -79,15 +79,15 @@ public class MagicSequencing {
                                 .schedule()));
     }
 
-    public static final Command magicScoreNoDBL2(Drive drive, Armistice armistice, WhipStick coral, InfeedPivot pivot,
-            Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
+    public static Command magicScoreNoDBL2(Drive drive, Armistice armistice, WhipStick coral, InfeedPivot pivot,
+                                           Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
                         .raceWith(Commands.defer(
-                                () -> drive.waitForDrivetrainDistance(0.006),
-                                Set.of())
-                                .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
-                                        && armistice.armAndElevatorAtTarget().getAsBoolean())),
+                                                () -> drive.waitForDrivetrainDistance(0.006),
+                                                Set.of())
+                                        .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
+                                                && armistice.armAndElevatorAtTarget().getAsBoolean())),
                                 armistice.runToPositionNoWait(ArmisticePositions.Cora_L2_PIPE)
                                         .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
                                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)),
@@ -95,13 +95,13 @@ public class MagicSequencing {
                                                         .andThen(armistice.runToPositionNoWait(scorePos.get().toPipe()))
                                                         .andThen(
                                                                 Commands.defer(
-                                                                        () -> drive.waitForDrivetrainDistance(
-                                                                                switch (scorePos.get().getUnPipe()) {
-                                                                                    case Cora_L4 -> 0.5;
-                                                                                    case Cora_L3 -> 0.3;
-                                                                                    default -> 0.2;
-                                                                                }),
-                                                                        Set.of())
+                                                                                () -> drive.waitForDrivetrainDistance(
+                                                                                        switch (scorePos.get().getUnPipe()) {
+                                                                                            case Cora_L4 -> 0.5;
+                                                                                            case Cora_L3 -> 0.3;
+                                                                                            default -> 0.2;
+                                                                                        }),
+                                                                                Set.of())
                                                                         .andThen(armistice.waitUntilThingsInTolerance(3,
                                                                                 0.3))
                                                                         .andThen(
@@ -121,7 +121,7 @@ public class MagicSequencing {
                                 () -> armistice.waitUntilThingsInTolerance(1,
                                         scorePos.get() == ArmisticePositions.Cora_L4 ? 0.6 : 0.3),
                                 Set.of()))
-                        .andThen(drive.runVelocityAngle(() -> 0, () -> -3, () -> drive.getRotation())
+                        .andThen(drive.runVelocityAngle(() -> 0, () -> -3, drive::getRotation)
                                 .alongWith(coral.runMotorCommand(-.3))
                                 .withTimeout(0.25)
                                 .andThen(coral.runMotorCommand(0))
@@ -132,15 +132,15 @@ public class MagicSequencing {
                                 .schedule()));
     }
 
-    public static final Command magicScoreScore(Drive drive, Armistice armistice, WhipStick coral,
-            Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos, BooleanSupplier superCycle) {
+    public static Command magicScoreScore(Drive drive, Armistice armistice, WhipStick coral,
+                                          Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos, BooleanSupplier superCycle) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
                         .raceWith(Commands.defer(
-                                () -> drive.waitForDrivetrainDistance(0.006),
-                                Set.of())
-                                .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
-                                        && armistice.armAndElevatorAtTarget().getAsBoolean())),
+                                                () -> drive.waitForDrivetrainDistance(0.006),
+                                                Set.of())
+                                        .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
+                                                && armistice.armAndElevatorAtTarget().getAsBoolean())),
                                 armistice.runToPositionNoWait(ArmisticePositions.STOW).onlyIf(drive.readyForArm().not())
                                         .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
                                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)),
@@ -148,13 +148,13 @@ public class MagicSequencing {
                                                         .andThen(armistice.runToPositionNoWait(scorePos.get().toPipe()))
                                                         .andThen(
                                                                 Commands.defer(
-                                                                        () -> drive.waitForDrivetrainDistance(
-                                                                                switch (scorePos.get().getUnPipe()) {
-                                                                                    case Cora_L4 -> 0.5;
-                                                                                    case Cora_L3 -> 0.3;
-                                                                                    default -> 0.2;
-                                                                                }),
-                                                                        Set.of())
+                                                                                () -> drive.waitForDrivetrainDistance(
+                                                                                        switch (scorePos.get().getUnPipe()) {
+                                                                                            case Cora_L4 -> 0.5;
+                                                                                            case Cora_L3 -> 0.3;
+                                                                                            default -> 0.2;
+                                                                                        }),
+                                                                                Set.of())
                                                                         .andThen(armistice.waitUntilThingsInTolerance(3,
                                                                                 0.3))
                                                                         .andThen(
@@ -182,14 +182,14 @@ public class MagicSequencing {
                                         .onlyIf(() -> scorePos.get().getUnPipe() == ArmisticePositions.Cora_L2)
                                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
                                         .either(armistice.runToPositionNoWait(armistice.getAutoAlgaePosition(),
-                                                drive.closestReefName(), drive.getReefTargetIsRight()),
+                                                        drive.closestReefName(), drive.getReefTargetIsRight()),
                                                 superCycle.not()))
                                 .andThen(armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))))
                         .finallyDo(() -> armistice.setSafety(!(isMagicScoreRunning = false))));
     }
 
-    public static final Command magicGetAlgaeOnlyPID(Drive drive, Armistice armistice, WhipStick algae,
-            Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition, BooleanSupplier superCycle) {
+    public static Command magicGetAlgaeOnlyPID(Drive drive, Armistice armistice, WhipStick algae,
+                                               Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition, BooleanSupplier superCycle) {
         return Commands.runOnce(() -> isMagicScoreRunning = true).andThen(armistice
                 .runToPositionNoWait(ArmisticePositions.STOW)
                 .andThen(armistice.waitUntilThingsInTolerance(10, 0.3)).onlyIf(superCycle.not())
@@ -203,8 +203,8 @@ public class MagicSequencing {
                                                 .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero))))
                 .andThen(
                         drive.translateToPositionWithPID(reefPosition.get()
-                                .transformBy(new Transform2d(new Translation2d(Units.inchesToMeters(0), 0)
-                                        .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
+                                        .transformBy(new Transform2d(new Translation2d(Units.inchesToMeters(0), 0)
+                                                .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
                                 .alongWith(algae.runMotorCommandAlgae(0.95))
                                 .until(algae.hasGamePieceSupplier()).withTimeout(3))
                 .andThen(drive.runVelocityAngle(() -> 0, () -> -2, () -> drive.getRotation()).withTimeout(0.3)
