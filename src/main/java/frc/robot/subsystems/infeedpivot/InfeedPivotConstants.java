@@ -14,14 +14,15 @@ import frc.robot.util.PIDStruct;
 
 public class InfeedPivotConstants {
     public static final double GEAR_RATIO = 18.857;
+    public static final double PIVOT_DOWN_THRESH = 0.1;
 
-    public static enum InfeedPivotPositions {
+    public enum InfeedPivotPositions {
         DOWN(0.2),
         HANDOFF(1),
         UP(1.7),
         CLIMB(2.5);
 
-        public double posRad;
+        public final double posRad;
 
         InfeedPivotPositions(double posRad) {
             this.posRad = posRad;

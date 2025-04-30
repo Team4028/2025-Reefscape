@@ -10,6 +10,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.*;
+import frc.robot.subsystems.infeedpivot.InfeedPivotConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -69,9 +70,9 @@ public class RobotContainer {
     private final WhipStick coral = new WhipStickIOTalonFX().simSwitch();
     private final Armistice armistice = new Armistice(coral.hasAlgae());
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
-    private final Grond infeed = new Grond(new GrondIOTalonFX(true), new GrondIOTalonFX(false), new GrondTOFIOPWF());
     private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFX(),
             new InfeedPivotEncoderIOCancoder());
+    private final Grond infeed = new Grond(new GrondIOTalonFX(true), new GrondIOTalonFX(false), new GrondTOFIOPWF(), () -> pivot.getPosition() < InfeedPivotConstants.PIVOT_DOWN_THRESH);
 
     private final Limelight ll4iii = new Limelight(new LimelightIO("limelight-fouriii", true, Optional.empty(), true));
     private final Limelight ll4ii = new Limelight(new LimelightIO("limelight-fourii", true, Optional.empty(), true));
@@ -111,7 +112,7 @@ public class RobotContainer {
 
     private final Trigger hasGamePiece = new Trigger(
             infeed.hasGamepieceSupplier().and(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN)
-                    .and(pivot.isUp().not()));
+                    .and(pivot.isUp().not()).and(() -> pivot.getPosition() < InfeedPivotConstants.PIVOT_DOWN_THRESH));
 
     private final Trigger hasGPRaw = new Trigger(infeed.hasGamepieceSupplierRawTOF());
 
@@ -377,16 +378,19 @@ public class RobotContainer {
                                         .alongWith(coral.runMotorCommand(0.5)))
                                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                                 .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
-                                .andThen(pivot.waitUntilInTolerance(0.1))
+                                .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
                                 .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
                                         Commands.runOnce(() -> infeed.setHasCoral(false))
-                                                .alongWith(infeed.runMotorCommand(0))))
-                                .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
-                                        .andThen(Commands.runOnce(() -> armistice.setSafety(true))
-                                                .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
-                                        .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule()),
-                        Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed))
+                                                .alongWith(infeed.runMotorCommand(0)))),
+                        Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed)).finallyDo(() -> {
+                    armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
+                            .andThen(Commands.runOnce(() -> armistice.setSafety(true))
+                                    .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
+                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule();
+                    infeed.setHasCoral(false);
+                })
                 .onlyIfNoReqs(DriverStation::isTeleop));
+
 
         // ==============================================
         // DC -- LB: Outfeed Coral
@@ -479,6 +483,7 @@ public class RobotContainer {
                         .defer(() -> Commands.runOnce(() -> {
                                             armistice.setSafety(false);
                                             coral.setHasGamepiece(false);
+                                            infeed.setHasCoral(false);
                                         }).andThen(armistice.runToPositionCommand(ArmisticePositions.CLEAN,
                                                 drive.closestReefName(), drive.getReefTargetIsRight()))
                                         .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
@@ -649,12 +654,12 @@ public class RobotContainer {
     }
 
     private Command runToClosestReefAuto() {
-        return MagicSequencing.magicScoreNoDB(drive, armistice, coral, pivot, drive::pipe1ClosestReefPose,
+        return MagicSequencing.magicScoreNoDB(drive, armistice, coral, drive::pipe1ClosestReefPose,
                 () -> ArmisticePositions.Cora_L4);
     }
 
     private Command runToClosestReefAutoL2() {
-        return MagicSequencing.magicScoreNoDBL2(drive, armistice, coral, pivot, drive::pipe1ClosestReefPose,
+        return MagicSequencing.magicScoreNoDBL2(drive, armistice, coral, drive::pipe1ClosestReefPose,
                 () -> ArmisticePositions.Cora_L2);
     }
 

@@ -25,12 +25,16 @@ public class Grond extends SubsystemBase {
     private final GrondTOFIOInputsAutoLogged tofInputs;
     private double targetVbusLeft = 0.0;
     private double targetVbusRight = 0.0;
+    @AutoLogOutput
     private GrondStates state = GrondStates.OFF;
     @Setter
     private boolean hasCoral = false;
     private final Timer currentLimitTimer = new Timer();
+    private final Timer tofDebounceTimer = new Timer();
+    private final BooleanSupplier pivotDown;
 
-    public Grond(GrondIO ioleft, GrondIO ioright, GrondTOFIO tofIo) {
+    public Grond(GrondIO ioleft, GrondIO ioright, GrondTOFIO tofIo, BooleanSupplier pivotDown) {
+        this.pivotDown = pivotDown;
         this.ioleft = ioleft;
         this.ioright = ioright;
         this.tokio = tofIo;
@@ -58,7 +62,8 @@ public class Grond extends SubsystemBase {
     }
 
     public Command unjamCommand() {
-        return runOnce(() -> state = GrondStates.UNJAM).alongWith(Commands.waitSeconds(0.05)).finallyDo(() -> state = GrondStates.VBUS_FORWARD);
+//        return runOnce(() -> state = GrondStates.UNJAM).alongWith(Commands.waitSeconds(0.05)).finallyDo(() -> state = GrondStates.VBUS_FORWARD);
+        return Commands.none();
     }
 
     public BooleanSupplier isJammed() {
@@ -71,16 +76,23 @@ public class Grond extends SubsystemBase {
 
     @CreateState("vbus_forward")
     public void infeedVbus() {
-        if (tofInputs.range > GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH/*inputs.currentAmps < GrondConstants.STATOR_LIMIT || currentLimitTimer.get() <= GrondConstants.CURRENT_LIMIT_DELAY_SEC*/) {
+        if (!pivotDown.getAsBoolean() || (tofInputs.range >= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH || tofDebounceTimer.get() < 0.09) /*inputs.currentAmps < GrondConstants.STATOR_LIMIT || currentLimitTimer.get() <= GrondConstants.CURRENT_LIMIT_DELAY_SEC*/) {
             if (MathUtils.average(inputsLeft.currentAmps, inputsRight.currentAmps) >= GrondConstants.STATOR_LIMIT) {
                 currentLimitTimer.start();
             } else {
                 currentLimitTimer.stop();
                 currentLimitTimer.reset();
             }
+            if (tofInputs.range < GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH) tofDebounceTimer.start();
+            else {
+                tofDebounceTimer.stop();
+                tofDebounceTimer.reset();
+            }
             ioleft.setVbus(targetVbusLeft);
             ioright.setVbus(targetVbusRight);
         } else {
+            tofDebounceTimer.stop();
+            tofDebounceTimer.reset();
             currentLimitTimer.stop();
             currentLimitTimer.reset();
             hasCoral = true;
@@ -112,6 +124,7 @@ public class Grond extends SubsystemBase {
         currentLimitTimer.reset();
         ioleft.setCurrent(15);
         ioright.setCurrent(15);
+        if (!hasCoral) state = GrondStates.OFF;
     }
 
     public void setBrake(boolean isBrake) {

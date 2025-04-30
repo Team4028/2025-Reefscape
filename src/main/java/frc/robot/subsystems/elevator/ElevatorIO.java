@@ -6,7 +6,7 @@ import frc.robot.util.MotorData;
 
 public interface ElevatorIO {
     @AutoLog
-    public static class ElevatorIOInputs {
+    class ElevatorIOInputs {
         public double leaderPosition = 0.0;
         public double leaderVelocity = 0.0;
         public double leaderAcceleration = 0.0;
@@ -25,15 +25,15 @@ public interface ElevatorIO {
         public boolean followerConnected = false;
     }
 
-    public default void updateInputs(ElevatorIOInputs inputs) {
+    default void updateInputs(ElevatorIOInputs inputs) {
     }
 
-    public default void setPid(double positionInches) {
+    default void setPid(double positionInches) {
     }
 
-    public default void setVoltage(double volts) {
+    default void setVoltage(double volts) {
     }
 
-    public default void setVbus(double vBus) {
+    default void setVbus(double vBus) {
     }
 }

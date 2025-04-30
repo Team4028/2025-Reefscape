@@ -78,9 +78,11 @@ public class InfeedPivot extends SubsystemBase {
     }
 
     public Command zeroMotorEncoder() {
-        return runOnce(() -> {
-            state = InfeedPivotStates.ZEROING;
-        });
+        return runOnce(() -> state = InfeedPivotStates.ZEROING);
+    }
+
+    public double getPosition() {
+        return encoderInputs.positionRad;
     }
 
     public Command runToPositionCommand(double positionRad) {

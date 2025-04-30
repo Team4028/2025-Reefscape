@@ -20,8 +20,8 @@ public class WhipStick extends SubsystemBase {
     private double targetVBus = 0.0;
     private final WhipStickStateTracker stateTracker;
     private boolean isGettingAlgae = false;
-    private Timer currentLimitTimer = new Timer();
-    private Timer coralHoldTimer = new Timer();
+    private final Timer currentLimitTimer = new Timer();
+    private final Timer coralHoldTimer = new Timer();
 
     public WhipStick(WhipStickIO io) {
         this.io = io;

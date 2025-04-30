@@ -7,7 +7,7 @@ import edu.wpi.first.math.util.Units;
 public interface InfeedPivotMotorIO {
 
     @AutoLog
-    public static class InfeedPivotIOMotorInputs {
+    class InfeedPivotIOMotorInputs {
         public double positionRad = 0;
         public double positionDeg = 0;
         public double velRad = 0;
@@ -17,17 +17,17 @@ public interface InfeedPivotMotorIO {
         public boolean isConnected = false;
     }
 
-    public default void updateInputs(InfeedPivotIOMotorInputs inputs) {
+    default void updateInputs(InfeedPivotIOMotorInputs inputs) {
         inputs.positionDeg = Units.radiansToDegrees(inputs.positionRad);
         inputs.velDeg = Units.radiansToDegrees(inputs.velRad);
     }
 
-    public default void zeroPosition(double zeroPosRad) {
+    default void zeroPosition(double zeroPosRad) {
     }
 
-    public default void setVBus(double vbus) {
+    default void setVBus(double vbus) {
     }
 
-    public default void setPid(double posRad) {
+    default void setPid(double posRad) {
     }
 }

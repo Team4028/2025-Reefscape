@@ -60,10 +60,8 @@ public class VisionUtil {
     }
 
     public static void logPoses(Drive drivetrain) {
-        poseSources.entrySet().forEach(e -> {
-            Logger.recordOutput("Vision/" + e.getKey().getName() + "/EstPose",
-                    e.getValue().apply(drivetrain.getPose().getRotation().getRadians()));
-        });
+        poseSources.forEach((key, value) -> Logger.recordOutput("Vision/" + key.getName() + "/EstPose",
+                value.apply(drivetrain.getPose().getRotation().getRadians())));
     }
 
     public static LoggablePoseEstimate getPoseFromSource(Limelight ll, double driveYawRad) {
@@ -85,7 +83,7 @@ public class VisionUtil {
 
     public static void bindSimCameras(Transform3d[] robotToCameraTransforms) {
         for (int i = 0; i < robotToCameraTransforms.length; i++) {
-            sims.add(new LimelightSim(new ArrayList<>(poseSources.keySet()).get(i), robotToCameraTransforms[i]));
+            sims.add(new LimelightSim(new ArrayList<>(poseSources.keySet()).get(i).getName(), robotToCameraTransforms[i]));
         }
     }
 
@@ -113,8 +111,8 @@ public class VisionUtil {
             llProp.setLatencyStdDevMs(5);
         }
 
-        public LimelightSim(Limelight ll, Transform3d robotToCameraTransform) {
-            name = ll.getName() + "_sim";
+        public LimelightSim(String llName, Transform3d robotToCameraTransform) {
+            name = llName + "_sim";
             cam = new PhotonCamera(name);
             PhotonCameraSim sim = new PhotonCameraSim(cam, llProp);
             vSim.addCamera(sim, robotToCameraTransform);

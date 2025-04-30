@@ -6,7 +6,7 @@ import frc.robot.util.MotorData;
 
 public interface ClimberIO {
     @AutoLog
-    public static class ClimberIOInputs {
+    class ClimberIOInputs {
         public double appliedVoltage = 0.0;
         public double currentAmps = 0.0;
         public MotorData motorData = MotorData.empty();
@@ -16,20 +16,20 @@ public interface ClimberIO {
     
 
 
-    public default void updateInputs(ClimberIOInputs inputs) {
+    default void updateInputs(ClimberIOInputs inputs) {
       
     }
 
 
-    public default void setVbus(double vBus) {
+    default void setVbus(double vBus) {
 
     }
 
 
-    public default void setVoltage(double volts) {
+    default void setVoltage(double volts) {
 
     }
-    public default void setPid(double position) {
+    default void setPid(double position) {
 
     }
 }

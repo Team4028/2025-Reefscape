@@ -12,16 +12,15 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import frc.robot.util.MotorData;
 
 public class ArmIODIOEncoderTalonFX implements ArmIO {
-    private final DigitalInput di;
     private final DutyCycleEncoder encoder;
-    private double fakeVel = 0.0, lastPosition = 0.0;
+    private double lastPosition = 0.0;
     private final TalonFX motor = new TalonFX(ArmConstants.TalonFX.MOTOR_ID);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
     private final StatusSignal<Current> motorAmps = motor.getSupplyCurrent();
     private final StatusSignal<AngularVelocity> motorVel = motor.getVelocity();
 
     public ArmIODIOEncoderTalonFX() {
-        di = new DigitalInput(ArmConstants.DIOEncoder.DIO_PIN);
+        DigitalInput di = new DigitalInput(ArmConstants.DIOEncoder.DIO_PIN);
         encoder = new DutyCycleEncoder(di);
         encoder.setInverted(ArmConstants.DIOEncoder.INVERTED);
         motor.getConfigurator().apply(ArmConstants.TalonFX.motorConfigs);
@@ -36,7 +35,7 @@ public class ArmIODIOEncoderTalonFX implements ArmIO {
         inputs.armAngleRad = getArmAngleRad();
         inputs.armEncoderRad = getEncoderPositionRad();
         inputs.armEncoderRaw = getRawEncoderPositon();
-        fakeVel = (encoder.get() - lastPosition) / 0.02;
+        double fakeVel = (encoder.get() - lastPosition) / 0.02;
         lastPosition = encoder.get();
         inputs.armVelocityRotPerSec = fakeVel;
         inputs.motorData = MotorData.getMotorData(motor);

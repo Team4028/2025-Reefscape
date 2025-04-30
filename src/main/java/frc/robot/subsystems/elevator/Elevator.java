@@ -19,7 +19,7 @@ import frc.robot.util.LoggedTunables.LoggedChangableBoolean;
 
 public class Elevator extends SubsystemBase {
     private final ElevatorIO io;
-    private ElevatorStateTracker stateTracker;
+    private final ElevatorStateTracker stateTracker;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     private final LoggedChangableBoolean isBrake = new LoggedChangableBoolean("ElevatorInBrake", true);
     @AutoLogOutput
@@ -80,9 +80,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public Command reefCountChange(int shift) {
-        return runOnce(() -> {
-            stateTracker.shiftReefCount(shift);
-        });
+        return runOnce(() -> stateTracker.shiftReefCount(shift));
     }
 
     public void runToReefPosition(boolean useReefCount) {

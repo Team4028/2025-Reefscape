@@ -76,13 +76,11 @@ public class ArmIOCancoderSourceTalonFX implements ArmIO {
 
     public double getEncoderPositionRad() {
         motorPosition.refresh();
-        var rot = motorPosition.getValueAsDouble() * ArmConstants.PI_2;
-        return rot;
+        return motorPosition.getValueAsDouble() * ArmConstants.PI_2;
     }
 
     public double getArmAngleRad() {
-        var rad = getEncoderPositionRad() - 0.2;
-        return rad;
+        return getEncoderPositionRad() - 0.2;
     }
 
     @Override

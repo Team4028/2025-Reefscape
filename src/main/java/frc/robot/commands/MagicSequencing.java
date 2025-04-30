@@ -15,7 +15,6 @@ import frc.robot.Armistice;
 import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.infeedpivot.InfeedPivot;
 import frc.robot.subsystems.stick.WhipStick;
 import frc.robot.util.MiscUtils;
 import lombok.experimental.ExtensionMethod;
@@ -26,7 +25,7 @@ import lombok.experimental.UtilityClass;
 public class MagicSequencing {
     public static boolean isMagicScoreRunning = false;
 
-    public static Command magicScoreNoDB(Drive drive, Armistice armistice, WhipStick coral, InfeedPivot pivot,
+    public static Command magicScoreNoDB(Drive drive, Armistice armistice, WhipStick coral,
                                          Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -68,7 +67,7 @@ public class MagicSequencing {
                                 () -> armistice.waitUntilThingsInTolerance(1,
                                         scorePos.get() == ArmisticePositions.Cora_L4 ? 0.6 : 0.3),
                                 Set.of()))
-                        .andThen(drive.runVelocityAngle(() -> 0, () -> -3, () -> drive.getRotation())
+                        .andThen(drive.runVelocityAngle(() -> 0, () -> -3, drive::getRotation)
                                 .alongWith(coral.runMotorCommand(-.3))
                                 .withTimeout(0.25)
                                 .andThen(coral.runMotorCommand(0))
@@ -79,7 +78,7 @@ public class MagicSequencing {
                                 .schedule()));
     }
 
-    public static Command magicScoreNoDBL2(Drive drive, Armistice armistice, WhipStick coral, InfeedPivot pivot,
+    public static Command magicScoreNoDBL2(Drive drive, Armistice armistice, WhipStick coral,
                                            Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -174,7 +173,7 @@ public class MagicSequencing {
                                 () -> armistice.waitUntilThingsInTolerance(1,
                                         scorePos.get() == ArmisticePositions.Cora_L4 ? 0.6 : 0.3),
                                 Set.of()))
-                        .andThen(drive.runVelocityAngle(() -> 0, () -> -1, () -> drive.getRotation())
+                        .andThen(drive.runVelocityAngle(() -> 0, () -> -1, drive::getRotation)
                                 .alongWith(coral.runMotorCommand(-.3))
                                 .withTimeout(0.3)
                                 .andThen(coral.runMotorCommand(0))
@@ -207,7 +206,7 @@ public class MagicSequencing {
                                                 .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
                                 .alongWith(algae.runMotorCommandAlgae(0.95))
                                 .until(algae.hasGamePieceSupplier()).withTimeout(3))
-                .andThen(drive.runVelocityAngle(() -> 0, () -> -2, () -> drive.getRotation()).withTimeout(0.3)
+                .andThen(drive.runVelocityAngle(() -> 0, () -> -2, drive::getRotation).withTimeout(0.3)
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)
                                 .alongWith(drive.runOnce(drive::stop)))
                         .andThen(armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))))

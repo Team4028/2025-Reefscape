@@ -15,7 +15,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
     private final ElevatorSim elevator;
 
-    private double fakeAccel = 0, lastVel = 0, targetVolts = 0;
+    private double lastVel = 0;
+    private double targetVolts = 0;
 
     public ElevatorIOSim() {
         pid = ElevatorConstants.simPidConstants.makeProfiledPIDController();
@@ -34,7 +35,7 @@ public class ElevatorIOSim implements ElevatorIO {
     public void updateInputs(ElevatorIOInputs inputs) {
         elevator.setInput(targetVolts);
         elevator.update(0.02);
-        fakeAccel = (elevator.getOutput(1) - lastVel) / 0.02;
+        double fakeAccel = (elevator.getOutput(1) - lastVel) / 0.02;
         lastVel = elevator.getOutput(1);
         inputs.leaderPosition = Units.metersToInches(elevator.getOutput(0)) / ElevatorConstants.ROT_TO_IN;
         inputs.followerPosition = Units.metersToInches(elevator.getOutput(0)) / ElevatorConstants.ROT_TO_IN;

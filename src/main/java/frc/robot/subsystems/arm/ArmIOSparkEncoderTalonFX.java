@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
@@ -15,7 +16,6 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.util.MotorData;
 
 public class ArmIOSparkEncoderTalonFX implements ArmIO {
-    private final SparkMax encoderReader;
     private final AbsoluteEncoder encoder;
     private final TalonFX motor = new TalonFX(ArmConstants.TalonFX.MOTOR_ID);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
@@ -26,7 +26,7 @@ public class ArmIOSparkEncoderTalonFX implements ArmIO {
     private final DutyCycleOut dutyCycleOut = new DutyCycleOut(0).withEnableFOC(ArmConstants.USE_FOC);
 
     public ArmIOSparkEncoderTalonFX() {
-        encoderReader = new SparkMax(ArmConstants.SparkEncoder.ENCODER_ID, MotorType.kBrushless);
+        SparkMax encoderReader = new SparkMax(ArmConstants.SparkEncoder.ENCODER_ID, MotorType.kBrushless);
         encoderReader.configure(ArmConstants.SparkEncoder.encoderConfig, null, null);
         encoder = encoderReader.getAbsoluteEncoder();
         motor.getConfigurator().apply(ArmConstants.TalonFX.motorConfigs);

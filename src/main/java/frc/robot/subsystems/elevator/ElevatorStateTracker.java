@@ -11,9 +11,9 @@ public class ElevatorStateTracker {
         public enum Reef {
             L1(15), L2(30), L3(45), L4(50), HOLD(20), OFF(0);
 
-            public double position;
+            public final double position;
 
-            private Reef(double position) {
+            Reef(double position) {
                 this.position = position;
             }
         }

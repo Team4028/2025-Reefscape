@@ -3,6 +3,7 @@ package frc.robot.subsystems.limelight;
 import java.util.Arrays;
 import java.util.Optional;
 
+import lombok.Getter;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -21,6 +22,7 @@ public class LimelightIO {
 
     private final boolean is4;
     private final String limelightName;
+    @Getter
     private Transform3d robotToCamera;
     public boolean is3d;
 
@@ -28,10 +30,8 @@ public class LimelightIO {
         this.is4 = is4;
         is3d = use3d;
         this.limelightName = limelightName;
-        if (tagFilter.isPresent()) {
-            LimelightHelpers.SetFiducialIDFiltersOverride(limelightName,
-                    Arrays.stream(tagFilter.get()).mapToInt(Integer::intValue).toArray());
-        }
+        tagFilter.ifPresent(integers -> LimelightHelpers.SetFiducialIDFiltersOverride(limelightName,
+                Arrays.stream(integers).mapToInt(Integer::intValue).toArray()));
 
         if (use3d) {
             robotToCamera = new Transform3d(new Pose3d(), LimelightHelpers.getCameraPose3d_RobotSpace(limelightName));
@@ -55,10 +55,8 @@ public class LimelightIO {
         this.is4 = is4;
         is3d = use3d;
         this.limelightName = limelightName;
-        if (tagFilter.isPresent()) {
-            LimelightHelpers.SetFiducialIDFiltersOverride(limelightName,
-                    Arrays.stream(tagFilter.get()).mapToInt(Integer::intValue).toArray());
-        }
+        tagFilter.ifPresent(integers -> LimelightHelpers.SetFiducialIDFiltersOverride(limelightName,
+                Arrays.stream(integers).mapToInt(Integer::intValue).toArray()));
         this.robotToCamera = robotToCamera;
     }
 
@@ -173,7 +171,4 @@ public class LimelightIO {
         return limelightName;
     }
 
-    public Transform3d getRobotToCamera() {
-        return robotToCamera;
-    }
 }
