@@ -9,15 +9,15 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.playingwithfusion.TimeOfFlight;
 
 public class GrondConstants {
-    public static final double STATOR_LIMIT = 60;
+    public static final double STATOR_LIMIT = 40;
     public static final double CURRENT_LIMIT_DELAY_SEC = 0.8;
-    public static final double RIGHT_TO_LEFT_RATIO = 0.8;
+    public static final double RIGHT_TO_LEFT_RATIO = 0.7;
 
     public static final class PWFTimeOfFlight {
         public static final int CAN_ID = 24;
-        public static final double TOF_RANGE_THRESH = 65;
-        public static final TimeOfFlight.RangingMode mode = TimeOfFlight.RangingMode.Medium;
-        public static final Optional<Double> sampleTime = Optional.empty();
+        public static final double TOF_RANGE_THRESH = 30;
+        public static final TimeOfFlight.RangingMode mode = TimeOfFlight.RangingMode.Short;
+        public static final Optional<Double> sampleTime = Optional.of(10.0);
     }
 
     public static final class TalonFX {

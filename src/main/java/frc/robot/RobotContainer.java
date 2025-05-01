@@ -343,7 +343,7 @@ public class RobotContainer {
 
         driverController.a().onTrue(
                 pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown()).onlyIf(pivot.isUp().not()));
-        needsUnjam.debounce(0.4).onTrue(infeed.unjamCommand());
+        needsUnjam.debounce(0.1).onTrue(infeed.unjamCommand());
 
         hasGPRaw.onTrue(Commands.runOnce(() -> {
             unjamOn = true;
@@ -374,7 +374,7 @@ public class RobotContainer {
         driverController.leftStick().onTrue(Commands.runOnce(() -> unjamOn = !unjamOn));
 
         hasGamePiece.onTrue(Commands.defer(() -> Commands.runOnce(() -> coral.setHasGamepiece(false))
-                                .andThen(armistice.waitUntilThingsInTolerance(1, 0.1)
+                                .andThen(armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(2)).alongWith(armistice.waitForArmSlow())
                                         .alongWith(coral.runMotorCommand(0.5)))
                                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                                 .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
@@ -483,7 +483,6 @@ public class RobotContainer {
                         .defer(() -> Commands.runOnce(() -> {
                                             armistice.setSafety(false);
                                             coral.setHasGamepiece(false);
-                                            infeed.setHasCoral(false);
                                         }).andThen(armistice.runToPositionCommand(ArmisticePositions.CLEAN,
                                                 drive.closestReefName(), drive.getReefTargetIsRight()))
                                         .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))

@@ -8,6 +8,7 @@ public class GrondTOFIOPWF implements GrondTOFIO {
     public GrondTOFIOPWF() {
         tof.setRangingMode(GrondConstants.PWFTimeOfFlight.mode,
                 GrondConstants.PWFTimeOfFlight.sampleTime.orElse(tof.getSampleTime()));
+        tof.setRangeOfInterest(0,0, 15, 15);
     }
 
     @Override
