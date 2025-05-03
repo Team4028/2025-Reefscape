@@ -17,10 +17,10 @@ import java.util.function.BooleanSupplier;
 @ExtensionMethod(MiscUtils.class)
 public class Grond extends SubsystemBase {
     private final GrondIO ioleft, ioright;
-    private final GrondTOFIO tokio;
+    private final GrondTOFIO tof1io;
     private final GrondIOInputsAutoLogged inputsLeft;
     private final GrondIOInputsAutoLogged inputsRight;
-    private final GrondTOFIOInputsAutoLogged tofInputs;
+    private final GrondTOFIOInputsAutoLogged tof1Inputs;
     private final Timer currentLimitTimer = new Timer();
     private final BooleanSupplier pivotDown;
     private double targetVbusLeft = 0.0;
@@ -30,24 +30,28 @@ public class Grond extends SubsystemBase {
     @Setter
     private boolean hasCoral = false;
 
-    public Grond(GrondIO ioleft, GrondIO ioright, GrondTOFIO tofIo, BooleanSupplier pivotDown) {
+    public Grond(GrondIO ioleft, GrondIO ioright, GrondTOFIO tof1Io, BooleanSupplier pivotDown) {
         this.pivotDown = pivotDown;
         this.ioleft = ioleft;
         this.ioright = ioright;
-        this.tokio = tofIo;
+        this.tof1io = tof1Io;
         inputsLeft = new GrondIOInputsAutoLogged();
         inputsRight = new GrondIOInputsAutoLogged();
-        tofInputs = new GrondTOFIOInputsAutoLogged();
+        tof1Inputs = new GrondTOFIOInputsAutoLogged();
     }
 
     @AutoLogOutput
     public BooleanSupplier hasGamepieceSupplier() {
-        return () -> hasCoral;
+        return () -> {
+            hasCoral = hasGamepieceSupplierRawTOF().getAsBoolean();
+            return hasCoral;
+        };
     }
 
     @AutoLogOutput
     public BooleanSupplier hasGamepieceSupplierRawTOF() {
-        return () -> tofInputs.range <= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH;
+        return () -> tof1Inputs.range <= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH
+                && tof1Inputs.lightingLevel <= 0.05;
     }
 
     public Command runMotorCommand(double vbus) {
@@ -59,7 +63,8 @@ public class Grond extends SubsystemBase {
     }
 
     public Command unjamCommand() {
-        return runOnce(() -> state = GrondStates.UNJAM).alongWith(Commands.waitSeconds(0.05)).until(hasGamepieceSupplierRawTOF()).finallyDo(() -> state = GrondStates.VBUS_FORWARD);
+        return runOnce(() -> state = GrondStates.UNJAM).alongWith(Commands.waitSeconds(0.05))
+                .until(hasGamepieceSupplierRawTOF()).finallyDo(() -> state = GrondStates.VBUS_FORWARD);
     }
 
     public BooleanSupplier isJammed() {
@@ -67,12 +72,27 @@ public class Grond extends SubsystemBase {
     }
 
     public BooleanSupplier currLimitHasGP() {
-        return () -> MathUtils.average(inputsLeft.currentAmps, inputsRight.currentAmps) - GrondConstants.TalonFX.JAM_STATOR >= -5;
+        return () -> MathUtils.average(inputsLeft.currentAmps, inputsRight.currentAmps)
+                - GrondConstants.TalonFX.JAM_STATOR >= -5;
     }
 
     @CreateState("vbus_forward")
     public void infeedVbus() {
-        if (!pivotDown.getAsBoolean() || (tofInputs.range >= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH) /*inputs.currentAmps < GrondConstants.STATOR_LIMIT || currentLimitTimer.get() <= GrondConstants.CURRENT_LIMIT_DELAY_SEC*/) {
+        if (!pivotDown.getAsBoolean() || (tof1Inputs.range >= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH) /*
+                                                                                                                * inputs.
+                                                                                                                * currentAmps
+                                                                                                                * <
+                                                                                                                * GrondConstants
+                                                                                                                * .
+                                                                                                                * STATOR_LIMIT
+                                                                                                                * ||
+                                                                                                                * currentLimitTimer
+                                                                                                                * .get()
+                                                                                                                * <=
+                                                                                                                * GrondConstants
+                                                                                                                * .
+                                                                                                                * CURRENT_LIMIT_DELAY_SEC
+                                                                                                                */) {
             if (MathUtils.average(inputsLeft.currentAmps, inputsRight.currentAmps) >= GrondConstants.STATOR_LIMIT) {
                 currentLimitTimer.start();
             } else {
@@ -113,7 +133,8 @@ public class Grond extends SubsystemBase {
         currentLimitTimer.reset();
         ioleft.setCurrent(15);
         ioright.setCurrent(15);
-        if (!hasCoral) state = GrondStates.OFF;
+        if (!hasCoral)
+            state = GrondStates.OFF;
     }
 
     public void setBrake(boolean isBrake) {
@@ -134,15 +155,14 @@ public class Grond extends SubsystemBase {
         hasCoral = false;
     }
 
-
     @Override
     public void periodic() {
         state.execute(this);
         ioleft.updateInputs(inputsLeft);
         ioright.updateInputs(inputsRight);
-        tokio.updateInputs(tofInputs);
+        tof1io.updateInputs(tof1Inputs);
         Logger.processInputs("Ground Infeed/MotorLeft", inputsLeft);
         Logger.processInputs("Ground Infeed/MotorRight", inputsRight);
-        Logger.processInputs("Ground Infeed/TOF Sensor", tofInputs);
+        Logger.processInputs("Ground Infeed/TOF Sensor", tof1Inputs);
     }
 }

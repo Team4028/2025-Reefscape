@@ -76,7 +76,7 @@ public class WhipStick extends SubsystemBase {
             stateTracker.state = WhipStickStates.HOLD;
         } else if (stateTracker.hasGP) {
             // if (io instanceof WhipStickIOTalonFX fx)
-            //     fx.setCurrent(5);
+            // fx.setCurrent(5);
             // else io.setVbus(.1);
             io.setVbus(0);
         } else {
@@ -113,6 +113,7 @@ public class WhipStick extends SubsystemBase {
 
     @CreateState("vbus_forward")
     public void infeedVBus() {
+        currentLimitTimer.start();
         if ((isGettingAlgae
                 && (inputs.currentAmps < 48
                         || currentLimitTimer.get() <= WhipStickConstants.CURRENT_LIMIT_DELAY_ALGAE_SEC))
