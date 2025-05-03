@@ -21,8 +21,8 @@ public class GrondConstants {
     }
 
     public static final class TalonFX {
-        public static final int CAN_ID_LEFT = 20;
-        public static final int CAN_ID_RIGHT = 22;
+        public static final int CAN_ID_LEFT = 11;
+        public static final int CAN_ID_RIGHT = 12;
         public static final boolean USE_FOC = true;
         public static final double JAM_STATOR = 30;
         public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()

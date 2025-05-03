@@ -23,13 +23,15 @@ public class GrondIOTalonFX implements GrondIO {
     private final TorqueCurrentFOC currentControl;
 
     public GrondIOTalonFX(boolean isLeft) {
-        motor = new TalonFX(isLeft ? GrondConstants.TalonFX.CAN_ID_LEFT : GrondConstants.TalonFX.CAN_ID_RIGHT, TunerConstants.DrivetrainConstants.CANBusName);
-        motor.getConfigurator().apply(isLeft ? GrondConstants.TalonFX.motorConfigs : GrondConstants.TalonFX.motorConfigsRight);
+        motor = new TalonFX(isLeft ? GrondConstants.TalonFX.CAN_ID_LEFT : GrondConstants.TalonFX.CAN_ID_RIGHT,
+                TunerConstants.DrivetrainConstants.CANBusName);
+        motor.getConfigurator()
+                .apply(isLeft ? GrondConstants.TalonFX.motorConfigs : GrondConstants.TalonFX.motorConfigsRight);
         motor.getConfigurator().apply(GrondConstants.TalonFX.currLimits);
 
         motorVolts = motor.getMotorVoltage();
         motorCurrent = motor.getStatorCurrent();
-        BaseStatusSignal.setUpdateFrequencyForAll(100, motorVolts, motorCurrent);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, motorVolts, motorCurrent);
         motor.optimizeBusUtilization();
         vbusControl = new DutyCycleOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
         voltageControl = new VoltageOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
@@ -37,7 +39,8 @@ public class GrondIOTalonFX implements GrondIO {
     }
 
     public void setBrakeMode(boolean isBrake) {
-        motor.getConfigurator().apply(GrondConstants.TalonFX.motorConfigs.withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
+        motor.getConfigurator().apply(GrondConstants.TalonFX.motorConfigs
+                .withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
     }
 
     @Override

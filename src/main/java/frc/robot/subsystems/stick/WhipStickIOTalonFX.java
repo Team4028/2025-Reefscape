@@ -29,7 +29,7 @@ public class WhipStickIOTalonFX implements WhipStickIO {
         motor.getConfigurator().apply(WhipStickConstants.TalonFX.CONFIG, 0.25);
         motor.getConfigurator().apply(WhipStickConstants.TalonFX.CURR_LIMITS, 0.25);
 
-        BaseStatusSignal.setUpdateFrequencyForAll(100, motorVolts, motorAmps);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, motorVolts, motorAmps);
         motor.optimizeBusUtilization();
     }
 

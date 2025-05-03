@@ -66,16 +66,17 @@ public class ArmIOCancoderSourceTalonFX implements ArmIO {
 
     public void setBrake(boolean isBrake) {
         motor.getConfigurator()
-                .apply(ArmConstants.TalonFXCC.motorConfigs.withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
+                .apply(ArmConstants.TalonFXCC.motorConfigs
+                        .withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
     }
 
     public double getRawEncoderPositon() {
-        encoderPosition.refresh();
+        // encoderPosition.refresh();
         return encoderPosition.getValueAsDouble();
     }
 
     public double getEncoderPositionRad() {
-        motorPosition.refresh();
+        // motorPosition.refresh();
         return motorPosition.getValueAsDouble() * ArmConstants.PI_2;
     }
 

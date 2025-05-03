@@ -19,8 +19,10 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.MotorData;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
-    private final TalonFX leader = new TalonFX(ElevatorConstants.TalonFX.LEADER_ID, TunerConstants.DrivetrainConstants.CANBusName);
-    private final TalonFX follower = new TalonFX(ElevatorConstants.TalonFX.FOLLOWER_ID, TunerConstants.DrivetrainConstants.CANBusName);
+    private final TalonFX leader = new TalonFX(ElevatorConstants.TalonFX.LEADER_ID,
+            TunerConstants.DrivetrainConstants.CANBusName);
+    private final TalonFX follower = new TalonFX(ElevatorConstants.TalonFX.FOLLOWER_ID,
+            TunerConstants.DrivetrainConstants.CANBusName);
     private final StatusSignal<Angle> positionRotLeader = leader.getPosition();
     private final StatusSignal<Angle> positionRotFollower = follower.getPosition();
     private final StatusSignal<AngularVelocity> velocityRotPerSecLeader = leader.getVelocity();
@@ -46,7 +48,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.mmConfigs, 0.25);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.tcConfigs, 0.25);
         leader.getConfigurator().apply(ElevatorConstants.TalonFX.softLimits, 0.25);
-        BaseStatusSignal.setUpdateFrequencyForAll(250, positionRotLeader, positionRotFollower, velocityRotPerSecLeader,
+        BaseStatusSignal.setUpdateFrequencyForAll(200, positionRotLeader, positionRotFollower, velocityRotPerSecLeader,
                 velocityRotPerSecFollower, appliedVoltageFollower, appliedVoltageLeader);
         BaseStatusSignal.setUpdateFrequencyForAll(100, accelerationRotPerSecPerSecLeader,
                 accelerationRotPerSecPerSecFollower, currentAmpsFollower, currentAmpsLeader);
@@ -90,8 +92,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     }
 
     public void setBrake(boolean isBrake) {
-        leader.getConfigurator().apply(ElevatorConstants.TalonFX.leaderConfigs.withNeutralMode(NeutralModeValue.valueOf(isBrake ? 1 : 0)));
-        follower.getConfigurator().apply(ElevatorConstants.TalonFX.followerConfigs.withNeutralMode(NeutralModeValue.valueOf(isBrake ? 1 : 0)));
+        leader.getConfigurator().apply(
+                ElevatorConstants.TalonFX.leaderConfigs.withNeutralMode(NeutralModeValue.valueOf(isBrake ? 1 : 0)));
+        follower.getConfigurator().apply(
+                ElevatorConstants.TalonFX.followerConfigs.withNeutralMode(NeutralModeValue.valueOf(isBrake ? 1 : 0)));
     }
 
     @Override

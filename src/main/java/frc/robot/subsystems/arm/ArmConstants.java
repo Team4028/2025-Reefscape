@@ -38,7 +38,7 @@ public class ArmConstants {
     }
 
     public static final class Cancoder {
-        public static final int CAN_ID = 6;
+        public static final int CAN_ID = 10;
         public static final CANcoderConfiguration config = new CANcoderConfiguration().withMagnetSensor(
                 new MagnetSensorConfigs().withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
                         .withMagnetOffset(-0.36328125));

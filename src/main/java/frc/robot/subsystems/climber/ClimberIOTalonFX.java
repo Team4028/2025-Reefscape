@@ -12,7 +12,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.MotorData;
 
 public class ClimberIOTalonFX implements ClimberIO {
-    private final TalonFX motor = new TalonFX(ClimberConstants.TalonFX.MOTOR_ID, TunerConstants.DrivetrainConstants.CANBusName);
+    private final TalonFX motor = new TalonFX(ClimberConstants.TalonFX.MOTOR_ID,
+            TunerConstants.DrivetrainConstants.CANBusName);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
     private final StatusSignal<Current> motorAmps = motor.getStatorCurrent();
     private final VoltageOut voltageControl = new VoltageOut(0).withEnableFOC(ClimberConstants.USE_FOC);
@@ -21,11 +22,11 @@ public class ClimberIOTalonFX implements ClimberIO {
     public ClimberIOTalonFX() {
         motor.getConfigurator().apply(ClimberConstants.TalonFX.currentLimitConfigs, 0.25);
 
-        BaseStatusSignal.setUpdateFrequencyForAll(100, motorAmps, motorVolts);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, motorAmps, motorVolts);
         motor.optimizeBusUtilization();
     }
 
-   @Override
+    @Override
     public void updateInputs(ClimberIOInputs inputs) {
         BaseStatusSignal.refreshAll(motorAmps, motorVolts);
         inputs.appliedVoltage = motorVolts.getValueAsDouble();
@@ -33,7 +34,6 @@ public class ClimberIOTalonFX implements ClimberIO {
         inputs.motorData = MotorData.empty();
         inputs.isConnected = motor.isConnected();
     }
-
 
     @Override
     public void setVbus(double vBus) {

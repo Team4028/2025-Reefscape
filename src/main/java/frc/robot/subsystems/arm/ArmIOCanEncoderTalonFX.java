@@ -56,7 +56,8 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
             } catch (InterruptedException ignored) {
             }
 
-            while (motor.getVelocity(true).getValueAsDouble() != 0);
+            while (motor.getVelocity(true).getValueAsDouble() != 0)
+                ;
             initEncoder();
             System.out.printf("Successfully initialized TalonFX %d Position%n", motor.getDeviceID());
         }).start();
@@ -89,16 +90,17 @@ public class ArmIOCanEncoderTalonFX implements ArmIO {
     }
 
     public void initEncoder() {
-        motor.setPosition(MathUtils.cyclicRange(canMag.getAbsPosition() - 0.6366, -0.5, 1, 1) * ArmConstants.GEAR_RATIO);
+        motor.setPosition(
+                MathUtils.cyclicRange(canMag.getAbsPosition() - 0.6366, -0.5, 1, 1) * ArmConstants.GEAR_RATIO);
     }
 
     public double getRawEncoderPositon() {
-        motorPosition.refresh();
+        // motorPosition.refresh();
         return motorPosition.getValueAsDouble() / ArmConstants.GEAR_RATIO;
     }
 
     public double getEncoderPositionRad() {
-        motorPosition.refresh();
+        // motorPosition.refresh();
         // rot = rot > 0 ? rot : 1 + rot;
         // return rot * ArmConstants.PI_2;
         return motorPosition.getValueAsDouble() / ArmConstants.GEAR_RATIO * ArmConstants.PI_2;

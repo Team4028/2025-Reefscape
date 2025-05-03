@@ -10,7 +10,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.arm.ArmConstants;
 
 public class InfeedPivotEncoderIOCancoder implements InfeedPivotEncoderIO {
-    private final CANcoder cancoder = new CANcoder(InfeedPivotConstants.Cancoder.CAN_ID, TunerConstants.DrivetrainConstants.CANBusName);
+    private final CANcoder cancoder = new CANcoder(InfeedPivotConstants.Cancoder.CAN_ID,
+            TunerConstants.DrivetrainConstants.CANBusName);
     private final StatusSignal<Angle> position = cancoder.getAbsolutePosition();
     private final StatusSignal<AngularVelocity> velocity = cancoder.getVelocity();
 

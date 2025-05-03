@@ -34,7 +34,7 @@ public class InfeedPivotMotorIOTalonFX implements InfeedPivotMotorIO {
         motor.getConfigurator().apply(InfeedPivotConstants.TalonFX.currLimits);
         motor.getConfigurator().apply(InfeedPivotConstants.TalonFX.softLimits);
 
-        BaseStatusSignal.setUpdateFrequencyForAll(100, position, velocity, motorVolts, motorCurrent);
+        BaseStatusSignal.setUpdateFrequencyForAll(50, position, velocity, motorVolts, motorCurrent);
         motor.optimizeBusUtilization();
     }
 

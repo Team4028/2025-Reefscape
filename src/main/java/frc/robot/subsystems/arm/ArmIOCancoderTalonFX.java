@@ -44,15 +44,17 @@ public class ArmIOCancoderTalonFX implements ArmIO {
         motor.getConfigurator().apply(ArmConstants.TalonFX.mmConfigs, 0.25);
         cancoder.getConfigurator().apply(ArmConstants.Cancoder.config);
         // new Thread(() -> {
-        //     try {
-        //         Thread.sleep(1000);
-        //     } catch (InterruptedException ignored) {
-        //     }
+        // try {
+        // Thread.sleep(1000);
+        // } catch (InterruptedException ignored) {
+        // }
 
-        //     while (RobotController.getCANStatus().percentBusUtilization < 0 || RobotController.getCANStatus().percentBusUtilization > 94)
-        //         ;
-        //     initEncoder();
-        //     System.out.println(String.format("Successfully initialized TalonFX %d Position", motor.getDeviceID()));
+        // while (RobotController.getCANStatus().percentBusUtilization < 0 ||
+        // RobotController.getCANStatus().percentBusUtilization > 94)
+        // ;
+        // initEncoder();
+        // System.out.println(String.format("Successfully initialized TalonFX %d
+        // Position", motor.getDeviceID()));
         // }).start();
         new Thread(() -> {
             while (RobotController.getCANStatus().percentBusUtilization < 0.9) {
@@ -87,7 +89,8 @@ public class ArmIOCancoderTalonFX implements ArmIO {
 
     public void setBrake(boolean isBrake) {
         motor.getConfigurator()
-                .apply(ArmConstants.TalonFX.motorConfigs.withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
+                .apply(ArmConstants.TalonFX.motorConfigs
+                        .withNeutralMode(isBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast));
     }
 
     public void initEncoder() {
@@ -100,12 +103,12 @@ public class ArmIOCancoderTalonFX implements ArmIO {
     }
 
     public double getRawEncoderPositon() {
-        encoderPosition.refresh();
+        // encoderPosition.refresh();
         return encoderPosition.getValueAsDouble();
     }
 
     public double getEncoderPositionRad() {
-        motorPosition.refresh();
+        // motorPosition.refresh();
         // rot = rot > 0 ? rot : 1 + rot;
         // return rot * ArmConstants.PI_2;
         return motorPosition.getValueAsDouble() / ArmConstants.GEAR_RATIO * ArmConstants.PI_2;
