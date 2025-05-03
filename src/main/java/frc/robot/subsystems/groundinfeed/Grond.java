@@ -1,20 +1,18 @@
 package frc.robot.subsystems.groundinfeed;
 
-import java.util.function.BooleanSupplier;
-
+import com.bskd.annotations.CreateState;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MathUtils;
+import frc.robot.util.MiscUtils;
 import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.bskd.annotations.CreateState;
-
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.MiscUtils;
-import lombok.experimental.ExtensionMethod;
+import java.util.function.BooleanSupplier;
 
 @ExtensionMethod(MiscUtils.class)
 public class Grond extends SubsystemBase {
@@ -23,14 +21,14 @@ public class Grond extends SubsystemBase {
     private final GrondIOInputsAutoLogged inputsLeft;
     private final GrondIOInputsAutoLogged inputsRight;
     private final GrondTOFIOInputsAutoLogged tofInputs;
+    private final Timer currentLimitTimer = new Timer();
+    private final BooleanSupplier pivotDown;
     private double targetVbusLeft = 0.0;
     private double targetVbusRight = 0.0;
     @AutoLogOutput
     private GrondStates state = GrondStates.OFF;
     @Setter
     private boolean hasCoral = false;
-    private final Timer currentLimitTimer = new Timer();
-    private final BooleanSupplier pivotDown;
 
     public Grond(GrondIO ioleft, GrondIO ioright, GrondTOFIO tofIo, BooleanSupplier pivotDown) {
         this.pivotDown = pivotDown;
@@ -61,11 +59,11 @@ public class Grond extends SubsystemBase {
     }
 
     public Command unjamCommand() {
-        return runOnce(() -> state = GrondStates.UNJAM).alongWith(Commands.waitSeconds(0.05)).until(hasGamepieceSupplier()).finallyDo(() -> state = GrondStates.VBUS_FORWARD);
+        return runOnce(() -> state = GrondStates.UNJAM).alongWith(Commands.waitSeconds(0.05)).until(hasGamepieceSupplierRawTOF()).finallyDo(() -> state = GrondStates.VBUS_FORWARD);
     }
 
     public BooleanSupplier isJammed() {
-        return currLimitHasGP().and(hasGamepieceSupplierRawTOF().not());
+        return currLimitHasGP().and(hasGamepieceSupplier().not());
     }
 
     public BooleanSupplier currLimitHasGP() {

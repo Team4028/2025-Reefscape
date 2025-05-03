@@ -1,14 +1,9 @@
 package frc.robot.subsystems.infeedpivot;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.util.PIDStruct;
 
@@ -46,7 +41,7 @@ public class InfeedPivotConstants {
         // public static final Slot1Configs pid2Configs = pid2Config.makeSlot1Configs(GravityTypeValue.Arm_Cosine);
         // public static final MotionMagicConfigs mmConfigs = pidConfig.makeMMConfigs();
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
-                .withReverseSoftLimitThreshold(0 / ArmConstants.PI_2 * GEAR_RATIO).withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(-0.06 / ArmConstants.PI_2 * GEAR_RATIO).withReverseSoftLimitEnable(true)
                 .withForwardSoftLimitThreshold(1.9 / ArmConstants.PI_2 * GEAR_RATIO).withForwardSoftLimitEnable(true);
     }
 

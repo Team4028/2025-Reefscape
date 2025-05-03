@@ -4,21 +4,10 @@
 
 package frc.robot;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
-import edu.wpi.first.math.geometry.*;
-import frc.robot.subsystems.infeedpivot.InfeedPivotConstants;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -43,6 +32,7 @@ import frc.robot.subsystems.groundinfeed.Grond;
 import frc.robot.subsystems.groundinfeed.GrondIOTalonFX;
 import frc.robot.subsystems.groundinfeed.GrondTOFIOPWF;
 import frc.robot.subsystems.infeedpivot.InfeedPivot;
+import frc.robot.subsystems.infeedpivot.InfeedPivotConstants;
 import frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions;
 import frc.robot.subsystems.infeedpivot.InfeedPivotEncoderIOCancoder;
 import frc.robot.subsystems.infeedpivot.InfeedPivotMotorIOTalonFX;
@@ -58,6 +48,14 @@ import frc.robot.util.MiscUtils;
 import frc.robot.util.RobotSim;
 import frc.robot.util.VisionUtil;
 import lombok.experimental.ExtensionMethod;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 @ExtensionMethod({frc.robot.util.RobotSim.class, frc.robot.commands.DriveCommands.class, MiscUtils.class})
 public class RobotContainer {
@@ -343,7 +341,7 @@ public class RobotContainer {
 
         driverController.a().onTrue(
                 pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown()).onlyIf(pivot.isUp().not()));
-        needsUnjam.debounce(0.1).onTrue(infeed.unjamCommand());
+        needsUnjam.debounce(0.2).onTrue(infeed.unjamCommand());
 
         hasGPRaw.onTrue(Commands.runOnce(() -> {
             unjamOn = true;

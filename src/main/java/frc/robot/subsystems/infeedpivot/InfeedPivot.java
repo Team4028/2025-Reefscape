@@ -1,19 +1,17 @@
 package frc.robot.subsystems.infeedpivot;
 
+import com.bskd.annotations.CreateState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions;
-
-import static frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions.*;
-
-import java.util.function.BooleanSupplier;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.bskd.annotations.CreateState;
+import java.util.function.BooleanSupplier;
+
+import static frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions.UP;
 
 public class InfeedPivot extends SubsystemBase {
     private final InfeedPivotMotorIO motorIO;
@@ -106,10 +104,10 @@ public class InfeedPivot extends SubsystemBase {
     @CreateState("holding_down")
     public void runTargetVbus() {
         if (state == InfeedPivotStates.HOLDING_DOWN) {
-            motorIO.setVBus(-0.5);
+            motorIO.setVBus(-0.9);
             return;
-        } else if (motorInputs.positionRad < 0.7) {
-            if (motorInputs.positionRad < 0.05) {
+        } else if (motorInputs.positionRad < 1) {
+            if (motorInputs.positionRad < 0.2) {
                 state = InfeedPivotStates.HOLDING_DOWN;
             }
             motorIO.setVBus(0);

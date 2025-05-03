@@ -1,22 +1,5 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Volts;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-
-import lombok.Getter;
-import org.json.JSONObject;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -34,8 +17,24 @@ import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SudoSubsystem;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.ExtensionMethod;
+import org.json.JSONObject;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+
+import static edu.wpi.first.units.Units.Volts;
 
 @ExtensionMethod(frc.robot.util.RobotSim.class)
 public class Armistice extends SudoSubsystem {
@@ -565,7 +564,7 @@ public class Armistice extends SudoSubsystem {
     @Override
     public void periodic() {
         if (Constants.USE_ARMISTICE_PID && !armIsDisabled) {
-            if (useSafety) {
+            if (useSafety && targetArmisticePosition != ArmisticePositions.PROC) {
                 var safeR = getSafetyAlgaeCompensation();
                 boolean elevatorWaiting = !disarmAtSafeDistance() && !elevatorIsSafe();
                 if (elevatorIsSafe() || (elevatorWaiting && summit.withinRange(SAFETY_TOLERANCE))
