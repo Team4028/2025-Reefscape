@@ -20,7 +20,7 @@ public class InfeedPivot extends SubsystemBase {
     private final InfeedPivotEncoderIOInputsAutoLogged encoderInputs;
     private double targetVbus = 0;
     private double targetPositionRad = UP.posRad;
-
+    private double targetVoltage = 0;
     @AutoLogOutput
     private boolean up = true;
 
@@ -33,18 +33,24 @@ public class InfeedPivot extends SubsystemBase {
         motorInputs = new InfeedPivotIOMotorInputsAutoLogged();
         encoderInputs = new InfeedPivotEncoderIOInputsAutoLogged();
         encoderIO.updateInputs(encoderInputs);
+        motorIO.resetPid(motorInputs.positionRad);
 
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
             encoderIO.updateInputs(encoderInputs);
             motorIO.zeroPosition(encoderInputs.positionRad);
         }).start();
     }
 
     public Command runUp() {
-        return runToPositionCommand(InfeedPivotPositions.UP.posRad).alongWith(Commands.runOnce(() -> up = true));
+        return runOnce(() -> motorIO.setPIDConstants(InfeedPivotConstants.pidConfig)).andThen(runToPositionCommand(InfeedPivotPositions.UP.posRad).alongWith(Commands.runOnce(() -> up = true)));
+    }
+
+    public Command runUpWithCoral() {
+        return runOnce(() -> up = true).andThen(runVoltageCommand(10));
     }
 
     public Command runUpClimb() {
@@ -59,8 +65,19 @@ public class InfeedPivot extends SubsystemBase {
         return runUp().andThen(Commands.waitSeconds(0.001)).andThen(runDown()).andThen(runDown()).andThen(Commands.waitSeconds(0.001)).repeatedly();
     }
 
+    public Command runVoltageCommand(double voltage) {
+        return runOnce(() -> {
+            targetVoltage = voltage;
+            state = voltage > 0 ? InfeedPivotStates.VOLTAGE_FORWARD : voltage < 0 ? InfeedPivotStates.VOLTAGE_REVERSE : InfeedPivotStates.OFF;
+        });
+    }
+
     public Command waitUntilInTolerance(double toleranceRad) {
         return Commands.waitUntil(() -> Math.abs(motorInputs.positionRad - InfeedPivotPositions.HANDOFF.posRad) <= toleranceRad);
+    }
+
+    public BooleanSupplier isDownPositional() {
+        return () -> state == InfeedPivotStates.HOLDING_DOWN;
     }
 
     public BooleanSupplier isUp() {
@@ -86,6 +103,7 @@ public class InfeedPivot extends SubsystemBase {
     public Command runToPositionCommand(double positionRad) {
         return runOnce(() -> {
             targetPositionRad = positionRad;
+            motorIO.resetPid(motorInputs.positionRad);
             state = InfeedPivotStates.POSITION;
         });
     }
@@ -96,6 +114,12 @@ public class InfeedPivot extends SubsystemBase {
         targetVbus = 0;
         motorIO.zeroPosition(encoderInputs.positionRad);
         state = up ? InfeedPivotStates.POSITION : InfeedPivotStates.OFF;
+    }
+
+    @CreateState("voltage_forward")
+    @CreateState("voltage_reverse")
+    public void runTargetVoltage() {
+        motorIO.setVoltage(targetVoltage);
     }
 
     @CreateState("vbus_forward")

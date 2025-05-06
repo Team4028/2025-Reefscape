@@ -1,25 +1,19 @@
 package frc.robot.subsystems.elevator;
 
-import static edu.wpi.first.units.Units.Volts;
-
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
-import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.util.PIDStruct;
 import frc.robot.util.SysIDUtil;
 
+import static edu.wpi.first.units.Units.Volts;
+
 public class ElevatorConstants {
-    public static final double MOTOR_TO_DRUM_RATIO = 0.11111111111111111111111111111;
+    public static final double MOTOR_TO_DRUM_RATIO = 1.0 / 9.0;
 
     public static final double SAFETY_THRESHOLD = 20;
 
@@ -27,8 +21,6 @@ public class ElevatorConstants {
 
     public static final DCMotor gearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
 
-    // public static final PIDStruct pidConstants = new PIDStruct(8, 0, 0, 86, 210, 400, -60, 60, 0.043915, 0.39241,
-    //         0.13165, 0.0033318);
     public static final PIDStruct pidConstants = new PIDStruct(8, 0, 0, 100, 400, 1600, -60, 60, 0.043915, 0.39241,
             0.13165, 0.0033318);
     public static final PIDStruct simPidConstants = new PIDStruct(0.4, 0, 0, 118, 254, Constants.THE_BEST_NUMBER, 0, 0,
@@ -45,10 +37,7 @@ public class ElevatorConstants {
 
     public static final double PID_TOLERANCE = 0.1;// 9.1629;
 
-    // public static final double FORWARD_SOFT_LIMIT_INCHES = 64;
     public static final double FORWARD_SOFT_LIMIT_ROTATIONS = 56 / ROT_TO_IN;
-    // the hard stops are at 66 "inches" using bad math which is 72 rotations of the
-    // kraken.
 
     public static final class TalonFX {
         public static final int LEADER_ID = 15, FOLLOWER_ID = 14;

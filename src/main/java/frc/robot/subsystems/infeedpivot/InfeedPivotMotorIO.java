@@ -1,8 +1,8 @@
 package frc.robot.subsystems.infeedpivot;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.PIDStruct;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface InfeedPivotMotorIO {
 
@@ -29,5 +29,14 @@ public interface InfeedPivotMotorIO {
     }
 
     default void setPid(double posRad) {
+    }
+
+    default void resetPid(double posRad) {
+    }
+
+    default void setVoltage(double voltage) {
+    }
+
+    default void setPIDConstants(PIDStruct pid) {
     }
 }

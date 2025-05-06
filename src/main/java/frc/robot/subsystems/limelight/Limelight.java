@@ -1,23 +1,15 @@
 package frc.robot.subsystems.limelight;
 
-import java.util.Arrays;
-
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.limelight.LimelightIO.LoggablePoseEstimate;
 import frc.robot.util.VisionUtil;
+import org.littletonrobotics.junction.Logger;
+
+import java.util.Arrays;
 
 public class Limelight extends SubsystemBase {
     private final LimelightIO io;
@@ -34,9 +26,6 @@ public class Limelight extends SubsystemBase {
 
     public boolean trustPose(Translation2d driveTrans) {
         return getTV();
-        // driveTrans.getDistance(
-        // inputs.solverPoseBlue.pose().getTranslation()) <=
-        // LimelightConstants.STD_DEV_POSE_DIFF_THRESHOLD;
     }
 
     public double getTX() {
@@ -113,13 +102,10 @@ public class Limelight extends SubsystemBase {
     public LoggablePoseEstimate getBotposeEstimateMT2(double driveYawRad) {
         var vRes = inputs.solverPoseBlue;
         if (vRes == null || vRes.rawFiducials() == null || vRes.rawFiducials().length < 1) return LoggablePoseEstimate.empty();
-        if (vRes.rawFiducials()[0].distToCamera() > 3) // was 2 meters, made it 3 instead.
+        if (vRes.rawFiducials()[0].distToCamera() > 3)
         {
             return LoggablePoseEstimate.empty();
         }
-        // if (vRes.tagCount() > 1) {
-        //     return vRes;
-        // }
 
         if (vRes.tagCount() < 1 || !getTV()) {
             return LoggablePoseEstimate.empty();
@@ -156,9 +142,6 @@ public class Limelight extends SubsystemBase {
         // Debug logs
         Logger.recordOutput("bp/Fiducial", vRes.rawFiducials()[0]);
         Logger.recordOutput("bp/Cam to Tag Tran Nor", camToTagTranslation.getNorm());
-        // Logger.recordOutput("bp/Cam to Tag Rot", camToTagRotation);
-        // Logger.recordOutput("bp/Feid to Cam", fieldToCameraTranslation);
-        // Logger.recordOutput("bp/Robot Pose", robotPose);
 
         return new LoggablePoseEstimate(new Pose2d(robotPose.getTranslation(), Rotation2d.fromRadians(driveYawRad)),
                 vRes.timestampSeconds(), vRes.latency(), vRes.tagCount(), vRes.tagSpan(), vRes.avgTagDist(),

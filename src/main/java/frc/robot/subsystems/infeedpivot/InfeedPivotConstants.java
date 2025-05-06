@@ -8,8 +8,7 @@ import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.util.PIDStruct;
 
 public class InfeedPivotConstants {
-    public static final double GEAR_RATIO = 18.857;
-    public static final double PIVOT_DOWN_THRESH = 0.1;
+    public static final double GEAR_RATIO = (64.0 / 12.0) * (54.0 / 28.0) * (32.0 / 22.0);
 
     public enum InfeedPivotPositions {
         DOWN(0.2),
@@ -24,27 +23,15 @@ public class InfeedPivotConstants {
         }
     }
 
-    public static final PIDStruct pidConfig = new PIDStruct(2, 0, 0, 64, 128, 256, 0, 0, 0.065, 1.7, 0, 0);
-    // public static final PIDStruct pid2Config = new PIDStruct(1, 0, 0, 40, 80,
-    // 320, 0, 0, 0, 0, 0, 0);
+    public static final PIDStruct pidConfig = new PIDStruct(2.5, 0, 0, 64, 128, 256, 0, 0, 0.065, 1.7, 0, 0);
 
     public static final class TalonFX {
         public static final boolean USE_FOC = true;
         public static final int CAN_ID = 9;
         public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
                 .withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Brake);
-        // public static final TalonFXConfiguration feedback = new
-        // TalonFXConfiguration()
-        // .withFeedback(new
-        // FeedbackConfigs().withFeedbackRemoteSensorID(5).withRotorToSensorRatio(GEAR_RATIO)
-        // .withFeedbackSensorSource(FeedbackSensorSourceValue.RemoteCANcoder));
         public static final CurrentLimitsConfigs currLimits = new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(60).withStatorCurrentLimitEnable(true).withSupplyCurrentLimitEnable(false);
-        // public static final Slot0Configs pidConfigs =
-        // pidConfig.makeSlot0Configs(GravityTypeValue.Arm_Cosine); // 0 - 2
-        // public static final Slot1Configs pid2Configs =
-        // pid2Config.makeSlot1Configs(GravityTypeValue.Arm_Cosine);
-        // public static final MotionMagicConfigs mmConfigs = pidConfig.makeMMConfigs();
+                .withStatorCurrentLimit(90).withStatorCurrentLimitEnable(true).withSupplyCurrentLimitEnable(false);
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
                 .withReverseSoftLimitThreshold(-0.06 / ArmConstants.PI_2 * GEAR_RATIO).withReverseSoftLimitEnable(true)
                 .withForwardSoftLimitThreshold(1.9 / ArmConstants.PI_2 * GEAR_RATIO).withForwardSoftLimitEnable(true);

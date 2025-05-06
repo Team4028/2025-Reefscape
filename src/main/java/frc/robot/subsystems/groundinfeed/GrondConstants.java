@@ -1,12 +1,12 @@
 package frc.robot.subsystems.groundinfeed;
 
-import java.util.Optional;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.playingwithfusion.TimeOfFlight;
+
+import java.util.Optional;
 
 public class GrondConstants {
     public static final double STATOR_LIMIT = 40;
@@ -15,7 +15,7 @@ public class GrondConstants {
 
     public static final class PWFTimeOfFlight {
         public static final int CAN_ID = 24;
-        public static final double TOF_RANGE_THRESH = 60;
+        public static final double TOF_RANGE_THRESH = 50;
         public static final TimeOfFlight.RangingMode mode = TimeOfFlight.RangingMode.Short;
         public static final Optional<Double> sampleTime = Optional.of(30.0);
     }

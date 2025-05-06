@@ -1,9 +1,5 @@
 package frc.robot.commands;
 
-import java.util.Set;
-import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -19,6 +15,10 @@ import frc.robot.subsystems.stick.WhipStick;
 import frc.robot.util.MiscUtils;
 import lombok.experimental.ExtensionMethod;
 import lombok.experimental.UtilityClass;
+
+import java.util.Set;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 @ExtensionMethod({MiscUtils.class, DriveCommands.class, Commands.class})
 @UtilityClass
@@ -193,7 +193,7 @@ public class MagicSequencing {
                 .runToPositionNoWait(ArmisticePositions.STOW)
                 .andThen(armistice.waitUntilThingsInTolerance(10, 0.3)).onlyIf(superCycle.not())
                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
-                .andThen(armistice.runToPositionNoWait(acquirePosition.get()))
+                .andThen(armistice.runToPositionNoWait(acquirePosition.get())).onlyIf(() -> armistice.getTargetPosition() != acquirePosition.get())
                 .andThen(armistice.waitUntilThingsInTolerance(3, 0.3).alongWith(drive.waitForDrivetrainDistance(0.5)))
                 .raceWith(drive
                         .translateToPositionWithPID(

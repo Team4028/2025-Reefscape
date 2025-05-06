@@ -8,7 +8,6 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -22,7 +21,7 @@ import frc.robot.util.MotorData;
 
 public class ArmIOCancoderSourceTalonFX implements ArmIO {
 
-    private final TalonFX motor = new TalonFX(ArmConstants.TalonFX.MOTOR_ID);
+    private final TalonFX motor = new TalonFX(ArmConstants.TalonFXCC.MOTOR_ID);
     private final StatusSignal<Voltage> motorVolts = motor.getMotorVoltage();
     private final StatusSignal<Current> motorCurrent = motor.getSupplyCurrent();
     private final StatusSignal<Angle> motorPosition = motor.getPosition();

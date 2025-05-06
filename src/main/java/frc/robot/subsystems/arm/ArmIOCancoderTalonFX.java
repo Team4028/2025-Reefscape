@@ -8,7 +8,6 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -43,19 +42,6 @@ public class ArmIOCancoderTalonFX implements ArmIO {
         motor.getConfigurator().apply(ArmConstants.TalonFX.pidConfigs, 0.25);
         motor.getConfigurator().apply(ArmConstants.TalonFX.mmConfigs, 0.25);
         cancoder.getConfigurator().apply(ArmConstants.Cancoder.config);
-        // new Thread(() -> {
-        // try {
-        // Thread.sleep(1000);
-        // } catch (InterruptedException ignored) {
-        // }
-
-        // while (RobotController.getCANStatus().percentBusUtilization < 0 ||
-        // RobotController.getCANStatus().percentBusUtilization > 94)
-        // ;
-        // initEncoder();
-        // System.out.println(String.format("Successfully initialized TalonFX %d
-        // Position", motor.getDeviceID()));
-        // }).start();
         new Thread(() -> {
             while (RobotController.getCANStatus().percentBusUtilization < 0.9) {
                 System.out.println("Waiting to zero arm");
@@ -103,21 +89,15 @@ public class ArmIOCancoderTalonFX implements ArmIO {
     }
 
     public double getRawEncoderPositon() {
-        // encoderPosition.refresh();
         return encoderPosition.getValueAsDouble();
     }
 
     public double getEncoderPositionRad() {
-        // motorPosition.refresh();
-        // rot = rot > 0 ? rot : 1 + rot;
-        // return rot * ArmConstants.PI_2;
         return motorPosition.getValueAsDouble() / ArmConstants.GEAR_RATIO * ArmConstants.PI_2;
     }
 
     public double getArmAngleRad() {
         return getEncoderPositionRad() - 0.2;
-        // rad = rad > 0 ? rad : ArmConstants.PI_2 + rad;
-        // return rad;
     }
 
     @Override

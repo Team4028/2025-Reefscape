@@ -1,21 +1,19 @@
 package frc.robot.subsystems.elevator;
 
-import java.util.Map;
-import java.util.function.BooleanSupplier;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import com.bskd.annotations.CreateState;
-
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
+import frc.robot.util.LoggedTunables.LoggedChangableBoolean;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SysIDUtil;
-import frc.robot.util.LoggedTunables.LoggedChangableBoolean;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 public class Elevator extends SubsystemBase {
     private final ElevatorIO io;
@@ -106,7 +104,7 @@ public class Elevator extends SubsystemBase {
         io.updateInputs(inputs);
         LoggedChangableBoolean.ifChanged(hashCode(), bools -> configureBrakes(bools[0]), isBrake);
         Logger.processInputs("Elevator", inputs);
-        Logger.recordOutput("Elevator/ElevatorPositionInchesFrieldly",
+        Logger.recordOutput("Elevator/ElevatorPositionInchesFriendly",
                 MathUtils.roundToPlace(inputs.elevatorPositionInches, 3));
     }
 

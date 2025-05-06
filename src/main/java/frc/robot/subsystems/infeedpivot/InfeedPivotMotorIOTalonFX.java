@@ -5,7 +5,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.units.measure.Angle;
@@ -53,6 +52,16 @@ public class InfeedPivotMotorIOTalonFX implements InfeedPivotMotorIO {
     public void setVBus(double vbus) {
         if (!Constants.CHAR_MODE)
             motor.setControl(vbusControl.withOutput(vbus));
+    }
+
+    @Override
+    public void setVoltage(double voltage) {
+        motor.setControl(voltControl.withOutput(voltage));
+    }
+
+    @Override
+    public void resetPid(double posRad) {
+        pid.reset(posRad);
     }
 
     @Override

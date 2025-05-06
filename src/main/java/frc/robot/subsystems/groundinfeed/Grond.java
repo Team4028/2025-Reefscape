@@ -22,19 +22,19 @@ public class Grond extends SubsystemBase {
     private final GrondIOInputsAutoLogged inputsRight;
     private final GrondTOFIOInputsAutoLogged tof1Inputs;
     private final Timer currentLimitTimer = new Timer();
-    private final BooleanSupplier pivotDown;
     private double targetVbusLeft = 0.0;
     private double targetVbusRight = 0.0;
     @AutoLogOutput
     private GrondStates state = GrondStates.OFF;
     @Setter
     private boolean hasCoral = false;
+    private final BooleanSupplier pivotDown; // bad
 
     public Grond(GrondIO ioleft, GrondIO ioright, GrondTOFIO tof1Io, BooleanSupplier pivotDown) {
-        this.pivotDown = pivotDown;
         this.ioleft = ioleft;
         this.ioright = ioright;
         this.tof1io = tof1Io;
+        this.pivotDown = pivotDown;
         inputsLeft = new GrondIOInputsAutoLogged();
         inputsRight = new GrondIOInputsAutoLogged();
         tof1Inputs = new GrondTOFIOInputsAutoLogged();
@@ -42,16 +42,12 @@ public class Grond extends SubsystemBase {
 
     @AutoLogOutput
     public BooleanSupplier hasGamepieceSupplier() {
-        return () -> {
-            hasCoral = hasGamepieceSupplierRawTOF().getAsBoolean();
-            return hasCoral;
-        };
+        return () -> hasCoral;
     }
 
     @AutoLogOutput
     public BooleanSupplier hasGamepieceSupplierRawTOF() {
-        return () -> tof1Inputs.range <= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH
-                && tof1Inputs.lightingLevel <= 0.05;
+        return () -> tof1Inputs.range <= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH;
     }
 
     public Command runMotorCommand(double vbus) {
@@ -78,21 +74,7 @@ public class Grond extends SubsystemBase {
 
     @CreateState("vbus_forward")
     public void infeedVbus() {
-        if (!pivotDown.getAsBoolean() || (tof1Inputs.range >= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH) /*
-                                                                                                                * inputs.
-                                                                                                                * currentAmps
-                                                                                                                * <
-                                                                                                                * GrondConstants
-                                                                                                                * .
-                                                                                                                * STATOR_LIMIT
-                                                                                                                * ||
-                                                                                                                * currentLimitTimer
-                                                                                                                * .get()
-                                                                                                                * <=
-                                                                                                                * GrondConstants
-                                                                                                                * .
-                                                                                                                * CURRENT_LIMIT_DELAY_SEC
-                                                                                                                */) {
+        if ((tof1Inputs.range >= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH) || !pivotDown.getAsBoolean()) {
             if (MathUtils.average(inputsLeft.currentAmps, inputsRight.currentAmps) >= GrondConstants.STATOR_LIMIT) {
                 currentLimitTimer.start();
             } else {
