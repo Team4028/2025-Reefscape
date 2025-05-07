@@ -447,7 +447,7 @@ public class RobotContainer {
         // OC -- DPAD RIGHT: Run to Climb
         // ==============================================
         operatorController.povRight()
-                .onTrue(armistice.runToPositionNoWait(ArmisticePositions.CLIMB).onlyIfNoReqs(() -> climbDeadmanUnsafe));
+                .onTrue(armistice.runToPositionNoWait(ArmisticePositions.CLIMB).alongWith(pivot.runDown()).onlyIfNoReqs(() -> climbDeadmanUnsafe));
 
         // ==============================================
         // OC -- Y: Run To Aquire
