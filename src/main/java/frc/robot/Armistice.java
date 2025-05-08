@@ -102,7 +102,6 @@ public class Armistice extends SudoSubsystem {
     public enum ArmisticePositions {
         STOW(1.8, 5),
         CLEAN(3.624 - GLOBAL_ARM_OFFSET - Units.degreesToRadians(1), 4.017),
-        SHANK(2.62 - 4 + 2 * Math.PI, 7),
         Cora_L1(-0.477 + Units.degreesToRadians(11), 11.015),
         Cora_L1_PIPE(-0.477 + Units.degreesToRadians(11), 11.015),
         Cora_L2(4.738 - 4, 0),
@@ -121,6 +120,9 @@ public class Armistice extends SudoSubsystem {
         A3_lgae(4.247 - 4 + Units.degreesToRadians(6) - 0.0408, 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
         LOLI_ACQUIRE(3.193 - GLOBAL_ARM_OFFSET, 0),
+        Cora_L3_EMERGENCY(0.602, 0),
+        Cora_L3_EMERGENCY_SC(0.3, 0),
+        A2_lgae_EMERGENCY(0.45, 0),
         PROC(-0.384 - GLOBAL_ARM_OFFSET + Units.degreesToRadians(4), 0),
         BARGE(2.373 + Units.degreesToRadians(5), 48),
         BARGE_INTERMEDIATE(1.8, 44),
@@ -146,6 +148,28 @@ public class Armistice extends SudoSubsystem {
 
         public double getArmPositionRad(double armGlobalOffset) {
             return armPositionRad + armOffsetRad + armGlobalOffset;
+        }
+
+        public ArmisticePositions getEmergencyPosition() {
+            return switch (getUnPipe()) {
+                case Cora_L3 -> Cora_L3_EMERGENCY;
+                case Cora_L3_SC -> Cora_L3_EMERGENCY_SC;
+                case A2_lgae -> A2_lgae_EMERGENCY;
+                default -> this;
+            };
+        }
+
+        public ArmisticePositions getUnEmergencyPosition() {
+            return switch (this) {
+                case Cora_L3_EMERGENCY -> Cora_L3;
+                case Cora_L3_EMERGENCY_SC -> Cora_L3_SC;
+                case A2_lgae_EMERGENCY -> A2_lgae;
+                default -> this;
+            };
+        }
+
+        public boolean isEmergency() {
+            return name().contains("EMERGENCY");
         }
 
         public boolean isSC() {

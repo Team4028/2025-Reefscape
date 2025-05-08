@@ -42,7 +42,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -125,7 +125,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -208,7 +208,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -241,7 +241,7 @@
                           {
                             "type": "named",
                             "data": {
-                              "name": "Loli Acquire Wait"
+                              "name": "Acquire Wait"
                             }
                           }
                         ]
@@ -272,7 +272,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Lolipop Algae"
+                  "name": "Acquire"
                 }
               }
             ]
