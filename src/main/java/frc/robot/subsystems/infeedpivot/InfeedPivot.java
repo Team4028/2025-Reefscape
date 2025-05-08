@@ -4,7 +4,6 @@ import com.bskd.annotations.CreateState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -130,17 +129,12 @@ public class InfeedPivot extends SubsystemBase {
         if (state == InfeedPivotStates.HOLDING_DOWN) {
             motorIO.setVBus(-0.9);
             return;
-        } else if (motorInputs.positionRad < 1) {
-            if (motorInputs.positionRad < 0.2) {
+        } else if (motorInputs.positionRad < 1.1) {
+            if (motorInputs.positionRad < 0.1) {
                 state = InfeedPivotStates.HOLDING_DOWN;
             }
             motorIO.setVBus(0);
             return;
-        }
-        if ((motorInputs.positionRad / ArmConstants.PI_2 * InfeedPivotConstants.GEAR_RATIO)
-                - 1 < InfeedPivotConstants.TalonFX.softLimits.ReverseSoftLimitThreshold) {
-            targetVbus = 0;
-            state = InfeedPivotStates.OFF;
         }
         motorIO.setVBus(targetVbus);
     }
