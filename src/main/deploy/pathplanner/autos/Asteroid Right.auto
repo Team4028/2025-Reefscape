@@ -192,60 +192,46 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Asteroid-Right.8"
+            "pathName": "SMB-Right.8"
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock ON"
+          }
+        },
+        {
+          "type": "race",
           "data": {
             "commands": [
               {
-                "type": "sequential",
+                "type": "parallel",
                 "data": {
                   "commands": [
                     {
-                      "type": "race",
+                      "type": "sequential",
                       "data": {
                         "commands": [
                           {
-                            "type": "parallel",
+                            "type": "path",
                             "data": {
-                              "commands": [
-                                {
-                                  "type": "path",
-                                  "data": {
-                                    "pathName": "Asteroid-Right.9"
-                                  }
-                                },
-                                {
-                                  "type": "named",
-                                  "data": {
-                                    "name": "Forever"
-                                  }
-                                }
-                              ]
+                              "pathName": "SMB-Right.9"
                             }
                           },
                           {
                             "type": "named",
                             "data": {
-                              "name": "Acquire Wait"
+                              "name": "Guarentee Stop"
                             }
                           }
                         ]
                       }
                     },
                     {
-                      "type": "race",
+                      "type": "named",
                       "data": {
-                        "commands": [
-                          {
-                            "type": "path",
-                            "data": {
-                              "pathName": "Asteroid-Right.10"
-                            }
-                          }
-                        ]
+                        "name": "Forever"
                       }
                     }
                   ]
@@ -258,6 +244,37 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock OFF"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SMB-Right.10"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Right Reef"
           }
         }
       ]

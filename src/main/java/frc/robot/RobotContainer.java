@@ -117,9 +117,9 @@ public class RobotContainer {
                 DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
                         ? Rotation2d.kZero
                         : Rotation2d.kPi));
-        xLimiterL4 = new SlewRateLimiter(1.0);
-        yLimiterL4 = new SlewRateLimiter(1.0);
-        thetaLimiterL4 = new SlewRateLimiter(1.0);
+        xLimiterL4 = new SlewRateLimiter(1.8);
+        yLimiterL4 = new SlewRateLimiter(1.8);
+        thetaLimiterL4 = new SlewRateLimiter(1.8);
 
         xLimiter = new SlewRateLimiter(4.0);
         yLimiter = new SlewRateLimiter(4.0);
@@ -303,6 +303,9 @@ public class RobotContainer {
 
     private void configureBindings() {
 
+        new Trigger(DriverStation::isTeleopEnabled).onTrue(infeed.runMotorCommand(0));
+        needsUnjam.debounce(0.2).onTrue(setRumble(driverController, 1, RumbleType.kBothRumble, 0.2).finallyDo(() -> setRumble(driverController, 0, RumbleType.kBothRumble, 0).schedule()));
+
         // ================= //
         /* DRIVER CONTROLLER */
         // ================= //
@@ -333,15 +336,6 @@ public class RobotContainer {
         // DC -- RS: Cancel Command
         // ==============================================
         driverController.x().onTrue(drive.runOnce(drive::stopWithX));
-
-        driverController.a().onTrue(
-                pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown()).onlyIf(pivot.isUp().not()));
-//        needsUnjam.debounce(0.2).onTrue(infeed.unjamCommand());
-
-//        hasGPRaw.onTrue(Commands.runOnce(() -> {
-//            unjamOn = true;
-//            drive.resetGPTY();
-//        }));
 
         // ==============================================
         // DC -- Y: Manual Handoff Jank

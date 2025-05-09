@@ -16,6 +16,7 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import frc.robot.util.MathUtils;
+import frc.robot.util.MiscUtils;
 import frc.robot.util.SudoSubsystem;
 import lombok.Getter;
 import lombok.NonNull;
@@ -36,7 +37,7 @@ import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Volts;
 
-@ExtensionMethod(frc.robot.util.RobotSim.class)
+@ExtensionMethod({frc.robot.util.RobotSim.class, MiscUtils.class})
 public class Armistice extends SudoSubsystem {
 
     public record SimData(double elevatorPositionMeters, double armPositionRadians) {
@@ -257,7 +258,7 @@ public class Armistice extends SudoSubsystem {
 
     public Armistice(BooleanSupplier hasAlgae) {
         File offsetInput = new File(Filesystem.getDeployDirectory(), "HeatmapReefOffsets.json");
-        new Trigger(hasAlgae).onTrue(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
+        new Trigger(hasAlgae.or(() -> targetArmisticePosition == ArmisticePositions.Cora_L1)).onTrue(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
                 .onFalse(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.pidConfig.maxAccel())));
         if (offsetInput.isFile()) {
             try {

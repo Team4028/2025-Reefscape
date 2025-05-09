@@ -189,77 +189,94 @@
             "name": "Run To Closest Left Reef L2"
           }
         },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Asteriod-Left.8"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "race",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "parallel",
-                            "data": {
-                              "commands": [
-                                {
-                                  "type": "path",
-                                  "data": {
-                                    "pathName": "Asteriod-Left.9"
-                                  }
-                                },
-                                {
-                                  "type": "named",
-                                  "data": {
-                                    "name": "Forever"
-                                  }
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "Acquire Wait"
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "type": "race",
-                      "data": {
-                        "commands": [
-                          {
-                            "type": "path",
-                            "data": {
-                              "pathName": "Asteriod-Left.10"
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Acquire"
-                }
-              }
-            ]
-          }
-        }
+       {
+         "type": "path",
+         "data": {
+           "pathName": "SMB-Left.8"
+         }
+       },
+       {
+         "type": "named",
+         "data": {
+           "name": "Set Coral Lock ON"
+         }
+       },
+       {
+         "type": "race",
+         "data": {
+           "commands": [
+             {
+               "type": "parallel",
+               "data": {
+                 "commands": [
+                   {
+                     "type": "sequential",
+                     "data": {
+                       "commands": [
+                         {
+                           "type": "path",
+                           "data": {
+                             "pathName": "SMB-Left.9"
+                           }
+                         },
+                         {
+                           "type": "named",
+                           "data": {
+                             "name": "Guarentee Stop"
+                           }
+                         }
+                       ]
+                     }
+                   },
+                   {
+                     "type": "named",
+                     "data": {
+                       "name": "Forever"
+                     }
+                   }
+                 ]
+               }
+             },
+             {
+               "type": "named",
+               "data": {
+                 "name": "Acquire"
+               }
+             }
+           ]
+         }
+       },
+       {
+         "type": "named",
+         "data": {
+           "name": "Set Coral Lock OFF"
+         }
+       },
+       {
+         "type": "race",
+         "data": {
+           "commands": [
+             {
+               "type": "path",
+               "data": {
+                 "pathName": "SMB-Left.10"
+               }
+             },
+             {
+               "type": "named",
+               "data": {
+                 "name": "WaitUntilClose"
+               }
+             }
+           ]
+         }
+       },
+       {
+         "type": "named",
+         "data": {
+           "name": "Run To Closest Left Reef"
+         }
+       }
       ]
     }
   },
