@@ -7,42 +7,23 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Asteroid-Right.0"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Asteroid-Right.1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
+            "pathName": "SMB-Right-Pop.0"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Right Reef"
+            "name": "Run To Closest Left Reef"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Asteroid-Right.2"
+            "pathName": "SMB-Right.2"
           }
         },
         {
-          "type": "parallel",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -60,7 +41,7 @@
                                 {
                                   "type": "path",
                                   "data": {
-                                    "pathName": "Asteroid-Right.3"
+                                    "pathName": "SMB-Right.3"
                                   }
                                 },
                                 {
@@ -88,7 +69,13 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "Asteroid-Right.4"
+                              "pathName": "SMB-Right.4"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "WaitUntilClose"
                             }
                           }
                         ]
@@ -115,11 +102,11 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Asteroid-Right.5"
+            "pathName": "SMB-Right.5"
           }
         },
         {
-          "type": "parallel",
+          "type": "race",
           "data": {
             "commands": [
               {
@@ -137,7 +124,7 @@
                                 {
                                   "type": "path",
                                   "data": {
-                                    "pathName": "Asteroid-Right.6"
+                                    "pathName": "SMB-Right.6"
                                   }
                                 },
                                 {
@@ -165,7 +152,13 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "Asteroid-Right.7"
+                              "pathName": "SMB-Right.7"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "WaitUntilClose"
                             }
                           }
                         ]
@@ -186,66 +179,52 @@
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Right Reef L2"
+            "name": "Run To Closest Right Reef"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Asteroid-Right.8"
+            "pathName": "SMB-Right.8"
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock ON"
+          }
+        },
+        {
+          "type": "race",
           "data": {
             "commands": [
               {
-                "type": "sequential",
+                "type": "parallel",
                 "data": {
                   "commands": [
                     {
-                      "type": "race",
+                      "type": "sequential",
                       "data": {
                         "commands": [
                           {
-                            "type": "parallel",
+                            "type": "path",
                             "data": {
-                              "commands": [
-                                {
-                                  "type": "path",
-                                  "data": {
-                                    "pathName": "Asteroid-Right.9"
-                                  }
-                                },
-                                {
-                                  "type": "named",
-                                  "data": {
-                                    "name": "Forever"
-                                  }
-                                }
-                              ]
+                              "pathName": "SMB-Right.9"
                             }
                           },
                           {
                             "type": "named",
                             "data": {
-                              "name": "Acquire Wait"
+                              "name": "Guarentee Stop"
                             }
                           }
                         ]
                       }
                     },
                     {
-                      "type": "race",
+                      "type": "named",
                       "data": {
-                        "commands": [
-                          {
-                            "type": "path",
-                            "data": {
-                              "pathName": "Asteroid-Right.10"
-                            }
-                          }
-                        ]
+                        "name": "Forever"
                       }
                     }
                   ]
@@ -258,6 +237,37 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock OFF"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SMB-Right.10"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "WaitUntilClose"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Right Reef"
           }
         }
       ]
