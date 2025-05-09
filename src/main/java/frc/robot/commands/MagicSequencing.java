@@ -34,7 +34,7 @@ public class MagicSequencing {
                                                 Set.of())
                                         .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
                                                 && armistice.armAndElevatorAtTarget().getAsBoolean())),
-                                armistice.runToPositionNoWait(ArmisticePositions.STOW).onlyIf(drive.readyForArm().not())
+                                armistice.runToPositionNoWait(ArmisticePositions.STOW).onlyIf(() -> armistice.getTargetPosition() != scorePos.get().toPipe())
                                         .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
                                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)),
                                                 Commands.waitUntil(drive.readyForArm())
@@ -90,7 +90,7 @@ public class MagicSequencing {
                                 armistice.runToPositionNoWait(ArmisticePositions.Cora_L2_PIPE)
                                         .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
                                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)),
-                                                Commands.waitUntil(drive.readyForArm())
+                                                Commands.waitUntil(drive.readyForArm(scorePos.get()))
                                                         .andThen(armistice.runToPositionNoWait(scorePos.get().toPipe()))
                                                         .andThen(
                                                                 Commands.defer(
@@ -140,7 +140,7 @@ public class MagicSequencing {
                                                 Set.of())
                                         .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
                                                 && armistice.armAndElevatorAtTarget().getAsBoolean())),
-                                armistice.runToPositionNoWait(ArmisticePositions.STOW).onlyIf(drive.readyForArm().not())
+                                armistice.runToPositionNoWait(ArmisticePositions.STOW).onlyIf(() -> armistice.getTargetPosition() != scorePos.get().toPipe())
                                         .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
                                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)),
                                                 Commands.waitUntil(drive.readyForArm())

@@ -5,19 +5,89 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "SMB-Left.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Run To Closest Right Reef"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SMB-Left.2"
+          }
+        },
+        {
           "type": "race",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "Pacman-Left.0"
+                  "commands": [
+                    {
+                      "type": "race",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "parallel",
+                            "data": {
+                              "commands": [
+                                {
+                                  "type": "path",
+                                  "data": {
+                                    "pathName": "SMB-Left.3"
+                                  }
+                                },
+                                {
+                                  "type": "named",
+                                  "data": {
+                                    "name": "Forever"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Acquire Wait"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "race",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "SMB-Left.4"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "WaitUntilClose"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "WaitUntilClose"
+                  "name": "Acquire"
                 }
               }
             ]
@@ -32,7 +102,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pacman-Left.1"
+            "pathName": "SMB-Left.5"
           }
         },
         {
@@ -40,91 +110,67 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Acquire"
-                }
-              },
-              {
-                "type": "parallel",
+                "type": "sequential",
                 "data": {
                   "commands": [
                     {
-                      "type": "path",
+                      "type": "race",
                       "data": {
-                        "pathName": "Pacman-Left.2"
+                        "commands": [
+                          {
+                            "type": "parallel",
+                            "data": {
+                              "commands": [
+                                {
+                                  "type": "path",
+                                  "data": {
+                                    "pathName": "SMB-Left.6"
+                                  }
+                                },
+                                {
+                                  "type": "named",
+                                  "data": {
+                                    "name": "Forever"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Acquire Wait"
+                            }
+                          }
+                        ]
                       }
                     },
                     {
-                      "type": "named",
+                      "type": "race",
                       "data": {
-                        "name": "Forever"
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "SMB-Left.7"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "WaitUntilClose"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
                 }
-              }
-            ]
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Pacman-Left.3"
-                }
               },
-              {
-                "type": "named",
-                "data": {
-                  "name": "WaitUntilClose"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Run To Closest Right Reef"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Pacman-Left.4"
-          }
-        },
-        {
-          "type": "race",
-          "data": {
-            "commands": [
               {
                 "type": "named",
                 "data": {
                   "name": "Acquire"
-                }
-              },
-              {
-                "type": "parallel",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Pacman-Left.5"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Forever"
-                      }
-                    }
-                  ]
                 }
               }
             ]
@@ -139,7 +185,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pacman-Left.7"
+            "pathName": "SMB-Left.8"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock ON"
           }
         },
         {
@@ -147,19 +199,26 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Acquire"
-                }
-              },
-              {
                 "type": "parallel",
                 "data": {
                   "commands": [
                     {
-                      "type": "path",
+                      "type": "sequential",
                       "data": {
-                        "pathName": "Pacman-Left.8"
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "SMB-Left.9"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Guarentee Stop"
+                            }
+                          }
+                        ]
                       }
                     },
                     {
@@ -170,8 +229,20 @@
                     }
                   ]
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Acquire"
+                }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Set Coral Lock OFF"
           }
         },
         {
@@ -181,7 +252,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Pacman-Left.9"
+                  "pathName": "SMB-Left.10"
                 }
               },
               {
@@ -196,7 +267,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Right Reef"
+            "name": "Run To Closest Left Reef"
           }
         }
       ]

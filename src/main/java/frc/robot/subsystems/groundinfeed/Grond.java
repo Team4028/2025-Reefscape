@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MathUtils;
 import frc.robot.util.MiscUtils;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -24,6 +25,7 @@ public class Grond extends SubsystemBase {
     private final Timer currentLimitTimer = new Timer();
     private double targetVbusLeft = 0.0;
     private double targetVbusRight = 0.0;
+    @Getter
     @AutoLogOutput
     private GrondStates state = GrondStates.OFF;
     @Setter

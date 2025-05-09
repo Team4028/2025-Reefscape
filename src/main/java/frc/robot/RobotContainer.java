@@ -142,7 +142,7 @@ public class RobotContainer {
             drive.resetGPTY();
         }));
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
-        NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
+        NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplier()));
         NamedCommands.registerCommand("Acquire", ///
                 infeed.runMotorCommand(.95).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
                         .alongWith(pivot.runDown().asProxy()).andThen(
@@ -336,12 +336,12 @@ public class RobotContainer {
 
         driverController.a().onTrue(
                 pivot.runUp().andThen(Commands.waitSeconds(0.075)).andThen(pivot.runDown()).onlyIf(pivot.isUp().not()));
-        needsUnjam.debounce(0.2).onTrue(infeed.unjamCommand());
+//        needsUnjam.debounce(0.2).onTrue(infeed.unjamCommand());
 
-        hasGPRaw.onTrue(Commands.runOnce(() -> {
-            unjamOn = true;
-            drive.resetGPTY();
-        }));
+//        hasGPRaw.onTrue(Commands.runOnce(() -> {
+//            unjamOn = true;
+//            drive.resetGPTY();
+//        }));
 
         // ==============================================
         // DC -- Y: Manual Handoff Jank
@@ -655,12 +655,12 @@ public class RobotContainer {
 
     private Command runToClosestReefEmergency() {
         return armistice.magicIsSnap() ? magicSnapL1()
-                : MagicSequencing.magicScoreScore(drive, armistice, coral, drive::pipe1ClosestReefPose,
+                : MagicSequencing.magicScoreScore(drive, armistice, coral, drive::closestReefPose,
                         () -> DriverStation.isAutonomous() ? ArmisticePositions.Cora_L4
                                 : armistice.getFutureArmisticePositions().getEmergencyPosition(),
                         () -> isSuperCycle).andThen(pivot.runDown().asProxy())
                 .andThen(MagicSequencing
-                        .magicGetAlgaeOnlyPID(drive, armistice, coral, drive::pipe1AlgaeClosestReefPose,
+                        .magicGetAlgaeOnlyPID(drive, armistice, coral, drive::closestReefPoseAlgae,
                                 () -> armistice.getAutoAlgaePosition().getEmergencyPosition(), () -> isSuperCycle)
                         .finallyDo(() -> isSuperCycle = false)
                         .asProxy().onlyIf(() -> isSuperCycle));
@@ -685,6 +685,13 @@ public class RobotContainer {
                 () -> MagicSequencing.magicGetAlgaeOnlyPID(drive, armistice, coral, drive::pipe1AlgaeClosestReefPose,
                         armistice::getAutoAlgaePosition, () -> isSuperCycle),
                 Set.of(drive, armistice.getArm(), armistice.getElevator(), coral));
+    }
+
+    private Command runToClosestAlgaeEmergency() {
+        return Commands.defer(
+                () -> MagicSequencing.magicGetAlgaeOnlyPID(drive, armistice, coral, drive::closestReefPoseAlgae,
+                        () -> armistice.getAutoAlgaePosition().getUnEmergencyPosition(), () -> isSuperCycle),
+                Set.of(drive, armistice.getElevator(), armistice.getArm(), coral));
     }
 
     private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {

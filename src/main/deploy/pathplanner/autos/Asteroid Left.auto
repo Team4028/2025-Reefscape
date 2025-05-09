@@ -42,7 +42,7 @@
           }
         },
         {
-          "type": "race",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -90,12 +90,6 @@
                             "data": {
                               "pathName": "Asteriod-Left.4"
                             }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "WaitUntilClose"
-                            }
                           }
                         ]
                       }
@@ -125,7 +119,7 @@
           }
         },
         {
-          "type": "race",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -173,12 +167,6 @@
                             "data": {
                               "pathName": "Asteriod-Left.7"
                             }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "WaitUntilClose"
-                            }
                           }
                         ]
                       }
@@ -208,7 +196,7 @@
           }
         },
         {
-          "type": "race",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -255,12 +243,6 @@
                             "type": "path",
                             "data": {
                               "pathName": "Asteriod-Left.10"
-                            }
-                          },
-                          {
-                            "type": "named",
-                            "data": {
-                              "name": "WaitUntilClose"
                             }
                           }
                         ]

@@ -488,6 +488,11 @@ public class Drive extends SubsystemBase {
                 .getDistance(closestReef.getTranslation()) < Constants.ARM_READY_AUTO_SCORE_RADIUS;
     }
 
+    public BooleanSupplier readyForArm(Armistice.ArmisticePositions pos) {
+        return () -> getPose().getTranslation()
+                .getDistance(closestReef.getTranslation()) < (pos.unSCPose().getUnPipe() == Armistice.ArmisticePositions.Cora_L2 ? 0.8 : Constants.ARM_READY_AUTO_SCORE_RADIUS);
+    }
+
     @SuppressWarnings("removal")
     public Command translateToPositionWithPID(Pose2d pose) {
         DoubleSupplier theta = () -> new Pose2d(pose.getTranslation(), new Rotation2d())
