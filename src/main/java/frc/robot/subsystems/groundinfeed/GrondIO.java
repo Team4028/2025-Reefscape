@@ -1,8 +1,7 @@
 package frc.robot.subsystems.groundinfeed;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import frc.robot.util.MotorData;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface GrondIO {
     @AutoLog
@@ -23,5 +22,8 @@ public interface GrondIO {
     }
 
     public default void setCurrent(double amps) {
+    }
+
+    default void directSetMotor(double vbus) {
     }
 }

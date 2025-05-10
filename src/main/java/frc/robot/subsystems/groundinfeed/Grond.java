@@ -52,6 +52,16 @@ public class Grond extends SubsystemBase {
         return () -> tof1Inputs.range <= GrondConstants.PWFTimeOfFlight.TOF_RANGE_THRESH;
     }
 
+    public Command directRunMotorCommand(double vbus) {
+        return runOnce(() -> {
+            targetVbusRight = vbus;
+            targetVbusLeft = vbus * GrondConstants.RIGHT_TO_LEFT_RATIO;
+            ioright.setVbus(targetVbusRight);
+            ioleft.setVbus(targetVbusLeft);
+            state = vbus > 0 ? GrondStates.VBUS_FORWARD : vbus < 0 ? GrondStates.VBUS_REVERSE : GrondStates.OFF;
+        });
+    }
+
     public Command runMotorCommand(double vbus) {
         return runOnce(() -> {
             targetVbusRight = vbus;

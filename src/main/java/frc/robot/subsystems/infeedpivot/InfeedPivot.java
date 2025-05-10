@@ -77,7 +77,7 @@ public class InfeedPivot extends SubsystemBase {
     }
 
     public BooleanSupplier isDownPositional() {
-        return () -> state == InfeedPivotStates.HOLDING_DOWN;
+        return () -> motorInputs.positionRad < 0;
     }
 
     public BooleanSupplier isUp() {

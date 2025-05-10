@@ -1,11 +1,6 @@
 package frc.robot.subsystems.arm;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -13,7 +8,6 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -81,7 +75,7 @@ public class ArmConstants {
     public static final double PI_2 = 2 * Math.PI;
     public static final double ARM_ACCEL_W_ALGAE = 1.26028806584;
 
-    public static final PIDStruct pidConfig = new PIDStruct(80, 0, 0, 5, 10, 40, 0, 0.15, 0.425, 0, 0, 0);
+    public static final PIDStruct pidConfig = new PIDStruct(80, 0, 0, 5, 5, 40, 0, 0.15, 0.425, 0, 0, 0);
     public static final PIDStruct simPidConfig = new PIDStruct(16, 0, 0, PI_2, 2 * PI_2, 0, 0, 0, 0.2, 0.5, 0, 0);
 
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();
