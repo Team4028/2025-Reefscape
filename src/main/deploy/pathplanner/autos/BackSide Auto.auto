@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "SuperCycle"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Backside Auton.1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Backside Auton.2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Algae Pickup"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Backside Auton.3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Backside Auton.4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Algae Pickup"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Backside Auton.5"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": true
+}
