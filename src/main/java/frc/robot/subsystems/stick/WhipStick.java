@@ -20,6 +20,8 @@ public class WhipStick extends SubsystemBase {
     private boolean isGettingAlgae = false;
     private final Timer currentLimitTimer = new Timer();
     private final Timer coralHoldTimer = new Timer();
+    private final double coralHoldTimePreset = 10; //seconds
+    private final double coralHoldCurrentAmps = 15;
 
     public WhipStick(WhipStickIO io) {
         this.io = io;
@@ -85,7 +87,7 @@ public class WhipStick extends SubsystemBase {
 
     @CreateState("hold")
     public void hold() {
-        if (coralHoldTimer.get() >= 0.5 && !isGettingAlgae) {
+        if (coralHoldTimer.get() >= coralHoldTimePreset && !isGettingAlgae) {
             stateTracker.state = WhipStickStates.OFF;
             targetVBus = 0;
         }
@@ -93,7 +95,7 @@ public class WhipStick extends SubsystemBase {
         currentLimitTimer.reset();
         if (!isGettingAlgae) {
             if (io instanceof WhipStickIOTalonFX fx)
-                fx.setCurrent(25);
+                fx.setCurrent(coralHoldCurrentAmps);
             else
                 io.setVbus(0.1);
         } else {
