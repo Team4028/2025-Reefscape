@@ -155,13 +155,30 @@ public class RobotContainer {
                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                         .andThen(pivot.runUp().asProxy().onlyIf(pivot.isUp().not()))
                         .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
-                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
+                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.Cora_PrepL4).alongWith(
                                 Commands.runOnce(() -> infeed.setHasCoral(false))
                                         .alongWith(infeed.directRunMotorCommand(-0.5))))
                         .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
                                 .andThen(Commands.runOnce(() -> armistice.setSafety(true))
                                         .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
                                 .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule()));
+        NamedCommands.registerCommand("Acquire PreL2", ///
+                                infeed.runMotorCommand(.95).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
+                                        .alongWith(pivot.runDown().asProxy()).andThen(
+                                                Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
+                                        .andThen(armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(2))
+                                                .alongWith(Commands.waitUntil(infeed.hasGamepieceSupplier())))
+                                        .andThen(coral.runMotorCommand(0.8))
+                                        .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
+                                        .andThen(pivot.runUp().asProxy().onlyIf(pivot.isUp().not()))
+                                        .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
+                                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.Cora_L2).alongWith(
+                                                Commands.runOnce(() -> infeed.setHasCoral(false))
+                                                        .alongWith(infeed.directRunMotorCommand(-0.5))))
+                                        .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
+                                                .andThen(Commands.runOnce(() -> armistice.setSafety(true))
+                                                        .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
+                                                .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule()));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
                         .andThen(Commands.defer(() -> coral.runMotorCommand(getOutfeedVBus()), Set.of(coral))

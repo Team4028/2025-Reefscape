@@ -34,11 +34,8 @@ public class MagicSequencing {
                                 Set.of())
                                 .alongWith(Commands.waitUntil(() -> armistice.getTargetPosition().isSC()
                                         && armistice.armAndElevatorAtTarget().getAsBoolean())),
-                                armistice.runToPositionNoWait(ArmisticePositions.STOW)
-                                        .onlyIf(() -> armistice.getTargetPosition() != scorePos.get().toPipe())
-                                        .andThen(armistice.waitUntilThingsInTolerance(10, 0.3))
-                                        .andThen(Commands.runOnce(() -> armistice.setSafety(false)),
-                                                Commands.waitUntil(drive.readyForArm())
+                                        Commands.runOnce(() -> armistice.setSafety(false))
+                                        .andThen(Commands.waitUntil(drive.readyForArm())
                                                         .andThen(armistice.runToPositionNoWait(scorePos.get().toPipe()))
                                                         .andThen(
                                                                 Commands.defer(
