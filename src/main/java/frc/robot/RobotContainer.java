@@ -163,22 +163,22 @@ public class RobotContainer {
                                         .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
                                 .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule()));
         NamedCommands.registerCommand("Acquire PreL2", ///
-                                infeed.runMotorCommand(.95).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
-                                        .alongWith(pivot.runDown().asProxy()).andThen(
-                                                Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
-                                        .andThen(armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(2))
-                                                .alongWith(Commands.waitUntil(infeed.hasGamepieceSupplier())))
-                                        .andThen(coral.runMotorCommand(0.8))
-                                        .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
-                                        .andThen(pivot.runUp().asProxy().onlyIf(pivot.isUp().not()))
-                                        .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
-                                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.Cora_L2).alongWith(
-                                                Commands.runOnce(() -> infeed.setHasCoral(false))
-                                                        .alongWith(infeed.directRunMotorCommand(-0.5))))
-                                        .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
-                                                .andThen(Commands.runOnce(() -> armistice.setSafety(true))
-                                                        .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
-                                                .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule()));
+                infeed.runMotorCommand(.95).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
+                        .alongWith(pivot.runDown().asProxy()).andThen(
+                                Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
+                        .andThen(armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(2))
+                                .alongWith(Commands.waitUntil(infeed.hasGamepieceSupplier())))
+                        .andThen(coral.runMotorCommand(0.8))
+                        .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
+                        .andThen(pivot.runUp().asProxy().onlyIf(pivot.isUp().not()))
+                        .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
+                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.Cora_L2).alongWith(
+                                Commands.runOnce(() -> infeed.setHasCoral(false))
+                                        .alongWith(infeed.directRunMotorCommand(-0.5))))
+                        .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
+                                .andThen(Commands.runOnce(() -> armistice.setSafety(true))
+                                        .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
+                                .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).schedule()));
         NamedCommands.registerCommand("Score Outfeed",
                 Commands.waitUntil(armistice.armAndElevatorAtTarget())
                         .andThen(Commands.defer(() -> coral.runMotorCommand(getOutfeedVBus()), Set.of(coral))
@@ -242,15 +242,18 @@ public class RobotContainer {
                 })
                         .andThen(Commands.defer(this::runToClosestReefAuto,
                                 Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
-        NamedCommands.registerCommand("Algae Pickup", Commands.defer(this::runToClosestAlgae,Set.of(drive, armistice.getArm(), armistice.getElevator(), coral)));
+        NamedCommands.registerCommand("Algae Pickup", Commands.defer(this::runToClosestAlgae,
+                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral)));
         NamedCommands.registerCommand("L4 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L4_PIPE));
         NamedCommands.registerCommand("Wait TOF", Commands.waitUntil(infeed.hasGamepieceSupplierRawTOF()));
-        NamedCommands.registerCommand("Stow", armistice.runToPositionCommand(ArmisticePositions.STOW).andThen(coral.runMotorCommand(0)));
+        NamedCommands.registerCommand("Stow",
+                armistice.runToPositionCommand(ArmisticePositions.STOW).andThen(coral.runMotorCommand(0)));
         NamedCommands.registerCommand("Stow No Wait", armistice.runToPositionNoWait(ArmisticePositions.STOW));
         NamedCommands.registerCommand("Acquire Pos",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.CLEAN)
                         .alongWith(pivot.runDown()).alongWith(infeed.runMotorCommand(.8)));
+        NamedCommands.registerCommand("Infeed Up", pivot.runUp());
         NamedCommands.registerCommand("L3 Score",
                 runToPositionDeferredClosestReefJSONOffset(() -> ArmisticePositions.Cora_L3));
         NamedCommands.registerCommand("L2 Score",
@@ -260,6 +263,7 @@ public class RobotContainer {
         }));
         NamedCommands.registerCommand("Algae Outfeed", coral.runMotorCommand(-.6).withTimeout(.5));
         NamedCommands.registerCommand("Barge Score", armistice.runToPositionCommand(ArmisticePositions.BARGE));
+        NamedCommands.registerCommand("Armistice Tolerance", armistice.waitUntilThingsInTolerance(1, 3));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization());
