@@ -37,7 +37,7 @@ import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Volts;
 
-@ExtensionMethod({frc.robot.util.RobotSim.class, MiscUtils.class})
+@ExtensionMethod({ frc.robot.util.RobotSim.class, MiscUtils.class })
 public class Armistice extends SudoSubsystem {
 
     public record SimData(double elevatorPositionMeters, double armPositionRadians) {
@@ -58,7 +58,7 @@ public class Armistice extends SudoSubsystem {
     @AutoLogOutput
     private boolean coralMode = true;
 
-    private static final double[] ARM_SAFE_RANGE = new double[]{14, 50};
+    private static final double[] ARM_SAFE_RANGE = new double[] { 14, 50 };
     private static boolean useSafety = true;
 
     @AutoLogOutput
@@ -116,8 +116,8 @@ public class Armistice extends SudoSubsystem {
         Cora_L4(5.5 - Units.degreesToRadians(7) - 4, 31.008),
         Cora_PrepL4(1.8, 25),
         Cora_L4_SC(4.652 - 4, 31.008),
-        Cora_L4_PIPE(1.11 + Units.degreesToRadians(2), 37.008),
-        Cora_L4_PIPE_SC(4.29 - 4, 37.008),
+        Cora_L4_PIPE(1.11 + Units.degreesToRadians(2), 33.008),
+        Cora_L4_PIPE_SC(4.29 - 4 + Units.degreesToRadians(3), 43.008),
         A2_lgae(-GLOBAL_ARM_OFFSET, 8),
         A3_lgae(4.247 - 4 + Units.degreesToRadians(6) - 0.0408, 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
@@ -259,7 +259,8 @@ public class Armistice extends SudoSubsystem {
 
     public Armistice(BooleanSupplier hasAlgae) {
         File offsetInput = new File(Filesystem.getDeployDirectory(), "HeatmapReefOffsets.json");
-        new Trigger(hasAlgae.or(() -> targetArmisticePosition == ArmisticePositions.Cora_L1)).onTrue(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
+        new Trigger(hasAlgae.or(() -> targetArmisticePosition == ArmisticePositions.Cora_L1))
+                .onTrue(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
                 .onFalse(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.pidConfig.maxAccel())));
         if (offsetInput.isFile()) {
             try {
@@ -317,7 +318,8 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionCommand(ArmisticePositions position) {
         return runToBargeIntermediatePosition().andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE)
+                .andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
                     armTargetRad = position.getArmPositionRad(globalArmOffsetRad);
@@ -326,7 +328,8 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionCommand(ArmisticePositions position, String closestReefName, boolean isRight) {
         return runToBargeIntermediatePosition().andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE)
+                .andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches)
@@ -337,7 +340,8 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionNoWait(ArmisticePositions position) {
         return runToBargeIntermediatePosition().andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE)
+                .andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
                     armTargetRad = position.getArmPositionRad(globalArmOffsetRad);
@@ -347,14 +351,16 @@ public class Armistice extends SudoSubsystem {
     private Command runToBargeIntermediatePosition() {
         return Commands.runOnce(() -> {
             targetArmisticePosition = ArmisticePositions.BARGE_INTERMEDIATE;
-            elevatorTargetInches = ArmisticePositions.BARGE_INTERMEDIATE.getElevatorPositionInches(globalElevatorOffsetInches);
+            elevatorTargetInches = ArmisticePositions.BARGE_INTERMEDIATE
+                    .getElevatorPositionInches(globalElevatorOffsetInches);
             armTargetRad = ArmisticePositions.BARGE_INTERMEDIATE.getArmPositionRad(globalArmOffsetRad);
         }, summit, disarm);
     }
 
     public Command runToPositionNoWait(ArmisticePositions position, String closestReefName, boolean isRight) {
         return runToBargeIntermediatePosition().andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE).andThen(Commands.runOnce(() -> {
+                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE)
+                .andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches)
@@ -414,9 +420,9 @@ public class Armistice extends SudoSubsystem {
         return Commands.runOnce(() -> futureArmisticePositions = switch (futureArmisticePositions) {
             case Cora_L1 -> coralReefAcquireOffset ? ArmisticePositions.Cora_L2_PIPE : ArmisticePositions.Cora_L2;
             case Cora_L2, Cora_L2_PIPE ->
-                    coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
+                coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
             case Cora_L3, Cora_L3_PIPE ->
-                    coralReefAcquireOffset ? ArmisticePositions.Cora_L4_PIPE : ArmisticePositions.Cora_L4;
+                coralReefAcquireOffset ? ArmisticePositions.Cora_L4_PIPE : ArmisticePositions.Cora_L4;
             case Cora_L4, Cora_L4_PIPE -> ArmisticePositions.Cora_L1;
             case GROND -> ArmisticePositions.A2_lgae;
             case A2_lgae -> ArmisticePositions.A3_lgae;
@@ -431,9 +437,9 @@ public class Armistice extends SudoSubsystem {
             case Cora_L1 -> ArmisticePositions.Cora_L4;
             case Cora_L2, Cora_L2_PIPE -> ArmisticePositions.Cora_L1;
             case Cora_L3, Cora_L3_PIPE ->
-                    coralReefAcquireOffset ? ArmisticePositions.Cora_L2_PIPE : ArmisticePositions.Cora_L2;
+                coralReefAcquireOffset ? ArmisticePositions.Cora_L2_PIPE : ArmisticePositions.Cora_L2;
             case Cora_L4, Cora_L4_PIPE ->
-                    coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
+                coralReefAcquireOffset ? ArmisticePositions.Cora_L3_PIPE : ArmisticePositions.Cora_L3;
             case GROND -> ArmisticePositions.BARGE;
             case A2_lgae -> ArmisticePositions.GROND;
             case A3_lgae -> ArmisticePositions.A2_lgae;
@@ -456,7 +462,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command resetNudges() {
         return Commands.runOnce(() -> Arrays.asList(ArmisticePositions.values()).forEach(
-                        p -> globalElevatorOffsetInches = globalArmOffsetRad = p.armOffsetRad = p.elevatorOffsetInches = 0))
+                p -> globalElevatorOffsetInches = globalArmOffsetRad = p.armOffsetRad = p.elevatorOffsetInches = 0))
                 .ignoringDisable(true);
     }
 
@@ -478,7 +484,7 @@ public class Armistice extends SudoSubsystem {
     }
 
     public SubsystemBase[] getSubsystems() {
-        return new SubsystemBase[]{disarm, summit};
+        return new SubsystemBase[] { disarm, summit };
     }
 
     public ArmisticePositions getAutoAlgaePosition() {
@@ -550,14 +556,14 @@ public class Armistice extends SudoSubsystem {
      * Elevator Offset first (in), then Arm Offset (rad)
      */
     public double[] getJSONOffsets(@NonNull String closestReefName, @NonNull ArmisticePositions targetPosition,
-                                   boolean isRight) {
+            boolean isRight) {
         targetPosition = targetPosition.unSCPose();
         boolean isBlue = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue;
         if (heatmapOffset == null)
-            return new double[]{0, 0};
+            return new double[] { 0, 0 };
         else if (targetPosition == ArmisticePositions.BARGE) {
             var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject("BARGE");
-            return new double[]{
+            return new double[] {
                     armEJson.getDouble("elevator"),
                     armEJson.getDouble("arm")
             };
@@ -565,25 +571,25 @@ public class Armistice extends SudoSubsystem {
             var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(closestReefName)
                     .getJSONObject(isRight ? "right" : "left")
                     .getJSONObject(targetPosition.name());
-            return new double[]{
+            return new double[] {
                     armEJson.getDouble("elevator"),
                     armEJson.getDouble("arm")
             };
         } else if (targetPosition.isAquireAlgae()) {
             var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(closestReefName)
                     .getJSONObject(targetPosition.name());
-            return new double[]{
+            return new double[] {
                     armEJson.getDouble("elevator"),
                     armEJson.getDouble("arm")
             };
         } else if (targetPosition.isAcquire()) {
             var armEJson = heatmapOffset.getJSONObject(isBlue ? "blue" : "red").getJSONObject(targetPosition.name());
-            return new double[]{
+            return new double[] {
                     armEJson.getDouble("elevator"),
                     armEJson.getDouble("arm"),
             };
         } else {
-            return new double[]{0, 0};
+            return new double[] { 0, 0 };
         }
     }
 
@@ -604,8 +610,8 @@ public class Armistice extends SudoSubsystem {
                     disarm.runToPosition(
                             MathUtils.inRangeWithTolerance(summit.getCurrentPosition(), safeR[0], safeR[1],
                                     SAFETY_TOLERANCE)
-                                    ? armTargetRad
-                                    : disarm.getCurrentPosition());
+                                            ? armTargetRad
+                                            : disarm.getCurrentPosition());
                     summit.runToPosition(MathUtils.clamp(elevatorTargetInches, safeR[0], safeR[1]));
                 }
             } else {
@@ -653,16 +659,16 @@ public class Armistice extends SudoSubsystem {
             futureArmisticePositions = futureArmisticePositions == ArmisticePositions.Cora_L2
                     ? ArmisticePositions.Cora_L2_PIPE
                     : futureArmisticePositions == ArmisticePositions.Cora_L3
-                    ? ArmisticePositions.Cora_L3_PIPE
-                    : ArmisticePositions.Cora_L4_PIPE;
+                            ? ArmisticePositions.Cora_L3_PIPE
+                            : ArmisticePositions.Cora_L4_PIPE;
         } else if (!coralReefAcquireOffset && (futureArmisticePositions == ArmisticePositions.Cora_L2_PIPE
                 || futureArmisticePositions == ArmisticePositions.Cora_L3_PIPE
                 || futureArmisticePositions == ArmisticePositions.Cora_L4_PIPE)) {
             futureArmisticePositions = futureArmisticePositions == ArmisticePositions.Cora_L2_PIPE
                     ? ArmisticePositions.Cora_L2
                     : futureArmisticePositions == ArmisticePositions.Cora_L3_PIPE
-                    ? ArmisticePositions.Cora_L3
-                    : ArmisticePositions.Cora_L4;
+                            ? ArmisticePositions.Cora_L3
+                            : ArmisticePositions.Cora_L4;
         }
     }
 }

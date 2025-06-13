@@ -157,7 +157,7 @@ public class RobotContainer {
                         .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.Cora_PrepL4).alongWith(
                                 Commands.runOnce(() -> infeed.setHasCoral(false))
-                                        .alongWith(infeed.directRunMotorCommand(-0.5))))
+                                        .alongWith(infeed.directRunMotorCommand(-0.2))))
                         .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
                                 .andThen(Commands.runOnce(() -> armistice.setSafety(true))
                                         .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
@@ -174,7 +174,7 @@ public class RobotContainer {
                         .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.Cora_L2).alongWith(
                                 Commands.runOnce(() -> infeed.setHasCoral(false))
-                                        .alongWith(infeed.directRunMotorCommand(-0.5))))
+                                        .alongWith(infeed.directRunMotorCommand(-0.2))))
                         .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
                                 .andThen(Commands.runOnce(() -> armistice.setSafety(true))
                                         .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
@@ -403,7 +403,7 @@ public class RobotContainer {
                 .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
                 .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
                 .andThen(Commands.runOnce(() -> infeed.setHasCoral(false))
-                        .alongWith(infeed.directRunMotorCommand(-0.5)))
+                        .alongWith(infeed.directRunMotorCommand(-0.2)))
                 .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)),
                 Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed)).finallyDo(() -> {
                     armistice.runToPositionNoWait(ArmisticePositions.STOW)
