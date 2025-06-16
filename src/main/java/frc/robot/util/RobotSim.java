@@ -18,6 +18,8 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.cage.Cage;
+import frc.robot.subsystems.cage.CageIO;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSim;
@@ -62,6 +64,7 @@ public class RobotSim {
     public static Climber simSwitch(ClimberIO realClimber) {
         return new Climber(Constants.currentMode == Mode.REAL ? realClimber : new ClimberIOSim());
     }
+
 
     public static WhipStick simSwitch(WhipStickIO realCoral) {
         return new WhipStick(Constants.currentMode == Mode.REAL ? realCoral : new WhipStickIOSim());

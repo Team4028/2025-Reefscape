@@ -1,12 +1,12 @@
-package frc.robot.subsystems.climber;
+package frc.robot.subsystems.cage;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import frc.robot.util.MotorData;
 
-public interface ClimberIO {
+public interface CageIO {
     @AutoLog
-    class ClimberIOInputs {
+    class CageIOInputs {
         public double appliedVoltage = 0.0;
         public double currentAmps = 0.0;
         public MotorData motorData = MotorData.empty();
@@ -15,8 +15,7 @@ public interface ClimberIO {
 
     
 
-
-    default void updateInputs(ClimberIOInputs inputs) {
+    default void updateInputs(CageIOInputs inputs) {
       
     }
 
@@ -32,5 +31,4 @@ public interface ClimberIO {
     default void setPid(double position) {
 
     }
-
 }

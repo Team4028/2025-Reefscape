@@ -22,6 +22,8 @@ import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MagicSequencing;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.cage.CageIOTalonFX;
+import frc.robot.subsystems.cage.Cage;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
@@ -63,6 +65,7 @@ public class RobotContainer {
     private final WhipStick coral = new WhipStickIOTalonFX().simSwitch();
     private final Armistice armistice = new Armistice(coral.hasAlgae());
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
+    private final Cage cage = new Cage(new CageIOTalonFX());
     private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFXCCSource(),
             new InfeedPivotEncoderIOCancoder());
     private final Grond infeed = new Grond(new GrondIOTalonFX(true), new GrondIOTalonFX(false), new GrondTOFIOPWF(),
@@ -423,6 +426,8 @@ public class RobotContainer {
         driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
 
+
+        driverController.a().onTrue(cage.runVbusCommand(-0.5)).onFalse(cage.runVbusCommand(0));
         // =================== //
         /* OPERATOR CONTROLLER */
         // =================== //
