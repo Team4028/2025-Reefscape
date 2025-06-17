@@ -14,6 +14,7 @@ public class CageConstants {
     public static final double CLIMBER_LENGTH = 0.0;
     public static final double GEAR_RATIO = 100.0;
     public static final double CLIMBER_OFFSET = 0.0;
+    public static final double MOTOR_CURRENT_LIMIT = 30.0;
 
     // Would we need this?
    

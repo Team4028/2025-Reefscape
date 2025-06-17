@@ -7,7 +7,10 @@ import com.bskd.annotations.CreateState;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.MiscUtils;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod(MiscUtils.class)
 public class Cage extends SubsystemBase {
     private final CageIO io;
     private final CageStateTracker stateTracker;
@@ -16,6 +19,7 @@ public class Cage extends SubsystemBase {
     @AutoLogOutput
     private double targetPostitionInches = 0.0;
     private final CageIOInputsAutoLogged inputs = new CageIOInputsAutoLogged();
+
     public Cage(CageIO io) {
         this.io = io;
         stateTracker = new CageStateTracker();
@@ -29,10 +33,10 @@ public class Cage extends SubsystemBase {
                     : (vbus < 0 ? CageStates.VBUS_REVERSE : CageStates.OFF);
 
         });
-        
+
         // return runOnce(() -> {
-        //     targetVbus = vbus;
-        //     stateTracker.setStateVBus(vbus);
+        // targetVbus = vbus;
+        // stateTracker.setStateVBus(vbus);
         // });
     }
 
@@ -53,6 +57,11 @@ public class Cage extends SubsystemBase {
     @CreateState("vbus_forward")
     @CreateState("vbus_reverse")
     public void runTargetVbus() {
+        // if (inputs.currentAmps < CageConstants.MOTOR_CURRENT_LIMIT) {
+        // io.setVbus(targetVbus);
+        // } else {
+        // stateTracker.state = CageStates.OFF;
+        // }
         io.setVbus(targetVbus);
     }
 

@@ -70,6 +70,9 @@ public class RobotSim {
         return new WhipStick(Constants.currentMode == Mode.REAL ? realCoral : new WhipStickIOSim());
     }
 
+    // public static Cage simSwitch(CageIO realCage) {
+    //     return new Cage(Constants.currentMode == Mode.REAL ? realCage: new CageIOSim());
+    // }
     private static final LoggedMechanism2d baseMech = new LoggedMechanism2d(5, 5);
     private static final LoggedMechanismRoot2d elevatorRoot = baseMech.getRoot("ElevatorRoot", 2.5, 0);
 

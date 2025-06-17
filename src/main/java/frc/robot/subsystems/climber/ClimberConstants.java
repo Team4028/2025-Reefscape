@@ -32,7 +32,7 @@ public class ClimberConstants {
 
 
         public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(30)
+                .withStatorCurrentLimit(50)
                 .withStatorCurrentLimitEnable(true)
                 .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
 
