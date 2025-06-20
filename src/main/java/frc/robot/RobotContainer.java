@@ -22,8 +22,8 @@ import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MagicSequencing;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.cage.CageIOTalonFX;
 import frc.robot.subsystems.cage.Cage;
+import frc.robot.subsystems.cage.CageIOTalonFX;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
@@ -65,9 +65,9 @@ public class RobotContainer {
     private final WhipStick coral = new WhipStickIOTalonFX().simSwitch();
     private final Armistice armistice = new Armistice(coral.hasAlgae());
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
-    private final Cage cage = new Cage(new CageIOTalonFX());
     private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFXCCSource(),
             new InfeedPivotEncoderIOCancoder());
+    private final Cage cage = new Cage(new CageIOTalonFX());
     private final Grond infeed = new Grond(new GrondIOTalonFX(true), new GrondIOTalonFX(false), new GrondTOFIOPWF(),
             pivot.isDownPositional());
     private final Trigger hasGamePiece = new Trigger(
@@ -147,6 +147,7 @@ public class RobotContainer {
             drive.resetGPTY();
         }));
         NamedCommands.registerCommand("Guarentee Stop", realDrivetrainStop());
+        NamedCommands.registerCommand("Algae Wait", Commands.waitUntil(coral.hasAlgae()));
         NamedCommands.registerCommand("Acquire Wait", Commands.waitUntil(infeed.hasGamepieceSupplier()));
         NamedCommands.registerCommand("Acquire", ///
                 infeed.runMotorCommand(.95).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
@@ -266,7 +267,9 @@ public class RobotContainer {
         }));
         NamedCommands.registerCommand("Algae Outfeed", coral.runMotorCommand(-.6).withTimeout(.5));
         NamedCommands.registerCommand("Barge Score", armistice.runToPositionCommand(ArmisticePositions.BARGE));
-        NamedCommands.registerCommand("Armistice Tolerance", armistice.waitUntilThingsInTolerance(1, 3));
+        NamedCommands.registerCommand("Barge Armistice Tolerance", armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5), () -> armistice.getTargetPosition() == ArmisticePositions.BARGE));
+        NamedCommands.registerCommand("Algae Grond Pos", armistice.runToPositionCommand(ArmisticePositions.GROND));
+        NamedCommands.registerCommand("Algae Grond", coral.runMotorCommandAlgae(.95));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization());
@@ -398,6 +401,10 @@ public class RobotContainer {
 
         driverController.leftStick().onTrue(Commands.runOnce(() -> unjamOn = !unjamOn));
 
+        // ==============================================
+        // Infeed Code
+        // ==============================================
+
         hasGamePiece.onTrue(Commands.defer(() -> Commands.runOnce(() -> coral.setHasGamepiece(false))
                 .andThen(armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(2))
                         .alongWith(armistice.waitForArmSlow())
@@ -425,9 +432,9 @@ public class RobotContainer {
 
         driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
-
-
+                
         driverController.a().onTrue(cage.runVbusCommand(-0.5)).onFalse(cage.runVbusCommand(0));
+
         // =================== //
         /* OPERATOR CONTROLLER */
         // =================== //

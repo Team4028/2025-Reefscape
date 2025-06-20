@@ -524,6 +524,10 @@ public class Armistice extends SudoSubsystem {
         return Commands.waitUntil(() -> Math.abs(elevatorTargetInches - summit.getCurrentPosition()) <= elevatorTol
                 && Math.abs(armTargetRad - disarm.getCurrentPosition()) <= armTol);
     }
+    public Command waitUntilThingsInTolerance(double elevatorTol, double armTol, BooleanSupplier extra) {
+        return Commands.waitUntil(extra.and(() -> Math.abs(elevatorTargetInches - summit.getCurrentPosition()) <= elevatorTol
+                && Math.abs(armTargetRad - disarm.getCurrentPosition()) <= armTol));
+    }
 
     public Command runElevator(ArmisticePositions position) {
         return Commands
