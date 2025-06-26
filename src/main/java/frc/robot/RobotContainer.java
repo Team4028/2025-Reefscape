@@ -265,11 +265,12 @@ public class RobotContainer {
         NamedCommands.registerCommand("Blip", Commands.none());
         NamedCommands.registerCommand("Forever", Commands.run(() -> {
         }));
-        NamedCommands.registerCommand("Algae Outfeed", coral.runMotorCommand(-.6).withTimeout(.5));
+        NamedCommands.registerCommand("Stop Coral", coral.runMotorCommand(0));
+        NamedCommands.registerCommand("Algae Outfeed", coral.runMotorCommand(-.6));
         NamedCommands.registerCommand("Barge Score", armistice.runToPositionCommand(ArmisticePositions.BARGE));
         NamedCommands.registerCommand("Barge Armistice Tolerance", armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5), () -> armistice.getTargetPosition() == ArmisticePositions.BARGE));
         NamedCommands.registerCommand("Algae Grond Pos", armistice.runToPositionCommand(ArmisticePositions.GROND));
-        NamedCommands.registerCommand("Algae Grond", coral.runMotorCommandAlgae(.95));
+        NamedCommands.registerCommand("Algae Infeed", coral.runMotorCommandAlgae(.95));
         autonChooser = new LoggedDashboardChooser<>("Auton Chooser", AutoBuilder.buildAutoChooser());
         autonChooser.addOption("Char drivetrain", drive.feedforwardCharacterization());
         autonChooser.addOption("Char Wheel Radius", drive.wheelRadiusCharacterization());
@@ -701,7 +702,7 @@ public class RobotContainer {
 
     private Command runToSuperCycleAuton() {
         return MagicSequencing.magicScoreScore(drive, armistice, coral, drive::pipe1ClosestReefPose,
-                () -> DriverStation.isAutonomous() ? ArmisticePositions.Cora_L4
+                () -> DriverStation.isAutonomous() ? ArmisticePositions.Cora_L4_PIPE
                         : armistice.getFutureArmisticePositions(),
                 () -> true).andThen(pivot.runDown().asProxy())
                 .andThen(MagicSequencing

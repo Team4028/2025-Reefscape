@@ -163,10 +163,11 @@ public class MagicSequencing {
                                                                                         drive.getReefTargetIsRight()))
                                                                         .andThen(Commands.defer(
                                                                                 () -> armistice
-                                                                                        .waitUntilThingsInTolerance(
-                                                                                                scorePos.get() == ArmisticePositions.Cora_L4
-                                                                                                        ? 15
-                                                                                                        : 1,
+                                                                                        .waitUntilThingsInTolerance(1,
+                                                                                                // scorePos.get() ==
+                                                                                                // ArmisticePositions.Cora_L4
+                                                                                                // ? 15
+                                                                                                // : 1,
                                                                                                 scorePos.get() == ArmisticePositions.Cora_L4
                                                                                                         ? 0.3
                                                                                                         : 0.1),
