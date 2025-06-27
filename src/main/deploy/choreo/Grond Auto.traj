@@ -479,7 +479,5 @@
    {"name":"Algae Grond 1", "from":{"target":2, "targetTimestamp":2.09252, "offset":{"exp":"0.1 s", "val":0.1}}, "event":{"type":"named", "data":{"name":"Algae Grond Pos"}}},
    {"name":"Algae Grond 2", "from":{"target":7, "targetTimestamp":6.24641, "offset":{"exp":"0.1 s", "val":0.1}}, "event":{"type":"named", "data":{"name":"Algae Grond Pos"}}},
    {"name":"Stow Acquire 1", "from":{"target":5, "targetTimestamp":4.64868, "offset":{"exp":"0.8 s", "val":0.8}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Stow Acquire 2", "from":{"target":10, "targetTimestamp":8.8754, "offset":{"exp":"0.8 s", "val":0.8}}, "event":{"type":"named", "data":{"name":"Stow"}}},
-   {"name":"Stop Coral", "from":{"target":2, "targetTimestamp":2.09252, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stop Coral"}}},
-   {"name":"Stop Coral 2", "from":{"target":7, "targetTimestamp":6.24641, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"Stop Coral"}}}]
+   {"name":"Stow Acquire 2", "from":{"target":10, "targetTimestamp":8.8754, "offset":{"exp":"0.8 s", "val":0.8}}, "event":{"type":"named", "data":{"name":"Stow"}}}]
 }

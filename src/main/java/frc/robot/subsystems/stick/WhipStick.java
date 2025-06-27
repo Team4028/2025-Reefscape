@@ -49,6 +49,11 @@ public class WhipStick extends SubsystemBase {
         });
     }
 
+    public Command stopMotorCommand() {
+        return runOnce (() -> {
+            stateTracker.state = WhipStickStates.OFF; 
+        });
+    }
     @AutoLogOutput
     public BooleanSupplier hasAlgae() {
         return hasGamePieceSupplier().and(() -> isGettingAlgae);
