@@ -23,27 +23,28 @@
           }
         },
         {
-          "type": "named",
+          "type": "sequential",
           "data": {
-            "name": "Barge Armistice Tolerance"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Algae Outfeed"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Grond Acquire"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Barge Armistice Tolerance"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Algae Outfeed"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop Coral"
+                }
+              }
+            ]
           }
         },
         {
@@ -69,21 +70,41 @@
           "data": {
             "commands": [
               {
+                "type": "race",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "parallel",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Grond Auto.2"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Forever"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Algae Wait"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "Grond Acquire"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Algae Wait"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Grond Auto.2"
                 }
               }
             ]
@@ -148,18 +169,6 @@
                 "data": {
                   "name": "Algae Outfeed"
                 }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Grond Acquire"
-                }
               }
             ]
           }
@@ -187,21 +196,41 @@
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "race",
                 "data": {
-                  "pathName": "Grond Auto.7"
+                  "commands": [
+                    {
+                      "type": "parallel",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Grond Auto.6"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Forever"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Algae Wait"
+                      }
+                    }
+                  ]
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "Grond Acquire"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Acquire Wait"
                 }
               }
             ]
@@ -252,15 +281,28 @@
           }
         },
         {
-          "type": "named",
+          "type": "sequential",
           "data": {
-            "name": "Barge Armistice Tolerance"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Algae Outfeed"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Barge Armistice Tolerance"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Algae Outfeed"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop Coral"
+                }
+              }
+            ]
           }
         }
       ]
