@@ -428,8 +428,7 @@ public class RobotContainer {
                 // ==============================================
                 // DC -- X: Run to Stow
                 // ==============================================
-                driverController.x()
-                                .onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW));
+                driverController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW));
 
                 // ==============================================
                 // DC -- Y: Run to L3:
@@ -555,9 +554,9 @@ public class RobotContainer {
         private double scaleDriverController(DoubleSupplier controllerInput, LimiterState type) {
                 double input = controllerInput.getAsDouble() * 0.2;
                 return switch (type) {
-                        case X -> chooseXLimiter(input*1.25);
-                        case Y -> chooseYLimiter(input*1.25);
-                        case THETA -> chooseThetaLimiter(input*1.5);
+                        case X -> chooseXLimiter(input);
+                        case Y -> chooseYLimiter(input);
+                        case THETA -> chooseThetaLimiter(input);
                 };
         }
 
