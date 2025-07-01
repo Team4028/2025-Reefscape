@@ -1,8 +1,6 @@
 package frc.robot.subsystems.cage;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.PIDStruct;
 import frc.robot.util.SysIDUtil;
@@ -33,9 +31,9 @@ public class CageConstants {
         
 
         public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(30)
+                .withStatorCurrentLimit(80)
                 .withStatorCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true);
+                .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(false);
 
     }
 

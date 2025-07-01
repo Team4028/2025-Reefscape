@@ -51,7 +51,8 @@ public class WhipStick extends SubsystemBase {
 
     public Command stopMotorCommand() {
         return runOnce (() -> {
-            stateTracker.state = WhipStickStates.OFF; 
+            isGettingAlgae = false;
+            stateTracker.state = WhipStickStates.OFF;
         });
     }
     @AutoLogOutput

@@ -48,12 +48,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow No Wait"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Grond Auto.1"
@@ -62,7 +56,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Barge Armistice Tolerance"
+            "name": "Other Armistice Tolerance"
           }
         },
         {
@@ -127,22 +121,9 @@
                 }
               },
               {
-                "type": "race",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Barge Score"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Barge Armistice Tolerance"
-                      }
-                    }
-                  ]
+                  "name": "Barge Score No Wait"
                 }
               }
             ]
@@ -174,12 +155,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow No Wait"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Grond Auto.5"
@@ -188,7 +163,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Barge Armistice Tolerance"
+            "name": "Other Armistice Tolerance"
           }
         },
         {
@@ -253,22 +228,9 @@
                 }
               },
               {
-                "type": "race",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Barge Score"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Barge Armistice Tolerance"
-                      }
-                    }
-                  ]
+                  "name": "Barge Score No Wait"
                 }
               }
             ]
