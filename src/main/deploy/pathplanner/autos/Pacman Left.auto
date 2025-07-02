@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SMB-Left.0"
+            "pathName": "Pacman-Left.0"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SMB-Left.2"
+            "pathName": "Pacman-Left.1"
           }
         },
         {
@@ -41,7 +41,7 @@
                                 {
                                   "type": "path",
                                   "data": {
-                                    "pathName": "SMB-Left.3"
+                                    "pathName": "Pacman-Left.2"
                                   }
                                 },
                                 {
@@ -69,7 +69,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "SMB-Left.4"
+                              "pathName": "Pacman-Left.3"
                             }
                           },
                           {
@@ -102,7 +102,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SMB-Left.5"
+            "pathName": "Pacman-Left.4"
           }
         },
         {
@@ -124,7 +124,7 @@
                                 {
                                   "type": "path",
                                   "data": {
-                                    "pathName": "SMB-Left.6"
+                                    "pathName": "Pacman-Left.4"
                                   }
                                 },
                                 {
@@ -152,7 +152,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "SMB-Left.7"
+                              "pathName": "Pacman-Left.5"
                             }
                           },
                           {
@@ -185,7 +185,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SMB-Left.8"
+            "pathName": "Pacman-Left.6"
           }
         },
         {
@@ -209,7 +209,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "SMB-Left.9"
+                              "pathName": "Pacman-Left.7"
                             }
                           },
                           {
@@ -252,7 +252,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "SMB-Left.10"
+                  "pathName": "Pacman-Left.7"
                 }
               },
               {

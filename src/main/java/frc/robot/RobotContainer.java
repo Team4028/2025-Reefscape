@@ -159,7 +159,7 @@ public class RobotContainer {
                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                         .andThen(pivot.runUp().asProxy().onlyIf(pivot.isUp().not()))
                         .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
-                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.Cora_PrepL4).alongWith(
+                        .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW).alongWith(
                                 Commands.runOnce(() -> infeed.setHasCoral(false))
                                         .alongWith(infeed.directRunMotorCommand(-0.2))))
                         .finallyDo(() -> armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5))
@@ -204,6 +204,11 @@ public class RobotContainer {
                         .andThen(Commands.defer(this::runToClosestReefAuto,
                                 Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
 
+        NamedCommands.registerCommand("Run To Closest Right Reef Good", Commands.runOnce(() -> {
+            drive.setReefTargetIsRight(true);
+            infeed.setHasCoral(false);
+        }).andThen(Commands.defer(this::runToClosestReefAutoNoScoreScore, Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+
         NamedCommands.registerCommand("Run To Closest Right Reef DB",
                 Commands.runOnce(() -> {
                             drive.setReefTargetIsRight(true);
@@ -225,6 +230,12 @@ public class RobotContainer {
                         })
                         .andThen(Commands.defer(this::runToClosestReefAuto,
                                 Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+
+        NamedCommands.registerCommand("Run To Closest Left Reef Good", Commands.runOnce(() -> {
+            drive.setReefTargetIsRight(false);
+            infeed.setHasCoral(false);
+        }).andThen(Commands.defer(this::runToClosestReefAutoNoScoreScore, Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+
         NamedCommands.registerCommand("Run To Closest Left Reef L2",
                 Commands.runOnce(() -> {
                             drive.setReefTargetIsRight(false);
@@ -729,6 +740,11 @@ public class RobotContainer {
 
     private Command runToClosestReefAuto() {
         return MagicSequencing.magicScoreNoDB(drive, armistice, coral, drive::pipe1ClosestReefPose,
+                () -> ArmisticePositions.Cora_L4);
+    }
+
+    private Command runToClosestReefAutoNoScoreScore() {
+        return MagicSequencing.magicScoreNoDBNoScoreScore(drive, armistice, coral, drive::pipe1ClosestReefPose,
                 () -> ArmisticePositions.Cora_L4);
     }
 

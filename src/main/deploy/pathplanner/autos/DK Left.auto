@@ -120,7 +120,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Left Reef"
+            "name": "Run To Closest Left Reef Good"
           }
         },
         {
@@ -208,7 +208,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Right Reef"
+            "name": "Run To Closest Right Reef Good"
           }
         },
         {
@@ -296,7 +296,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Run To Closest Left Reef"
+            "name": "Run To Closest Left Reef Good"
           }
         }
       ]
