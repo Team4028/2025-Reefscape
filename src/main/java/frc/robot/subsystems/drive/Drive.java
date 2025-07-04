@@ -145,7 +145,7 @@ public class Drive extends SubsystemBase {
     @AutoLogOutput
     private boolean inPidTranslate = false;
 
-    private final PIDController pidLineup = new PIDController(5, 0, 0);
+    private final PIDController pidLineup = new PIDController(5, 0, 0.5);
 
     private final PIDController angleController = new PIDController(8, 0, 0);
 

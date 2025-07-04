@@ -25,6 +25,14 @@ public class ArmConstants {
     public static final double SAFE_DISTANCE = Units.degreesToRadians(5);
 
     public static final boolean USE_FOC = true;
+    public static final double PI_1_2 = 0.5 * Math.PI;
+    public static final double PI_3_2 = 1.5 * Math.PI;
+    public static final double PI_2 = 2 * Math.PI;
+    public static final double ARM_ACCEL_W_ALGAE = 1.26028806584;
+    // 80, 0, 0
+    public static final PIDStruct pidConfig = new PIDStruct(80, 0, 0, 5, 5, 40, 0, 0.15, 0.425, 0, 0, 0);
+    public static final PIDStruct simPidConfig = new PIDStruct(16, 0, 0, PI_2, 2 * PI_2, 0, 0, 0, 0.2, 0.5, 0, 0);
+    public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();
 
     public static final class Sim {
         public static final DCMotor simGearbox = USE_FOC ? DCMotor.getKrakenX60Foc(1) : DCMotor.getKrakenX60(1);
@@ -69,14 +77,4 @@ public class ArmConstants {
         public static final int DIO_PIN = 0;
         public static final boolean INVERTED = true;
     }
-
-    public static final double PI_1_2 = 0.5 * Math.PI;
-    public static final double PI_3_2 = 1.5 * Math.PI;
-    public static final double PI_2 = 2 * Math.PI;
-    public static final double ARM_ACCEL_W_ALGAE = 1.26028806584;
-
-    public static final PIDStruct pidConfig = new PIDStruct(80, 0, 0, 5, 5, 40, 0, 0.15, 0.425, 0, 0, 0);
-    public static final PIDStruct simPidConfig = new PIDStruct(16, 0, 0, PI_2, 2 * PI_2, 0, 0, 0, 0.2, 0.5, 0, 0);
-
-    public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();
 }

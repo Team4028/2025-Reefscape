@@ -1,31 +1,29 @@
 package frc.robot.subsystems.arm;
 
-import java.util.Map;
-import java.util.function.BooleanSupplier;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import com.bskd.annotations.CreateState;
-
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Armistice.ArmisticePositions;
+import frc.robot.util.LoggedTunables.LoggedChangableBoolean;
 import frc.robot.util.MathUtils;
 import frc.robot.util.SysIDUtil;
-import frc.robot.util.LoggedTunables.LoggedChangableBoolean;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 public class Arm extends SubsystemBase {
     private final ArmIO io;
     private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
     private final ArmStateTracker stateTracker;
     private final LoggedChangableBoolean isBrake = new LoggedChangableBoolean("ArmInBrake", true);
+    private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private double targetVbus = 0.0, targetVoltage = 0.0;
     @AutoLogOutput
     private double targetPositionRad = ArmisticePositions.STOW.getArmPositionRad(0);
-    private final Map<Boolean, Map<Direction, Command>> sysIDCommands;
     private boolean hasAlgae;
 
     public Arm(ArmIO io) {

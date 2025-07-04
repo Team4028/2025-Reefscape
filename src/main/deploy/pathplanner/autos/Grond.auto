@@ -54,12 +54,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Other Armistice Tolerance"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -158,12 +152,6 @@
           "type": "path",
           "data": {
             "pathName": "Grond Auto.5"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Other Armistice Tolerance"
           }
         },
         {

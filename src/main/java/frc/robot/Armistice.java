@@ -536,7 +536,7 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Command waitForArmSlow() {
-        return Commands.waitUntil(() -> disarm.getVelocityRad() < Units.degreesToRadians(5));
+        return Commands.waitUntil(() -> Math.abs(disarm.getVelocityRad()) <= Units.degreesToRadians(0.0));
     }
 
     public boolean magicIsSnap() {

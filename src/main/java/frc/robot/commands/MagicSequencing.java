@@ -218,10 +218,6 @@ public class MagicSequencing {
                                                                         .andThen(Commands.defer(
                                                                                 () -> armistice
                                                                                         .waitUntilThingsInTolerance(1,
-                                                                                                // scorePos.get() ==
-                                                                                                // ArmisticePositions.Cora_L4
-                                                                                                // ? 15
-                                                                                                // : 1,
                                                                                                 scorePos.get() == ArmisticePositions.Cora_L4
                                                                                                         ? 0.3
                                                                                                         : 0.1),
@@ -290,7 +286,7 @@ public class MagicSequencing {
                                 Set.of()))
                         .andThen(drive.runVelocityAngle(() -> 0, () -> -1, drive::getRotation)
                                 .alongWith(coral.runMotorCommand(-.3))
-                                .withTimeout(superCycle.getAsBoolean() ? 0.05 : .3)
+                                .withTimeout(superCycle.getAsBoolean() ? 0.025 : .3)
                                 .andThen(coral.runMotorCommand(0))
                                 .alongWith(Commands.waitSeconds(0.5)
                                         .onlyIf(() -> scorePos.get().getUnPipe() == ArmisticePositions.Cora_L2)
