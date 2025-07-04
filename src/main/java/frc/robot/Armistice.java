@@ -108,11 +108,11 @@ public class Armistice extends SudoSubsystem {
         Cora_L2(4.738 - 4, 0),
         Cora_L2_SC(4.2 - 4, 0),
         Cora_L2_PIPE(0.926 + Units.degreesToRadians(2), 0),
-        Cora_L2_PIPE_SC(4.2 - 4, 0),
+        Cora_L2_PIPE_SC(4.2 - 4 - Units.degreesToRadians(2), 0),
         Cora_L3(5.3 - 4, 8.011),
         Cora_L3_SC(4.4 - 4, 8.011),
         Cora_L3_PIPE(0.987 + Units.degreesToRadians(2), 18),
-        Cora_L3_PIPE_SC(0, 18),
+        Cora_L3_PIPE_SC(0 - Units.degreesToRadians(2), 18),
         Cora_L4(5.5 - Units.degreesToRadians(7) - 4, 31.008),
         Cora_PrepL4(1.8, 25),
         Cora_L4_SC(4.652 - 4, 31.008),
@@ -536,7 +536,7 @@ public class Armistice extends SudoSubsystem {
     }
 
     public Command waitForArmSlow() {
-        return Commands.waitUntil(() -> Math.abs(disarm.getVelocityRad()) <= Units.degreesToRadians(0.0));
+        return Commands.waitUntil(() -> disarm.getVelocityRad() < Units.degreesToRadians(5));
     }
 
     public boolean magicIsSnap() {
