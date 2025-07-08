@@ -147,7 +147,7 @@ public class Drive extends SubsystemBase {
 
     private final PIDController pidLineup = new PIDController(5, 0, 0.5);
 
-    private final PIDController angleController = new PIDController(8, 0, 0);
+    private final PIDController angleController = new PIDController(8, 0, 0.8);
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
     private Rotation2d rawGyroRotation = new Rotation2d();

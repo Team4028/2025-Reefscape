@@ -13,7 +13,7 @@ public class InfeedPivotConstants {
         DOWN(0.2),
         HANDOFF(1),
         UP(1.7),
-        CLIMB(2.5);
+        CLIMB(2.2);
 
         public final double posRad;
 
@@ -44,7 +44,7 @@ public class InfeedPivotConstants {
                 .withStatorCurrentLimit(90).withStatorCurrentLimitEnable(true).withSupplyCurrentLimitEnable(false);
         public static final SoftwareLimitSwitchConfigs softLimits = new SoftwareLimitSwitchConfigs()
                 .withReverseSoftLimitThreshold(0 / ArmConstants.PI_2).withReverseSoftLimitEnable(true)
-                .withForwardSoftLimitThreshold(1.9 / ArmConstants.PI_2).withForwardSoftLimitEnable(true);
+                .withForwardSoftLimitThreshold(2.7 / ArmConstants.PI_2).withForwardSoftLimitEnable(true);
         public static final Slot0Configs pidConfigs = pid.makeSlot0Configs(GravityTypeValue.Arm_Cosine);
         public static final MotionMagicConfigs mmConfigs = pid.makeMMConfigs();
         public static final FeedbackConfigs feedbackConfigs = new FeedbackConfigs()

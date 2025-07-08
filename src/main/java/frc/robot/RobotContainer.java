@@ -22,7 +22,10 @@ import frc.robot.Armistice.ArmisticePositions;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.MagicSequencing;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.cage.Cage;
+import frc.robot.subsystems.cage.CageIOTalonFX;
 import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberConstants;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -65,7 +68,7 @@ public class RobotContainer {
     private final Climber climber = new ClimberIOTalonFX().simSwitch();
     private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFXCCSource(),
             new InfeedPivotEncoderIOCancoder());
-    //    private final Cage cage = new Cage(new CageIOTalonFX());
+    private final Cage cage = new Cage(new CageIOTalonFX());
     private final Grond infeed = new Grond(new GrondIOTalonFX(true), new GrondIOTalonFX(false), new GrondTOFIOPWF(),
             pivot.isDownPositional());
     private final Trigger hasGamePiece = new Trigger(
@@ -423,9 +426,8 @@ public class RobotContainer {
                                         .alongWith(coral.runMotorCommand(0.8)))
                                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                                 .andThen(pivot.runUp().onlyIf(pivot.isUp().not()))
-                                .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()))
-                                .andThen(Commands.runOnce(() -> infeed.setHasCoral(false))
-                                        .alongWith(infeed.directRunMotorCommand(-0.3)))
+                                .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()).alongWith(Commands.waitUntil(() -> Math.abs(pivot.getPosition() - InfeedPivotPositions.HANDOFF.posRad) < 0.1).andThen(infeed.directRunMotorCommand(-0.3))))
+                                .andThen(Commands.runOnce(() -> infeed.setHasCoral(false)))
                                 .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)),
                         Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed)).finallyDo(() -> {
                     armistice.runToPositionNoWait(ArmisticePositions.STOW)
@@ -445,7 +447,7 @@ public class RobotContainer {
         driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
 
-//        driverController.a().onTrue(cage.runVbusCommand(-0.8)).onFalse(cage.runVbusCommand(0));
+        driverController.a().onTrue(cage.runVbusCommand(-0.7)).onFalse(cage.runVbusCommand(0));
 
         // =================== //
         /* OPERATOR CONTROLLER */
@@ -475,8 +477,8 @@ public class RobotContainer {
         // ==============================================
         // OC -- Back: Toggle climb deadman
         // ==============================================
-        operatorController.back()
-                .onTrue(Commands.runOnce(() -> climbDeadmanUnsafe = !climbDeadmanUnsafe).ignoringDisable(true));
+//        operatorController.back()
+//                .onTrue(Commands.runOnce(() -> isSuperCycle = !isSuperCycle).ignoringDisable(true));
 
         // ==============================================
         // OC -- LT: Infeed Algae
@@ -520,11 +522,11 @@ public class RobotContainer {
         // OC -- DPAD RIGHT: Run to Climb
         // ==============================================
         operatorController.povRight()
-                .onTrue(armistice.runToPositionNoWait(ArmisticePositions.CLIMB).alongWith(pivot.runDown())
+                .onTrue(armistice.runToPositionNoWait(ArmisticePositions.CLIMB).alongWith(pivot.runUpClimb())
                         .onlyIfNoReqs(() -> climbDeadmanUnsafe));
 
-        operatorController.povLeft().onTrue(Commands.defer(this::runToSuperCycle,
-                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral)));
+        operatorController.back()
+                .onTrue(Commands.runOnce(() -> climbDeadmanUnsafe = !climbDeadmanUnsafe).ignoringDisable(true));
 
         // ==============================================
         // OC -- Y: Run To Aquire
@@ -550,8 +552,6 @@ public class RobotContainer {
                         .andThen(armistice.runToPositionCommand(ArmisticePositions.GROND, drive.closestReefName(),
                                 drive.getReefTargetIsRight())));
         new Trigger(() -> armistice.getTargetPosition() == ArmisticePositions.GROND).onFalse(Commands.runOnce(() -> armistice.setSafety(true)));
-//                        .andThen(Commands.waitUntil(() -> armistice.getTargetPosition() != ArmisticePositions.GROND)
-//                                .andThen(Commands.runOnce(() -> armistice.setSafety(true))).asProxy()));
 
         // ==============================================
         // OC -- X: Run To Stow
@@ -649,11 +649,12 @@ public class RobotContainer {
             emergencyController.back()
                     .onTrue(Commands.runOnce(() -> humanCam.setCamera(climbDeadmanUnsafe = !climbDeadmanUnsafe))
                             .ignoringDisable(true));
-            emergencyController.rightTrigger()
-                    .onTrue(Commands.either(Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)),
-                            Commands.runOnce(() -> drive.setGPVisionCorrection(null)),
-                            drive.hasCoralCorrection().not()));
-            emergencyController.leftTrigger().onTrue(coral.runMotorCommand(0.8)).onFalse(coral.runMotorCommand(0));
+//            emergencyController.rightTrigger()
+//                    .onTrue(Commands.either(Commands.runOnce(() -> drive.setGPVisionCorrection(ll3Coral)),
+//                            Commands.runOnce(() -> drive.setGPVisionCorrection(null)),
+//                            drive.hasCoralCorrection().not()));
+            emergencyController.rightTrigger().onTrue(climber.deployCommand());
+            emergencyController.leftTrigger().onTrue(climber.runPositionCommand(ClimberConstants.ClimberPositions.CLIMB));
             emergencyController.leftBumper().onTrue(Commands.runOnce(() -> drive.setReefTargetIsRight(false))
                     .andThen(Commands.defer(this::runToClosestReefEmergency,
                             Set.of(drive, armistice.getArm(), armistice.getElevator(), coral)))

@@ -1,14 +1,13 @@
 package frc.robot.subsystems.cage;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import com.bskd.annotations.CreateState;
-
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.MiscUtils;
 import lombok.experimental.ExtensionMethod;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 @ExtensionMethod(MiscUtils.class)
 public class Cage extends SubsystemBase {
@@ -20,10 +19,14 @@ public class Cage extends SubsystemBase {
     private double targetPostitionInches = 0.0;
     private final CageIOInputsAutoLogged inputs = new CageIOInputsAutoLogged();
 
+    private final Timer runAfterCurrentLimit = new Timer();
+
     public Cage(CageIO io) {
         this.io = io;
         stateTracker = new CageStateTracker();
         io.updateInputs(inputs);
+        runAfterCurrentLimit.stop();
+        runAfterCurrentLimit.reset();
     }
 
     public Command runVbusCommand(double vbus) {

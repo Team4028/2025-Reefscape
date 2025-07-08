@@ -10,7 +10,7 @@ public class CageConstants {
 
     // actually figure these out!!
     public static final double CLIMBER_LENGTH = 0.0;
-    public static final double GEAR_RATIO = 100.0;
+    public static final double GEAR_RATIO = 1.0;
     public static final double CLIMBER_OFFSET = 0.0;
     public static final double MOTOR_CURRENT_LIMIT = 30.0;
 
@@ -31,7 +31,7 @@ public class CageConstants {
         
 
         public static final CurrentLimitsConfigs currentLimitConfigs = new CurrentLimitsConfigs()
-                .withStatorCurrentLimit(80)
+                .withStatorCurrentLimit(75)
                 .withStatorCurrentLimitEnable(true)
                 .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(false);
 

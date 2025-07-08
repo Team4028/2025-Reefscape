@@ -1,14 +1,5 @@
 package frc.robot.util;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.DoubleSupplier;
-
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
-
 import edu.wpi.first.math.util.Units;
 import frc.robot.Armistice.SimData;
 import frc.robot.Constants;
@@ -18,9 +9,8 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
-import frc.robot.subsystems.cage.Cage;
-import frc.robot.subsystems.cage.CageIO;
 import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberEncoderIOCancoder;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.drive.Drive;
@@ -35,6 +25,14 @@ import frc.robot.subsystems.stick.WhipStick;
 import frc.robot.subsystems.stick.WhipStickIO;
 import frc.robot.subsystems.stick.WhipStickIOSim;
 import lombok.experimental.UtilityClass;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.DoubleSupplier;
 
 @UtilityClass
 public class RobotSim {
@@ -62,7 +60,7 @@ public class RobotSim {
     }
 
     public static Climber simSwitch(ClimberIO realClimber) {
-        return new Climber(Constants.currentMode == Mode.REAL ? realClimber : new ClimberIOSim());
+        return new Climber(Constants.currentMode == Mode.REAL ? realClimber : new ClimberIOSim(), new ClimberEncoderIOCancoder());
     }
 
 
