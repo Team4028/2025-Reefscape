@@ -76,7 +76,7 @@ public class Grond extends SubsystemBase {
     }
 
     public BooleanSupplier isJammed() {
-        return currLimitHasGP().and(hasGamepieceSupplier().not());
+        return currLimitHasGP().bsand(hasGamepieceSupplier().bsnot());
     }
 
     public BooleanSupplier currLimitHasGP() {

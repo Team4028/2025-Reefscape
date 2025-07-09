@@ -121,7 +121,7 @@ public class MagicSequencing {
                                 Set.of()))
                         .andThen(drive.runVelocityAngle(() -> 0, () -> -3, drive::getRotation)
                                 .alongWith(coral.runMotorCommand(-.3))
-                                .withTimeout(0.25)
+                                .withTimeout(0.4)
                                 .andThen(coral.runMotorCommand(0))
                                 .alongWith(armistice.runToPositionNoWait(ArmisticePositions.STOW)))
                         .finallyDo(() -> armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))
@@ -235,7 +235,7 @@ public class MagicSequencing {
                                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
                                         .either(armistice.runToPositionNoWait(armistice.getAutoAlgaePosition(),
                                                         drive.closestReefName(), drive.getReefTargetIsRight()),
-                                                superCycle.not()))
+                                                superCycle.bsnot()))
                                 .andThen(armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))))
                         .finallyDo(() -> armistice.setSafety(!(isMagicScoreRunning = false))));
     }
@@ -286,14 +286,14 @@ public class MagicSequencing {
                                 Set.of()))
                         .andThen(drive.runVelocityAngle(() -> 0, () -> -1, drive::getRotation)
                                 .alongWith(coral.runMotorCommand(-.3))
-                                .withTimeout(superCycle.getAsBoolean() ? 0.025 : .3)
+                                .withTimeout(superCycle.getAsBoolean() ? 0.08 : .3)
                                 .andThen(coral.runMotorCommand(0))
-                                .alongWith(Commands.waitSeconds(0.5)
+                                .alongWith(Commands.waitSeconds(0.25)
                                         .onlyIf(() -> scorePos.get().getUnPipe() == ArmisticePositions.Cora_L2)
                                         .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW))
                                         .either(armistice.runToPositionNoWait(armistice.getAutoAlgaePosition(),
                                                         drive.closestReefName(), drive.getReefTargetIsRight()),
-                                                superCycle.not()))
+                                                superCycle.bsnot()))
                                 .andThen(armistice.waitUntilThingsInTolerance(3, Units.degreesToRadians(5))))
                         .finallyDo(() -> armistice.setSafety(!(isMagicScoreRunning = false))));
     }
@@ -302,7 +302,7 @@ public class MagicSequencing {
                                                Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition, BooleanSupplier superCycle) {
         return Commands.runOnce(() -> isMagicScoreRunning = true).andThen(armistice
                         .runToPositionNoWait(ArmisticePositions.STOW)
-                        .andThen(armistice.waitUntilThingsInTolerance(10, 0.3)).onlyIf(superCycle.not())
+                        .andThen(armistice.waitUntilThingsInTolerance(10, 0.3)).onlyIf(superCycle.bsnot())
                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                         .andThen(armistice.runToPositionNoWait(acquirePosition.get()))
                         .onlyIf(() -> armistice.getTargetPosition() != acquirePosition.get())
@@ -312,7 +312,7 @@ public class MagicSequencing {
                                         reefPosition.get()
                                                 .transformBy(new Transform2d(new Translation2d(-0.35, 0)
                                                         .rotateBy(Constants.SCORING_SIDE_FROM_FRONT_ROT), Rotation2d.kZero)))
-                                .onlyIf(superCycle.not()))
+                                .onlyIf(superCycle.bsnot()))
                         .andThen(
                                 drive.translateToPositionWithPID(reefPosition.get()
                                                 .transformBy(new Transform2d(new Translation2d(Units.inchesToMeters(0), 0)

@@ -111,8 +111,8 @@ public class Armistice extends SudoSubsystem {
         Cora_L2_PIPE_SC(4.2 - 4, 0),
         Cora_L3(5.3 - 4, 8.011),
         Cora_L3_SC(4.4 - 4, 8.011),
-        Cora_L3_PIPE(0.987 - Units.degreesToRadians(15), 20),
-        Cora_L3_PIPE_SC(0, 20),
+        Cora_L3_PIPE(0.987 + Units.degreesToRadians(2), 18),
+        Cora_L3_PIPE_SC(0, 18),
         Cora_L4(5.5 - Units.degreesToRadians(7) - 4, 31.008),
         Cora_PrepL4(1.8, 25),
         Cora_L4_SC(4.652 - 4, 31.008),
@@ -129,6 +129,7 @@ public class Armistice extends SudoSubsystem {
         BARGE(2.373 + Units.degreesToRadians(5), 48),
         BARGE_INTERMEDIATE(1.8, 44),
         BARGE_OPPOSITE(0.923 - GLOBAL_ARM_OFFSET, 48),
+        BARGE_CLOSE(1.768 - GLOBAL_ARM_OFFSET, 39),
         CLIMB(-0.8 - GLOBAL_ARM_OFFSET, 0),
         CLIMB_2(2 * Math.PI, 8.125);
 
@@ -259,7 +260,7 @@ public class Armistice extends SudoSubsystem {
 
     public Armistice(BooleanSupplier hasAlgae) {
         File offsetInput = new File(Filesystem.getDeployDirectory(), "HeatmapReefOffsets.json");
-        new Trigger(hasAlgae.or(() -> targetArmisticePosition == ArmisticePositions.Cora_L1))
+        new Trigger(hasAlgae.bsor(() -> targetArmisticePosition == ArmisticePositions.Cora_L1))
                 .onTrue(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
                 .onFalse(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.pidConfig.maxAccel())));
         if (offsetInput.isFile()) {
@@ -525,7 +526,7 @@ public class Armistice extends SudoSubsystem {
                 && Math.abs(armTargetRad - disarm.getCurrentPosition()) <= armTol);
     }
     public Command waitUntilThingsInTolerance(double elevatorTol, double armTol, BooleanSupplier extra) {
-        return Commands.waitUntil(extra.and(() -> Math.abs(elevatorTargetInches - summit.getCurrentPosition()) <= elevatorTol
+        return Commands.waitUntil(extra.bsand(() -> Math.abs(elevatorTargetInches - summit.getCurrentPosition()) <= elevatorTol
                 && Math.abs(armTargetRad - disarm.getCurrentPosition()) <= armTol));
     }
 

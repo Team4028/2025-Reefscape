@@ -25,7 +25,7 @@ public class ClimberConstants {
     public enum ClimberPositions {
         ACQUIRE(1),
         INTERMED(-0.3),
-        CLIMB(-0.64);
+        CLIMB(-0.69);
 
         public final double posRad;
 

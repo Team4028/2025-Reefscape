@@ -12,15 +12,15 @@ public class MiscUtils {
         return value == null ? _default : value;
     }
 
-    public static BooleanSupplier or(BooleanSupplier a, BooleanSupplier b) {
+    public static BooleanSupplier bsor(BooleanSupplier a, BooleanSupplier b) {
         return () -> a.getAsBoolean() || b.getAsBoolean();
     }
 
-    public static BooleanSupplier and(BooleanSupplier a, BooleanSupplier b) {
+    public static BooleanSupplier bsand(BooleanSupplier a, BooleanSupplier b) {
         return () -> a.getAsBoolean() && b.getAsBoolean();
     }
 
-    public static BooleanSupplier not(BooleanSupplier b) {
+    public static BooleanSupplier bsnot(BooleanSupplier b) {
         return () -> !b.getAsBoolean();
     }
 

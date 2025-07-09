@@ -62,7 +62,7 @@ public class Climber extends SubsystemBase {
     }
 
     public Command deployCommand() {
-        return runVbusCommand(0.5).andThen(Commands.waitUntil(() -> inputs.position > 0.95), runPosRelative(44));
+        return runVbusCommand(0.5).andThen(Commands.waitUntil(() -> inputs.position > 0.95), runPosRelative(69.4));
     }
 
     public double getPosition() {

@@ -57,7 +57,7 @@ public class WhipStick extends SubsystemBase {
     }
     @AutoLogOutput
     public BooleanSupplier hasAlgae() {
-        return hasGamePieceSupplier().and(() -> isGettingAlgae);
+        return hasGamePieceSupplier().bsand(() -> isGettingAlgae);
     }
 
     @AutoLogOutput

@@ -218,7 +218,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Barge Score No Wait"
+                  "name": "Close Barge"
                 }
               }
             ]
@@ -253,6 +253,31 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Algae Grond Pos"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Arm Yeat Tolerance"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Grond Auto.9"
           }
         }
       ]
