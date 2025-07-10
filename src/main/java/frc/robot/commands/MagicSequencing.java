@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 public class MagicSequencing {
     public static boolean isMagicScoreRunning = false;
 
-    public static Command magicScoreNoDB(Drive drive, Armistice armistice, WhipStick coral,
+    public static Command magicScoreNoBackup(Drive drive, Armistice armistice, WhipStick coral,
                                          Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -76,7 +76,7 @@ public class MagicSequencing {
                                 .schedule()));
     }
 
-    public static Command magicScoreNoDBNoScoreScore(Drive drive, Armistice armistice, WhipStick coral,
+    public static Command magicScoreSafeNoBackup(Drive drive, Armistice armistice, WhipStick coral,
                                                      Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -130,7 +130,7 @@ public class MagicSequencing {
                                 .schedule()));
     }
 
-    public static Command magicScoreNoDBL2(Drive drive, Armistice armistice, WhipStick coral,
+    public static Command magicScoreL2NoBackup(Drive drive, Armistice armistice, WhipStick coral,
                                            Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -183,7 +183,7 @@ public class MagicSequencing {
                                 .schedule()));
     }
 
-    public static Command magicScoreScore(Drive drive, Armistice armistice, WhipStick coral,
+    public static Command magicScore(Drive drive, Armistice armistice, WhipStick coral,
                                           Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos, BooleanSupplier superCycle) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -240,7 +240,7 @@ public class MagicSequencing {
                         .finallyDo(() -> armistice.setSafety(!(isMagicScoreRunning = false))));
     }
 
-    public static Command magicScoreScoreNoStowScoreScore(Drive drive, Armistice armistice, WhipStick coral,
+    public static Command magicScoreNoStow(Drive drive, Armistice armistice, WhipStick coral,
                                                           Supplier<Pose2d> reefPose, Supplier<ArmisticePositions> scorePos, BooleanSupplier superCycle) {
         return Commands.runOnce(() -> isMagicScoreRunning = true)
                 .andThen(drive.translateToPositionWithPID(reefPose.get())
@@ -298,7 +298,7 @@ public class MagicSequencing {
                         .finallyDo(() -> armistice.setSafety(!(isMagicScoreRunning = false))));
     }
 
-    public static Command magicGetAlgaeOnlyPID(Drive drive, Armistice armistice, WhipStick algae,
+    public static Command magicAlgae(Drive drive, Armistice armistice, WhipStick algae,
                                                Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition, BooleanSupplier superCycle) {
         return Commands.runOnce(() -> isMagicScoreRunning = true).andThen(armistice
                         .runToPositionNoWait(ArmisticePositions.STOW)

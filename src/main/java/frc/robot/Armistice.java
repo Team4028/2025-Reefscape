@@ -100,6 +100,7 @@ public class Armistice extends SudoSubsystem {
     public static final double GLOBAL_ARM_OFFSET = -0.343585;
     public static final double GLOBAL_ELEVATOR_OFFSET = 0;
 
+    // needs cleanup after comp when changing numbers loses its risk
     public enum ArmisticePositions {
         STOW(1.8, 5),
         CLEAN(3.624 - GLOBAL_ARM_OFFSET - Units.degreesToRadians(1), 4.017),
@@ -116,8 +117,8 @@ public class Armistice extends SudoSubsystem {
         Cora_L4(5.5 - Units.degreesToRadians(7) - 4, 31.008),
         Cora_PrepL4(1.8, 25),
         Cora_L4_SC(4.652 - 4, 31.008),
-        Cora_L4_PIPE(1.11 + Units.degreesToRadians(2), 37.008 /* was 33.008 */),
-        Cora_L4_PIPE_SC(4.29 - 4 /*  + Units.degreesToRadians(3)*/, 37.008 /* was 43.008 */),
+        Cora_L4_PIPE(1.11 + Units.degreesToRadians(2), 37.008),
+        Cora_L4_PIPE_SC(4.29 - 4, 37.008),
         A2_lgae(-GLOBAL_ARM_OFFSET, 8),
         A3_lgae(4.247 - 4 + Units.degreesToRadians(6) - 0.0408, 26),
         GROND(-0.363 + Units.degreesToRadians(2), 0),

@@ -16,6 +16,7 @@ public class Climber extends SubsystemBase {
     private final Timer runTimer = new Timer();
     private double targetVbus = 0.0, targetVoltage = 0.0;
     private double relativeControlInitialPos = 0.0;
+    private boolean climbIsFast = false;
     @AutoLogOutput
     private ClimberConstants.ClimberPositions targetPostition = ClimberConstants.ClimberPositions.ACQUIRE;
 
@@ -49,6 +50,14 @@ public class Climber extends SubsystemBase {
         });
     }
 
+    public Command climbSlowCommand() {
+        return runOnce(() -> climbIsFast = false).andThen(runPositionCommand(ClimberConstants.ClimberPositions.CLIMB));
+    }
+
+    public Command climbFastCommand() {
+        return runOnce(() -> climbIsFast = true).andThen(runPositionCommand(ClimberConstants.ClimberPositions.CLIMB));
+    }
+
     public Command runPositionCommand(ClimberConstants.ClimberPositions pos) {
         return runOnce(() -> {
             targetPostition = pos;
@@ -62,7 +71,7 @@ public class Climber extends SubsystemBase {
     }
 
     public Command deployCommand() {
-        return runVbusCommand(0.5).andThen(Commands.waitUntil(() -> inputs.position > 0.95), runPosRelative(69.4));
+        return runVbusCommand(0.5).andThen(Commands.waitUntil(() -> inputs.position > 0.8), runPosRelative(118)); // 95 safe
     }
 
     public double getPosition() {
@@ -90,14 +99,26 @@ public class Climber extends SubsystemBase {
         } else {
             if (targetPostition == ClimberConstants.ClimberPositions.CLIMB) {
                 if (inputs.position > ClimberConstants.ClimberPositions.INTERMED.posRad) {
-                    io.setVbus(0.7);
+                    io.setVbus(climbIsFast ? 1 : 0.9); //0.9
                 } else {
-                    io.setVbus(0.2 + 0.5 * ((ClimberConstants.ClimberPositions.CLIMB.posRad - inputs.position) / (ClimberConstants.ClimberPositions.CLIMB.posRad - ClimberConstants.ClimberPositions.INTERMED.posRad)));
+                    io.setVbus(getClimbLERPFloor(climbIsFast) + getClimbLERPRate(climbIsFast) * ((ClimberConstants.ClimberPositions.CLIMB.posRad - inputs.position) / (ClimberConstants.ClimberPositions.CLIMB.posRad - ClimberConstants.ClimberPositions.INTERMED.posRad)));
                 }
             } else {
                 io.setVbus(0.1);
             }
         }
+    }
+
+    private double getClimbLERPPeak(boolean fast) {
+        return fast ? 1 : 0.9;
+    }
+
+    private double getClimbLERPFloor(boolean fast) {
+        return fast ? 0.9 : 0.2;
+    }
+
+    private double getClimbLERPRate(boolean fast) {
+        return getClimbLERPPeak(fast) - getClimbLERPFloor(fast);
     }
 
     @CreateState("voltage_reverse")

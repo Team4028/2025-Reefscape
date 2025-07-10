@@ -200,6 +200,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Abort Grond"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Grond Auto.7"
