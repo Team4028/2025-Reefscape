@@ -320,7 +320,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionCommand(ArmisticePositions position) {
         return runToBargeIntermediatePosition().andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE)
+                .onlyIf(() -> (targetArmisticePosition.isBarge()/* ^ position.isBarge()*/) && position != ArmisticePositions.BARGE_INTERMEDIATE)
                 .andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
@@ -330,7 +330,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionCommand(ArmisticePositions position, String closestReefName, boolean isRight) {
         return runToBargeIntermediatePosition().andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE)
+                .onlyIf(() -> (targetArmisticePosition.isBarge()/* ^ position.isBarge()*/) && position != ArmisticePositions.BARGE_INTERMEDIATE)
                 .andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
@@ -342,7 +342,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionNoWait(ArmisticePositions position) {
         return runToBargeIntermediatePosition().andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE)
+                .onlyIf(() -> (targetArmisticePosition.isBarge()/* ^ position.isBarge()*/) && position != ArmisticePositions.BARGE_INTERMEDIATE)
                 .andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     elevatorTargetInches = position.getElevatorPositionInches(globalElevatorOffsetInches);
@@ -361,7 +361,7 @@ public class Armistice extends SudoSubsystem {
 
     public Command runToPositionNoWait(ArmisticePositions position, String closestReefName, boolean isRight) {
         return runToBargeIntermediatePosition().andThen(waitUntilThingsInTolerance(1, 0.3))
-                .onlyIf(() -> targetArmisticePosition.isBarge() && position != ArmisticePositions.BARGE_INTERMEDIATE)
+                .onlyIf(() -> (targetArmisticePosition.isBarge()/* ^ position.isBarge()*/) && position != ArmisticePositions.BARGE_INTERMEDIATE)
                 .andThen(Commands.runOnce(() -> {
                     targetArmisticePosition = position;
                     double[] jsonOffsets = getJSONOffsets(closestReefName, position, isRight);
