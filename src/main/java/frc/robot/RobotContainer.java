@@ -258,6 +258,12 @@ public class RobotContainer {
         }).andThen(Commands.defer(this::runToSuperCycle,
                 Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
 
+        NamedCommands.registerCommand("SuperCycle Left", Commands.runOnce(() -> {
+            drive.setReefTargetIsRight(false);
+            infeed.setHasCoral(false);
+        }).andThen(Commands.defer(this::runToSuperCycle,
+                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+
         NamedCommands.registerCommand("Run To Closest Left Reef DB",
                 Commands.runOnce(() -> {
                             drive.setReefTargetIsRight(false);
