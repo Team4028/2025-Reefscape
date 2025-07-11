@@ -244,15 +244,13 @@ public class RobotContainer {
         }).andThen(Commands.defer(this::runToClosestReefAutoSafe,
                 Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
 
-        NamedCommands.registerCommand("Run To Closest Left Reef L2",
-                Commands.runOnce(() -> {
-                            drive.setReefTargetIsRight(false);
-                            infeed.setHasCoral(false);
-                        })
-                        .andThen(Commands.defer(this::runToClosestReefAutoL2,
-                                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+        NamedCommands.registerCommand("Run To Closest Left Reef L2", Commands.runOnce(() -> {
+            drive.setReefTargetIsRight(false);
+            infeed.setHasCoral(false);
+        }).andThen(Commands.defer(this::runToClosestReefAutoL2,
+                Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
 
-        NamedCommands.registerCommand("SuperCycle", Commands.runOnce(() -> {
+        NamedCommands.registerCommand("SuperCycle Right", Commands.runOnce(() -> {
             drive.setReefTargetIsRight(true);
             infeed.setHasCoral(false);
         }).andThen(Commands.defer(this::runToSuperCycle,

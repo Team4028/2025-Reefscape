@@ -1,0 +1,295 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "SuperCycle Right"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Grond Auto.0"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Barge Armistice Tolerance"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Algae Outfeed"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop Coral"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Grond Auto.1"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "race",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "parallel",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Grond Auto.2"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Forever"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Algae Wait"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Grond Acquire"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Grond Auto.3"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Grond Auto.4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Barge Score No Wait"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Barge Armistice Tolerance"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Algae Outfeed"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Grond Auto.5"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "race",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "parallel",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "path",
+                            "data": {
+                              "pathName": "Grond Auto.6"
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "Forever"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Algae Wait"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Grond Acquire"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Abort Grond"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Grond Auto.7"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Grond Auto.8"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Close Barge"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Guarentee Stop"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Barge Armistice Tolerance"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Algae Outfeed"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stop Coral"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Algae Grond Pos"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Arm Yeat Tolerance"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Grond Auto.9"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": true
+}
