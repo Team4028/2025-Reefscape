@@ -73,6 +73,7 @@ public class RobotContainer {
     private final Cage cage = new Cage(new CageIOTalonFX());
     private final Grond infeed = new Grond(new GrondIOTalonFX(true), new GrondIOTalonFX(false), new GrondTOFIOPWF(),
             pivot.isDownPositional());
+    private boolean hasDeployed = false;
     private final Trigger hasGamePiece = new Trigger(
             infeed.hasGamepieceSupplier().bsand(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN)
                     .bsand(pivot.isDownPositional()))
@@ -538,7 +539,7 @@ public class RobotContainer {
         // ==============================================
         operatorController.povRight()
                 .onTrue(armistice.runToPositionNoWait(ArmisticePositions.CLIMB).alongWith(pivot.runUpClimb())
-                        .alongWith(climber.deployCommand())
+                        .alongWith(climber.deployCommand().onlyIf(() -> !hasDeployed), Commands.runOnce(() -> hasDeployed = true))
                         .onlyIfNoReqs(() -> climbDeadmanUnsafe));
 
         // ==============================================
