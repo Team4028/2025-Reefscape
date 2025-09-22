@@ -1,5 +1,5 @@
 {
- "name":"Test",
+ "name":"kitantestpath",
  "version":1,
  "type":"Swerve",
  "variables":{
@@ -44,6 +44,13 @@
     "var":{
      "exp":"1.5 s",
      "val":1.5
+    }
+   },
+   "Scorepoint":{
+    "dimension":"Number",
+    "var":{
+     "exp":"0",
+     "val":0.0
     }
    }
   },
