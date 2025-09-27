@@ -4,14 +4,13 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.RobotBase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Constants {
     public static final boolean CHAR_MODE = BuildConfig.FIELD_CAL;
@@ -63,6 +62,14 @@ public final class Constants {
             put(21, "12oC");
             put(22, "2oC");
         }};
+
+    public static int getTagIDFromName(String reefName) {
+        for (var e : reefTagNames.entrySet()) {
+            if (reefName.equals(e.getValue()))
+                return e.getKey();
+        }
+        return 0;
+    }
 
     public static class OperatorConstants {
         public static final int kDriverControllerPort = 0;

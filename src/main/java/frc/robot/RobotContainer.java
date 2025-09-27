@@ -202,6 +202,10 @@ public class RobotContainer {
                 Commands.waitUntil(drive.driveCloseEnoughAcquireAutonMidLoli()));
         NamedCommands.registerCommand("WaitUntilCloseAcqLoliRight",
                 Commands.waitUntil(drive.driveCloseEnoughAcquireAutonRightLoli()));
+        NamedCommands.registerCommand("WaitUntilClose10C",
+                Commands.waitUntil(drive.driveCloseEnoughReefSide("10oC")));
+        NamedCommands.registerCommand("WaitUntilClose2C",
+                Commands.waitUntil(drive.driveCloseEnoughReefSide("2oC")));
         NamedCommands.registerCommand("WaitUntilCloseAcq", Commands.waitUntil(drive.driveCloseEnoughAcquireAuton()));
         NamedCommands.registerCommand("Run To Closest Right Reef",
                 Commands.runOnce(() -> {
@@ -270,6 +274,8 @@ public class RobotContainer {
                         })
                         .andThen(Commands.defer(this::runToClosestReefAuto,
                                 Set.of(drive, armistice.getArm(), armistice.getElevator(), coral))));
+        NamedCommands.registerCommand("Algae L3 Prep", armistice.runToPositionNoWait(ArmisticePositions.A3_lgae));
+        NamedCommands.registerCommand("Algae L2 Prep", armistice.runToPositionNoWait(ArmisticePositions.A2_lgae));
         NamedCommands.registerCommand("Algae Pickup", Commands.defer(this::runToClosestAlgae,
                 Set.of(drive, armistice.getArm(), armistice.getElevator(), coral)));
         NamedCommands.registerCommand("L4 Score",

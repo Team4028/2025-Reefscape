@@ -329,6 +329,10 @@ public class Drive extends SubsystemBase {
                 .getDistance(closestReefTag.pose.toPose2d().getTranslation()) < AUTON_PATH_CANCEL_RADIUS_M;
     }
 
+    public BooleanSupplier driveCloseEnoughReefSide(String side) {
+        return () -> driveCloseEnoughReefAuton().getAsBoolean() && closestReefName.equals(side);
+    }
+
     public BooleanSupplier driveCloseEnoughAcquireAutonLeftLoli() {
         return () -> getPose().getTranslation().getDistance(
                 AutoBuilder.shouldFlip()
