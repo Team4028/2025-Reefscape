@@ -30,7 +30,7 @@ public class ArmConstants {
     public static final double PI_2 = 2 * Math.PI;
     public static final double ARM_ACCEL_W_ALGAE = 1.26028806584;
     // 80, 0, 0
-    public static final PIDStruct pidConfig = new PIDStruct(80, 0, 0, 5, 5, 40, 0, 0.15, 0.425, 0, 0, 0);
+    public static final PIDStruct pidConfig = new PIDStruct(80, 0, 0, 1, 1.2, 30, 0, 0.15, 0.425, 0, 0, 0);
     public static final PIDStruct simPidConfig = new PIDStruct(16, 0, 0, PI_2, 2 * PI_2, 0, 0, 0, 0.2, 0.5, 0, 0);
     public static final SysIdRoutine.Config sysIDConfig = SysIDUtil.defaultConfig();
 

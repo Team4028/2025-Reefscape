@@ -14,6 +14,7 @@ import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.subsystems.arm.ArmIOCancoderSourceTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.elevator.ElevatorStateTracker.ElevatorPositions;
 import frc.robot.util.LoggedTunables.LoggedTunableNumber;
 import frc.robot.util.MathUtils;
 import frc.robot.util.MiscUtils;
@@ -121,6 +122,7 @@ public class Armistice extends SudoSubsystem {
         Cora_L4_PIPE_SC(4.29 - 4, 37.008),
         A2_lgae(-GLOBAL_ARM_OFFSET, 8),
         A3_lgae(4.247 - 4 + Units.degreesToRadians(6) - 0.0408, 26),
+        TRASH_CAN(0.304 - GLOBAL_ARM_OFFSET, 20),
         GROND(-0.363 + Units.degreesToRadians(2), 0),
         LOLI_ACQUIRE(3.193 - GLOBAL_ARM_OFFSET, 0),
         Cora_L3_EMERGENCY(0.602, 0),
