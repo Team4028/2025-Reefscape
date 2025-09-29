@@ -86,6 +86,12 @@ public class Arm extends SubsystemBase {
         }
     }
 
+    public void setArmSafe(boolean safe) {
+        if (io instanceof ArmIOCancoderSourceTalonFX iocan) {
+            iocan.setSafeArm(safe);
+        }
+    }
+
     public void nudge(double amount) {
         targetPositionRad += amount;
         stateTracker.state = ArmStates.POSITION;

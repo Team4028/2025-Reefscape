@@ -264,8 +264,8 @@ public class Armistice extends SudoSubsystem {
     public Armistice(BooleanSupplier hasAlgae) {
         File offsetInput = new File(Filesystem.getDeployDirectory(), "HeatmapReefOffsets.json");
         new Trigger(hasAlgae.bsor(() -> targetArmisticePosition == ArmisticePositions.Cora_L1))
-                .onTrue(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)))
-                .onFalse(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.pidConfig.maxAccel())));
+                .onTrue(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.ARM_ACCEL_W_ALGAE)).onlyIfNoReqs(() -> RobotContainer.hasPaid100Dollars.get()))
+                .onFalse(Commands.runOnce(() -> disarm.setArmAccel(ArmConstants.pidConfig.maxAccel())).onlyIfNoReqs(() -> RobotContainer.hasPaid100Dollars.get()));
         if (offsetInput.isFile()) {
             try {
                 String content = new String(Files.readAllBytes(Paths.get(offsetInput.getAbsolutePath())));

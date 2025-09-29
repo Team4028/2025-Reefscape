@@ -97,6 +97,10 @@ public class ArmIOCancoderSourceTalonFX implements ArmIO {
         motor.getConfigurator().apply(ArmConstants.TalonFXCC.mmConfigs.withMotionMagicAcceleration(accel));
     }
 
+    public void setSafeArm(boolean safe) {
+        motor.getConfigurator().apply(safe ? ArmConstants.TalonFXCC.mmConfigsSafe : ArmConstants.TalonFXCC.mmConfigs);
+    }
+
     @Override
     public void setPID(double position) {
         motor.setControl(pidControl.withPosition((position / ArmConstants.PI_2)));
