@@ -81,6 +81,7 @@ public class Robot extends LoggedRobot {
         } else {
             robotContainer.drivetrainStop();
         }
+        robotContainer.checkArmAccel();
         robotContainer.logLLPoses();
         robotContainer.seedll4IMU();
         robotContainer.updateArmisticeAutoAlgae();

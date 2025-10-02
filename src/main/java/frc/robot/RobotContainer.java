@@ -127,8 +127,6 @@ public class RobotContainer {
 
     public RobotContainer() {
         armistice.getArm().setArmSafe(true);
-        new Trigger(hasPaid100Dollars::get).onTrue(Commands.runOnce(() -> armistice.getArm().setArmSafe(false)))
-                .onFalse(Commands.runOnce(() -> armistice.getArm().setArmSafe(true)));
         zeroArm.hasChanged(hashCode());
         drive.setPose(new Pose2d(drive.getPose().getTranslation(),
                 DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
@@ -320,6 +318,12 @@ public class RobotContainer {
         // Set up SysId routines
         VisionUtil.bindSimCameras(new Transform3d[] { new Transform3d() });
         configureBindings();
+    }
+
+    public void checkArmAccel() {
+        if (hasPaid100Dollars.hasChanged(hashCode())) {
+            armistice.getArm().setArmSafe(!hasPaid100Dollars.get());
+        }
     }
 
     public void updateArmisticeAutoAlgae() {
