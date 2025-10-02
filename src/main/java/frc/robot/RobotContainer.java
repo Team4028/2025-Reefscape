@@ -127,7 +127,8 @@ public class RobotContainer {
 
     public RobotContainer() {
         armistice.getArm().setArmSafe(true);
-        new Trigger(hasPaid100Dollars::get).onTrue(Commands.runOnce(() -> armistice.getArm().setArmSafe(false))).onFalse(Commands.runOnce(() -> armistice.getArm().setArmSafe(true)));
+        new Trigger(hasPaid100Dollars::get).onTrue(Commands.runOnce(() -> armistice.getArm().setArmSafe(false)))
+                .onFalse(Commands.runOnce(() -> armistice.getArm().setArmSafe(true)));
         zeroArm.hasChanged(hashCode());
         drive.setPose(new Pose2d(drive.getPose().getTranslation(),
                 DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
@@ -421,7 +422,8 @@ public class RobotContainer {
         // ==============================================
         driverController
                 .x().onTrue(drive.runOnce(drive::stopWithX).onlyIfNoReqs(hasPaid100Dollars::get));
-        driverController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW).onlyIf(() -> !climbDeadmanUnsafe).onlyIfNoReqs(((BooleanSupplier) hasPaid100Dollars::get).bsnot()));
+        driverController.x().onTrue(armistice.runToPositionCommand(ArmisticePositions.STOW)
+                .onlyIf(() -> !climbDeadmanUnsafe).onlyIfNoReqs(((BooleanSupplier) hasPaid100Dollars::get).bsnot()));
 
         // ==============================================
         // DC -- RS: Cancel Command
@@ -433,10 +435,13 @@ public class RobotContainer {
         // ==============================================
         driverController.leftTrigger().and(() -> !climbDeadmanUnsafe)
                 .onTrue(infeed.runMotorCommand(.95).onlyIfNoReqs(infeed.hasGamepieceSupplier().bsnot())
-                .onlyIfNoReqs(hasPaid100Dollars::get));
-        driverController.leftTrigger().and(() -> !climbDeadmanUnsafe).onTrue(coral.runMotorCommandAlgae(0.95).onlyIfNoReqs(((BooleanSupplier)hasPaid100Dollars::get).bsnot()));
-        driverController.leftTrigger().and(() -> !climbDeadmanUnsafe).onFalse(infeed.runMotorCommand(0).onlyIfNoReqs(infeed.hasGamepieceSupplier().bsnot()).onlyIfNoReqs(hasPaid100Dollars::get));
-        driverController.leftTrigger().and(() -> !climbDeadmanUnsafe).onFalse(coral.runMotorCommand(0).onlyIfNoReqs(((BooleanSupplier) hasPaid100Dollars::get).bsnot()));
+                        .onlyIfNoReqs(hasPaid100Dollars::get));
+        driverController.leftTrigger().and(() -> !climbDeadmanUnsafe).onTrue(
+                coral.runMotorCommandAlgae(0.95).onlyIfNoReqs(((BooleanSupplier) hasPaid100Dollars::get).bsnot()));
+        driverController.leftTrigger().and(() -> !climbDeadmanUnsafe).onFalse(infeed.runMotorCommand(0)
+                .onlyIfNoReqs(infeed.hasGamepieceSupplier().bsnot()).onlyIfNoReqs(hasPaid100Dollars::get));
+        driverController.leftTrigger().and(() -> !climbDeadmanUnsafe)
+                .onFalse(coral.runMotorCommand(0).onlyIfNoReqs(((BooleanSupplier) hasPaid100Dollars::get).bsnot()));
         driverController.leftTrigger().and(() -> climbDeadmanUnsafe)
                 .onTrue(cage.runVbusCommand(-0.7).onlyIfNoReqs(hasPaid100Dollars::get))
                 .onFalse(cage.runVbusCommand(0).onlyIfNoReqs(hasPaid100Dollars::get));
@@ -447,7 +452,8 @@ public class RobotContainer {
                 .onTrue(infeed.runMotorCommand(-0.5).onlyIfNoReqs(hasPaid100Dollars::get))
                 .onFalse(infeed.runMotorCommand(0).onlyIfNoReqs(hasPaid100Dollars::get));
 
-        driverController.b().onTrue(armistice.runToPositionNoWait(ArmisticePositions.TRASH_CAN).onlyIfNoReqs(((BooleanSupplier)hasPaid100Dollars::get).bsnot()));
+        driverController.b().onTrue(armistice.runToPositionNoWait(ArmisticePositions.TRASH_CAN)
+                .onlyIfNoReqs(((BooleanSupplier) hasPaid100Dollars::get).bsnot()));
 
         driverController.leftBumper().onTrue(
                 Commands.either(pivot.runDown(), pivot.runUp(), pivot.isUp()).onlyIfNoReqs(hasPaid100Dollars::get));
@@ -486,11 +492,15 @@ public class RobotContainer {
         driverController.rightBumper().onTrue(Commands.runOnce(() -> currSpeed = SLOW_SPEED))
                 .onFalse(Commands.runOnce(() -> currSpeed = DEFAULT_BASE_SPEED));
 
-        driverController.a().onTrue(cage.runVbusCommand(-0.7).onlyIfNoReqs(hasPaid100Dollars::get)).onFalse(cage.runVbusCommand(0).onlyIfNoReqs(hasPaid100Dollars::get));
-        
+        driverController.a().onTrue(cage.runVbusCommand(-0.7).onlyIfNoReqs(hasPaid100Dollars::get))
+                .onFalse(cage.runVbusCommand(0).onlyIfNoReqs(hasPaid100Dollars::get));
+
         driverController.a().onTrue(Commands.runOnce(() -> armistice.setSafety(false))
                 .andThen(armistice.runToPositionCommand(ArmisticePositions.GROND, drive.closestReefName(),
-                        drive.getReefTargetIsRight())).onlyIfNoReqs(((BooleanSupplier)hasPaid100Dollars::get).bsnot()));
+                        drive.getReefTargetIsRight()))
+                .onlyIfNoReqs(((BooleanSupplier) hasPaid100Dollars::get).bsnot()));
+
+        operatorController.a().onFalse(drive.runOnce(drive::stop).alongWith(cage.runVbusCommand(0), coral.runMotorCommand(0), infeed.runMotorCommand(0)).onlyIfNoReqs(((BooleanSupplier)hasPaid100Dollars::get).bsnot()));
 
         // =================== //
         /* OPERATOR CONTROLLER */
@@ -868,6 +878,14 @@ public class RobotContainer {
 
     public Command realDrivetrainStop() {
         return drive.runOnce(drive::stop);
+    }
+
+    public void drivetrainStop() {
+        drive.stop();
+    }
+
+    public boolean getDeadmanGood() {
+        return operatorController.a().getAsBoolean() || hasPaid100Dollars.get();
     }
 
     public enum LimiterState {

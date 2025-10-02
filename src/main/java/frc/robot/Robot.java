@@ -72,11 +72,15 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotPeriodic() {
-        SudoSubsystem.robotPeriodicAll();
-        if (DriverStation.isEnabled()) {
-            SudoSubsystem.periodicAll();
+        if (robotContainer.getDeadmanGood()) {
+            SudoSubsystem.robotPeriodicAll();
+            if (DriverStation.isEnabled()) {
+                SudoSubsystem.periodicAll();
+            }
+            CommandScheduler.getInstance().run();
+        } else {
+            robotContainer.drivetrainStop();
         }
-        CommandScheduler.getInstance().run();
         robotContainer.logLLPoses();
         robotContainer.seedll4IMU();
         robotContainer.updateArmisticeAutoAlgae();
