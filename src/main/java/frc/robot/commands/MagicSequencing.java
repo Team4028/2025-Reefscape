@@ -300,7 +300,10 @@ public class MagicSequencing {
 
     public static Command magicAlgae(Drive drive, Armistice armistice, WhipStick algae,
                                                Supplier<Pose2d> reefPosition, Supplier<ArmisticePositions> acquirePosition, BooleanSupplier superCycle) {
-        return Commands.runOnce(() -> isMagicScoreRunning = true).andThen(armistice
+        return Commands.runOnce(() -> {
+            isMagicScoreRunning = true;
+            algae.setHasGamepiece(false);
+        }).alongWith(algae.runMotorCommand(0)).andThen(armistice
                         .runToPositionNoWait(ArmisticePositions.STOW)
                         .andThen(armistice.waitUntilThingsInTolerance(10, 0.3)).onlyIf(superCycle.bsnot())
                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)))

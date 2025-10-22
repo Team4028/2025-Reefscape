@@ -15,7 +15,7 @@ public class GrondConstants {
 
     public static final class PWFTimeOfFlight {
         public static final int CAN_ID = 24;
-        public static final double TOF_RANGE_THRESH = 50;
+        public static final double TOF_RANGE_THRESH = 40.28;
         public static final TimeOfFlight.RangingMode mode = TimeOfFlight.RangingMode.Short;
         public static final Optional<Double> sampleTime = Optional.of(30.0);
     }

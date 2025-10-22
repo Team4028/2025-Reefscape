@@ -60,18 +60,21 @@ public class Climber extends SubsystemBase {
 
     public Command runPositionCommand(ClimberConstants.ClimberPositions pos) {
         return runOnce(() -> {
-            targetPostition = pos;
+            targetPostition = pos;  
             stateTracker.state = ClimberStates.POSITION;
             runTimer.start();
         });
     }
 
     public Command runPosRelative(double deltaRot) {
-        return runOnce(() -> relativeControlInitialPos = inputs.motorPosition).andThen(runVbusCommand(0.5)).andThen(Commands.waitUntil(() -> inputs.motorPosition > relativeControlInitialPos + deltaRot)).andThen(runVbusCommand(0));
+        return runOnce(() -> relativeControlInitialPos = inputs.motorPosition)
+                .andThen(runVbusCommand(0.5))
+                .andThen(Commands.waitUntil(() -> inputs.motorPosition > relativeControlInitialPos + deltaRot))
+                .andThen(runVbusCommand(0));
     }
 
     public Command deployCommand() {
-        return runVbusCommand(0.5).andThen(Commands.waitUntil(() -> inputs.position > 0.8), runPosRelative(118)); // 95 safe
+        return runVbusCommand(0.5).andThen(Commands.waitUntil(() -> inputs.position > 0.8), runPosRelative(44.14)); // 95 safe
     }
 
     public double getPosition() {
@@ -99,7 +102,7 @@ public class Climber extends SubsystemBase {
         } else {
             if (targetPostition == ClimberConstants.ClimberPositions.CLIMB) {
                 if (inputs.position > ClimberConstants.ClimberPositions.INTERMED.posRad) {
-                    io.setVbus(climbIsFast ? 1 : 0.9); //0.9
+                    io.setVbus(getClimbLERPPeak(climbIsFast)); //0.9
                 } else {
                     io.setVbus(getClimbLERPFloor(climbIsFast) + getClimbLERPRate(climbIsFast) * ((ClimberConstants.ClimberPositions.CLIMB.posRad - inputs.position) / (ClimberConstants.ClimberPositions.CLIMB.posRad - ClimberConstants.ClimberPositions.INTERMED.posRad)));
                 }

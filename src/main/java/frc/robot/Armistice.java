@@ -103,7 +103,7 @@ public class Armistice extends SudoSubsystem {
     // needs cleanup after comp when changing numbers loses its risk
     public enum ArmisticePositions {
         STOW(1.8, 5),
-        CLEAN(3.624 - GLOBAL_ARM_OFFSET - Units.degreesToRadians(1), 4.017),
+        CLEAN(3.624 - GLOBAL_ARM_OFFSET - Units.degreesToRadians(3), 4.017),
         Cora_L1(-0.477 + Units.degreesToRadians(11), 11.015),
         Cora_L1_PIPE(-0.477 + Units.degreesToRadians(11), 11.015),
         Cora_L2(4.738 - 4, 0),
