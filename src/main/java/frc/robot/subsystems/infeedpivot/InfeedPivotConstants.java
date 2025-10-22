@@ -2,6 +2,8 @@ package frc.robot.subsystems.infeedpivot;
 
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.signals.*;
+
+import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.arm.ArmConstants;
 import frc.robot.util.PIDStruct;
 
@@ -11,6 +13,7 @@ public class InfeedPivotConstants {
 
     public enum InfeedPivotPositions {
         DOWN(0.2),
+        PID_CHECK(0.28 + Units.degreesToRadians(1)), // 3 degrees noticable Δ
         HANDOFF(1),
         UP(1.7),
         CLIMB(2.2);

@@ -25,6 +25,8 @@ public class Grond extends SubsystemBase {
     private final Timer currentLimitTimer = new Timer();
     private double targetVbusLeft = 0.0;
     private double targetVbusRight = 0.0;
+    private double targetPositionLeft = 0;
+    private double targetPositionRight = 0;
     @Getter
     @AutoLogOutput
     private GrondStates state = GrondStates.OFF;
@@ -62,6 +64,14 @@ public class Grond extends SubsystemBase {
         });
     }
 
+    public Command runMotorRotations(double rot) {
+        return runOnce(() -> {
+            targetPositionLeft = inputsLeft.positionRot + rot;
+            targetPositionRight = inputsRight.positionRot + rot;
+            state = GrondStates.POSITION;
+        });
+    }
+
     public Command runMotorCommand(double vbus) {
         return runOnce(() -> {
             targetVbusRight = vbus;
@@ -83,6 +93,13 @@ public class Grond extends SubsystemBase {
         return () -> MathUtils.average(inputsLeft.currentAmps, inputsRight.currentAmps)
                 - GrondConstants.TalonFX.JAM_STATOR >= -5;
     }
+
+    @CreateState("position")
+    public void runPosition() {
+        ioleft.setPosition(targetPositionLeft);
+        ioright.setPosition(targetPositionRight);
+    }
+
 
     @CreateState("vbus_forward")
     public void infeedVbus() {

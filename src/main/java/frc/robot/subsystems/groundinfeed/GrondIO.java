@@ -8,6 +8,8 @@ public interface GrondIO {
     public class GrondIOInputs {
         public double appliedVoltage = 0.0;
         public double currentAmps = 0.0;
+        public double positionRot = 0.0;
+        public double velocityRotPerSec = 0.0;
         public MotorData motorData = MotorData.empty();
         public boolean isConnected = false;
     }
@@ -16,6 +18,10 @@ public interface GrondIO {
     }
 
     public default void setVbus(double vbus) {
+    }
+
+    public default void setPosition(double posMRot) {
+
     }
 
     public default void setVoltage(double voltage) {

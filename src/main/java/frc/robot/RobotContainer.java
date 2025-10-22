@@ -36,6 +36,7 @@ import frc.robot.subsystems.groundinfeed.Grond;
 import frc.robot.subsystems.groundinfeed.GrondIOTalonFX;
 import frc.robot.subsystems.groundinfeed.GrondTOFIOPWF;
 import frc.robot.subsystems.infeedpivot.InfeedPivot;
+import frc.robot.subsystems.infeedpivot.InfeedPivotConstants;
 import frc.robot.subsystems.infeedpivot.InfeedPivotConstants.InfeedPivotPositions;
 import frc.robot.subsystems.infeedpivot.InfeedPivotEncoderIOCancoder;
 import frc.robot.subsystems.infeedpivot.InfeedPivotMotorIOTalonFXCCSource;
@@ -169,7 +170,9 @@ public class RobotContainer {
                 infeed.runMotorCommand(.95).alongWith(Commands.runOnce(() -> coral.setHasGamepiece(false)))
                         .alongWith(pivot.runDown().asProxy()).andThen(
                                 Commands.waitUntil(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN))
-                        .andThen(armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(HandoffConstants.ARM_DEG_TOLERANCE))
+                        .andThen(armistice
+                                .waitUntilThingsInTolerance(1,
+                                        Units.degreesToRadians(HandoffConstants.ARM_DEG_TOLERANCE))
                                 .alongWith(Commands.waitUntil(infeed.hasGamepieceSupplier())))
                         .andThen(coral.runMotorCommand(0.8))
                         .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
@@ -457,18 +460,19 @@ public class RobotContainer {
                 .andThen(Commands.runOnce(() -> armistice.setSafety(false)))
                 .andThen(pivot.runUp().onlyIf(pivot.isUp().bsnot()))
                 .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()).alongWith(Commands.waitUntil(
-                        () -> InfeedPivotPositions.HANDOFF.posRad - pivot.getPosition() < Units
+                        () -> InfeedPivotConstants.InfeedPivotPositions.PID_CHECK.posRad - pivot.getPosition() < Units
                                 .degreesToRadians(HandoffConstants.DEGREE_TOLERANCE))
-                        .andThen(infeed.directRunMotorCommand(HandoffConstants.OUTFEED_SHOOT))))
+                        .andThen(infeed.runMotorRotations(-2))))
+                .andThen(infeed.directRunMotorCommand(HandoffConstants.OUTFEED_SHOOT))
                 .andThen(Commands.runOnce(() -> infeed.setHasCoral(false)))
-                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW)),
+                .andThen(armistice.runToPositionNoWait(ArmisticePositions.STOW), infeed.runMotorCommand(0)),
                 Set.of(armistice.getArm(), armistice.getElevator(), coral, pivot, infeed)).finallyDo(() -> {
                     armistice.runToPositionNoWait(ArmisticePositions.STOW)
                             .onlyIf(() -> armistice.getTargetPosition() == ArmisticePositions.CLEAN).andThen(
                                     armistice.waitUntilThingsInTolerance(1, Units.degreesToRadians(5)),
                                     Commands.runOnce(() -> armistice.setSafety(true))
                                             .onlyIf(() -> !MagicSequencing.isMagicScoreRunning))
-                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning).andThen(infeed.runMotorCommand(0))
+                            .onlyIf(() -> !MagicSequencing.isMagicScoreRunning)
                             .schedule();
                     infeed.setHasCoral(false);
                 })

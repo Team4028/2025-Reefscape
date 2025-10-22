@@ -3,11 +3,14 @@ package frc.robot.subsystems.groundinfeed;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
@@ -17,9 +20,12 @@ public class GrondIOTalonFX implements GrondIO {
     private final TalonFX motor;
     private final StatusSignal<Voltage> motorVolts;
     private final StatusSignal<Current> motorCurrent;
+    private final StatusSignal<Angle> motorPosition;
+    private final StatusSignal<AngularVelocity> motorVelocity;
 
     private final DutyCycleOut vbusControl;
     private final VoltageOut voltageControl;
+    private final PositionVoltage positionControl;
     private final TorqueCurrentFOC currentControl;
 
     public GrondIOTalonFX(boolean isLeft) {
@@ -28,12 +34,16 @@ public class GrondIOTalonFX implements GrondIO {
         motor.getConfigurator()
                 .apply(isLeft ? GrondConstants.TalonFX.motorConfigs : GrondConstants.TalonFX.motorConfigsRight);
         motor.getConfigurator().apply(GrondConstants.TalonFX.currLimits);
+        motor.getConfigurator().apply(GrondConstants.TalonFX.pidConfigs);
 
         motorVolts = motor.getMotorVoltage();
         motorCurrent = motor.getStatorCurrent();
-        BaseStatusSignal.setUpdateFrequencyForAll(50, motorVolts, motorCurrent);
+        motorPosition = motor.getPosition();
+        motorVelocity = motor.getVelocity();
+        BaseStatusSignal.setUpdateFrequencyForAll(50, motorVolts, motorCurrent, motorPosition, motorVelocity);
         motor.optimizeBusUtilization();
         vbusControl = new DutyCycleOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
+        positionControl = new PositionVoltage(0);
         voltageControl = new VoltageOut(0).withEnableFOC(GrondConstants.TalonFX.USE_FOC);
         currentControl = new TorqueCurrentFOC(0);
     }
@@ -45,16 +55,23 @@ public class GrondIOTalonFX implements GrondIO {
 
     @Override
     public void updateInputs(GrondIOInputs inputs) {
-        BaseStatusSignal.refreshAll(motorVolts, motorCurrent);
+        BaseStatusSignal.refreshAll(motorVolts, motorCurrent, motorPosition, motorVelocity);
         inputs.appliedVoltage = motorVolts.getValueAsDouble();
         inputs.currentAmps = motorCurrent.getValueAsDouble();
         inputs.motorData = MotorData.empty();
+        inputs.positionRot = motorPosition.getValueAsDouble();
+        inputs.velocityRotPerSec = motorVelocity.getValueAsDouble();
         inputs.isConnected = motor.isConnected();
     }
 
     @Override
     public void setVbus(double vbus) {
         motor.setControl(vbusControl.withOutput(vbus));
+    }
+
+    @Override
+    public void setPosition(double posMRot) {
+        motor.setControl(positionControl.withPosition(posMRot));
     }
 
     @Override
