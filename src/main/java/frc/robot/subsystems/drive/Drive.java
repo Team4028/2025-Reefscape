@@ -179,9 +179,9 @@ public class Drive extends SubsystemBase {
         modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
 
         branchOffsetM = new LoggedTunableNumber("Branch Offset (M)", Constants.TAG_TO_BRANCH_OFFSET_M);
-        coralScoreOffsetIn = new LoggedTunableNumber("Coral Scoring Offset (In)",
+        coralScoreOffsetIn = new LoggedTunableNumber("Coral Scoring Offset Positive Left (In)",
                 Constants.CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN);
-        algaeOffsetIn = new LoggedTunableNumber("Algae ACquire Offset (In)",
+        algaeOffsetIn = new LoggedTunableNumber("Algae ACquire Offset Positive Left (In)",
                 Constants.ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN);
 
         // Usage reporting for swerve template
