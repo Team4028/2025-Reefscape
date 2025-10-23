@@ -13,7 +13,7 @@ public class InfeedPivotConstants {
 
     public enum InfeedPivotPositions {
         DOWN(0.2),
-        PID_CHECK(0.28 + Units.degreesToRadians(1)), // 3 degrees noticable Δ
+        PID_CHECK(0.28 + Units.degreesToRadians(2.5)), // 3 degrees noticable Δ
         HANDOFF(1),
         UP(1.7),
         CLIMB(2.2);

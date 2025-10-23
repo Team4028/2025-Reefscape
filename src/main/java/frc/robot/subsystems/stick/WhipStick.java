@@ -22,7 +22,6 @@ public class WhipStick extends SubsystemBase {
     private final Timer coralHoldTimer = new Timer();
     private final double coralHoldTimePreset = 10; //seconds
     private final double coralHoldCurrentAmps = 15;
-    private boolean isAcquireBad = false;
 
     public WhipStick(WhipStickIO io) {
         this.io = io;
@@ -73,7 +72,6 @@ public class WhipStick extends SubsystemBase {
     @Override
     public void periodic() {
         stateTracker.state.execute(this);
-        if (stateTracker.state != WhipStickStates.HOLD) isAcquireBad = false;
         io.updateInputs(inputs);
         Logger.processInputs("Coral Manipulator", inputs);
     }
@@ -108,7 +106,7 @@ public class WhipStick extends SubsystemBase {
                 io.setVbus(0.1);
         } else {
             if (io instanceof WhipStickIOTalonFX iofx) {
-                iofx.setCurrent((isAcquireBad || (isAcquireBad = Math.abs(iofx.getVelocity()) > 0.01)) ? 0 : 50);
+                iofx.setCurrent(60);
             } else {
                 io.setVbus(0.95);
             }

@@ -131,7 +131,7 @@ public class Armistice extends SudoSubsystem {
         BARGE_INTERMEDIATE(1.8, 44),
         BARGE_OPPOSITE(0.923 - GLOBAL_ARM_OFFSET, 48),
         BARGE_CLOSE(1.768 - GLOBAL_ARM_OFFSET, 39),
-        CLIMB(-0.8 - GLOBAL_ARM_OFFSET, 0),
+        CLIMB(2.4 - GLOBAL_ARM_OFFSET, 0),
         CLIMB_2(2 * Math.PI, 8.125);
 
         public final double armPositionRad;
