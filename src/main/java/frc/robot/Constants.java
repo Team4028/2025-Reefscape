@@ -31,7 +31,7 @@ public final class Constants {
     public static final double TAG_TO_BRANCH_OFFSET_M = 0.17;
     public static final double ARM_READY_AUTO_SCORE_RADIUS = 1.2;
     public static final double SCORING_SIDE_RADIUS_ROBOT_IN = 18.25;
-    public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = -1.5;
+    public static final double CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN = -1;
     public static final double ALGAE_SCORE_OFFSET_FROM_CENTERLINE_IN = CORAL_SCORE_OFFSET_FROM_CENTERLINE_IN;
     public static final double CORAL_STATION_LEFT_ROTATION_DEG = 36.86989764584399;
     public static final double CORAL_STATION_RIGHT_ROTATION_DEG = 146.0;

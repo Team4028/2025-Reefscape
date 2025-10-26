@@ -42,3 +42,5 @@
 ## Pathplanner
 
 - 2025.2.2
+- Highlight Color:
+<span style="background-color: #45019f;"> #45019f </span>

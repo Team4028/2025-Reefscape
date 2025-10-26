@@ -10,8 +10,10 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -74,7 +76,7 @@ public class RobotContainer {
         public static final double OUTFEED_SHOOT = -0.4;
         public static final double DEGREE_TOLERANCE = -2;
         public static final double ARM_DEG_TOLERANCE = 2;
-        public static final double OUT_ROT = -1.5;
+        public static final double OUT_ROT = -1.323;
     }
 
     private final InfeedPivot pivot = new InfeedPivot(new InfeedPivotMotorIOTalonFXCCSource(),

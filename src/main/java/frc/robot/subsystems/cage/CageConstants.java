@@ -1,6 +1,9 @@
 package frc.robot.subsystems.cage;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.signals.InvertedValue;
+
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.util.PIDStruct;
 import frc.robot.util.SysIDUtil;
@@ -34,6 +37,8 @@ public class CageConstants {
                 .withStatorCurrentLimit(75)
                 .withStatorCurrentLimitEnable(true)
                 .withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(false);
+        public static final MotorOutputConfigs motorConfigs = new MotorOutputConfigs()
+            .withInverted(InvertedValue.Clockwise_Positive);
 
     }
 

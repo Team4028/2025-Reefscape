@@ -20,6 +20,7 @@ public class CageIOTalonFX implements CageIO {
 
     public CageIOTalonFX() {
         motor.getConfigurator().apply(CageConstants.TalonFX.currentLimitConfigs, 0.25);
+        motor.getConfigurator().apply(CageConstants.TalonFX.motorConfigs, 0.25);
 
         BaseStatusSignal.setUpdateFrequencyForAll(50, motorAmps, motorVolts);
         motor.optimizeBusUtilization();
