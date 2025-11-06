@@ -725,11 +725,13 @@ public class RobotContainer {
                 // ==============================================
                 // OC -- RS UP: Run to Barge
                 // ==============================================
-                operatorController.axisLessThan(XboxController.Axis.kRightY.value, -0.5).onTrue(Commands.defer(
-                                () -> armistice
-                                                .runToPositionCommand(isAltBarge ? ArmisticePositions.BARGE_OPPOSITE
-                                                                : ArmisticePositions.BARGE),
-                                Set.of(armistice.getArm(), armistice.getElevator())));
+                operatorController.axisLessThan(XboxController.Axis.kRightY.value, -0.5).onTrue(
+                                Commands.defer(
+                                                () -> armistice
+                                                                .runToPositionCommand(isAltBarge
+                                                                                ? ArmisticePositions.BARGE_OPPOSITE
+                                                                                : ArmisticePositions.BARGE),
+                                                Set.of(armistice.getArm(), armistice.getElevator())));
 
                 // ==============================================
                 // OC -- RS DOWN: Run to Proc
