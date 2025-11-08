@@ -498,7 +498,9 @@ public class RobotContainer {
                 // ==============================================
 
                 hasGamePiece.onTrue(Commands.runOnce(() -> armistice.setSafety(false))
-                                .andThen(coral.runMotorCommand(0.6)
+                                .andThen(armistice.runToPositionNoWait(ArmisticePositions.CLEAN),
+                                                armistice.waitUntilThingsInTolerance(5, Math.PI / 6))
+                                .andThen(coral.runMotorCommand(0.8)
                                                 .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()),
                                                                 armistice.runToPositionNoWait(ArmisticePositions.STOW)
                                                                                 .alongWith(infeed.directRunMotorCommand(
@@ -506,7 +508,8 @@ public class RobotContainer {
                                                                 armistice.waitUntilThingsInTolerance(5, Math.PI / 6),
                                                                 infeed.runMotorCommand(0))
                                                 .alongWith(pivot.runUp()))
-                                .finallyDo(() -> armistice.setSafety(true)));
+                                .finallyDo(() -> armistice.setSafety(true))
+                                .onlyIfNoReqs(DriverStation::isTeleop));
 
                 // ==============================================
                 // DC -- LB: Outfeed Coral
