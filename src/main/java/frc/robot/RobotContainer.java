@@ -498,7 +498,7 @@ public class RobotContainer {
                 // ==============================================
 
                 hasGamePiece.onTrue(Commands.runOnce(() -> armistice.setSafety(false))
-                                .andThen(coral.runMotorCommand(0.3)
+                                .andThen(coral.runMotorCommand(0.6)
                                                 .andThen(Commands.waitUntil(coral.hasGamePieceSupplier()),
                                                                 armistice.runToPositionNoWait(ArmisticePositions.STOW)
                                                                                 .alongWith(infeed.directRunMotorCommand(
