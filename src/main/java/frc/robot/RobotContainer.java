@@ -10,7 +10,6 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -509,6 +508,8 @@ public class RobotContainer {
                                                                 infeed.runMotorCommand(0))
                                                 .alongWith(pivot.runUp()))
                                 .finallyDo(() -> armistice.setSafety(true))
+                                .andThen(Commands.runOnce(() -> setRumble(driverController, 0.25,
+                                                RumbleType.kBothRumble, 0.2)))
                                 .onlyIfNoReqs(DriverStation::isTeleop));
 
                 // ==============================================
